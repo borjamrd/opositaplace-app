@@ -57,14 +57,9 @@ export function Navbar() {
   if (loading) {
     return (
       <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-16 max-w-screen-2xl items-center justify-between">
+        <div className="container px-4 md:px-10 flex h-16 max-w-screen-2xl items-center justify-between">
           <Link href="/" className="flex items-center space-x-2">
-             <Image
-                  src="/opositaplace_logo_v1.png"
-                  width={500}
-                  height={500}
-                  alt="Picture of the author"
-                />
+            <Logo />
           </Link>
           <div className="h-8 w-20 animate-pulse rounded-md bg-muted"></div>
         </div>
@@ -74,7 +69,7 @@ export function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 max-w-screen-2xl items-center justify-between">
+      <div className="container px-4 md:px-10 flex h-16 max-w-screen-2xl items-center justify-between">
         <Link href="/" className="flex items-center space-x-2">
           <Logo />
         </Link>
@@ -127,7 +122,7 @@ export function Navbar() {
               <Button variant="ghost" asChild>
                 <Link href="/login">Inicia sesión</Link>
               </Button>
-              <Button  asChild>
+              <Button asChild>
                 <Link href="/register">Regístrate</Link>
               </Button>
             </div>
