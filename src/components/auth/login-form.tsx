@@ -18,6 +18,7 @@ export function LoginForm() {
   const { toast } = useToast();
 
   useEffect(() => {
+    console.log(state);
     if (state?.message && !state.errors) { // General message (success or non-field error)
        if (state.message === "Credenciales inválidas.") {
          toast({

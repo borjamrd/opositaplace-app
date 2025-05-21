@@ -111,17 +111,7 @@ export function Navbar() {
               </DropdownMenu>
             </>
           ) : (
-            <>
-              <Button variant="ghost" asChild>
-                <Link href="/#features">Funcionalidades</Link>
-              </Button>
-              <Button variant="outline" asChild>
-                <Link href="/login">Iniciar Sesión</Link>
-              </Button>
-              <Button asChild>
-                <Link href="/register">Registrarse</Link>
-              </Button>
-            </>
+            null 
           )}
         </nav>
       </div>
