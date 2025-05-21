@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useFormState, useFormStatus } from "react-dom";
+import { useActionState } from "react"; // Changed from "react-dom"
+import { useFormStatus } from "react-dom";
 import { signIn } from "@/actions/auth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,7 +14,7 @@ import { AlertCircle, LogIn } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export function LoginForm() {
-  const [state, formAction] = useFormState(signIn, null);
+  const [state, formAction] = useActionState(signIn, null);
   const { toast } = useToast();
 
   useEffect(() => {

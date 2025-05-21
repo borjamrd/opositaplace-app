@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useFormState, useFormStatus } from "react-dom";
+import { useActionState } from "react"; // Changed from "react-dom"
+import { useFormStatus } from "react-dom";
 import { signUp } from "@/actions/auth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,7 +14,7 @@ import { AlertCircle, UserPlus } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export function RegisterForm() {
-  const [state, formAction] = useFormState(signUp, null);
+  const [state, formAction] = useActionState(signUp, null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -117,4 +118,3 @@ function SubmitButton() {
     </Button>
   );
 }
-
