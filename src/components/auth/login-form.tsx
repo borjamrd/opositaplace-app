@@ -19,16 +19,15 @@ export function LoginForm() {
 
   useEffect(() => {
     console.log(state);
-    if (state?.message && !state.errors) { // General message (success or non-field error)
+    if (state?.message && !state.errors) { 
        if (state.message === "Credenciales inválidas.") {
          toast({
            title: "Error de inicio de sesión",
            description: state.message,
            variant: "destructive",
          });
-       } else if (state.message !== "Por favor, corrige los errores.") { // Avoid showing this generic one
-         // This path typically won't be hit for successful login due to redirect
-         // but can be used for other general messages from the action
+       } else if (state.message !== "Por favor, corrige los errores.") {
+       
           toast({
             title: "Notificación",
             description: state.message,
@@ -40,7 +39,7 @@ export function LoginForm() {
   return (
     <Card className="w-full max-w-md shadow-xl">
       <CardHeader className="text-center">
-        <CardTitle className="text-3xl font-bold text-primary">Iniciar Sesión</CardTitle>
+        <CardTitle className="text-3xl font-bold text-primary">Iniciar sesión</CardTitle>
         <CardDescription>Accede a tu cuenta para continuar tu preparación.</CardDescription>
       </CardHeader>
       <form action={formAction}>

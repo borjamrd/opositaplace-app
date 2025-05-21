@@ -5,17 +5,6 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { Navbar } from "@/components/layout/navbar";
 
-// Removed incorrect function calls for GeistSans and GeistMono
-// const geistSans = GeistSans({
-//   variable: "--font-geist-sans",
-//   subsets: ["latin"],
-// });
-//
-// const geistMono = GeistMono({
-//   variable: "--font-geist-mono",
-//   subsets: ["latin"],
-// });
-
 export const metadata: Metadata = {
   title: "OpositaPlace - Tu preparación para oposiciones",
   description: "Organiza tu estudio, sigue tu progreso y alcanza tus metas en las oposiciones con OpositaPlace.",

@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import React from "react";
+import Logo from "../logo";
 // import { NavMain } from "@components/layout/nav-main"
 
 export const sidebarData = {
@@ -76,7 +77,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               className="data-[slot=sidebar-menu-button]:!p-1.5"
             >
               <Link className="flex items-center gap-2 font-lora" href={"/"}>
-                {/* <Logo className="h-8 w-8 flex" /> */}
+                <Logo className="h-8 w-8 flex" />
                 <span className="text-base font-semibold">opositaplace</span>
               </Link>
             </SidebarMenuButton>

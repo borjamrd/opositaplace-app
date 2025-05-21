@@ -1,10 +1,8 @@
 "use client";
 
-import Link from "next/link";
-import { useEffect, useState } from "react";
-import type { User } from "@supabase/supabase-js";
-import { Button } from "@/components/ui/button";
+import { SignOutButton } from "@/components/auth/signout-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,9 +12,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { createClient } from "@/lib/supabase/client";
-import { OpositaPlaceLogo } from "@/components/icons/logo";
-import { SignOutButton } from "@/components/auth/signout-button";
-import { LayoutDashboard, UserCircle } from "lucide-react";
+import type { User } from "@supabase/supabase-js";
+import { LayoutDashboard } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import Logo from "../logo";
 
 export function Navbar() {
   const [user, setUser] = useState<User | null>(null);
@@ -25,7 +26,9 @@ export function Navbar() {
 
   useEffect(() => {
     async function getUser() {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       setUser(user);
       setLoading(false);
     }
@@ -50,13 +53,18 @@ export function Navbar() {
     if (!email) return "OP";
     return email.substring(0, 2).toUpperCase();
   };
-  
+
   if (loading) {
     return (
       <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-16 max-w-screen-2xl items-center justify-between">
           <Link href="/" className="flex items-center space-x-2">
-            <OpositaPlaceLogo />
+             <Image
+                  src="/opositaplace_logo_v1.png"
+                  width={500}
+                  height={500}
+                  alt="Picture of the author"
+                />
           </Link>
           <div className="h-8 w-20 animate-pulse rounded-md bg-muted"></div>
         </div>
@@ -64,12 +72,11 @@ export function Navbar() {
     );
   }
 
-
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 max-w-screen-2xl items-center justify-between">
         <Link href="/" className="flex items-center space-x-2">
-          <OpositaPlaceLogo />
+          <Logo />
         </Link>
         <nav className="flex items-center gap-4">
           {user ? (
@@ -79,9 +86,15 @@ export function Navbar() {
               </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                  <Button
+                    variant="ghost"
+                    className="relative h-8 w-8 rounded-full"
+                  >
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src={user.user_metadata?.avatar_url} alt={user.email || "User"} />
+                      <AvatarImage
+                        src={user.user_metadata?.avatar_url}
+                        alt={user.email || "User"}
+                      />
                       <AvatarFallback>{getInitials(user.email)}</AvatarFallback>
                     </Avatar>
                   </Button>
@@ -104,14 +117,20 @@ export function Navbar() {
                       Dashboard
                     </Link>
                   </DropdownMenuItem>
-                  {/* Add more items like Profile, Settings here */}
                   <DropdownMenuSeparator />
                   <SignOutButton />
                 </DropdownMenuContent>
               </DropdownMenu>
             </>
           ) : (
-            null 
+            <div className="flex items-center space-x-2">
+              <Button variant="ghost" asChild>
+                <Link href="/login">Inicia sesión</Link>
+              </Button>
+              <Button  asChild>
+                <Link href="/register">Regístrate</Link>
+              </Button>
+            </div>
           )}
         </nav>
       </div>
