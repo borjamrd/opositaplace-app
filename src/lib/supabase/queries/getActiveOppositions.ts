@@ -16,3 +16,5 @@ export async function getActiveOppositions(): Promise<Opposition[]> {
   }
   return data || [];
 }
+
+

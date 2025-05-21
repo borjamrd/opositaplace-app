@@ -22,6 +22,7 @@ import {
 import Link from "next/link";
 import React from "react";
 import Logo from "../logo";
+import OpositionSelector from "../oposition-selector";
 // import { NavMain } from "@components/layout/nav-main"
 
 export const sidebarData = {
@@ -86,7 +87,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
 
       <SidebarContent>
-        {/* <OpositionSelector /> */}
+        <OpositionSelector />
         {/* <NavMain items={sidebarData.navMain} /> */}
         {/* <NavGeneral items={sidebarData.general} /> */}
       </SidebarContent>

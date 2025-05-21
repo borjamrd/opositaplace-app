@@ -1,14 +1,14 @@
 "use client";
 
 import { useParams } from "next/navigation";
-// Importa useTransition de React
 import { useActionState, useEffect, useState, useTransition } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { createClient } from "@/lib/supabase/client"; //
+import type { User } from "@supabase/supabase-js";
 
-// ... (resto de tus imports sin cambios)
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/button"; //
 import {
   Card,
   CardContent,
@@ -16,9 +16,10 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+} from "@/components/ui/card"; //
+import { Input } from "@/components/ui/input"; //
+// Label no se usa directamente si todos los labels son FormLabel
+// import { Label } from '@/components/ui/label';
 import {
   Form,
   FormControl,
@@ -27,24 +28,24 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Badge } from "@/components/ui/badge";
+} from "@/components/ui/form"; //
+import { Textarea } from "@/components/ui/textarea"; //
+import { Checkbox } from "@/components/ui/checkbox"; //
+import { Badge } from "@/components/ui/badge"; //
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/components/ui/accordion";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { useToast } from "@/hooks/use-toast";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertCircle, ChevronRight, Loader2, Save } from "lucide-react"; // Asegúrate que Loader2 esté importado
-import { submitOnboarding } from "@/actions/onboarding";
-import { getActiveOppositions, type Opposition } from "@/lib/supabase/queries";
+} from "@/components/ui/accordion"; //
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"; //
+import { useToast } from "@/hooks/use-toast"; //
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"; //
+import { AlertCircle, ChevronRight, Loader2, Save } from "lucide-react";
+import { submitOnboarding } from "@/actions/onboarding"; // Tu Server Action
+import { getActiveOppositions, type Opposition } from "@/lib/supabase/queries/getActiveOppositions"; // Tu función para obtener oposiciones
+import { useOppositionStore } from "@/store/opposition-store";
 
-// ... (onboardingFormSchema y helpOptions sin cambios)
 const helpOptions = [
   "Organización del estudio",
   "Técnicas de memorización",
@@ -90,7 +91,7 @@ const onboardingFormSchema = z.object({
 
 type OnboardingFormValues = z.infer<typeof onboardingFormSchema>;
 
-const initialState: { message: string; errors: any; success: boolean } = {
+const initialActionState: { message: string; errors: any; success: boolean } = {
   message: "",
   errors: null,
   success: false,
@@ -99,19 +100,25 @@ const initialState: { message: string; errors: any; success: boolean } = {
 export default function OnboardingPage() {
   const params = useParams();
   const { toast } = useToast();
-  const userId = params.userId as string;
+  const pageUserId = params.userId as string;
 
-  const [state, formAction] = useActionState(submitOnboarding, initialState);
+  const [actionState, formAction] = useActionState(
+    submitOnboarding,
+    initialActionState
+  );
   const [activeAccordionItem, setActiveAccordionItem] =
     useState<string>("step-1-opposition");
   const [oppositions, setOppositions] = useState<Opposition[]>([]);
   const [isLoadingOppositions, setIsLoadingOppositions] = useState(true);
+  const [isSubmittingStep1, setIsSubmittingStep1] = useState(false); // Para el botón "Siguiente"
 
-  // Hook useTransition para la acción del servidor
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const supabase = createClient(); //
+
+  const { setActiveOpposition } = useOppositionStore();
   const [isServerActionPending, startTransition] = useTransition();
 
   const form = useForm<OnboardingFormValues>({
-    // ... (resto de la configuración de useForm sin cambios)
     resolver: zodResolver(onboardingFormSchema),
     defaultValues: {
       opposition_id: undefined,
@@ -130,7 +137,22 @@ export default function OnboardingPage() {
     },
   });
 
-  // ... (useEffect para cargar oposiciones y para el toast sin cambios)
+  useEffect(() => {
+    const getUser = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      setCurrentUser(user);
+      if (user && user.id !== pageUserId) {
+        console.warn(
+          "User ID mismatch. Esto debería ser manejado por el middleware."
+        );
+        // Considera una redirección o mensaje si esto ocurre, aunque el middleware debería prevenirlo.
+      }
+    };
+    getUser();
+  }, [supabase, pageUserId]);
+
   useEffect(() => {
     async function loadOppositions() {
       setIsLoadingOppositions(true);
@@ -142,20 +164,42 @@ export default function OnboardingPage() {
   }, []);
 
   useEffect(() => {
-    if (state.message) {
+    if (actionState.message) {
       toast({
-        title: state.success ? "Onboarding Guardado" : "Error en Onboarding",
-        description: state.message,
-        variant: state.success ? "default" : "destructive",
+        title: actionState.success
+          ? "Onboarding Completado"
+          : "Error en Onboarding",
+        description: actionState.message,
+        variant: actionState.success ? "default" : "destructive",
       });
     }
-  }, [state, toast]);
+    // La redirección la maneja la Server Action (submitOnboarding)
+    // Si la acción es exitosa, también actualizamos el store de Zustand.
+    // Esto ocurrirá ANTES de que la redirección en la Server Action tenga efecto si la acción devuelve el estado.
+    // Pero como la acción redirige, el componente se desmontará. Es mejor que el dashboard
+    // se encargue de cargar la oposición activa del usuario al montarse, o que el middleware
+    // asegure que `activeOpposition` en Zustand se setee post-login/onboarding.
+    // Por ahora, podemos intentar setearlo aquí si la acción fue exitosa y tenemos los datos.
+    if (actionState.success) {
+      const finalOppositionId = form.getValues("opposition_id");
+      if (finalOppositionId) {
+        const finalSelectedOp = oppositions.find(
+          (op) => op.id === finalOppositionId
+        );
+        if (finalSelectedOp) {
+          setActiveOpposition(finalSelectedOp);
+        }
+      }
+    }
+  }, [actionState, toast, setActiveOpposition, form, oppositions]);
 
-  const handleNextStep = async () => {
-    const result = await form.trigger("opposition_id"); // Validar solo opposition_id
+  const handleProceedToStep2 = async () => {
+    setIsSubmittingStep1(true);
+    const result = await form.trigger("opposition_id"); // Validar solo el campo opposition_id
     if (result) {
       setActiveAccordionItem("step-2-details");
     }
+    setIsSubmittingStep1(false);
   };
 
   const studyDayOptions = [
@@ -168,17 +212,47 @@ export default function OnboardingPage() {
     { id: "sunday", label: "Domingo" },
   ] as const;
 
-  if (!userId) {
-    /* ... */
+  // Muestra un loader mientras se obtiene el usuario actual o las oposiciones
+  if (!currentUser || isLoadingOppositions) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin" />
+        <span className="ml-2">Cargando datos...</span>
+      </div>
+    );
   }
+  // Si pageUserId no está disponible (nunca debería pasar si la ruta está bien formada)
+  if (!pageUserId)
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        Error: No se pudo identificar al usuario.
+      </div>
+    );
 
-  // Modificar onSubmit para usar startTransition
-  const onSubmit = (data: OnboardingFormValues) => {
+  const handleFinalSubmit = (data: OnboardingFormValues) => {
+    if (!currentUser) {
+      toast({
+        title: "Error",
+        description: "Usuario no autenticado.",
+        variant: "destructive",
+      });
+      return;
+    }
+    // El pageUserId es el que viene de la URL, que debe coincidir con el currentUser.id
+    // El middleware debería garantizar esto.
+    if (currentUser.id !== pageUserId) {
+      toast({
+        title: "Error de Seguridad",
+        description: "Discrepancia de ID de usuario.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     startTransition(() => {
-      // Envolver la lógica de la acción en startTransition
       const formData = new FormData();
-      formData.append("user_id", userId);
-      formData.append("opposition_id", data.opposition_id!);
+      formData.append("user_id", currentUser.id); // Usar el ID del usuario autenticado
+      formData.append("opposition_id", data.opposition_id);
       formData.append("available_hours", data.available_hours.toString());
       formData.append(
         "objectives",
@@ -199,7 +273,6 @@ export default function OnboardingPage() {
   return (
     <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center p-4 bg-gradient-to-br from-background to-secondary/30">
       <Card className="w-full max-w-2xl shadow-xl">
-        {/* ... (CardHeader sin cambios) ... */}
         <CardHeader className="text-center">
           <CardTitle className="text-3xl font-bold text-primary">
             Configura tu Preparación
@@ -210,33 +283,34 @@ export default function OnboardingPage() {
         </CardHeader>
 
         <Form {...form}>
-          {/* La prop `action` no es necesaria aquí si usamos handleSubmit y llamamos a formAction manualmente */}
-          <form onSubmit={form.handleSubmit(onSubmit)}>
+          <form onSubmit={form.handleSubmit(handleFinalSubmit)}>
             <CardContent className="space-y-6">
-              {/* ... (Alerts de error sin cambios) ... */}
-              {state?.message && !state.success && !state.errors && (
-                <Alert variant="destructive">
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertTitle>Error</AlertTitle>
-                  <AlertDescription>{state.message}</AlertDescription>
-                </Alert>
-              )}
-              {state?.errors &&
-                typeof state.errors === "object" &&
-                !Array.isArray(state.errors) &&
-                state.errors !== null && (
+              {actionState?.message &&
+                !actionState.success &&
+                !actionState.errors && (
+                  <Alert variant="destructive">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>Error</AlertTitle>
+                    <AlertDescription>{actionState.message}</AlertDescription>
+                  </Alert>
+                )}
+              {actionState?.errors &&
+                typeof actionState.errors === "object" &&
+                !Array.isArray(actionState.errors) &&
+                actionState.errors !== null && (
                   <Alert variant="destructive">
                     <AlertCircle className="h-4 w-4" />
                     <AlertTitle>Error de validación</AlertTitle>
                     <AlertDescription>
                       Por favor, corrige los siguientes errores:
-                      <ul>
-                        {Object.entries(state.errors).map(
+                      <ul className="list-disc pl-5 mt-2">
+                        {Object.entries(actionState.errors).map(
                           ([field, fieldErrors]: [string, any]) =>
                             Array.isArray(fieldErrors) &&
                             fieldErrors.map((error: string, index: number) => (
                               <li key={`${field}-${index}`}>
-                                <strong>{field}:</strong> {error}
+                                <strong>{field.replace("_", " ")}:</strong>{" "}
+                                {error}
                               </li>
                             ))
                         )}
@@ -249,7 +323,23 @@ export default function OnboardingPage() {
                 type="single"
                 collapsible
                 value={activeAccordionItem}
-                onValueChange={setActiveAccordionItem}
+                onValueChange={
+                  // No permitir cambiar de acordeón manualmente si el primero no está completo
+                  (value) => {
+                    if (
+                      value === "step-2-details" &&
+                      !form.getValues("opposition_id")
+                    ) {
+                      form.setError("opposition_id", {
+                        type: "manual",
+                        message: "Primero debes seleccionar una oposición.",
+                      });
+                      setActiveAccordionItem("step-1-opposition");
+                    } else {
+                      setActiveAccordionItem(value);
+                    }
+                  }
+                }
                 className="w-full"
               >
                 <AccordionItem value="step-1-opposition">
@@ -257,37 +347,44 @@ export default function OnboardingPage() {
                     Paso 1: Selecciona tu Oposición Principal
                   </AccordionTrigger>
                   <AccordionContent className="pt-4 space-y-4">
-                    {/* ... (contenido del primer acordeón sin cambios) ... */}
                     {isLoadingOppositions ? (
-                      <div className="flex items-center justify-center">
+                      <div className="flex items-center justify-center py-4">
                         <Loader2 className="h-6 w-6 animate-spin" />
                         <p className="ml-2">Cargando oposiciones...</p>
                       </div>
                     ) : oppositions.length > 0 ? (
-                      <Controller
+                      <FormField
                         control={form.control}
                         name="opposition_id"
                         render={({ field }) => (
                           <FormItem className="space-y-3">
-                            <FormLabel>Oposiciones disponibles:</FormLabel>
+                            <FormLabel className="text-base font-semibold">
+                              Oposiciones disponibles:
+                            </FormLabel>
                             <FormControl>
                               <RadioGroup
                                 onValueChange={field.onChange}
                                 value={field.value}
-                                className="flex flex-col space-y-1"
+                                className="flex flex-col space-y-2"
                               >
                                 {oppositions.map((op) => (
                                   <FormItem
                                     key={op.id}
-                                    className="flex items-center space-x-3 space-y-0"
+                                    className="flex items-center space-x-3 p-2 border rounded-md hover:bg-accent/50 transition-colors"
                                   >
                                     <FormControl>
-                                      <RadioGroupItem value={op.id} />
+                                      <RadioGroupItem
+                                        value={op.id}
+                                        id={`op-${op.id}`}
+                                      />
                                     </FormControl>
-                                    <FormLabel className="font-normal">
+                                    <FormLabel
+                                      htmlFor={`op-${op.id}`}
+                                      className="font-normal cursor-pointer flex-1"
+                                    >
                                       {op.name}
                                       {op.description && (
-                                        <p className="text-xs text-muted-foreground">
+                                        <p className="text-xs text-muted-foreground mt-1">
                                           {op.description}
                                         </p>
                                       )}
@@ -301,19 +398,25 @@ export default function OnboardingPage() {
                         )}
                       />
                     ) : (
-                      <p>
+                      <p className="text-muted-foreground">
                         No hay oposiciones disponibles en este momento. Contacta
                         con el administrador.
                       </p>
                     )}
                     <Button
                       type="button"
-                      onClick={handleNextStep}
+                      onClick={handleProceedToStep2}
                       disabled={
-                        !form.watch("opposition_id") || isLoadingOppositions
+                        !form.watch("opposition_id") ||
+                        isLoadingOppositions ||
+                        isSubmittingStep1
                       }
+                      className="w-full sm:w-auto"
                     >
-                      Siguiente <ChevronRight className="ml-2 h-4 w-4" />
+                      {isSubmittingStep1 ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      ) : null}
+                      Siguiente Paso <ChevronRight className="ml-2 h-4 w-4" />
                     </Button>
                   </AccordionContent>
                 </AccordionItem>
@@ -323,7 +426,6 @@ export default function OnboardingPage() {
                     Paso 2: Tus Preferencias de Estudio
                   </AccordionTrigger>
                   <AccordionContent className="pt-4 space-y-6">
-                    {/* ... (contenido del segundo acordeón sin cambios, FormFields para available_hours, objectives, etc.) ... */}
                     <FormField
                       control={form.control}
                       name="available_hours"
@@ -433,9 +535,13 @@ export default function OnboardingPage() {
                                       <Checkbox
                                         checked={field.value}
                                         onCheckedChange={field.onChange}
+                                        id={`day-${dayOption.id}`}
                                       />
                                     </FormControl>
-                                    <FormLabel className="font-normal whitespace-nowrap">
+                                    <FormLabel
+                                      htmlFor={`day-${dayOption.id}`}
+                                      className="font-normal whitespace-nowrap cursor-pointer"
+                                    >
                                       {dayOption.label}
                                     </FormLabel>
                                   </FormItem>
@@ -443,15 +549,14 @@ export default function OnboardingPage() {
                               />
                             ))}
                           </div>
-                          {form.formState.errors.study_days_options &&
-                            form.formState.errors.study_days_options.root && (
-                              <p className="text-sm font-medium text-destructive pt-2">
-                                {
-                                  form.formState.errors.study_days_options.root
-                                    .message
-                                }
-                              </p>
-                            )}
+                          {form.formState.errors.study_days_options?.root && (
+                            <p className="text-sm font-medium text-destructive pt-2">
+                              {
+                                form.formState.errors.study_days_options.root
+                                  .message
+                              }
+                            </p>
+                          )}
                           <FormMessage />
                         </FormItem>
                       )}
@@ -464,22 +569,21 @@ export default function OnboardingPage() {
               <Button
                 type="submit"
                 className="w-full"
-                // Actualizar estado disabled para incluir isServerActionPending
                 disabled={
-                  form.formState.isSubmitting ||
                   isServerActionPending ||
                   activeAccordionItem !== "step-2-details" ||
                   !form.getValues("opposition_id")
                 }
               >
-                {form.formState.isSubmitting || isServerActionPending ? (
+                {isServerActionPending ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />{" "}
-                    Guardando...
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Guardando
+                    Onboarding...
                   </>
                 ) : (
                   <>
-                    <Save className="mr-2 h-5 w-5" /> Guardar Onboarding
+                    <Save className="mr-2 h-5 w-5" /> Guardar Onboarding y
+                    Finalizar
                   </>
                 )}
               </Button>
