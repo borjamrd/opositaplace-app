@@ -41,6 +41,23 @@ export async function middleware(request: NextRequest) {
 
   await supabase.auth.getUser();
 
+    const { data: { user }, error } = await supabase.auth.getUser();
+
+  // Protect dashboard routes
+  if (request.nextUrl.pathname.startsWith('/dashboard')) {
+    if (!user) {
+      const redirectUrl = new URL('/login', request.url);
+      redirectUrl.searchParams.set('redirect', request.nextUrl.pathname);
+      return NextResponse.redirect(redirectUrl);
+    }
+  }
+
+  // Redirect logged in users away from auth pages
+  if (user && (request.nextUrl.pathname === '/login' || request.nextUrl.pathname === '/register')) {
+    return NextResponse.redirect(new URL('/dashboard', request.url));
+  }
+
+
   return response;
 }
 
@@ -54,9 +71,9 @@ export const config = {
      * Y también excluimos rutas API y otras que no necesiten esta lógica,
      * excepto las que explícitamente queremos proteger o gestionar.
      */
-    "/((?!_next/static|_next/image|favicon.ico|api/|auth/|public/).*)", // Excluye rutas comunes y específicas
+    "/((?!_next/static|_next/image|favicon.ico|api/|auth/|public/).*)",
     "/dashboard/:path*",
-    "/onboarding/:path*", // Asegúrate de que esta ruta esté cubierta
+    "/onboarding/:path*",
     "/login",
     "/register",
   ],
