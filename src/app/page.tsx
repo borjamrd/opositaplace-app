@@ -32,7 +32,7 @@ export default function LandingPage() {
       <section className="py-20 md:py-32 bg-gradient-to-br from-primary/10 via-background to-secondary/20">
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight mb-6">
-            <span className="text-primary">OpositaPlace:</span> Por opositores. Para opositores.
+            <span className="text-primary">Opositaplace.</span> Por opositores. Para opositores.
           </h1>
           <p className="text-lg md:text-xl text-foreground/80 max-w-3xl mx-auto mb-10">
             Organiza tu estudio, sigue tu progreso y alcanza tus metas con nuestra plataforma integral diseñada para opositores como tú.
@@ -103,7 +103,7 @@ export default function LandingPage() {
           </p>
           <Button size="lg" asChild className="shadow-lg hover:shadow-primary/30 transition-shadow">
             <Link href="/register">
-              Crear Cuenta Gratis <ArrowRight className="ml-2 h-5 w-5" />
+              Crear tu cuenta gratis <ArrowRight className="ml-2 h-5 w-5" />
             </Link>
           </Button>
         </div>

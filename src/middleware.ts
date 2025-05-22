@@ -39,24 +39,63 @@ export async function middleware(request: NextRequest) {
     }
   );
 
-  await supabase.auth.getUser();
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
+  const { pathname } = request.nextUrl;
 
-    const { data: { user }, error } = await supabase.auth.getUser();
+  if (user) {
+    // Check onboarding status for authenticated users
+    const { data: onboardingInfo, error: onboardingError } = await supabase
+      .from("onboarding_info")
+      .select("user_id")
+      .eq("user_id", user.id)
+      .maybeSingle();
 
-  // Protect dashboard routes
-  if (request.nextUrl.pathname.startsWith('/dashboard')) {
-    if (!user) {
-      const redirectUrl = new URL('/login', request.url);
-      redirectUrl.searchParams.set('redirect', request.nextUrl.pathname);
+    const onboardingPath = `/onboarding/${user.id}`;
+
+    // Handle dashboard routes
+    if (pathname.startsWith("/dashboard")) {
+      if (!onboardingInfo) {
+        // Redirect to onboarding if not completed
+        return NextResponse.redirect(new URL(onboardingPath, request.url));
+      }
+    }
+
+    // Handle onboarding routes
+    if (pathname.startsWith("/onboarding")) {
+      if (pathname === onboardingPath) {
+        if (onboardingInfo) {
+          // If onboarding is complete, redirect to dashboard
+          return NextResponse.redirect(new URL("/dashboard", request.url));
+        }
+        // Allow access to their own onboarding page if not completed
+      } else {
+        // Redirect to appropriate path if trying to access another user's onboarding
+        return NextResponse.redirect(
+          new URL(onboardingInfo ? "/dashboard" : onboardingPath, request.url)
+        );
+      }
+    }
+
+    // Redirect logged in users away from auth pages
+    if (pathname === "/login" || pathname === "/register") {
+      return NextResponse.redirect(new URL("/dashboard", request.url));
+    }
+  } else {
+    // Handle non-authenticated users
+    const protectedPaths = ["/dashboard", "/onboarding"];
+    if (protectedPaths.some((path) => pathname.startsWith(path))) {
+      const redirectUrl = new URL("/login", request.url);
+      redirectUrl.searchParams.set(
+        "message",
+        "Debes iniciar sesión para acceder."
+      );
+      redirectUrl.searchParams.set("redirect", pathname);
       return NextResponse.redirect(redirectUrl);
     }
   }
-
-  // Redirect logged in users away from auth pages
-  if (user && (request.nextUrl.pathname === '/login' || request.nextUrl.pathname === '/register')) {
-    return NextResponse.redirect(new URL('/dashboard', request.url));
-  }
-
 
   return response;
 }

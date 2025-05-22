@@ -1,47 +1,96 @@
 "use client";
 
-import Link from "next/link";
-import { useActionState } from "react"; // Changed from "react-dom"
-import { useFormStatus } from "react-dom";
 import { signUp } from "@/actions/auth";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { AlertCircle, UserPlus } from "lucide-react";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import Link from "next/link";
+import { useActionState, useEffect } from "react";
+import { useFormStatus } from "react-dom";
 
 export function RegisterForm() {
   const [state, formAction] = useActionState(signUp, null);
   const { toast } = useToast();
 
   useEffect(() => {
-     if (state?.message && !state.errors) { // General message (success or non-field error)
+    if (state?.message) {
+      // Verifica si no hay errores de campo específicos de Zod o si errors es un objeto vacío
+      const hasNoFieldSpecificErrors =
+        !state.errors ||
+        (typeof state.errors === "object" &&
+          Object.keys(state.errors).length === 0);
+
+      // No mostrar toast para el mensaje genérico de "corrige los errores" si hay errores de campo
+      const isGenericValidationErrorSummary =
+        state.message === "Por favor, corrige los errores." &&
+        !hasNoFieldSpecificErrors;
+
+      if (hasNoFieldSpecificErrors && !isGenericValidationErrorSummary) {
+        const isError =
+          state.message.toLowerCase().includes("error") ||
+          state.message.toLowerCase().includes("failure") ||
+          state.message.toLowerCase().includes("inválid") ||
+          state.message.toLowerCase().includes("unexpected");
         toast({
-          title: state.message.toLowerCase().includes("error") ? "Error de registro" : "Registro",
-          description: state.message,
-          variant: state.message.toLowerCase().includes("error") ? "destructive": "default",
+          title: isError ? "Error de Registro" : "Registro",
+          description: isError ? 'Hay un problema con tu registro.': 'Registro exitoso.',
+          variant: isError ? "destructive" : "default",
         });
+      }
     }
   }, [state, toast]);
 
   return (
     <Card className="w-full max-w-md shadow-xl">
       <CardHeader className="text-center">
-        <CardTitle className="text-3xl font-bold text-primary">Crear Cuenta</CardTitle>
-        <CardDescription>Únete a OpositaPlace y empieza a prepararte.</CardDescription>
+        <CardTitle className="text-3xl font-bold text-primary">
+          Crear cuenta
+        </CardTitle>
+        <CardDescription>
+          Únete a Opositaplace y empieza a prepararte.
+        </CardDescription>
       </CardHeader>
       <form action={formAction}>
         <CardContent className="space-y-6">
-           {state?.message && !state.errors && state.message !== "Por favor, corrige los errores." && (
-             <Alert variant={state.message.toLowerCase().includes("error") ? "destructive": "default"}>
-              <AlertCircle className="h-4 w-4" />
-              <AlertTitle>{state.message.toLowerCase().includes("error") ? "Error" : "Notificación"}</AlertTitle>
-              <AlertDescription>{state.message}</AlertDescription>
-            </Alert>
-          )}
+          {/* Mostrar Alert para mensajes generales que no sean errores de campo de Zod */}
+          {state?.message &&
+            state.message !== "Por favor, corrige los errores." &&
+            (!state.errors ||
+              (typeof state.errors === "object" &&
+                Object.keys(state.errors).length === 0)) && (
+              <Alert
+                variant={
+                  state.message.toLowerCase().includes("error") ||
+                  state.message.toLowerCase().includes("failure") ||
+                  state.message.toLowerCase().includes("inválid") ||
+                  state.message.toLowerCase().includes("unexpected")
+                    ? "destructive"
+                    : "default"
+                }
+              >
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>
+                  {state.message.toLowerCase().includes("error") ||
+                  state.message.toLowerCase().includes("failure") ||
+                  state.message.toLowerCase().includes("inválid") ||
+                  state.message.toLowerCase().includes("unexpected")
+                    ? "Error"
+                    : "Notificación"}
+                </AlertTitle>
+                <AlertDescription>{state.message}</AlertDescription>
+              </Alert>
+            )}
           <div className="space-y-2">
             <Label htmlFor="email">Correo Electrónico</Label>
             <Input
@@ -53,7 +102,9 @@ export function RegisterForm() {
               className="bg-background/80"
             />
             {state?.errors?.email && (
-              <p className="text-sm text-destructive">{state.errors.email[0]}</p>
+              <p className="text-sm text-destructive">
+                {state.errors.email[0]}
+              </p>
             )}
           </div>
           <div className="space-y-2">
@@ -66,7 +117,9 @@ export function RegisterForm() {
               className="bg-background/80"
             />
             {state?.errors?.password && (
-              <p className="text-sm text-destructive">{state.errors.password[0]}</p>
+              <p className="text-sm text-destructive">
+                {state.errors.password[0]}
+              </p>
             )}
           </div>
           <div className="space-y-2">
@@ -79,7 +132,9 @@ export function RegisterForm() {
               className="bg-background/80"
             />
             {state?.errors?.confirmPassword && (
-              <p className="text-sm text-destructive">{state.errors.confirmPassword[0]}</p>
+              <p className="text-sm text-destructive">
+                {state.errors.confirmPassword[0]}
+              </p>
             )}
           </div>
         </CardContent>
@@ -102,10 +157,26 @@ function SubmitButton() {
   return (
     <Button type="submit" className="w-full" disabled={pending}>
       {pending ? (
-         <div className="flex items-center">
-          <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        <div className="flex items-center">
+          <svg
+            className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <circle
+              className="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth="4"
+            ></circle>
+            <path
+              className="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+            ></path>
           </svg>
           Registrando...
         </div>
