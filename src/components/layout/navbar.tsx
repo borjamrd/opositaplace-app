@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { createClient } from "@/lib/supabase/client";
 import type { User } from "@supabase/supabase-js";
-import { LayoutDashboard } from "lucide-react";
+import { LayoutDashboard, User as UserIcon } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import Logo from "../logo";
@@ -77,9 +77,9 @@ export function Navbar() {
         <nav className="flex items-center gap-4">
           {user ? (
             <>
-              {/* <Button variant="ghost" asChild>
+              <Button variant="ghost" asChild>
                 <Link href="/dashboard">Dashboard</Link>
-              </Button> */}
+              </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
@@ -111,6 +111,12 @@ export function Navbar() {
                     <Link href="/dashboard">
                       <LayoutDashboard className="mr-2 h-4 w-4" />
                       Dashboard
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/dashboard/profile">
+                      <UserIcon className="mr-2 h-4 w-4" />
+                      Perfil
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
