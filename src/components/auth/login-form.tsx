@@ -12,27 +12,28 @@ import { useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { AlertCircle, LogIn } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-
 export function LoginForm() {
   const [state, formAction] = useActionState(signIn, null);
   const { toast } = useToast();
 
   useEffect(() => {
-    console.log(state);
-    if (state?.message && !state.errors) { 
-       if (state.message === "Credenciales inválidas.") {
-         toast({
-           title: "Error de inicio de sesión",
-           description: state.message,
-           variant: "destructive",
-         });
-       } else if (state.message !== "Por favor, corrige los errores.") {
-       
-          toast({
-            title: "Notificación",
-            description: state.message,
-          });
-       }
+    if (state?.message) {
+      if (state.message === "Credenciales inválidas.") {
+        toast({
+          title: "Error de inicio de sesión",
+          description: state.message,
+          variant: "destructive",
+        });
+      } else if (state.message === "Por favor, corrige los errores.") {
+      } else if (!state.errors || (typeof state.errors === 'object' && Object.keys(state.errors).length === 0)) {
+        toast({
+          title: "Notificación",
+          description: state.message,
+          variant: state.message.toLowerCase().includes("error") || state.message.toLowerCase().includes("fallo") 
+                   ? "destructive" 
+                   : "default",
+        });
+      }
     }
   }, [state, toast]);
 
@@ -44,10 +45,14 @@ export function LoginForm() {
       </CardHeader>
       <form action={formAction}>
         <CardContent className="space-y-6">
-          {state?.message && state.message !== "Credenciales inválidas." && state.message !== "Por favor, corrige los errores." && !state.errors && (
-             <Alert variant={state.message.toLowerCase().includes("error") ? "destructive": "default"}>
+        
+          {state?.message &&
+            state.message !== "Credenciales inválidas." &&
+            state.message !== "Por favor, corrige los errores." &&
+            (!state.errors || (typeof state.errors === 'object' && Object.keys(state.errors).length === 0)) && (
+            <Alert variant={state.message.toLowerCase().includes("error") || state.message.toLowerCase().includes("fallo") ? "destructive": "default"}>
               <AlertCircle className="h-4 w-4" />
-              <AlertTitle>{state.message.toLowerCase().includes("error") ? "Error" : "Notificación"}</AlertTitle>
+              <AlertTitle>{state.message.toLowerCase().includes("error") || state.message.toLowerCase().includes("fallo") ? "Error" : "Notificación"}</AlertTitle>
               <AlertDescription>{state.message}</AlertDescription>
             </Alert>
           )}

@@ -17,11 +17,13 @@ import { LayoutDashboard } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import Logo from "../logo";
+import { usePathname } from "next/navigation";
 
 export function Navbar() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const supabase = createClient();
+  const pathname = usePathname();
 
   useEffect(() => {
     async function getUser() {
@@ -35,7 +37,7 @@ export function Navbar() {
     getUser();
 
     const { data: authListener } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
+      async (_event, session) => {
         setUser(session?.user ?? null);
         if (_event !== "INITIAL_SESSION") {
           setLoading(false);
@@ -46,7 +48,7 @@ export function Navbar() {
     return () => {
       authListener?.subscription.unsubscribe();
     };
-  }, [supabase]);
+  }, [supabase, pathname]);
 
   const getInitials = (email?: string | null) => {
     if (!email) return "OP";
@@ -75,9 +77,9 @@ export function Navbar() {
         <nav className="flex items-center gap-4">
           {user ? (
             <>
-              <Button variant="ghost" asChild>
+              {/* <Button variant="ghost" asChild>
                 <Link href="/dashboard">Dashboard</Link>
-              </Button>
+              </Button> */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
