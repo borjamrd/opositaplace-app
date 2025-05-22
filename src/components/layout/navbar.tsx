@@ -77,9 +77,9 @@ export function Navbar() {
         <nav className="flex items-center gap-4">
           {user ? (
             <>
-              {/* <Button variant="ghost" asChild>
+              <Button variant="ghost" asChild>
                 <Link href="/dashboard">Dashboard</Link>
-              </Button> */}
+              </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button

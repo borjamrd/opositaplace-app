@@ -6,6 +6,7 @@ import { AppSidebar } from "@/components/layout/app-sidebar"; // Assuming this p
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { SiteHeader } from "@/components/layout/site-header"; // Assuming this path
 import { DashboardContent } from "@/components/dashboard/dashboard-content"; // Assuming this path
+import { FloatingAssistantButton } from "@/components/assistant/floating-assistant-button";
 
 const Dashboard = () => {
   const pathname = usePathname();
@@ -25,6 +26,7 @@ const Dashboard = () => {
             </div>
           </main>
         </SidebarInset>
+        <FloatingAssistantButton />
       </div>
     </SidebarProvider>
   );
