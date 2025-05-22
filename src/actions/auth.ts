@@ -99,6 +99,89 @@ export async function signIn(prevState: any, formData: FormData) {
   redirect("/dashboard");
 }
 
+const resetPasswordSchema = z.object({
+  email: emailSchema,
+});
+
+export async function resetPassword(prevState: any, formData: FormData) {
+  const cookieStore = cookies();
+  const supabase = createSupabaseServerActionClient(cookieStore);
+
+  const result = resetPasswordSchema.safeParse(Object.fromEntries(formData));
+
+  if (!result.success) {
+    return {
+      errors: result.error.flatten().fieldErrors,
+      message: "Por favor, corrige los errores.",
+    };
+  }
+
+  const { email } = result.data;
+
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${process.env.NEXT_PUBLIC_BASE_URL}/auth/reset-password`,
+  });
+
+  if (error) {
+    console.error("Password reset error:", error);
+    return {
+      message: "Error al enviar el correo de recuperación. Inténtalo de nuevo.",
+      errors: {},
+    };
+  }
+
+  return {
+    message: "Se ha enviado un correo con las instrucciones para restablecer tu contraseña.",
+    errors: {},
+  };
+}
+
+// ...existing code...
+
+const updatePasswordSchema = z.object({
+  password: passwordSchema,
+  confirmPassword: passwordSchema,
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Las contraseñas no coinciden.",
+  path: ["confirmPassword"],
+});
+
+
+export async function updatePassword(prevState: any, formData: FormData) {
+  const cookieStore = cookies();
+  const supabase = createSupabaseServerActionClient(cookieStore);
+
+  const result = updatePasswordSchema.safeParse(Object.fromEntries(formData));
+
+  if (!result.success) {
+    return {
+      errors: result.error.flatten().fieldErrors,
+      message: "Por favor, corrige los errores.",
+    };
+  }
+
+  const { password } = result.data;
+
+  const { error } = await supabase.auth.updateUser({
+    password: password
+  });
+
+  if (error) {
+    console.error("Update password error:", error);
+    return {
+      message: "Error al actualizar la contraseña. Inténtalo de nuevo.",
+      errors: {},
+    };
+  }
+
+  // Instead of redirecting immediately, return a success message
+  return {
+    message: "Contraseña actualizada correctamente",
+    errors: {},
+  };
+}
+
+
 export async function signOut() {
   const cookieStore = cookies();
   const supabase = createSupabaseServerActionClient(cookieStore);
