@@ -103,7 +103,7 @@ export default function LandingPage() {
           </p>
           <Button size="lg" asChild className="shadow-lg hover:shadow-primary/30 transition-shadow">
             <Link href="/register">
-              Crear Cuenta Gratis <ArrowRight className="ml-2 h-5 w-5" />
+              Crear tu cuenta gratis <ArrowRight className="ml-2 h-5 w-5" />
             </Link>
           </Button>
         </div>
