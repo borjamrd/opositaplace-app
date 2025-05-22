@@ -44,7 +44,7 @@ export function RegisterForm() {
           state.message.toLowerCase().includes("unexpected");
         toast({
           title: isError ? "Error de Registro" : "Registro",
-          description: 'Hay un problema con tu registro.',
+          description: isError ? 'Hay un problema con tu registro.': 'Registro exitoso.',
           variant: isError ? "destructive" : "default",
         });
       }
