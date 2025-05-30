@@ -127,6 +127,9 @@ export function Navbar() {
           ) : (
             <div className="flex items-center space-x-2">
               <Button variant="ghost" asChild>
+                <Link href="/plans">Planes</Link>
+              </Button>
+              <Button variant="ghost" asChild>
                 <Link href="/login">Inicia sesión</Link>
               </Button>
               <Button asChild>

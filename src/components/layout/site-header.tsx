@@ -9,8 +9,7 @@ import {
   BreadcrumbItem,
   BreadcrumbLink,
   BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
+  BreadcrumbPage
 } from "@/components/ui/breadcrumb";
 
 export const SiteHeader: React.FC = () => {
@@ -55,7 +54,7 @@ export const SiteHeader: React.FC = () => {
                 .slice(1)
                 .map((breadcrumb) => (
                   <BreadcrumbItem key={breadcrumb.url}>
-                    <BreadcrumbSeparator />
+                 
                     {breadcrumb.isLast ? (
                       <BreadcrumbPage className="text-base font-medium">
                         {breadcrumb.path}
