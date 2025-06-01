@@ -23,7 +23,7 @@ export function SubscribeButton({ plan, user, onboardingCompleted = false }: Sub
     const { activeSubscription } = useSubscriptionStore();
 
     const handleSubscribe = async () => {
-        if (!user && plan.type !== StripePlan.FREE) {
+        if (!user) {
             toast({
                 title: 'Necesitas iniciar sesión',
                 description: 'Por favor, inicia sesión o regístrate para continuar.',
@@ -37,15 +37,6 @@ export function SubscribeButton({ plan, user, onboardingCompleted = false }: Sub
             return;
         }
 
-        if (plan.type === StripePlan.FREE) {
-            toast({
-                title: 'Plan Gratuito Activado',
-                description: '¡Ya puedes empezar a usar OpositaPlace!',
-                variant: 'default',
-            });
-            router.push('/dashboard');
-            return;
-        }
 
         setLoading(true);
         try {
