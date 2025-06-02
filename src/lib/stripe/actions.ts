@@ -4,8 +4,7 @@ import type { User } from '@supabase/supabase-js';
 import type { Database } from '@/lib/database.types';
 import { cookies } from 'next/headers';
 import Stripe from 'stripe';
-import { createClient as createSupabaseAdminClient } from '@supabase/supabase-js';
-
+import { createClient } from '../supabase/client';
 
 export type Subscription = Database['public']['Tables']['user_subscriptions']['Row'];
 
@@ -61,11 +60,8 @@ export async function manageSubscriptionStatusChange(
     subscriptionId: string,
     customerId: string,
 ) {
-     const supabaseAdmin = createSupabaseAdminClient<Database>(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    );
-    const { data: userProfile, error: noUserError } = await supabaseAdmin
+    const supabase = createClient();
+    const { data: userProfile, error: noUserError } = await supabase
         .from('profiles')
         .select('id')
         .eq('stripe_customer_id', customerId)
@@ -145,7 +141,7 @@ export async function manageSubscriptionStatusChange(
             : null,
     };
 
-    const { error } = await supabaseAdmin.from('user_subscriptions').upsert(subscriptionData, {
+    const { error } = await supabase.from('user_subscriptions').upsert(subscriptionData, {
         onConflict: 'id',
     });
 
