@@ -183,5 +183,5 @@ export async function submitOnboarding(
     };
   }
 
-  redirect("/dashboard?onboarding=completed_successfully");
+  redirect("/plans?source=onboarding_completed");
 }

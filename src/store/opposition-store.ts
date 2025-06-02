@@ -9,9 +9,11 @@ export interface OppositionBase {
 interface ActiveOppositionState {
   activeOpposition: OppositionBase | null;
   setActiveOpposition: (opposition: OppositionBase | null) => void;
+  clearSelectedOpposition: () => void; 
 }
 
 export const useOppositionStore = create<ActiveOppositionState>((set) => ({
   activeOpposition: null,
   setActiveOpposition: (opposition) => set({ activeOpposition: opposition }),
+  clearSelectedOpposition: () => set({ activeOpposition: null})
 }));

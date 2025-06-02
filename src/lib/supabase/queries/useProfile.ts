@@ -5,7 +5,7 @@ import type { Database } from "@/lib/database.types";
 type Profile = Database['public']['Tables']['profiles']['Row']
 type OnboardingInfo = Database['public']['Tables']['onboarding_info']['Row']
 
-type ProfileWithOnboarding = Profile & {
+export type ProfileWithOnboarding = Profile & {
   onboarding?: OnboardingInfo
 }
 

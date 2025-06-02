@@ -1,35 +1,34 @@
-"use client";
+'use client';
 
-import { AppSidebar } from "@/components/layout/app-sidebar";
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { SiteHeader } from "@/components/layout/site-header";
-import { FloatingAssistantButton } from "@/components/assistant/floating-assistant-button";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useState } from "react";
+import { FloatingAssistantButton } from '@/components/assistant/floating-assistant-button';
+import { AppSidebar } from '@/components/layout/app-sidebar';
+import { SiteHeader } from '@/components/layout/site-header';
+import { SidebarInset } from '@/components/ui/sidebar';
+import { useUserSubscription } from '@/lib/supabase/queries/useUserSubscription';
+import { useSubscriptionStore } from '@/store/subscription-store';
+import { useEffect } from 'react';
 
-export default function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const [queryClient] = useState(() => new QueryClient());
+export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+    const { setSubscription, setLoading, setError } = useSubscriptionStore();
 
-  return (
-    <SidebarProvider>
-      <QueryClientProvider client={queryClient}>
+    const { data: activeSubscription, isLoading, error } = useUserSubscription();
+
+    useEffect(() => {
+        setSubscription(activeSubscription || null);
+        setLoading(isLoading);
+        setError(error);
+    }, [activeSubscription, isLoading, error, setSubscription, setLoading, setError]);
+
+    return (
         <div className="min-h-screen flex w-full p-4">
-          <AppSidebar variant="inset" />
-          <SidebarInset>
-            <SiteHeader />
-            <main className="flex flex-1 flex-col">
-              <div className="@container/main flex flex-1 flex-col gap-2 p-5">
-                {children}
-              </div>
-            </main>
-          </SidebarInset>
-          <FloatingAssistantButton />
+            <AppSidebar variant="inset" />
+            <SidebarInset>
+                <SiteHeader />
+                <main className="flex flex-1 flex-col">
+                    <div className="@container/main flex flex-1 flex-col gap-2 p-5">{children}</div>
+                </main>
+            </SidebarInset>
+            <FloatingAssistantButton />
         </div>
-      </QueryClientProvider>
-    </SidebarProvider>
-  );
+    );
 }

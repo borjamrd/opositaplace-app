@@ -149,42 +149,6 @@ export type Database = {
         }
         Relationships: []
       }
-      lead_url_subscriptions: {
-        Row: {
-          created_at: string
-          id: string
-          lead_id: string
-          url_id: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          lead_id: string
-          url_id: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          lead_id?: string
-          url_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "lead_url_subscriptions_lead_id_fkey"
-            columns: ["lead_id"]
-            isOneToOne: false
-            referencedRelation: "leads"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "lead_url_subscriptions_url_id_fkey"
-            columns: ["url_id"]
-            isOneToOne: false
-            referencedRelation: "urls"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       leads: {
         Row: {
           created_at: string
@@ -506,68 +470,6 @@ export type Database = {
           value?: string
         }
         Relationships: []
-      }
-      subscriptions: {
-        Row: {
-          cancel_at: string | null
-          cancel_at_period_end: boolean | null
-          canceled_at: string | null
-          created_at: string
-          current_period_end: string
-          current_period_start: string
-          ended_at: string | null
-          id: string
-          metadata: Json | null
-          price_id: string | null
-          quantity: number | null
-          status: string
-          trial_end: string | null
-          trial_start: string | null
-          user_id: string
-        }
-        Insert: {
-          cancel_at?: string | null
-          cancel_at_period_end?: boolean | null
-          canceled_at?: string | null
-          created_at?: string
-          current_period_end: string
-          current_period_start: string
-          ended_at?: string | null
-          id: string
-          metadata?: Json | null
-          price_id?: string | null
-          quantity?: number | null
-          status: string
-          trial_end?: string | null
-          trial_start?: string | null
-          user_id: string
-        }
-        Update: {
-          cancel_at?: string | null
-          cancel_at_period_end?: boolean | null
-          canceled_at?: string | null
-          created_at?: string
-          current_period_end?: string
-          current_period_start?: string
-          ended_at?: string | null
-          id?: string
-          metadata?: Json | null
-          price_id?: string | null
-          quantity?: number | null
-          status?: string
-          trial_end?: string | null
-          trial_start?: string | null
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "subscriptions_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       test_attempt_questions: {
         Row: {
@@ -1013,6 +915,71 @@ export type Database = {
           },
         ]
       }
+      user_subscriptions: {
+        Row: {
+          cancel_at: string | null
+          cancel_at_period_end: boolean | null
+          canceled_at: string | null
+          created_at: string
+          current_period_end: string
+          current_period_start: string
+          ended_at: string | null
+          id: string
+          metadata: Json | null
+          price_id: string | null
+          quantity: number | null
+          status: string
+          stripe_customer_id: string | null
+          trial_end: string | null
+          trial_start: string | null
+          user_id: string
+        }
+        Insert: {
+          cancel_at?: string | null
+          cancel_at_period_end?: boolean | null
+          canceled_at?: string | null
+          created_at?: string
+          current_period_end: string
+          current_period_start: string
+          ended_at?: string | null
+          id: string
+          metadata?: Json | null
+          price_id?: string | null
+          quantity?: number | null
+          status: string
+          stripe_customer_id?: string | null
+          trial_end?: string | null
+          trial_start?: string | null
+          user_id: string
+        }
+        Update: {
+          cancel_at?: string | null
+          cancel_at_period_end?: boolean | null
+          canceled_at?: string | null
+          created_at?: string
+          current_period_end?: string
+          current_period_start?: string
+          ended_at?: string | null
+          id?: string
+          metadata?: Json | null
+          price_id?: string | null
+          quantity?: number | null
+          status?: string
+          stripe_customer_id?: string | null
+          trial_end?: string | null
+          trial_start?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_topics: {
         Row: {
           created_at: string
@@ -1055,56 +1022,8 @@ export type Database = {
           },
         ]
       }
-      user_url_subscriptions: {
-        Row: {
-          created_at: string
-          id: string
-          url_id: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          url_id: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          url_id?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "user_url_subscriptions_url_id_fkey"
-            columns: ["url_id"]
-            isOneToOne: false
-            referencedRelation: "urls"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "user_url_subscriptions_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
     }
     Views: {
-      url_subscriptions_with_emails: {
-        Row: {
-          email: string | null
-          subscription_date: string | null
-          subscription_type: string | null
-          url: string | null
-          url_id: string | null
-          url_name: string | null
-          user_id: string | null
-        }
-        Relationships: []
-      }
       wrong_answers_view: {
         Row: {
           created_at: string | null
