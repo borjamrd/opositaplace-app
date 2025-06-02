@@ -14,9 +14,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const { data: activeSubscription, isLoading, error } = useUserSubscription();
 
     useEffect(() => {
-        setSubscription(activeSubscription || null);
-        setLoading(isLoading);
-        setError(error);
+
+        if (isLoading) {
+            setLoading(true);
+        } else if (error) {
+            setError(error);
+            setSubscription(null);
+        } else {
+            console.log('Active Subscription:', activeSubscription);
+            setSubscription(activeSubscription || null);
+        }
     }, [activeSubscription, isLoading, error, setSubscription, setLoading, setError]);
 
     return (

@@ -15,7 +15,7 @@ export function SignOutButton() {
     const handleSignOut = async () => {
         clearSelectedOpposition();
         clearActiveSubscription();
-        queryClient.removeQueries({ queryKey: ['userSubscription'], exact: true });
+        queryClient.invalidateQueries();
         await signOut();
     };
     return (
