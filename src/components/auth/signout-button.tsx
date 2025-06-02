@@ -5,13 +5,16 @@ import { Button } from '@/components/ui/button';
 import { signOut } from '@/actions/auth';
 import { useOppositionStore } from '@/store/opposition-store';
 import { useQueryClient } from '@tanstack/react-query';
+import { useSubscriptionStore } from '@/store/subscription-store';
 
 export function SignOutButton() {
     const { clearSelectedOpposition } = useOppositionStore();
+    const { clearActiveSubscription } = useSubscriptionStore();
     const queryClient = useQueryClient();
 
     const handleSignOut = async () => {
         clearSelectedOpposition();
+        clearActiveSubscription();
         queryClient.removeQueries({ queryKey: ['userSubscription'], exact: true });
         await signOut();
     };

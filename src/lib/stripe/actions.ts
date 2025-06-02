@@ -59,7 +59,6 @@ export async function getOrCreateStripeCustomerId(
 export async function manageSubscriptionStatusChange(
     subscriptionId: string,
     customerId: string,
-    createAction = false
 ) {
     const supabase = createClient();
     const { data: userProfile, error: noUserError } = await supabase
