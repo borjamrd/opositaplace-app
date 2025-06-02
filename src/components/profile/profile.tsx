@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useProfile } from '@/lib/supabase/queries/useProfile';
 import { User } from 'lucide-react';
 
+import CopyToClipboard from '../copy-to-clipboard';
 import UserOnboarding from '../onboarding/user-onboarding';
 import UserSubscription from '../subscription/user-suscription';
 
@@ -57,9 +58,8 @@ export default function Profile() {
                     </div>
                     <div>
                         <p className="text-sm text-muted-foreground">Usuario</p>
-                        <p className="font-medium">{profile?.username || 'No configurado'}</p>
+                        <CopyToClipboard text={profile?.username || 'No configurado'} />
                     </div>
-                    {/* Podrías añadir un botón para editar perfil aquí */}
                 </CardContent>
             </Card>
 
