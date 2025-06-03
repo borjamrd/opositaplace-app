@@ -14,12 +14,13 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Calendar } from 'lucide-react';
 
 import { useProfile } from '@/lib/supabase/queries/useProfile';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import SelectedSlotsSummary from '../weekly-planner/SelectedSlotsSummary';
 import SlotDurationSelector from '../weekly-planner/SlotDurationSelector';
 import WeeklyPlanner from '../weekly-planner/WeeklyPlanner';
-import { generateTimeSlots } from '../weekly-planner/constants';
+import { DAYS_OF_WEEK_ORDERED, generateTimeSlots } from '../weekly-planner/constants';
 import { Day, SelectedSlots } from '../weekly-planner/types';
+import { initializeSelectedSlots, parseSlotToMinutes } from '../weekly-planner/utils';
 
 export default function UserOnboarding() {
     const { data: profile, isLoading, error } = useProfile();
@@ -87,6 +88,58 @@ export default function UserOnboarding() {
             </div>
         );
     }
+
+    useEffect(() => {
+        const newTimeSlots = generateTimeSlots(slotDuration);
+        setCurrentTimeSlots(newTimeSlots);
+
+        setSelectedSlots((prevSelectedSlots) => {
+            const newInitializedSlots = initializeSelectedSlots(newTimeSlots); // All false initially
+
+            DAYS_OF_WEEK_ORDERED.forEach((day) => {
+                // Ensure prevSelectedSlots[day] exists; otherwise, there's nothing to migrate for this day
+                if (!prevSelectedSlots || !prevSelectedSlots[day]) return;
+
+                newTimeSlots.forEach((newSlotString) => {
+                    const newSlotTimes = parseSlotToMinutes(newSlotString);
+                    if (!newSlotTimes) return; // Couldn't parse the new slot string
+
+                    let newSlotShouldBeSelected = false;
+                    for (const oldSlotString in prevSelectedSlots[day]) {
+                        if (prevSelectedSlots[day][oldSlotString]) {
+                            // If the old slot was indeed selected
+                            const oldSlotTimes = parseSlotToMinutes(oldSlotString);
+                            if (!oldSlotTimes) continue; // Couldn't parse the old slot string
+
+                            // Case 1: Old selected slot is contained within the new slot (e.g., duration increased)
+                            // Example: Old "09:00-09:30" is within New "09:00-10:00"
+                            const oldContainedInNew =
+                                oldSlotTimes.startMinutes >= newSlotTimes.startMinutes &&
+                                oldSlotTimes.endMinutes <= newSlotTimes.endMinutes;
+
+                            // Case 2: New slot is contained within the old selected slot (e.g., duration decreased)
+                            // Example: New "09:00-09:30" is within Old "09:00-10:00"
+                            const newContainedInOld =
+                                newSlotTimes.startMinutes >= oldSlotTimes.startMinutes &&
+                                newSlotTimes.endMinutes <= oldSlotTimes.endMinutes;
+
+                            if (oldContainedInNew || newContainedInOld) {
+                                newSlotShouldBeSelected = true;
+                                break; // Found a relevant old slot, this new slot should be selected
+                            }
+                        }
+                    }
+
+                    if (newSlotShouldBeSelected) {
+                        if (newInitializedSlots[day]) {
+                            newInitializedSlots[day][newSlotString] = true;
+                        }
+                    }
+                });
+            });
+            return newInitializedSlots;
+        });
+    }, [slotDuration]);
 
     if (profile?.onboarding) {
         return (
