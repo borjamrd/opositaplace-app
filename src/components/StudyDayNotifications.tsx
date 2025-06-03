@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useProfile } from '@/lib/supabase/queries/useProfile';
+import { ToastAction } from './ui/toast';
 
 export function StudyDayNotifications() {
     const [showNotification, setShowNotification] = useState(true);
@@ -36,15 +37,25 @@ export function StudyDayNotifications() {
                     if (hasActiveSlot) {
                         toast({
                             title: '¡Hora de estudiar!',
-                            description: `Hoy es ${currentDay} y has programado tiempo de estudio a las ${Object.keys(
-                                daySlots
-                            ).filter((time) => daySlots[time])}.`,
+                            description: `Has programado tiempo de estudio. Mucho ánimo`,
                             variant: 'default',
+                            duration: 10000,
+                            action: (
+                                <ToastAction
+                                    onClick={() => {
+                                        alert('Abrir modal de estudio');
+                                        setShowNotification(false);
+                                    }}
+                                    altText="Comenzar"
+                                >
+                                    Comenzar
+                                </ToastAction>
+                            ),
                         });
-                        setShowNotification(false);
+                        setShowNotification(true);
                     }
                 }
-            }, 60000); // Cambiado a 1 minuto
+            }, 60000);
 
             return () => clearInterval(intervalId);
         }
