@@ -1,4 +1,5 @@
-import { PLANNER_END_HOUR } from './constants';
+import { DAYS_OF_WEEK_ORDERED, PLANNER_END_HOUR } from './constants';
+import { SelectedSlots } from './types';
 
 export const parseSlotToMinutes = (
     slotString: string
@@ -27,4 +28,16 @@ export const parseSlotToMinutes = (
     }
 
     return { startMinutes, endMinutes };
+};
+
+
+export const initializeSelectedSlots = (timeSlotsArray: string[]): SelectedSlots => {
+    const slots = {} as SelectedSlots;
+    DAYS_OF_WEEK_ORDERED.forEach((day) => {
+        slots[day] = {};
+        timeSlotsArray.forEach((slot) => {
+            slots[day][slot] = false;
+        });
+    });
+    return slots;
 };

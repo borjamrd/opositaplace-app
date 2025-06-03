@@ -45,9 +45,8 @@ import { AlertCircle, Calendar, ChevronRight, Loader2, Save } from 'lucide-react
 // Importaciones del planificador semanal
 import {
     DAYS_OF_WEEK_ORDERED,
-    PLANNER_END_HOUR,
     SLOT_DURATION_OPTIONS,
-    generateTimeSlots,
+    generateTimeSlots
 } from '@/components/weekly-planner/constants';
 import SelectedSlotsSummary from '@/components/weekly-planner/SelectedSlotsSummary';
 import SlotDurationSelector from '@/components/weekly-planner/SlotDurationSelector';
@@ -62,19 +61,9 @@ import {
     DialogTitle,
     DialogTrigger,
 } from '@/components/ui/dialog';
-import { parseSlotToMinutes } from '@/components/weekly-planner/utils';
+import { initializeSelectedSlots, parseSlotToMinutes } from '@/components/weekly-planner/utils';
 
 // Función de ayuda para inicializar los slots seleccionados
-export const initializeSelectedSlots = (timeSlotsArray: string[]): SelectedSlots => {
-    const slots = {} as SelectedSlots;
-    DAYS_OF_WEEK_ORDERED.forEach((day) => {
-        slots[day] = {};
-        timeSlotsArray.forEach((slot) => {
-            slots[day][slot] = false;
-        });
-    });
-    return slots;
-};
 
 const helpOptions = [
     'Organización del estudio',
