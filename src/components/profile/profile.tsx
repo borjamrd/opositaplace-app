@@ -1,18 +1,17 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useProfile } from '@/lib/supabase/queries/useProfile';
-import { createClient } from '@/lib/supabase/client';
-import { User } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
+import { createClient } from '@/lib/supabase/client';
+import { useProfile } from '@/lib/supabase/queries/useProfile';
+import { User } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
-import CopyToClipboard from '../copy-to-clipboard';
 import UserOnboarding from '../onboarding/user-onboarding';
 import UserSubscription from '../subscription/user-suscription';
 
