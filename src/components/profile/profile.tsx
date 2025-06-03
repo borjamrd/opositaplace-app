@@ -26,8 +26,7 @@ export default function Profile() {
         if (profile) {
             setUsername(profile.username || '');
         }
-    }
-    , [profile]);
+    }, [profile]);
 
     const updateUsername = async () => {
         if (!username.trim() || !profile?.id) return;
@@ -166,6 +165,22 @@ export default function Profile() {
                             />
                             <Button onClick={updateUsername}>Guardar</Button>
                         </div>
+                    </div>
+                    <div>
+                        <Label>Fecha de creación</Label>
+                        <Input
+                            type="text"
+                            value={new Date(profile?.created_at || '').toLocaleDateString()}
+                            disabled
+                        />
+                    </div>
+                    <div>
+                        <Label>Última actualización</Label>
+                        <Input
+                            type="text"
+                            value={new Date(profile?.updated_at || '').toLocaleDateString()}
+                            disabled
+                        />
                     </div>
                 </CardContent>
             </Card>
