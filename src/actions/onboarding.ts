@@ -20,6 +20,8 @@ const onboardingActionSchema = z.object({
     .string()
     .min(1, "Los días de estudio no pueden estar vacíos como JSON string."),
   help_with: z.string().optional().default("[]"),
+  slot_duration_minutes: z
+    .string().default("60")
 });
 
 type InitialState = {
@@ -65,6 +67,7 @@ export async function submitOnboarding(
     objectives: formData.get("objectives"),
     study_days: formData.get("study_days"),
     help_with: formData.get("help_with") || "[]",
+    slot_duration_minutes: formData.get("slot_duration_minutes") || "60",
   };
 
   const validationResult = onboardingActionSchema.safeParse(rawFormData);
@@ -90,6 +93,7 @@ export async function submitOnboarding(
     objectives: objectivesString,
     study_days: studyDaysString,
     help_with: helpWithString,
+    slot_duration_minutes
   } = validationResult.data;
 
   const { error: userOppositionsError } = await supabase
@@ -149,6 +153,7 @@ export async function submitOnboarding(
     study_days: parsedStudyDays,
     help_with: parsedHelpWith,
     opposition_id: opposition_id,
+    slot_duration_minutes: parseInt(slot_duration_minutes, 10),
   };
 
   const { error: onboardingInfoError } = await supabase
