@@ -10,7 +10,7 @@ const SlotDurationSelector: React.FC<SlotDurationSelectorProps> = ({ currentDura
   return (
     <div className="mb-6 flex items-center justify-center sm:justify-start">
       <label htmlFor="slot-duration" className="mr-3 text-slate-700 font-medium text-sm sm:text-base">
-        Slot Duration:
+        Duración del espacio de estudio:
       </label>
       <select
         id="slot-duration"
@@ -21,7 +21,7 @@ const SlotDurationSelector: React.FC<SlotDurationSelectorProps> = ({ currentDura
       >
         {SLOT_DURATION_OPTIONS.map(duration => (
           <option key={duration} value={duration}>
-            {duration} minutes
+            {duration} minutos
           </option>
         ))}
       </select>
