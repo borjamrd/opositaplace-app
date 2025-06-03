@@ -12,16 +12,7 @@ const onboardingActionSchema = z.object({
     .string()
     .uuid({ message: "ID de oposición inválido." })
     .min(1, "Se requiere ID de oposición."),
-  available_hours: z.coerce
-    .number({
-      required_error: "Las horas disponibles son requeridas.",
-      invalid_type_error: "Las horas disponibles deben ser un número.",
-    })
-    .positive({
-      message: "Las horas disponibles deben ser un número positivo.",
-    })
-    .min(1, "Debes indicar al menos 1 hora disponible.")
-    .max(168, "El número de horas parece excesivo."),
+
   objectives: z
     .string()
     .min(1, "Los objetivos no pueden estar vacíos como JSON string."),
@@ -71,7 +62,6 @@ export async function submitOnboarding(
   const rawFormData = {
     user_id: user.id,
     opposition_id: formData.get("opposition_id"),
-    available_hours: formData.get("available_hours"),
     objectives: formData.get("objectives"),
     study_days: formData.get("study_days"),
     help_with: formData.get("help_with") || "[]",
@@ -97,7 +87,6 @@ export async function submitOnboarding(
   const {
     user_id,
     opposition_id,
-    available_hours,
     objectives: objectivesString,
     study_days: studyDaysString,
     help_with: helpWithString,
@@ -156,7 +145,6 @@ export async function submitOnboarding(
 
   const onboardingData: TablesInsert<"onboarding_info"> = {
     user_id: user_id,
-    available_hours,
     objectives: parsedObjectives,
     study_days: parsedStudyDays,
     help_with: parsedHelpWith,
