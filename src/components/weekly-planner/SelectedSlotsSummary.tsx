@@ -15,7 +15,7 @@ const SelectedSlotsSummary: React.FC<SelectedSlotsSummaryProps> = ({ selectedSlo
 
   return (
     <div>
-      <h3 className="text-xl font-semibold text-slate-700 mb-4 flex items-center">
+      <h3 className="text-xl font-semibold mb-4 flex items-center">
        <CheckCircle className="text-sky-500 mr-2" />
         Tus bloques de estudio semanales
       </h3>

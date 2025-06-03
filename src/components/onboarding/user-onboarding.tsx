@@ -2,9 +2,11 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Badge } from '@/components/ui/badge';
 
 import { useProfile } from '@/lib/supabase/queries/useProfile';
-import { Badge } from '../ui/badge';
+import SelectedSlotsSummary from '../weekly-planner/SelectedSlotsSummary';
+import { SelectedSlots } from '../weekly-planner/types';
 
 export default function UserOnboarding() {
     const { data: profile, isLoading, error } = useProfile();
@@ -28,44 +30,53 @@ export default function UserOnboarding() {
         );
     }
 
+    const transformStudyDays = (studyDays: any): SelectedSlots => {
+        if (!studyDays || typeof studyDays !== 'object') {
+            return {} as SelectedSlots;
+        }
+        return studyDays as SelectedSlots;
+    };
+
+    const transformObjectives = (objectives: any): string[] => {
+        if (!objectives || typeof objectives !== 'object') {
+            return [];
+        }
+        return Object.values(objectives) as string[];
+    };
+
     if (profile?.onboarding) {
         return (
-            <Card>
-                <CardHeader>
-                    <CardTitle>Preferencias de Estudio</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
+            <Card className="w-full rounded-lg shadow-md">
+                <CardContent className="space-y-4 pt-6">
                     <div>
-                        <p className="text-sm text-muted-foreground">Horas disponibles semanales</p>
-                        <p className="font-medium">{profile.onboarding.available_hours} horas</p>
+                        <SelectedSlotsSummary
+                            selectedSlots={transformStudyDays(profile.onboarding.study_days)}
+                        />
                     </div>
-                    <div>
-                        <p className="text-sm text-muted-foreground">Días de estudio</p>
-                        <div className="flex flex-wrap gap-2 mt-1">
-                            {Object.entries(
-                                profile.onboarding.study_days as Record<string, boolean>
-                            )
-                                .filter(([_, value]) => value)
-                                .map(([day]) => (
-                                    <Badge key={day}>
-                                        {day.charAt(0).toUpperCase() + day.slice(1)}
-                                    </Badge>
-                                ))}
-                        </div>
-                    </div>
+
                     {profile.onboarding.help_with &&
                         (profile.onboarding.help_with as string[]).length > 0 && (
                             <div>
-                                <p className="text-sm text-muted-foreground">Áreas de ayuda</p>
+                                <p className="text-sm font-medium text-gray-600">Áreas de ayuda</p>
                                 <div className="flex flex-wrap gap-2 mt-1">
                                     {(profile.onboarding.help_with as string[]).map((area) => (
-                                        <Badge key={area}>{area}</Badge>
+                                        <Badge key={area} variant={'outline'}>{area}</Badge>
                                     ))}
                                 </div>
                             </div>
                         )}
+                    <div>
+                        <p className="text-sm font-medium text-gray-600">Objetivos</p>
+                        <div className="text-sm text-gray-500">
+                            {transformObjectives(profile.onboarding.objectives).map((objective, index) => (
+                                <p key={index}>- {objective}</p>
+                            ))}
+                        </div>
+                    </div>
                 </CardContent>
             </Card>
         );
     }
+
+    return null;
 }
