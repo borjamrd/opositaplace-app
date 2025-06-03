@@ -1,18 +1,103 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { useProfile } from '@/lib/supabase/queries/useProfile';
+import { createClient } from '@/lib/supabase/client';
 import { User } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 import CopyToClipboard from '../copy-to-clipboard';
 import UserOnboarding from '../onboarding/user-onboarding';
 import UserSubscription from '../subscription/user-suscription';
 
 export default function Profile() {
-    const { data: profile, isLoading, error } = useProfile();
+    const { data: profile, isLoading, error, refetch } = useProfile();
+
+    const [username, setUsername] = useState(profile?.username || '');
+    const [uploading, setUploading] = useState(false);
+    const { toast } = useToast();
+    const supabase = createClient();
+    useEffect(() => {
+        if (profile) {
+            setUsername(profile.username || '');
+        }
+    }
+    , [profile]);
+
+    const updateUsername = async () => {
+        if (!username.trim() || !profile?.id) return;
+
+        const { error } = await supabase.from('profiles').update({ username }).eq('id', profile.id);
+
+        if (error) {
+            toast({
+                variant: 'destructive',
+                title: 'Error',
+                description: 'No se pudo actualizar el nombre de usuario',
+            });
+        } else {
+            toast({
+                title: 'Éxito',
+                description: 'Nombre de usuario actualizado correctamente',
+            });
+            refetch();
+        }
+    };
+
+    const uploadAvatar = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        try {
+            setUploading(true);
+
+            if (!event.target.files || event.target.files.length === 0) {
+                throw new Error('Debes seleccionar una imagen.');
+            }
+
+            const file = event.target.files[0];
+            const fileExt = file.name.split('.').pop();
+            const filePath = `${profile?.id}-${Math.random()}.${fileExt}`;
+
+            const { error: uploadError } = await supabase.storage
+                .from('avatars')
+                .upload(filePath, file);
+
+            if (uploadError) throw uploadError;
+
+            const {
+                data: { publicUrl },
+            } = supabase.storage.from('avatars').getPublicUrl(filePath);
+
+            if (!profile?.id) {
+                throw new Error('Perfil no encontrado.');
+            }
+
+            const { error: updateError } = await supabase
+                .from('profiles')
+                .update({ avatar_url: publicUrl })
+                .eq('id', profile?.id);
+
+            if (updateError) throw updateError;
+
+            toast({
+                title: 'Éxito',
+                description: 'Foto de perfil actualizada correctamente',
+            });
+            refetch();
+        } catch (error) {
+            toast({
+                variant: 'destructive',
+                title: 'Error',
+                description: 'Error al actualizar la foto de perfil',
+            });
+        } finally {
+            setUploading(false);
+        }
+    };
 
     if (isLoading) {
         return (
@@ -39,26 +124,49 @@ export default function Profile() {
         <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-2">
             <Card>
                 <CardHeader>
-                    <Avatar className="h-16 w-16 rounded-full">
-                        <AvatarImage
-                            className="rounded-full aspect-square"
-                            src={profile?.avatar_url || ''}
-                            alt="Avatar"
+                    <div className="flex items-center space-x-4">
+                        <Avatar className="h-20 w-20">
+                            <AvatarImage
+                                className="rounded-full aspect-square"
+                                src={profile?.avatar_url || ''}
+                                alt="Avatar"
+                            />
+                            <AvatarFallback>
+                                <User className="h-8 w-8" />
+                            </AvatarFallback>
+                        </Avatar>
+                        <Button
+                            onClick={() => document.getElementById('avatar')?.click()}
+                            disabled={uploading}
+                        >
+                            {uploading ? 'Subiendo...' : 'Cambiar foto'}
+                        </Button>
+                        <input
+                            type="file"
+                            id="avatar"
+                            accept="image/*"
+                            onChange={uploadAvatar}
+                            className="hidden"
                         />
-                        <AvatarFallback>
-                            <User className="h-8 w-8" />
-                        </AvatarFallback>
-                    </Avatar>
+                    </div>
                     <CardTitle>Información Personal</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <div>
-                        <p className="text-sm text-muted-foreground">Email</p>
-                        <p className="font-medium">{profile?.email || 'No disponible'}</p>
+                        <Label>Email</Label>
+                        <Input type="email" value={profile?.email || ''} disabled />
                     </div>
                     <div>
-                        <p className="text-sm text-muted-foreground">Usuario</p>
-                        <CopyToClipboard text={profile?.username || 'No configurado'} />
+                        <Label>Nombre de usuario</Label>
+                        <div className="flex gap-2">
+                            <Input
+                                type="text"
+                                value={username}
+                                onChange={(e) => setUsername(e.target.value)}
+                                placeholder="Introduce tu nombre de usuario"
+                            />
+                            <Button onClick={updateUsername}>Guardar</Button>
+                        </div>
                     </div>
                 </CardContent>
             </Card>
