@@ -151,7 +151,7 @@ export default function UserOnboarding() {
                         />
                         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                             <DialogTrigger asChild>
-                                <Button variant="outline" className="w-full sm:w-auto mt-4">
+                                <Button variant="secondary" className="w-full sm:w-auto mt-4">
                                     <Calendar className="mr-2 h-4 w-4" />
                                     Ver Horario Completo
                                 </Button>

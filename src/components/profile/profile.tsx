@@ -134,6 +134,7 @@ export default function Profile() {
                             </AvatarFallback>
                         </Avatar>
                         <Button
+                            variant="secondary"
                             onClick={() => document.getElementById('avatar')?.click()}
                             disabled={uploading}
                         >
@@ -163,7 +164,9 @@ export default function Profile() {
                                 onChange={(e) => setUsername(e.target.value)}
                                 placeholder="Introduce tu nombre de usuario"
                             />
-                            <Button onClick={updateUsername}>Guardar</Button>
+                            <Button variant="secondary" onClick={updateUsername}>
+                                Guardar
+                            </Button>
                         </div>
                     </div>
                     <div>
