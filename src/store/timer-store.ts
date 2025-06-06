@@ -1,4 +1,8 @@
+import { createClient } from '@/lib/supabase/client';
 import { create } from 'zustand';
+import { useStudySessionStore } from './study-session-store';
+import { useQueryClient } from '@tanstack/react-query';
+import { queryClient } from '@/lib/react-query/queryClient';
 
 export type TimerMode = 'countdown' | 'pomodoro' | 'stopwatch';
 export type PomodoroSessionType = 'pomodoro' | 'shortBreak' | 'longBreak';
@@ -9,22 +13,24 @@ interface TimerState {
     startTime: number | null;
     duration: number;
     remainingTime: number;
+    sessionStartedAt: number | null;
 
-    pomodoroDuration: number; // Duración del foco en segundos
-    shortBreakDuration: number; // Duración del descanso corto en segundos
-    longBreakDuration: number; // Duración del descanso largo en segundos
-    activePomodoroSession: PomodoroSessionType; // Sesión activa en la UI de Pomodoro
+    pomodoroDuration: number;
+    shortBreakDuration: number;
+    longBreakDuration: number;
+    activePomodoroSession: PomodoroSessionType;
 
     setMode: (mode: TimerMode) => void;
     startTimer: (duration: number) => void;
     resumeTimer: () => void;
     stopTimer: () => void;
-    resetTimer: () => void;
     updateRemainingTime: (time: number) => void;
     hydrate: () => void;
-
-    setActivePomodoroSession: (sessionType: PomodoroSessionType) => void;
     setPomodoroDurations: (durations: { pomodoro: number; short: number; long: number }) => void;
+    setActivePomodoroSession: (sessionType: PomodoroSessionType) => void;
+
+    reset: () => void;
+    saveSessionAndReset: () => Promise<void>;
 }
 
 const TIMER_STORAGE_KEY = 'op-timer-state';
@@ -48,7 +54,10 @@ function loadStateFromStorage(): Partial<TimerState> | null {
     }
 }
 
+const supabase = createClient();
+
 export const useTimerStore = create<TimerState>((set, get) => ({
+    sessionStartedAt: null,
     isActive: false,
     mode: 'countdown',
     startTime: null,
@@ -70,6 +79,7 @@ export const useTimerStore = create<TimerState>((set, get) => ({
             isActive: true,
             startTime: now,
             duration: duration,
+            sessionStartedAt: get().sessionStartedAt ?? now,
             remainingTime: duration,
         });
         saveStateToStorage({
@@ -100,15 +110,7 @@ export const useTimerStore = create<TimerState>((set, get) => ({
         set({ isActive: false });
         saveStateToStorage({ ...get(), isActive: false });
     },
-    resetTimer: () => {
-        set({
-            isActive: false,
-            startTime: null,
-            duration: 0,
-            remainingTime: 0,
-        });
-        window.localStorage.removeItem(TIMER_STORAGE_KEY);
-    },
+
     updateRemainingTime: (time) => {
         set({ remainingTime: time });
         saveStateToStorage({ ...get(), remainingTime: time });
@@ -132,6 +134,69 @@ export const useTimerStore = create<TimerState>((set, get) => ({
         if (loaded) {
             set({ ...loaded });
         }
+    },
+    saveSessionAndReset: async () => {
+        const { mode, remainingTime, duration, sessionStartedAt } = get();
+
+        // Si no había una sesión activa, no hacemos nada
+        if (!sessionStartedAt) {
+            get().reset(); // Llama al reset simple si no hay nada que guardar
+            return;
+        }
+
+        // --- Recopilar datos para la BBDD ---
+        const {
+            data: { user },
+        } = await supabase.auth.getUser();
+        const { activeOpposition, activeStudyCycle } = useStudySessionStore.getState();
+
+        let actualDurationSeconds = 0;
+        if (mode === 'stopwatch') {
+            actualDurationSeconds = remainingTime;
+        } else {
+            // countdown o pomodoro
+            actualDurationSeconds = duration - remainingTime;
+        }
+
+        // No guardar sesiones demasiado cortas (p. ej., menos de 5 segundos)
+        if (actualDurationSeconds < 5) {
+            get().reset(); // Simplemente resetea sin guardar
+            return;
+        }
+
+        const sessionData = {
+            user_id: user?.id,
+            opposition_id: activeOpposition?.id,
+            study_cycle_id: activeStudyCycle?.id,
+            started_at: new Date(sessionStartedAt).toISOString(),
+            ended_at: new Date().toISOString(),
+            duration_seconds: Math.round(actualDurationSeconds),
+        };
+
+        // --- Insertar en Supabase ---
+        const { error } = await supabase.from('user_study_sessions').insert(sessionData);
+
+        if (error) {
+            console.error('Error saving study session:', error);
+            // Podrías añadir una notificación al usuario aquí
+        } else {
+             queryClient.invalidateQueries({ queryKey: ['study-sessions-summary'] });
+        }
+
+        // Finalmente, reseteamos el estado del temporizador
+        get().reset();
+    },
+    reset: () => {
+        // O resetTimer: () => { ... }
+        console.log('Limpiando el estado del temporizador.');
+        // Solo limpia el estado
+        set({
+            isActive: false,
+            startTime: null,
+            duration: 0,
+            remainingTime: 0,
+            sessionStartedAt: null,
+        });
     },
 }));
 

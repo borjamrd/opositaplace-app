@@ -36,11 +36,18 @@ export default function TimerManager() {
         function tick() {
             const now = Date.now();
             let newTime = 0;
+
             if (mode === 'countdown' || mode === 'pomodoro') {
                 newTime = Math.max(0, duration - Math.floor((now - (startTime ?? now)) / 1000));
+
+                if (newTime === 0 && useTimerStore.getState().isActive) {
+                    if (intervalRef.current) clearInterval(intervalRef.current);
+                    useTimerStore.getState().saveSessionAndReset();
+                }
             } else {
                 newTime = Math.floor((now - (startTime ?? now)) / 1000);
             }
+
             setDisplayTime(newTime);
             updateRemainingTime(newTime);
         }
@@ -49,7 +56,7 @@ export default function TimerManager() {
         return () => {
             if (intervalRef.current) clearInterval(intervalRef.current);
         };
-    }, [isActive, startTime, duration, mode, updateRemainingTime, remainingTime]);
+    }, [isActive, startTime, duration, mode, updateRemainingTime]);
 
     // Sincronizar displayTime si cambia remainingTime por restauración
     useEffect(() => {
@@ -85,7 +92,7 @@ export default function TimerManager() {
                             size="sm"
                             variant="destructive"
                             onClick={() => {
-                                useTimerStore.getState().resetTimer();
+                                useTimerStore.getState().saveSessionAndReset();
                                 setDialogOpen(false);
                             }}
                         >
@@ -94,7 +101,7 @@ export default function TimerManager() {
                     </div>
                 ) : (
                     <Button
-                        variant="ghost"
+                        variant="secondary"
                         size="sm"
                         className="gap-2"
                         onClick={() => setDialogOpen(true)}

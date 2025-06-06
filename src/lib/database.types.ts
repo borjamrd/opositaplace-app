@@ -1045,6 +1045,13 @@ export type Database = {
       }
     }
     Functions: {
+      get_daily_study_summary: {
+        Args: { days_limit: number }
+        Returns: {
+          study_date: string
+          total_minutes: number
+        }[]
+      }
       has_role: {
         Args: {
           user_id: string
