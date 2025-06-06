@@ -3,23 +3,24 @@
 import { LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { signOut } from '@/actions/auth';
-import { useOppositionStore } from '@/store/opposition-store';
 import { useQueryClient } from '@tanstack/react-query';
-import { useSubscriptionStore } from '@/store/subscription-store';
+import { useStudySessionStore } from '@/store/study-session-store'; // <-- Usamos el store unificado
+import { useSubscriptionStore } from '@/store/subscription-store'; // <-- Asegúrate de añadirle un método 'reset' también
 
 export function SignOutButton() {
-    const { clearSelectedOpposition } = useOppositionStore();
-    const { clearActiveSubscription } = useSubscriptionStore();
+    const resetSession = useStudySessionStore((state) => state.reset);
+    const clearSubscription = useSubscriptionStore((state) => state.clearActiveSubscription);
     const queryClient = useQueryClient();
 
     const handleSignOut = async () => {
-        clearSelectedOpposition();
-        clearActiveSubscription();
-        queryClient.invalidateQueries();
+        resetSession();
+        clearSubscription();
+        queryClient.clear();
         await signOut();
     };
+
     return (
-        <form action={() => handleSignOut()}>
+        <form action={handleSignOut}>
             <Button variant="ghost" type="submit" className="w-full justify-start">
                 <LogOut className="mr-2 h-4 w-4" />
                 Cerrar Sesión

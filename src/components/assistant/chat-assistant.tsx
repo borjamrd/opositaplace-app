@@ -12,14 +12,14 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useOppositionStore } from "@/store/opposition-store";
+import { useStudySessionStore } from "@/store/study-session-store";
 import { Bot, Loader2, Send, User } from "lucide-react";
 
 export function ChatAssistant() {
   const [userInput, setUserInput] = useState<string>("");
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const { activeOpposition } = useOppositionStore();
+  const { activeOpposition } = useStudySessionStore();
 
   const scrollAreaRef = useRef<HTMLDivElement | null>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
