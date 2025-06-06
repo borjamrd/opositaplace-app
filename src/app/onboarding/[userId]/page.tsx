@@ -69,7 +69,7 @@ const helpOptions = [
     'Organización del estudio',
     'Técnicas de memorización',
     'Gestión del tiempo',
-    'Preparación de casos prácticos',
+    'Realización de tests',
     'Manejo del estrés y ansiedad',
     'Motivación',
 ] as const;
