@@ -20,9 +20,16 @@ function formatTime(mode: string, seconds: number) {
 }
 
 export default function TimerManager() {
-    const [dialogOpen, setDialogOpen] = useState(false);
-    const { isActive, mode, startTime, duration, remainingTime, updateRemainingTime } =
-        useTimerStore();
+    const {
+        isActive,
+        mode,
+        startTime,
+        duration,
+        remainingTime,
+        updateRemainingTime,
+        setModalOpen,
+        isModalOpen,
+    } = useTimerStore();
     const [displayTime, setDisplayTime] = useState(remainingTime);
     const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -93,7 +100,7 @@ export default function TimerManager() {
                             variant="destructive"
                             onClick={() => {
                                 useTimerStore.getState().saveSessionAndReset();
-                                setDialogOpen(false);
+                                setModalOpen(true);
                             }}
                         >
                             Finalizar
@@ -104,14 +111,14 @@ export default function TimerManager() {
                         variant="secondary"
                         size="sm"
                         className="gap-2"
-                        onClick={() => setDialogOpen(true)}
+                        onClick={() => setModalOpen(true)}
                     >
                         <PlayCircle className="h-4 w-4" />
                         Comenzar sesión de estudio
                     </Button>
                 )}
             </div>
-            <TimerDialog open={dialogOpen} onOpenChange={setDialogOpen} />
+            <TimerDialog open={isModalOpen} onOpenChange={setModalOpen} />
         </>
     );
 }

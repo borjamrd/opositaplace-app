@@ -1,13 +1,13 @@
+import { queryClient } from '@/lib/react-query/queryClient';
 import { createClient } from '@/lib/supabase/client';
 import { create } from 'zustand';
 import { useStudySessionStore } from './study-session-store';
-import { useQueryClient } from '@tanstack/react-query';
-import { queryClient } from '@/lib/react-query/queryClient';
 
 export type TimerMode = 'countdown' | 'pomodoro' | 'stopwatch';
 export type PomodoroSessionType = 'pomodoro' | 'shortBreak' | 'longBreak';
 
 interface TimerState {
+    isModalOpen: boolean;
     isActive: boolean;
     mode: TimerMode;
     startTime: number | null;
@@ -20,6 +20,7 @@ interface TimerState {
     longBreakDuration: number;
     activePomodoroSession: PomodoroSessionType;
 
+    setModalOpen: (modal: boolean) => void;
     setMode: (mode: TimerMode) => void;
     startTimer: (duration: number) => void;
     resumeTimer: () => void;
@@ -57,6 +58,7 @@ function loadStateFromStorage(): Partial<TimerState> | null {
 const supabase = createClient();
 
 export const useTimerStore = create<TimerState>((set, get) => ({
+    isModalOpen: false,
     sessionStartedAt: null,
     isActive: false,
     mode: 'countdown',
@@ -69,6 +71,11 @@ export const useTimerStore = create<TimerState>((set, get) => ({
     longBreakDuration: 15 * 60,
     activePomodoroSession: 'pomodoro',
 
+    setModalOpen: (modal) => {
+        set({
+            isModalOpen: modal,
+        });
+    },
     setMode: (mode) => {
         set({ mode });
         saveStateToStorage({ ...get(), mode });
@@ -180,7 +187,7 @@ export const useTimerStore = create<TimerState>((set, get) => ({
             console.error('Error saving study session:', error);
             // Podrías añadir una notificación al usuario aquí
         } else {
-             queryClient.invalidateQueries({ queryKey: ['study-sessions-summary'] });
+            queryClient.invalidateQueries({ queryKey: ['study-sessions-summary'] });
         }
 
         // Finalmente, reseteamos el estado del temporizador
