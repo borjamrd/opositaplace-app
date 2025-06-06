@@ -76,7 +76,7 @@ export default function TimerManager() {
                             <Button
                                 size="sm"
                                 variant="outline"
-                                onClick={() => useTimerStore.getState().startTimer()}
+                                onClick={() => useTimerStore.getState().resumeTimer()}
                             >
                                 Reanudar
                             </Button>
