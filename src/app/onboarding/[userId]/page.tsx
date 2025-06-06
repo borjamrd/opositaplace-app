@@ -39,7 +39,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { getActiveOppositions, type Opposition } from '@/lib/supabase/queries/getActiveOppositions';
-import { useOppositionStore } from '@/store/opposition-store';
+import { useStudySessionStore } from "@/store/study-session-store";
 import { AlertCircle, Calendar, ChevronRight, Loader2, Save } from 'lucide-react';
 
 // Importaciones del planificador semanal
@@ -137,7 +137,7 @@ export default function OnboardingPage() {
     const [currentUser, setCurrentUser] = useState<User | null>(null);
     const supabase = createClient();
 
-    const { setActiveOpposition } = useOppositionStore();
+    const { selectOpposition } = useStudySessionStore();
     const [isServerActionPending, startTransition] = useTransition();
 
     // Estados para el nuevo planificador semanal
@@ -255,11 +255,11 @@ export default function OnboardingPage() {
             if (finalOppositionId) {
                 const finalSelectedOp = oppositions.find((op) => op.id === finalOppositionId);
                 if (finalSelectedOp) {
-                    setActiveOpposition(finalSelectedOp);
+                    selectOpposition(finalSelectedOp.id);
                 }
             }
         }
-    }, [actionState, toast, setActiveOpposition, form, oppositions]);
+    }, [actionState, toast, selectOpposition, form, oppositions]);
 
     const handleProceedToStep2 = async () => {
         setIsSubmittingStep1(true);
