@@ -18,7 +18,7 @@ export function TimerDialog({ open, onOpenChange }: TimerDialogProps) {
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className="sm:max-w-[30rem]">
                 <DialogHeader>
                     <DialogTitle>Sesión de estudio</DialogTitle>
                 </DialogHeader>
