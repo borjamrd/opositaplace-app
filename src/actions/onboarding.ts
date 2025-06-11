@@ -12,16 +12,7 @@ const onboardingActionSchema = z.object({
     .string()
     .uuid({ message: "ID de oposición inválido." })
     .min(1, "Se requiere ID de oposición."),
-  available_hours: z.coerce
-    .number({
-      required_error: "Las horas disponibles son requeridas.",
-      invalid_type_error: "Las horas disponibles deben ser un número.",
-    })
-    .positive({
-      message: "Las horas disponibles deben ser un número positivo.",
-    })
-    .min(1, "Debes indicar al menos 1 hora disponible.")
-    .max(168, "El número de horas parece excesivo."),
+
   objectives: z
     .string()
     .min(1, "Los objetivos no pueden estar vacíos como JSON string."),
@@ -29,6 +20,8 @@ const onboardingActionSchema = z.object({
     .string()
     .min(1, "Los días de estudio no pueden estar vacíos como JSON string."),
   help_with: z.string().optional().default("[]"),
+  slot_duration_minutes: z
+    .string().default("60")
 });
 
 type InitialState = {
@@ -71,10 +64,10 @@ export async function submitOnboarding(
   const rawFormData = {
     user_id: user.id,
     opposition_id: formData.get("opposition_id"),
-    available_hours: formData.get("available_hours"),
     objectives: formData.get("objectives"),
     study_days: formData.get("study_days"),
     help_with: formData.get("help_with") || "[]",
+    slot_duration_minutes: formData.get("slot_duration_minutes") || "60",
   };
 
   const validationResult = onboardingActionSchema.safeParse(rawFormData);
@@ -97,10 +90,10 @@ export async function submitOnboarding(
   const {
     user_id,
     opposition_id,
-    available_hours,
     objectives: objectivesString,
     study_days: studyDaysString,
     help_with: helpWithString,
+    slot_duration_minutes
   } = validationResult.data;
 
   const { error: userOppositionsError } = await supabase
@@ -156,11 +149,11 @@ export async function submitOnboarding(
 
   const onboardingData: TablesInsert<"onboarding_info"> = {
     user_id: user_id,
-    available_hours,
     objectives: parsedObjectives,
     study_days: parsedStudyDays,
     help_with: parsedHelpWith,
     opposition_id: opposition_id,
+    slot_duration_minutes: parseInt(slot_duration_minutes, 10),
   };
 
   const { error: onboardingInfoError } = await supabase

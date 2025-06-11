@@ -15,8 +15,9 @@ export const useSubscriptionStore = create<SubscriptionStore>((set) => ({
     activeSubscription: null,
     isLoading: true,
     error: null,
-    setSubscription: (subscription) => set({ activeSubscription: subscription }),
+    setSubscription: (subscription) =>
+        set({ activeSubscription: subscription, isLoading: false, error: null }),
     setLoading: (isLoading) => set({ isLoading }),
-    setError: (error) => set({ error }),
+    setError: (error) => set({ error, isLoading: false }),
     clearActiveSubscription: () => set({ activeSubscription: null, isLoading: false, error: null }),
 }));

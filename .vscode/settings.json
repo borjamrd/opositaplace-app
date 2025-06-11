@@ -1,6 +1,4 @@
 {
-  "IDX.aI.enableCodebaseIndexing": true,
-  "IDX.aI.enableInlineCompletion": true,
   "[typescript]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },

@@ -172,32 +172,32 @@ export type Database = {
       }
       onboarding_info: {
         Row: {
-          available_hours: number
           created_at: string | null
           help_with: Json | null
           id: string
           objectives: Json | null
           opposition_id: string | null
+          slot_duration_minutes: number
           study_days: Json | null
           user_id: string
         }
         Insert: {
-          available_hours: number
           created_at?: string | null
           help_with?: Json | null
           id?: string
           objectives?: Json | null
           opposition_id?: string | null
+          slot_duration_minutes?: number
           study_days?: Json | null
           user_id: string
         }
         Update: {
-          available_hours?: number
           created_at?: string | null
           help_with?: Json | null
           id?: string
           objectives?: Json | null
           opposition_id?: string | null
+          slot_duration_minutes?: number
           study_days?: Json | null
           user_id?: string
         }
@@ -1045,6 +1045,13 @@ export type Database = {
       }
     }
     Functions: {
+      get_daily_study_summary: {
+        Args: { days_limit: number }
+        Returns: {
+          study_date: string
+          total_minutes: number
+        }[]
+      }
       has_role: {
         Args: {
           user_id: string

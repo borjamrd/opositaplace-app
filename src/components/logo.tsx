@@ -11,12 +11,12 @@ const Logo: React.FC<LogoProps> = ({ className }) => {
     <div className="flex items-center justify-center">
     <Image
       src="/opositaplace_logo_v1.png"
-      width={50}
-      height={50}
+      width={40}
+      height={40}
       className={cn("", className)}
       alt="Picture of the author"
     />
-    <span className="text-2xl font-bold text-primary">opositaplace</span>
+    <span className="text-xl font-bold text-primary">opositaplace</span>
     </div>
   );
 };

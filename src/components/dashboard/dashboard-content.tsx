@@ -1,11 +1,12 @@
 "use client";
 
 import React from 'react';
+import { StudySessionsChart } from '../charts/study-sessions-chart';
 
 const DashboardContent = () => {
   return (
-    <div className="flex-1 flex items-center justify-center">
-      <h1>Dashboard Content Area</h1>
+    <div className="flex-1 flex container p-20">
+      <StudySessionsChart />
     </div>
   );
 };
