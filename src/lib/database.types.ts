@@ -65,6 +65,13 @@ export type Database = {
             referencedRelation: "topics"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "anki_cards_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
         ]
       }
       answers: {
@@ -207,6 +214,13 @@ export type Database = {
             columns: ["opposition_id"]
             isOneToOne: false
             referencedRelation: "oppositions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "onboarding_info_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -634,6 +648,13 @@ export type Database = {
             referencedRelation: "tests"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "test_attempts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
         ]
       }
       test_questions: {
@@ -927,6 +948,13 @@ export type Database = {
             referencedRelation: "oppositions"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "user_study_cycles_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
         ]
       }
       user_study_sessions: {
@@ -973,6 +1001,13 @@ export type Database = {
             columns: ["study_cycle_id"]
             isOneToOne: false
             referencedRelation: "user_study_cycles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_study_sessions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -1111,6 +1146,13 @@ export type Database = {
             referencedRelation: "urls"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "user_url_subscriptions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
         ]
       }
     }
@@ -1132,10 +1174,21 @@ export type Database = {
             referencedRelation: "questions"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "test_attempts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
         ]
       }
     }
     Functions: {
+      delete_user_data: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       get_daily_study_summary: {
         Args: { days_limit: number }
         Returns: {
