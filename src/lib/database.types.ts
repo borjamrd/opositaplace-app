@@ -351,6 +351,35 @@ export type Database = {
           },
         ]
       }
+      resource_change_history: {
+        Row: {
+          created_at: string
+          id: string
+          resource_id: string
+          summary: Json | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          resource_id: string
+          summary?: Json | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          resource_id?: string
+          summary?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "resource_change_history_resource_id_fkey"
+            columns: ["resource_id"]
+            isOneToOne: false
+            referencedRelation: "scraped_resources"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       resource_oppositions: {
         Row: {
           id: string
@@ -443,6 +472,39 @@ export type Database = {
           main_function?: string | null
           scope?: string | null
           title?: string
+          url?: string
+        }
+        Relationships: []
+      }
+      scraped_resources: {
+        Row: {
+          change_summary: Json | null
+          content: string | null
+          created_at: string
+          id: string
+          last_scraped_at: string | null
+          name: string | null
+          status: string | null
+          url: string
+        }
+        Insert: {
+          change_summary?: Json | null
+          content?: string | null
+          created_at?: string
+          id?: string
+          last_scraped_at?: string | null
+          name?: string | null
+          status?: string | null
+          url: string
+        }
+        Update: {
+          change_summary?: Json | null
+          content?: string | null
+          created_at?: string
+          id?: string
+          last_scraped_at?: string | null
+          name?: string | null
+          status?: string | null
           url?: string
         }
         Relationships: []
@@ -1022,6 +1084,35 @@ export type Database = {
           },
         ]
       }
+      user_url_subscriptions: {
+        Row: {
+          created_at: string
+          is_active: boolean | null
+          url_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          is_active?: boolean | null
+          url_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          is_active?: boolean | null
+          url_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_url_subscriptions_url_id_fkey"
+            columns: ["url_id"]
+            isOneToOne: false
+            referencedRelation: "urls"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       wrong_answers_view: {
@@ -1050,6 +1141,22 @@ export type Database = {
         Returns: {
           study_date: string
           total_minutes: number
+        }[]
+      }
+      get_url_history_by_id: {
+        Args: { target_url_id: string }
+        Returns: {
+          summary: Json
+          created_at: string
+        }[]
+      }
+      get_urls_with_user_subscription: {
+        Args: { user_id_param: string }
+        Returns: {
+          id: string
+          name: string
+          description: string
+          is_subscribed: boolean
         }[]
       }
       has_role: {
