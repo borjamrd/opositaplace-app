@@ -18,7 +18,11 @@ import { useCallback, useEffect, useState, useActionState, useTransition } from 
 import SelectedSlotsSummary from '../weekly-planner/SelectedSlotsSummary';
 import SlotDurationSelector from '../weekly-planner/SlotDurationSelector';
 import WeeklyPlanner from '../weekly-planner/WeeklyPlanner';
-import { DAYS_OF_WEEK_ORDERED, SLOT_DURATION_OPTIONS, generateTimeSlots } from '../weekly-planner/constants';
+import {
+    DAYS_OF_WEEK_ORDERED,
+    SLOT_DURATION_OPTIONS,
+    generateTimeSlots,
+} from '../weekly-planner/constants';
 import { Day, SelectedSlots } from '../weekly-planner/types';
 import { initializeSelectedSlots, parseSlotToMinutes } from '../weekly-planner/utils';
 import { useToast } from '@/hooks/use-toast';
@@ -30,8 +34,10 @@ export default function UserOnboarding() {
 
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [isUpdating, startUpdateTransition] = useTransition(); // Para el estado de carga de la actualización
-    const [updateState, updateAction] = useActionState(updateOnboardingInfo, { message: '', success: false }); // Para el estado de la acción
-
+    const [updateState, updateAction] = useActionState(updateOnboardingInfo, {
+        message: '',
+        success: false,
+    }); // Para el estado de la acción
 
     // Valores por defecto iniciales si no hay perfil
     const defaultInitialDuration = SLOT_DURATION_OPTIONS.includes(30)
@@ -51,19 +57,22 @@ export default function UserOnboarding() {
     // Este useEffect se encargará de "hidratar" el componente con los datos del usuario.
     useEffect(() => {
         if (profile?.onboarding) {
-            const loadedDuration = profile.onboarding.slot_duration_minutes || defaultInitialDuration;
-            
+            const loadedDuration =
+                profile.onboarding.slot_duration_minutes || defaultInitialDuration;
+
             // Asegurarse de que study_days sea un objeto válido antes de castear
             const rawStudyDaysFromProfile = profile.onboarding.study_days;
             const loadedStudyDays: SelectedSlots = {} as SelectedSlots;
-            DAYS_OF_WEEK_ORDERED.forEach(day => {
+            DAYS_OF_WEEK_ORDERED.forEach((day) => {
                 if (
                     rawStudyDaysFromProfile &&
                     typeof rawStudyDaysFromProfile === 'object' &&
                     !Array.isArray(rawStudyDaysFromProfile) &&
                     (rawStudyDaysFromProfile as Record<string, any>)[day] !== undefined
                 ) {
-                    loadedStudyDays[day] = (rawStudyDaysFromProfile as Record<Day, Record<string, boolean>>)[day];
+                    loadedStudyDays[day] = (
+                        rawStudyDaysFromProfile as Record<Day, Record<string, boolean>>
+                    )[day];
                 } else {
                     loadedStudyDays[day] = {};
                 }
@@ -80,7 +89,6 @@ export default function UserOnboarding() {
             setSelectedSlots(initializeSelectedSlots(initialTimeSlots));
         }
     }, [profile, isLoading, defaultInitialDuration]);
-
 
     // Efecto para actualizar los timeSlots y preservar las selecciones cuando cambia la duración del slot (solo local)
     // ESTE EFECTO NO DEBE LLAMAR A LA ACCIÓN DE SUPABASE. Solo maneja el estado local del planificador.
@@ -130,7 +138,6 @@ export default function UserOnboarding() {
         });
     }, [slotDuration]); // No depende de 'form' ni de acciones de guardado
 
-
     // Efecto para manejar las respuestas de la Server Action
     useEffect(() => {
         if (updateState.message) {
@@ -145,7 +152,6 @@ export default function UserOnboarding() {
             }
         }
     }, [updateState, toast, refetch]);
-
 
     // handleDurationChange ahora SOLO actualiza el estado LOCAL
     const handleDurationChange = useCallback((newDuration: number) => {
@@ -174,17 +180,22 @@ export default function UserOnboarding() {
         });
     }, []);
 
-
     // Función para guardar los cambios en Supabase (llamada por el botón de "Guardar")
     const handleSaveChanges = useCallback(() => {
         if (!profile?.id) {
-            toast({ title: 'Error', description: 'ID de usuario no disponible.', variant: 'destructive' });
+            toast({
+                title: 'Error',
+                description: 'ID de usuario no disponible.',
+                variant: 'destructive',
+            });
             return;
         }
 
         // Validación simple antes de enviar
-        const hasAnySlotSelected = DAYS_OF_WEEK_ORDERED.some(day =>
-            selectedSlots[day] && Object.values(selectedSlots[day]).some(isSelected => isSelected)
+        const hasAnySlotSelected = DAYS_OF_WEEK_ORDERED.some(
+            (day) =>
+                selectedSlots[day] &&
+                Object.values(selectedSlots[day]).some((isSelected) => isSelected)
         );
 
         if (!hasAnySlotSelected) {
@@ -204,9 +215,7 @@ export default function UserOnboarding() {
                 slotDurationMinutes: slotDuration,
             });
         });
-
     }, [profile, selectedSlots, slotDuration]);
-
 
     // Resto del código (renderizado)
     if (isLoading) {
@@ -238,7 +247,7 @@ export default function UserOnboarding() {
                         Aún no has completado tu configuración de estudio inicial.
                     </p>
                     {/* Se asume que profile.id siempre estará disponible aquí si no hay profile.onboarding */}
-                    <Button onClick={() => window.location.href = `/onboarding/${profile?.id}`}>
+                    <Button onClick={() => (window.location.href = `/onboarding/${profile?.id}`)}>
                         Completar Onboarding
                     </Button>
                 </CardContent>
@@ -247,16 +256,19 @@ export default function UserOnboarding() {
     }
 
     return (
-        <Card className="w-full rounded-lg shadow-md">
+        <Card className="w-full">
             <CardContent className="space-y-4 pt-6">
-              
                 <div>
                     <SelectedSlotsSummary
-                        selectedSlots={selectedSlots} // Usar el estado local, que ya está sincronizado
+                        selectedSlots={selectedSlots}
                     />
                     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                         <DialogTrigger asChild>
-                            <Button variant="secondary" className="w-full sm:w-auto mt-4" disabled={isUpdating}>
+                            <Button
+                                variant="secondary"
+                                className="w-full sm:w-auto mt-4"
+                                disabled={isUpdating}
+                            >
                                 <Calendar className="mr-2 h-4 w-4" />
                                 {isUpdating ? 'Guardando...' : 'Editar Horario'}
                             </Button>
@@ -265,6 +277,7 @@ export default function UserOnboarding() {
                             <DialogHeader>
                                 <DialogTitle>Planificador de Horarios</DialogTitle>
                             </DialogHeader>
+
                             <div className="flex flex-col lg:flex-row">
                                 <div className="flex flex-col">
                                     <SlotDurationSelector
@@ -279,18 +292,18 @@ export default function UserOnboarding() {
                                 </div>
                                 <div className="mt-6 relative">
                                     <div className="sticky top-3 p-4">
+                                        <div className="flex justify-end gap-2 p-4 mb-4 pt-0 border-b">
+                                            <Button
+                                                onClick={handleSaveChanges}
+                                                variant={'secondary'}
+                                                disabled={isUpdating}
+                                            >
+                                                {isUpdating ? 'Guardando...' : 'Guardar Cambios'}
+                                            </Button>
+                                        </div>
                                         <SelectedSlotsSummary selectedSlots={selectedSlots} />
                                     </div>
                                 </div>
-                            </div>
-                            <div className="flex justify-end gap-2 p-4 pt-0 border-t">
-                                <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} disabled={isUpdating}>
-                                    Cerrar
-                                </Button>
-                                {/* Botón para guardar los cambios */}
-                                <Button onClick={handleSaveChanges} disabled={isUpdating}>
-                                    {isUpdating ? 'Guardando...' : 'Guardar Cambios'}
-                                </Button>
                             </div>
                         </DialogContent>
                     </Dialog>
@@ -299,7 +312,9 @@ export default function UserOnboarding() {
                 {profile.onboarding.help_with &&
                     (profile.onboarding.help_with as string[]).length > 0 && (
                         <div>
-                            <p className="text-sm font-medium text-muted-foreground">Áreas de ayuda</p>
+                            <p className="text-sm font-medium text-muted-foreground">
+                                Áreas de ayuda
+                            </p>
                             <div className="flex flex-wrap gap-2 mt-1">
                                 {(profile.onboarding.help_with as string[]).map((area) => (
                                     <Badge key={area} variant={'outline'}>
