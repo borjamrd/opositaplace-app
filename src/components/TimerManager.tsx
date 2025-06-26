@@ -100,7 +100,6 @@ export default function TimerManager() {
                             variant="destructive"
                             onClick={() => {
                                 useTimerStore.getState().saveSessionAndReset();
-                                setModalOpen(true);
                             }}
                         >
                             Finalizar

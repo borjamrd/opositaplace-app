@@ -24,6 +24,7 @@ import React from 'react';
 import Logo from '../logo';
 import OpositionSelector from '../oposition-selector';
 import { SessionLoader } from '../session-loader';
+import { NavMain } from './nav-main';
 // import { NavMain } from "@components/layout/nav-main"
 
 export const sidebarData = {
@@ -90,7 +91,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarContent>
                 <SessionLoader />
                 <OpositionSelector />
-                {/* <NavMain items={sidebarData.navMain} /> */}
+                <NavMain items={sidebarData.navMain} />
                 {/* <NavGeneral items={sidebarData.general} /> */}
             </SidebarContent>
 

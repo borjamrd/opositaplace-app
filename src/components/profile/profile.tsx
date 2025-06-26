@@ -14,6 +14,7 @@ import { useEffect, useState } from 'react';
 
 import UserOnboarding from '../onboarding/user-onboarding';
 import UserSubscription from '../subscription/user-suscription';
+import DeleteProfile from './delete-profile';
 
 export default function Profile() {
     const { data: profile, isLoading, error, refetch } = useProfile();
@@ -190,6 +191,7 @@ export default function Profile() {
 
             <UserOnboarding />
             <UserSubscription />
+            <DeleteProfile />
         </div>
     );
 }

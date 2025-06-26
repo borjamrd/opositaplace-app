@@ -30,7 +30,6 @@ export const STRIPE_PLANS: Plan[] = [
       "Creación de ankicards y flashcards",
       "Cración de mnemotecnias",
       "3 tests diarios",
-      "Soporte entre 48/72 horas",
     ],
   },
   {
@@ -42,10 +41,9 @@ export const STRIPE_PLANS: Plan[] = [
       process.env.NEXT_PUBLIC_STRIPE_BASIC_PLAN_ID || "price_basic_placeholder",
     features: [
       "Todo lo de la capa gratuita",
-      "100 requests por día",
+      "10 solicitudes por día",
       "Genera tus propios tests",
-      "Analiza tu progreso y obtén feedback sobre fallon",
-      "Soporte en las primeras 24/48 horas",
+      "Analiza tu progreso y obtén feedback sobre fallos",
     ],
   },
   {
