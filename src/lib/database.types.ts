@@ -1196,6 +1196,10 @@ export type Database = {
           total_minutes: number
         }[]
       }
+      get_questions_by_opposition: {
+        Args: { opp_id: string }
+        Returns: string[]
+      }
       get_url_history_by_id: {
         Args: { target_url_id: string }
         Returns: {
@@ -1211,6 +1215,10 @@ export type Database = {
           description: string
           is_subscribed: boolean
         }[]
+      }
+      get_user_failed_questions: {
+        Args: Record<PropertyKey, never>
+        Returns: string[]
       }
       has_role: {
         Args: {
