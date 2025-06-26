@@ -1,8 +1,6 @@
 'use client';
 
-import { createClient } from '@/lib/supabase/client';
 import { zodResolver } from '@hookform/resolvers/zod';
-import type { User } from '@supabase/supabase-js';
 import { useParams } from 'next/navigation';
 import { useActionState, useCallback, useEffect, useState, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
@@ -39,21 +37,20 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { getActiveOppositions, type Opposition } from '@/lib/supabase/queries/getActiveOppositions';
-import { useStudySessionStore } from "@/store/study-session-store";
+import { useStudySessionStore } from '@/store/study-session-store';
 import { AlertCircle, Calendar, ChevronRight, Loader2, Save } from 'lucide-react';
 
 // Importaciones del planificador semanal
 import {
     DAYS_OF_WEEK_ORDERED,
     SLOT_DURATION_OPTIONS,
-    generateTimeSlots
+    generateTimeSlots,
 } from '@/components/weekly-planner/constants';
 import SelectedSlotsSummary from '@/components/weekly-planner/SelectedSlotsSummary';
 import SlotDurationSelector from '@/components/weekly-planner/SlotDurationSelector';
 import { Day, SelectedSlots } from '@/components/weekly-planner/types';
 import WeeklyPlanner from '@/components/weekly-planner/WeeklyPlanner';
 
-// Importaciones de Dialog
 import {
     Dialog,
     DialogContent,
@@ -62,8 +59,7 @@ import {
     DialogTrigger,
 } from '@/components/ui/dialog';
 import { initializeSelectedSlots, parseSlotToMinutes } from '@/components/weekly-planner/utils';
-
-// Función de ayuda para inicializar los slots seleccionados
+import { useProfileStore } from '@/store/profile-store';
 
 const helpOptions = [
     'Organización del estudio',
@@ -74,7 +70,6 @@ const helpOptions = [
     'Motivación',
 ] as const;
 
-// Esquema de validación del formulario con Zod
 const onboardingFormSchema = z.object({
     opposition_id: z
         .string({ required_error: 'Debes seleccionar una oposición.' })
@@ -133,9 +128,7 @@ export default function OnboardingPage() {
     const [isLoadingOppositions, setIsLoadingOppositions] = useState(true);
     const [isSubmittingStep1, setIsSubmittingStep1] = useState(false);
     const [isSubmittingStep2, setIsSubmittingStep2] = useState(false);
-
-    const [currentUser, setCurrentUser] = useState<User | null>(null);
-    const supabase = createClient();
+    const { profile } = useProfileStore();
 
     const { selectOpposition } = useStudySessionStore();
     const [isServerActionPending, startTransition] = useTransition();
@@ -164,19 +157,6 @@ export default function OnboardingPage() {
             slot_duration_minutes: defaultDuration,
         },
     });
-
-    useEffect(() => {
-        const getUser = async () => {
-            const {
-                data: { user },
-            } = await supabase.auth.getUser();
-            setCurrentUser(user);
-            if (user && user.id !== pageUserId) {
-                console.warn('User ID mismatch. Esto debería ser manejado por el middleware.');
-            }
-        };
-        getUser();
-    }, [supabase, pageUserId]);
 
     useEffect(() => {
         async function loadOppositions() {
@@ -306,7 +286,7 @@ export default function OnboardingPage() {
     }, []);
 
     // Muestra un loader mientras se obtiene el usuario actual o las oposiciones
-    if (!currentUser || isLoadingOppositions) {
+    if (!profile || isLoadingOppositions) {
         return (
             <div className="flex min-h-screen items-center justify-center">
                 <Loader2 className="h-8 w-8 animate-spin" />
@@ -314,7 +294,6 @@ export default function OnboardingPage() {
             </div>
         );
     }
-    // Si pageUserId no está disponible (nunca debería pasar si la ruta está bien formada)
     if (!pageUserId)
         return (
             <div className="flex min-h-screen items-center justify-center">
@@ -323,7 +302,7 @@ export default function OnboardingPage() {
         );
 
     const handleFinalSubmit = (data: OnboardingFormValues) => {
-        if (!currentUser) {
+        if (!profile) {
             toast({
                 title: 'Error',
                 description: 'Usuario no autenticado.',
@@ -331,7 +310,7 @@ export default function OnboardingPage() {
             });
             return;
         }
-        if (currentUser.id !== pageUserId) {
+        if (profile.id !== pageUserId) {
             toast({
                 title: 'Error de Seguridad',
                 description: 'Discrepancia de ID de usuario.',
@@ -340,7 +319,6 @@ export default function OnboardingPage() {
             return;
         }
 
-        // Antes de enviar, verifica que al menos un slot esté seleccionado
         const hasAnySlotSelected = Object.values(selectedSlots).some((daySlots) =>
             Object.values(daySlots).some((isSelected) => isSelected)
         );
@@ -358,7 +336,7 @@ export default function OnboardingPage() {
 
         startTransition(() => {
             const formData = new FormData();
-            formData.append('user_id', currentUser.id);
+            formData.append('user_id', profile.id);
             formData.append('opposition_id', data.opposition_id);
             formData.append('objectives', JSON.stringify({ main_objective: data.objectives }));
             formData.append('help_with', JSON.stringify(data.help_with || []));

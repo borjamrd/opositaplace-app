@@ -125,7 +125,6 @@ export const useTimerStore = create<TimerState>((set, get) => ({
 
     setActivePomodoroSession: (sessionType) => {
         set({ activePomodoroSession: sessionType });
-        // No es necesario guardar esto en localStorage, es estado de la UI
     },
     setPomodoroDurations: (durations) => {
         const newDurations = {
@@ -194,16 +193,17 @@ export const useTimerStore = create<TimerState>((set, get) => ({
         get().reset();
     },
     reset: () => {
-        // O resetTimer: () => { ... }
-        console.log('Limpiando el estado del temporizador.');
-        // Solo limpia el estado
+        // ¡CORREGIDO! Ahora también resetea la pestaña del Pomodoro
         set({
             isActive: false,
             startTime: null,
             duration: 0,
             remainingTime: 0,
             sessionStartedAt: null,
+            activePomodoroSession: 'pomodoro',
         });
+        // También limpiamos el localStorage para evitar estados inconsistentes
+        window.localStorage.removeItem(TIMER_STORAGE_KEY);
     },
 }));
 
