@@ -12,18 +12,19 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { createClient } from '@/lib/supabase/client';
+import { useProfileStore } from '@/store/profile-store';
 import type { User } from '@supabase/supabase-js';
 import { LayoutDashboard, User as UserIcon } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import Logo from '../logo';
-import { usePathname } from 'next/navigation';
 
 export function Navbar() {
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
     const supabase = createClient();
-    const pathname = usePathname();
+
+    const { profile } = useProfileStore();
 
     useEffect(() => {
         async function getUser() {
@@ -46,7 +47,7 @@ export function Navbar() {
         return () => {
             authListener?.subscription.unsubscribe();
         };
-    }, [supabase, pathname]);
+    }, [supabase]);
 
     const getInitials = (email?: string | null) => {
         if (!email) return 'OP';
@@ -87,11 +88,14 @@ export function Navbar() {
                             <DropdownMenuTrigger asChild>
                                 <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                                     <Avatar className="h-8 w-8">
+                                        {/* ESTA ES LA LÍNEA CLAVE */}
                                         <AvatarImage
-                                            src={user.user_metadata?.avatar_url}
-                                            alt={user.email || 'User'}
+                                            src={profile?.avatar_url || ''} // <-- ¡Usa el avatar del perfil!
+                                            alt={profile?.email || 'User'}
                                         />
-                                        <AvatarFallback>{getInitials(user.email)}</AvatarFallback>
+                                        <AvatarFallback>
+                                            {getInitials(profile?.email)}
+                                        </AvatarFallback>
                                     </Avatar>
                                 </Button>
                             </DropdownMenuTrigger>
@@ -99,10 +103,11 @@ export function Navbar() {
                                 <DropdownMenuLabel className="font-normal">
                                     <div className="flex flex-col space-y-1">
                                         <p className="text-sm font-medium leading-none">
-                                            {user.user_metadata?.full_name || user.email}
+                                            {/* También usamos los datos del perfil aquí para consistencia */}
+                                            {profile?.username || profile?.email}
                                         </p>
                                         <p className="text-xs leading-none text-muted-foreground">
-                                            {user.email}
+                                            {profile?.email}
                                         </p>
                                     </div>
                                 </DropdownMenuLabel>

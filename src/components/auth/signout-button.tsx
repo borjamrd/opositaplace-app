@@ -19,11 +19,15 @@ import { useTimerStore } from '@/store/timer-store';
 import { useQueryClient } from '@tanstack/react-query';
 import { LogOut, Loader2 } from 'lucide-react';
 import { useState } from 'react';
+import { useProfileStore } from '@/store/profile-store';
+import { useRouter } from 'next/navigation';
 
 export function SignOutButton() {
     const [isConfirming, setIsConfirming] = useState(false);
     const [isSigningOut, setIsSigningOut] = useState(false);
+    const router = useRouter();
 
+    const clearProfile = useProfileStore((state) => state.clearProfile);
     const resetSession = useStudySessionStore((state) => state.reset);
     const clearSubscription = useSubscriptionStore((state) => state.clearActiveSubscription);
     const queryClient = useQueryClient();
@@ -34,8 +38,10 @@ export function SignOutButton() {
         setIsSigningOut(true);
         resetSession();
         clearSubscription();
+        clearProfile();
         queryClient.clear();
         await signOut();
+        window.location.assign('/login');
     };
 
     const handleSignOutClick = () => {
@@ -45,7 +51,7 @@ export function SignOutButton() {
             performSignOut();
         }
     };
-    
+
     // Acción para guardar la sesión y luego salir
     const handleSaveAndSignOut = async () => {
         setIsConfirming(false);
@@ -56,14 +62,14 @@ export function SignOutButton() {
     // Acción para descartar la sesión y luego salir
     const handleDiscardAndSignOut = async () => {
         setIsConfirming(false);
-        resetTimer(); 
+        resetTimer();
         await performSignOut();
     };
 
     return (
         <>
             <DropdownMenuItem
-                onSelect={(e) => e.preventDefault()} 
+                onSelect={(e) => e.preventDefault()}
                 onClick={handleSignOutClick}
                 disabled={isSigningOut}
                 className="text-red-600 focus:text-red-600 focus:bg-red-50"
@@ -81,7 +87,8 @@ export function SignOutButton() {
                     <AlertDialogHeader>
                         <AlertDialogTitle>¿Sesión de estudio activa?</AlertDialogTitle>
                         <AlertDialogDescription>
-                            Hemos detectado que tienes un temporizador de estudio en curso. ¿Qué deseas hacer con el tiempo registrado antes de salir?
+                            Hemos detectado que tienes un temporizador de estudio en curso. ¿Qué
+                            deseas hacer con el tiempo registrado antes de salir?
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>

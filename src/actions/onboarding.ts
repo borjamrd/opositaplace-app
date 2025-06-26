@@ -115,8 +115,9 @@ export async function submitOnboarding(
         success: false,
       };
     }
+
     return {
-      message: `Error al asociar la oposición: ${userOppositionsError.message}`,
+      message: `Error al asociar la oposición`,
       errors: null,
       success: false,
     };

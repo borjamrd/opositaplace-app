@@ -5,7 +5,7 @@ import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import { Navbar } from '@/components/layout/navbar';
 import Providers from '@/components/providers/providers';
-
+import { GlobalStateLoader } from '@/components/global-state-loader';
 export const metadata: Metadata = {
     title: 'OpositaPlace - Tu preparación para oposiciones',
     description:
@@ -23,6 +23,7 @@ export default function RootLayout({
                 className={`${GeistSans.variable} ${GeistMono.variable} antialiased min-h-screen bg-background font-sans text-foreground`}
             >
                 <Providers>
+                    <GlobalStateLoader />
                     <main className="flex-1">
                         <Navbar />
                         {children}
