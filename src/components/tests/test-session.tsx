@@ -6,7 +6,14 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
@@ -15,7 +22,17 @@ import { submitTestAttempt } from '@/actions/tests'; // Crearemos esta acción a
 import type { Tables } from '@/lib/database.types';
 import type { QuestionWithAnswers } from '@/app/dashboard/tests/[id]/page';
 import { ArrowLeft, ArrowRight, CheckCircle, Loader2 } from 'lucide-react';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '../ui/alert-dialog';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from '../ui/alert-dialog';
 
 // Esquema de validación para las respuestas
 const formSchema = z.object({
@@ -43,6 +60,8 @@ export function TestSession({ testAttempt, questions }: TestSessionProps) {
 
     const currentQuestion = questions[currentQuestionIndex];
     const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
+
+    const watchedAnswers = form.watch('answers');
 
     const onSubmit = (data: FormData) => {
         startTransition(async () => {
@@ -107,11 +126,12 @@ export function TestSession({ testAttempt, questions }: TestSessionProps) {
                     >
                         <ArrowLeft className="mr-2 h-4 w-4" /> Anterior
                     </Button>
-                    
+
                     {currentQuestionIndex < questions.length - 1 ? (
                         <Button
                             type="button"
                             onClick={() => setCurrentQuestionIndex((prev) => prev + 1)}
+                            disabled={!watchedAnswers[currentQuestion.id]}
                         >
                             Siguiente <ArrowRight className="ml-2 h-4 w-4" />
                         </Button>
@@ -126,13 +146,16 @@ export function TestSession({ testAttempt, questions }: TestSessionProps) {
                                 <AlertDialogHeader>
                                     <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
                                     <AlertDialogDescription>
-                                        Una vez finalizado, el test se corregirá y no podrás cambiar tus respuestas.
+                                        Una vez finalizado, el test se corregirá y no podrás cambiar
+                                        tus respuestas.
                                     </AlertDialogDescription>
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>
                                     <AlertDialogCancel>Cancelar</AlertDialogCancel>
                                     <AlertDialogAction type="submit" disabled={isPending}>
-                                        {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                        {isPending && (
+                                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                        )}
                                         Sí, finalizar y corregir
                                     </AlertDialogAction>
                                 </AlertDialogFooter>
