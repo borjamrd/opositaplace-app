@@ -1197,8 +1197,12 @@ export type Database = {
         }[]
       }
       get_questions_by_opposition: {
-        Args: { opp_id: string }
-        Returns: string[]
+        Args:
+          | { opp_id: string }
+          | { opp_id: string; include_no_topic?: boolean }
+        Returns: {
+          id: string
+        }[]
       }
       get_url_history_by_id: {
         Args: { target_url_id: string }

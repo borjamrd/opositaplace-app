@@ -3,13 +3,7 @@
 
 import { createTestAttempt } from '@/actions/tests';
 import { Button } from '@/components/ui/button';
-import {
-    Card,
-    CardContent,
-    CardFooter,
-    CardHeader,
-    CardTitle
-} from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -29,6 +23,7 @@ interface IFormInput {
     topicIds: string[];
     numQuestions: number;
     timerEnabled: boolean;
+    includeNoTopic: boolean;
 }
 
 export function CreateTestForm({
@@ -39,7 +34,13 @@ export function CreateTestForm({
     oppositionId: string;
 }) {
     const { control, handleSubmit, watch, setValue } = useForm<IFormInput>({
-        defaultValues: { mode: 'random', numQuestions: 25, timerEnabled: true, topicIds: [] },
+        defaultValues: {
+            mode: 'random',
+            numQuestions: 25,
+            timerEnabled: true,
+            topicIds: [],
+            includeNoTopic: false,
+        },
     });
     const { toast } = useToast();
     const [isPending, startTransition] = useTransition();
@@ -135,7 +136,9 @@ export function CreateTestForm({
                                                 >
                                                     <Checkbox
                                                         id={topic.id}
-                                                        checked={!!selectedTopics?.includes(topic.id)}
+                                                        checked={
+                                                            !!selectedTopics?.includes(topic.id)
+                                                        }
                                                         onCheckedChange={(checked) => {
                                                             const isChecked = Boolean(checked);
                                                             const currentIds = selectedTopics || [];
@@ -159,6 +162,24 @@ export function CreateTestForm({
                                     </div>
                                 ))}
                             </div>
+                        </div>
+                    )}
+                    {mode === 'random' && (
+                        <div className="flex items-center space-x-2 mt-4">
+                            <Controller
+                                name="includeNoTopic"
+                                control={control}
+                                render={({ field }) => (
+                                    <Switch
+                                        id="include-no-topic-switch"
+                                        checked={field.value}
+                                        onCheckedChange={field.onChange}
+                                    />
+                                )}
+                            />
+                            <Label htmlFor="include-no-topic-switch">
+                                Incluir preguntas sin tema asignado
+                            </Label>
                         </div>
                     )}
 
