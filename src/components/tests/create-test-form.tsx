@@ -39,7 +39,7 @@ export function CreateTestForm({
             numQuestions: 25,
             timerEnabled: true,
             topicIds: [],
-            includeNoTopic: false,
+            includeNoTopic: true,
         },
     });
     const { toast } = useToast();
@@ -164,7 +164,7 @@ export function CreateTestForm({
                             </div>
                         </div>
                     )}
-                    {mode === 'random' && (
+                    {/* {mode === 'random' && (
                         <div className="flex items-center space-x-2 mt-4">
                             <Controller
                                 name="includeNoTopic"
@@ -181,7 +181,7 @@ export function CreateTestForm({
                                 Incluir preguntas sin tema asignado
                             </Label>
                         </div>
-                    )}
+                    )} */}
 
                     {/* Número de Preguntas */}
                     <div>
