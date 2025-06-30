@@ -3,11 +3,10 @@ import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
 import { getConversationalAnswer } from '@/ai/tools/knowledgeSearchTool';
 
-
 // --- Esquemas (Input y Output como los teníamos) ---
 export const ChatMessageSchema = z.object({
-  role: z.enum(['user', 'model']),
-  content: z.string(),
+    role: z.enum(['user', 'model']),
+    content: z.string(),
 });
 
 export type ChatMessage = z.infer<typeof ChatMessageSchema>;
@@ -39,14 +38,42 @@ export const opositaplaceChatFlow = ai.defineFlow(
         // Llamamos a nuestra única y potente herramienta
         const result = await getConversationalAnswer(query, sessionPath);
 
-        // Enviamos la respuesta de texto (simulando stream)
-        if (result.answer) {
-            sendChunk({ replyChunk: result.answer });
+        let finalAnswerText = result.answer || 'No se pudo generar una respuesta.';
+
+        // --- LÓGICA DE DE-DUPLICACIÓN DE FUENTES ---
+        if (result.references && result.references.length > 0) {
+            // Usamos un Map para garantizar que cada combinación de título y página sea única.
+            const uniqueSources = new Map<string, { title: string; pageIdentifier: string }>();
+            result.references.forEach((ref) => {
+                const key = `${ref.title}-${ref.pageIdentifier}`; // Creamos una clave única
+                if (!uniqueSources.has(key)) {
+                    uniqueSources.set(key, {
+                        title: ref.title,
+                        pageIdentifier: ref.pageIdentifier,
+                    });
+                }
+            });
+
+            // Ahora, construimos la lista a partir de las fuentes únicas.
+            const sourcesHeader = '\n\n---\n**Fuentes:**\n';
+            const sourcesList = Array.from(uniqueSources.values())
+                .map((source, index) => {
+                    const pageInfo =
+                        source.pageIdentifier !== 'N/A' ? `(pág. ${source.pageIdentifier})` : '';
+                 
+                    return `* ${source.title} ${pageInfo}`;
+                })
+                .join('\n');
+
+            finalAnswerText += sourcesHeader + sourcesList;
+        }
+        if (finalAnswerText) {
+            sendChunk({ replyChunk: finalAnswerText });
         }
 
         return {
-            fullReply: result.answer || 'No se pudo generar una respuesta.',
-            sessionPath: result.sessionPath || '', // Devolvemos la nueva ruta de la sesión
+            fullReply: finalAnswerText,
+            sessionPath: result.sessionPath || '',
         };
     }
 );
