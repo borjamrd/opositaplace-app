@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { createClient } from '@/lib/supabase/client';
+import { UrlScrapping } from './url-scrapping';
 
 // 1. TIPO DE DATO AJUSTADO
 // 'summary' es ahora directamente un array de strings.
@@ -121,7 +122,10 @@ export function UrlSubscriptionChanges({ urlId }: { urlId: string }) {
                     Últimos 5 cambios detectados para el recurso seleccionado.
                 </CardDescription>
             </CardHeader>
-            <CardContent>{renderContent()}</CardContent>
+            <CardContent>
+                <UrlScrapping />
+                {renderContent()}
+            </CardContent>
         </Card>
     );
 }
