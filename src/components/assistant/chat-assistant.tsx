@@ -10,13 +10,15 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useStudySessionStore } from '@/store/study-session-store';
-import { Bot, Loader2, Send, User } from 'lucide-react';
+import { Loader2, Send, User } from 'lucide-react';
+import { HoverCard, HoverCardContent, HoverCardTrigger } from '../ui/hover-card';
 
 export function ChatAssistant() {
     const [userInput, setUserInput] = useState<string>('');
     const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const { activeOpposition } = useStudySessionStore();
+    const [sessionId, setSessionId] = useState<string | undefined>(undefined);
 
     const scrollAreaRef = useRef<HTMLDivElement | null>(null);
     const messagesEndRef = useRef<HTMLDivElement | null>(null);
@@ -48,8 +50,7 @@ export function ChatAssistant() {
 
         const payload = {
             query: currentInput,
-            chatHistory: historyForPayload,
-            currentOppositionName: activeOpposition?.name,
+            sessionPath: sessionId,
         };
 
         try {
@@ -60,8 +61,6 @@ export function ChatAssistant() {
 
             let accumulatedReply = '';
 
-            console.log('Inspeccionando result:', result);
-            console.log('typeof result.stream:', typeof result.stream);
             if (result && typeof result.stream === 'object' && result.stream !== null) {
                 console.log('Keys of result.stream:', Object.keys(result.stream));
             }
@@ -71,7 +70,11 @@ export function ChatAssistant() {
                     setChatMessages((prevMessages) =>
                         prevMessages.map((msg, index) =>
                             index === prevMessages.length - 1
-                                ? { ...msg, content: accumulatedReply }
+                                ? {
+                                      ...msg,
+                                      content: finalOutput.fullReply,
+                                      sources: finalOutput.references,
+                                  }
                                 : msg
                         )
                     );
@@ -84,6 +87,7 @@ export function ChatAssistant() {
                 finalOutput.fullReply &&
                 finalOutput.fullReply !== accumulatedReply
             ) {
+                setSessionId(finalOutput.sessionPath);
                 setChatMessages((prevMessages) =>
                     prevMessages.map((msg, index) =>
                         index === prevMessages.length - 1
@@ -128,24 +132,22 @@ export function ChatAssistant() {
                                 msg.role === 'user' ? 'justify-end' : 'justify-start'
                             }`}
                         >
-                            {msg.role === 'model' && (
+                            {/* {msg.role === 'model' && (
                                 <Avatar className="h-8 w-8">
                                     <AvatarFallback>
                                         <Bot size={20} />
                                     </AvatarFallback>
                                 </Avatar>
-                            )}
+                            )} */}
                             <div
                                 className={`max-w-[70%] rounded-lg px-3 py-2 text-sm md:text-base break-words ${
-                                    msg.role === 'user'
-                                        ? ''
-                                        : 'bg-muted'
+                                    msg.role === 'user' ? '' : 'bg-muted'
                                 }`}
                             >
                                 {msg.content === '...' && isLoading ? (
                                     <div className="flex items-center space-x-2">
                                         <Loader2 className="h-4 w-4 animate-spin" />
-                                        <span>Escribiendo...</span>
+                                        <span>Pensando...</span>
                                     </div>
                                 ) : (
                                     <div className="prose prose-sm dark:prose-invert max-w-none">
@@ -216,6 +218,43 @@ export function ChatAssistant() {
                                         >
                                             {msg.content}
                                         </ReactMarkdown>
+                                        {msg.sources && msg.sources.length > 0 && (
+                                            <div className="mt-4">
+                                                <h4 className="text-sm font-semibold mb-2">
+                                                    Fuentes Consultadas:
+                                                </h4>
+                                                <div className="flex flex-col flex-wrap gap-2">
+                                                    {msg.sources.map((source, idx) => (
+                                                        <HoverCard key={source.id + idx}>
+                                                            <HoverCardTrigger asChild>
+                                                                <span className="bg-muted text-muted-foreground px-2 py-1 rounded-full text-xs cursor-pointer hover:bg-primary/20">
+                                                                    [{idx + 1}]{source.title} (pág.{' '}
+                                                                    {source.pageIdentifier})
+                                                                </span>
+                                                            </HoverCardTrigger>
+                                                            <HoverCardContent
+                                                                className="w-[40rem]"
+                                                                side="top"
+                                                            >
+                                                                <div className="space-y-2">
+                                                                    <p className="text-sm font-semibold">
+                                                                        {source.title} (pág.{' '}
+                                                                        {source.pageIdentifier})
+                                                                    </p>
+
+                                                                    {/* Contenedor con scroll para el texto largo */}
+                                                                    <ScrollArea className="h-[20rem] w-full rounded-md border p-2">
+                                                                        <p className="text-xs text-muted-foreground italic whitespace-pre-wrap">
+                                                                            "{source.text}"
+                                                                        </p>
+                                                                    </ScrollArea>
+                                                                </div>
+                                                            </HoverCardContent>
+                                                        </HoverCard>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
                                 )}
                             </div>

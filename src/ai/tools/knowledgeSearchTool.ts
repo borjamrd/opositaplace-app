@@ -3,14 +3,15 @@ import { ConversationalSearchServiceClient } from '@google-cloud/discoveryengine
 import type { protos } from '@google-cloud/discoveryengine';
 
 export interface Reference {
-    uri: string;
-    title: string;
+    id: string; // Usaremos el ID del documento como clave
+    text: string;
+    link: string;
     pageIdentifier: string;
+    title: string;
 }
 
 export interface ConversationalResult {
     answer: string | null;
-    citations: any[];
     references: Reference[];
     sessionPath: string | null;
 }
@@ -76,25 +77,22 @@ export async function getConversationalAnswer(
         const [response] = await conversationalSearchClient.answerQuery(request);
         const answer = response.answer;
 
+        // Procesamos las referencias para que tengan un formato limpio y útil
         const references: Reference[] = (answer?.references || []).map((ref) => ({
-            uri: ref.chunkInfo?.documentMetadata?.uri || '#',
-            title: ref.chunkInfo?.documentMetadata?.title || 'Fuente desconocida',
+            id: ref.chunkInfo?.documentMetadata?.document || Math.random().toString(),
+            text: ref.chunkInfo?.content || 'Contenido no disponible.',
+            link: ref.chunkInfo?.documentMetadata?.uri || '#',
             pageIdentifier: ref.chunkInfo?.documentMetadata?.pageIdentifier || 'N/A',
+            title: ref.chunkInfo?.documentMetadata?.title || 'Fuente desconocida',
         }));
 
         return {
             answer: answer?.answerText || 'No se encontró una respuesta directa.',
-            citations: answer?.citations || [],
-            references: references,
+            references: references, // Devolvemos el array procesado
             sessionPath: response.session?.name || null,
         };
     } catch (error) {
         console.error('Error in getConversationalAnswer:', error);
-        return {
-            answer: 'Hubo un error al procesar la respuesta.',
-            citations: [],
-            references: [],
-            sessionPath: null,
-        };
+        return { answer: 'Hubo un error...', references: [], sessionPath: null };
     }
 }
