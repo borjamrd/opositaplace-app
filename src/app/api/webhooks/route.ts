@@ -53,7 +53,6 @@ export async function POST(req: NextRequest) {
             await manageSubscriptionStatusChange(
               checkoutSession.subscription as string,
               checkoutSession.customer as string,
-              true
             );
           }
           break;
