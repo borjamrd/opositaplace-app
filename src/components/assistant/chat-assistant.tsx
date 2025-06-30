@@ -64,13 +64,11 @@ export function ChatAssistant() {
         const placeholderModelMessage: ChatMessage = { role: 'model', content: '...' };
         setChatMessages((prev) => [...prev, placeholderModelMessage]);
 
-        // const historyForPayload = chatMessages;
-
-        const historyForPayload = chatMessages.filter((msg) => msg !== newUserMessage);
 
         const payload = {
             query: currentInput,
             sessionPath: sessionId,
+            chatHistory: chatMessages,
         };
 
         try {
@@ -145,8 +143,13 @@ export function ChatAssistant() {
                 {chatMessages.length === 0 ? (
                     <div className="flex flex-col items-center justify-center h-full">
                         <div className="text-center">
-                            <h2 className="text-2xl font-bold">Hola, ¿En qué puedo ayudarte hoy?</h2>
-                            <p className="text-muted-foreground">Recuerda que únicamente te daré respuestas basadas en la documentación oficial.</p>
+                            <h2 className="text-2xl font-bold">
+                                Hola, ¿En qué puedo ayudarte hoy?
+                            </h2>
+                            <p className="text-muted-foreground">
+                                Recuerda que únicamente te daré respuestas basadas en la
+                                documentación oficial.
+                            </p>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8 w-full max-w-2xl">
                             {suggestedQuestions.map((sq, index) => (
