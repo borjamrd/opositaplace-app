@@ -114,7 +114,7 @@ export function RegisterForm() {
                         )}
                     </div>
                     <div className="space-y-2">
-                        <Label htmlFor="confirmPassword">Confirmar Contraseña</Label>
+                        <Label htmlFor="confirmPassword">Confirmar contraseña</Label>
                         <Input
                             id="confirmPassword"
                             name="confirmPassword"
