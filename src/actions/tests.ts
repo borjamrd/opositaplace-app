@@ -5,6 +5,7 @@ import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import type { Database } from '@/lib/database.types';
+import { shuffle } from '@/lib/utils';
 
 type Question = Database['public']['Tables']['questions']['Row'];
 type TestMode = 'random' | 'errors' | 'topics';
@@ -16,14 +17,6 @@ interface CreateTestParams {
     oppositionId: string;
     studyCycleId: string;
     includeNoTopic?: boolean;
-}
-
-export function shuffleArray<T>(array: T[]): T[] {
-    for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-    }
-    return array;
 }
 
 export async function createTestAttempt(params: CreateTestParams) {
@@ -80,7 +73,7 @@ export async function createTestAttempt(params: CreateTestParams) {
         return { error: 'No se encontraron preguntas para los criterios seleccionados.' };
     }
 
-    const shuffled = shuffleArray(questionIds);
+    const shuffled = shuffle(questionIds);
     const selectedQuestions = shuffled.slice(0, params.numQuestions);
 
     if (selectedQuestions.length === 0) {
