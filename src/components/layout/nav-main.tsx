@@ -26,7 +26,7 @@ export function NavMain({
     return (
         <SidebarGroup>
             <SidebarGroupLabel>De tu oposición</SidebarGroupLabel>
-            <SidebarGroupContent className="flex flex-col gap-2">
+            <SidebarGroupContent className="flex flex-col gap-2 flex-1">
                 <SidebarMenu>
                     <SidebarMenuItem className="flex items-center gap-2">
                         <SidebarMenuButton
@@ -57,6 +57,7 @@ export function NavMain({
                     ))}
                 </SidebarMenu>
             </SidebarGroupContent>
+            {/* El usuario ahora se muestra en la parte inferior del sidebar */}
         </SidebarGroup>
     );
 }

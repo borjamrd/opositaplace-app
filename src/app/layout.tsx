@@ -7,9 +7,9 @@ import { Navbar } from '@/components/layout/navbar';
 import Providers from '@/components/providers/providers';
 import { GlobalStateLoader } from '@/components/global-state-loader';
 export const metadata: Metadata = {
-    title: 'OpositaPlace - Tu preparación para oposiciones',
+    title: 'Opositaplace - Por opositores, para opositores',
     description:
-        'Organiza tu estudio, sigue tu progreso y alcanza tus metas en las oposiciones con OpositaPlace.',
+        'Organiza tu estudio, realiza tests, sigue tu progreso y consigue tu plaza con Opositaplace.',
 };
 
 export default function RootLayout({

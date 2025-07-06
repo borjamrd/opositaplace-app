@@ -6,8 +6,7 @@ import {
     SidebarFooter,
     SidebarHeader,
     SidebarMenu,
-    SidebarMenuButton,
-    SidebarMenuItem,
+    SidebarMenuItem
 } from '@/components/ui/sidebar';
 
 import {
@@ -19,13 +18,12 @@ import {
     LayoutDashboard,
     Map,
 } from 'lucide-react';
-import Link from 'next/link';
 import React from 'react';
 import Logo from '../logo';
 import OpositionSelector from '../oposition-selector';
 import { SessionLoader } from '../session-loader';
 import { NavMain } from './nav-main';
-// import { NavMain } from "@components/layout/nav-main"
+import { NavUserSection } from './nav-user-section';
 
 export const sidebarData = {
     navMain: [
@@ -75,15 +73,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarHeader>
                 <SidebarMenu>
                     <SidebarMenuItem>
-                        <SidebarMenuButton
-                            asChild
-                            className="data-[slot=sidebar-menu-button]:!p-1.5"
-                        >
-                            <Link className="flex items-center gap-2 font-lora" href={'/'}>
-                                <Logo className="h-8 w-8 flex" />
-                                <span className="text-base font-semibold">opositaplace</span>
-                            </Link>
-                        </SidebarMenuButton>
+                        <Logo className="h-8 w-8 flex" />
                     </SidebarMenuItem>
                 </SidebarMenu>
             </SidebarHeader>
@@ -95,7 +85,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 {/* <NavGeneral items={sidebarData.general} /> */}
             </SidebarContent>
 
-            <SidebarFooter>{/* <NavUser /> */}</SidebarFooter>
+            <SidebarFooter>
+                <NavUserSection />
+            </SidebarFooter>
         </Sidebar>
     );
 }

@@ -126,7 +126,7 @@ export default function Profile() {
                     <div className="flex items-center space-x-4">
                         <Avatar className="h-20 w-20">
                             <AvatarImage
-                                className="rounded-full aspect-square"
+                                className="rounded-full aspect-square object-cover object-center"
                                 src={profile?.avatar_url || ''}
                                 alt="Avatar"
                             />

@@ -1,0 +1,57 @@
+"use client";
+
+
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { useProfileStore } from '@/store/profile-store';
+import { LayoutDashboard, User as UserIcon } from 'lucide-react';
+import Link from 'next/link';
+import { SignOutButton } from '@/components/auth/signout-button';
+
+export function NavUserSection() {
+  const { profile } = useProfileStore();
+
+  const getInitials = (email?: string | null) => {
+    if (!email) return 'OP';
+    return email.substring(0, 2).toUpperCase();
+  };
+
+  if (!profile) return null;
+
+  return (
+    <div className="flex flex-col items-center w-full gap-2 p-2 border-t border-border/40">
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" className="relative h-10 w-full px-2 py-1 flex items-center gap-3">
+            <Avatar className="h-8 w-8">
+              <AvatarImage src={profile.avatar_url || ''} alt={profile.email || 'User'} />
+              <AvatarFallback>{getInitials(profile.email)}</AvatarFallback>
+            </Avatar>
+            <div className="flex flex-col items-start min-w-0">
+              <span className="text-sm font-medium truncate">{profile.username || profile.email}</span>
+              <span className="text-xs text-muted-foreground truncate">{profile.email}</span>
+            </div>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="w-56" align="start" forceMount>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem asChild>
+            <Link href="/dashboard">
+              <LayoutDashboard className="mr-2 h-4 w-4" />
+              Dashboard
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link href="/dashboard/profile">
+              <UserIcon className="mr-2 h-4 w-4" />
+              Perfil
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <SignOutButton />
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
+  );
+}

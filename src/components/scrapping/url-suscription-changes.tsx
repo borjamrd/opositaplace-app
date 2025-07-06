@@ -1,50 +1,41 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-
+import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { createClient } from '@/lib/supabase/client';
 import { UrlScrapping } from './url-scrapping';
 
-// 1. TIPO DE DATO AJUSTADO
-// 'summary' es ahora directamente un array de strings.
 type ChangeHistoryEntry = {
     summary: string[];
     created_at: string;
 };
 
-// --- Componente Principal ---
-export function UrlSubscriptionChanges({ urlId }: { urlId: string }) {
+async function fetchUrlHistory(urlId: string): Promise<ChangeHistoryEntry[]> {
     const supabase = createClient();
-    const [history, setHistory] = useState<ChangeHistoryEntry[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+    const { data, error } = await supabase.rpc('get_url_history_by_id', {
+        target_url_id: urlId,
+    });
+    if (error) throw new Error('No se pudo cargar el historial de cambios.');
+    return (data || []).map((entry: { summary: unknown; created_at: string }) => ({
+        summary: Array.isArray(entry.summary)
+            ? entry.summary.filter((item): item is string => typeof item === 'string')
+            : [],
+        created_at: entry.created_at,
+    }));
+}
 
-    useEffect(() => {
-        if (!urlId) {
-            setLoading(false);
-            return;
-        }
-
-        const fetchHistory = async () => {
-            setLoading(true);
-            setError(null);
-
-            const { data, error } = await supabase.rpc('get_url_history_by_id', {
-                target_url_id: urlId,
-            });
-
-            if (error) {
-                console.error('Error fetching change history:', error);
-                setError('No se pudo cargar el historial de cambios.');
-            } else {
-                setHistory(data || []);
-            }
-            setLoading(false);
-        };
-
-        fetchHistory();
-    }, [supabase, urlId]);
+export function UrlSubscriptionChanges({ urlId }: { urlId: string }) {
+    const {
+        data: history = [],
+        isLoading,
+        isError,
+        error,
+    } = useQuery<ChangeHistoryEntry[], Error>({
+        queryKey: ['url-history', urlId],
+        queryFn: () => fetchUrlHistory(urlId),
+        enabled: !!urlId,
+        staleTime: 1000 * 60 * 5, 
+    });
 
     const formatDate = (dateString: string) => {
         return new Date(dateString).toLocaleDateString('es-ES', {
@@ -57,11 +48,11 @@ export function UrlSubscriptionChanges({ urlId }: { urlId: string }) {
     };
 
     const renderContent = () => {
-        if (loading) {
+        if (isLoading) {
             return <p className="text-muted-foreground">Cargando historial...</p>;
         }
-        if (error) {
-            return <p className="text-destructive">{error}</p>;
+        if (isError) {
+            return <p className="text-destructive">{error?.message}</p>;
         }
         if (history.length === 0) {
             return (
@@ -81,30 +72,21 @@ export function UrlSubscriptionChanges({ urlId }: { urlId: string }) {
                                     {formatDate(entry.created_at)}
                                 </time>
                                 <div className="p-3 mt-2 bg-secondary/50 rounded-lg border">
-                                    {entry.summary && entry.summary.length > 0 ? (
-                                        <div>
-                                            <h3 className="text-md font-semibold text-primary">
-                                                Cambios Detectados
-                                            </h3>
-                                            <ul className="list-disc pl-5 mt-2 space-y-1 text-sm">
-                                                {/* Iteramos directamente sobre entry.summary */}
-                                                {entry.summary.map((change, changeIndex) => (
-                                                    <li
-                                                        key={changeIndex}
-                                                        className="text-muted-foreground"
-                                                    >
-                                                        {change}
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        </div>
-                                    ) : (
-                                        // 3. MENSAJE ESPECIAL PARA "NO CAMBIOS"
-                                        <p className="text-sm text-muted-foreground italic">
-                                            Comprobación realizada. No se detectaron cambios
-                                            significativos.
-                                        </p>
-                                    )}
+                                    <div>
+                                        <h3 className="text-md font-semibold text-primary">
+                                            Cambios Detectados
+                                        </h3>
+                                        <ul className="list-disc pl-5 mt-2 space-y-1 text-sm">
+                                            {entry.summary.map((change, changeIndex) => (
+                                                <li
+                                                    key={changeIndex}
+                                                    className="text-muted-foreground"
+                                                >
+                                                    {change}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
                                 </div>
                             </li>
                         );
