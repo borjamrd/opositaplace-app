@@ -10,7 +10,9 @@ import {
     BreadcrumbLink,
     BreadcrumbList,
     BreadcrumbPage,
+    BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
+import { ChevronRight } from 'lucide-react';
 import TimerManager from '../TimerManager';
 
 export const SiteHeader: React.FC = () => {
@@ -38,6 +40,8 @@ export const SiteHeader: React.FC = () => {
         return breadcrumbs;
     };
 
+    const breadcrumbs = getBreadcrumbs().slice(1);
+
     return (
         <header className="w-full border-b p-4">
             <div className="flex items-center gap-2">
@@ -51,10 +55,14 @@ export const SiteHeader: React.FC = () => {
                                     </Link>
                                 </BreadcrumbLink>
                             </BreadcrumbItem>
-                            {getBreadcrumbs()
-                                .slice(1)
-                                .map((breadcrumb) => (
-                                    <BreadcrumbItem key={breadcrumb.url}>
+                            {breadcrumbs.length > 0 && (
+                                <BreadcrumbSeparator>
+                                    <ChevronRight className="mx-1 h-4 w-4 text-muted-foreground" />
+                                </BreadcrumbSeparator>
+                            )}
+                            {breadcrumbs.map((breadcrumb, idx) => (
+                                <React.Fragment key={breadcrumb.url}>
+                                    <BreadcrumbItem>
                                         {breadcrumb.isLast ? (
                                             <BreadcrumbPage className="text-base font-medium">
                                                 {breadcrumb.path}
@@ -70,7 +78,13 @@ export const SiteHeader: React.FC = () => {
                                             </BreadcrumbLink>
                                         )}
                                     </BreadcrumbItem>
-                                ))}
+                                    {idx < breadcrumbs.length - 1 && (
+                                        <BreadcrumbSeparator>
+                                            <ChevronRight className="mx-1 h-4 w-4 text-muted-foreground" />
+                                        </BreadcrumbSeparator>
+                                    )}
+                                </React.Fragment>
+                            ))}
                         </BreadcrumbList>
                     </Breadcrumb>
                 </div>
