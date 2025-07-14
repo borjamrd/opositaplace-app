@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CalendarCheck, BarChart3, BookOpen, ArrowRight } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { PlanSelector } from '../subscription/plan-selector';
 export default function LandingContent() {
     const features = [
         {
@@ -47,7 +48,7 @@ export default function LandingContent() {
                             className="shadow-lg hover:shadow-primary/30 transition-shadow"
                         >
                             <Link href="/register">
-                                Empezar Ahora <ArrowRight className="ml-2 h-5 w-5" />
+                                Comienza tu estudio <ArrowRight className="ml-2 h-5 w-5" />
                             </Link>
                         </Button>
                         <Button
@@ -110,6 +111,11 @@ export default function LandingContent() {
                 </div>
             </section>
 
+            <section className="py-20 md:py-28 bg-secondary/30">
+                <div className="container mx-auto px-4 text-center">
+                    <PlanSelector />
+                </div>
+            </section>
             {/* Call to Action Section */}
             <section className="py-20 md:py-28 bg-background">
                 <div className="container mx-auto px-4 text-center">
@@ -125,12 +131,11 @@ export default function LandingContent() {
                         className="shadow-lg hover:shadow-primary/30 transition-shadow"
                     >
                         <Link href="/register">
-                            Crear tu cuenta gratis <ArrowRight className="ml-2 h-5 w-5" />
+                            Comienza tu estudio <ArrowRight className="ml-2 h-5 w-5" />
                         </Link>
                     </Button>
                 </div>
             </section>
-
             {/* Footer */}
             <footer className="py-8 bg-primary/5 border-t border-border/20">
                 <div className="container mx-auto px-4 text-center text-foreground/60">

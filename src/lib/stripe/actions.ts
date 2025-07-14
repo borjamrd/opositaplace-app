@@ -5,6 +5,7 @@ import type { Database } from '@/lib/database.types';
 import { cookies } from 'next/headers';
 import Stripe from 'stripe';
 import { createClient } from '../supabase/client';
+import { STRIPE_PLANS, StripePlan } from './config';
 
 export type Subscription = Database['public']['Tables']['user_subscriptions']['Row'];
 
@@ -56,10 +57,27 @@ export async function getOrCreateStripeCustomerId(
     return customer.id;
 }
 
-export async function manageSubscriptionStatusChange(
-    subscriptionId: string,
-    customerId: string,
-) {
+export async function createTrialSubscription(user: User): Promise<void> {
+    const customerId = await getOrCreateStripeCustomerId(user);
+    const proPlan = STRIPE_PLANS.find((p) => p.type === StripePlan.PRO);
+
+    if (!proPlan || !proPlan.priceId || proPlan.priceId.includes('_placeholder')) {
+        throw new Error('El Price ID del plan PRO no está configurado correctamente.');
+    }
+
+    const stripeSubscription = await stripe.subscriptions.create({
+        customer: customerId,
+        items: [{ price: proPlan.priceId }],
+        trial_period_days: 7,
+        payment_settings: {
+            save_default_payment_method: 'on_subscription',
+        },
+        expand: ['latest_invoice.payment_intent'],
+    });
+
+    await manageSubscriptionStatusChange(stripeSubscription.id, customerId);
+}
+export async function manageSubscriptionStatusChange(subscriptionId: string, customerId: string) {
     const supabase = createClient();
     const { data: userProfile, error: noUserError } = await supabase
         .from('profiles')

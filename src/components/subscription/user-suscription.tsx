@@ -3,14 +3,6 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from '@/components/ui/dialog';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useSubscriptionStore } from '@/store/subscription-store';
 import type { User as SupabaseUser } from '@supabase/supabase-js';
@@ -21,18 +13,57 @@ import { useEffect, useState } from 'react';
 
 import { getPlanNameByPriceId } from '@/lib/stripe/config';
 import { createClient } from '@/lib/supabase/client';
-import { PlanSelector } from './plan-selector';
+import { useToast } from '@/hooks/use-toast';
+import { useUserSubscription } from '@/lib/supabase/queries/useUserSubscription';
+import { useRouter } from 'next/navigation';
 
 export default function UserSubscription() {
     const [authUser, setAuthUser] = useState<SupabaseUser | null>(null);
     const [isLoadingAuthUser, setIsLoadingAuthUser] = useState(true);
-    const [isModalPlansOpen, setIsModalPlansOpen] = useState(false);
     const supabase = createClient();
+    const { data: reactQuerySubscription, isLoading: isLoadingQuery } = useUserSubscription();
+    const [isLoading, setIsLoading] = useState(false);
+    const { toast } = useToast();
+    const router = useRouter();
+    const handleManageSubscription = async () => {
+        if (!authUser) {
+            toast({
+                title: 'Necesitas iniciar sesión',
+                description: 'Por favor, inicia sesión para gestionar tu suscripción.',
+                variant: 'default',
+            });
+            router.push('/login?redirect=/dashboard/profile');
+            return;
+        }
+        setIsLoading(true);
+        try {
+            const response = await fetch('/api/stripe/create-portal-link', {
+                method: 'POST',
+                body: JSON.stringify({ return_url: window.location.href }),
+            });
+            const data = await response.json();
+            if (data.url) {
+                window.location.href = data.url;
+            } else {
+                throw new Error(data.error || 'No se pudo obtener el enlace al portal.');
+            }
+        } catch (error: any) {
+            console.error('Error managing subscription:', error);
+            toast({
+                title: 'Error',
+                description: error.message,
+                variant: 'destructive',
+            });
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     const {
         subscription: activeSubscription,
         isLoading: isLoadingSubscription,
         error: subscriptionError,
+        setSubscription,
     } = useSubscriptionStore();
 
     useEffect(() => {
@@ -47,12 +78,18 @@ export default function UserSubscription() {
         fetchUser();
     }, [supabase]);
 
+    useEffect(() => {
+        if (!isLoadingQuery && reactQuerySubscription !== undefined) {
+            setSubscription(reactQuerySubscription);
+        }
+    }, [reactQuerySubscription, isLoadingQuery, setSubscription]);
+
     const formatDate = (date: Date | string) => {
         return format(new Date(date), 'dd MMMM yyyy', { locale: es });
     };
 
     const renderSubscriptionDetails = () => {
-        if (isLoadingSubscription) {
+        if (isLoadingSubscription || isLoadingQuery) {
             return <Skeleton className="h-16 w-full" />;
         }
 
@@ -115,32 +152,24 @@ export default function UserSubscription() {
                 <div>{renderSubscriptionDetails()}</div>
 
                 <p className="text-sm text-muted-foreground mb-4">
-                    {activeSubscription ? 'Puedes ver y cambiar tu plan en cualquier momento.' : 'No tienes una suscripción activa.'}
+                    {activeSubscription
+                        ? 'Puedes ver y cambiar tu plan en cualquier momento.'
+                        : 'No tienes una suscripción activa.'}
                 </p>
-                <Dialog open={isModalPlansOpen} onOpenChange={setIsModalPlansOpen}>
-                    <DialogTrigger asChild>
-                        <Button variant="outline">
-                            <CreditCard className="mr-2 h-4 w-4" /> {
-                                activeSubscription ? 'Cambiar Plan' : 'Ver planes'
-                            }
-                        </Button>
-                    </DialogTrigger>
-                    <DialogContent className="max-w-4xl h-[90vh] sm:h-[80vh] flex flex-col">
-                        <DialogHeader>
-                            <DialogTitle>Selecciona tu Plan</DialogTitle>
-                            <DialogDescription>
-                                Elige el plan que mejor se adapte a tus necesidades.
-                            </DialogDescription>
-                        </DialogHeader>
-                        <div className="flex-grow overflow-y-auto">
-                            {authUser ? (
-                                <PlanSelector user={authUser} source="profileModal" />
-                            ) : (
-                                <p>Cargando información del usuario...</p>
-                            )}
-                        </div>
-                    </DialogContent>
-                </Dialog>
+                <Button
+                    variant="outline"
+                    onClick={handleManageSubscription}
+                    disabled={isLoading || isLoadingAuthUser}
+                >
+                    <CreditCard className="mr-2 h-4 w-4" />{' '}
+                    {activeSubscription
+                        ? isLoading
+                            ? 'Cargando...'
+                            : 'Gestionar suscripción'
+                        : isLoading
+                        ? 'Cargando...'
+                        : 'Ver planes'}
+                </Button>
             </CardContent>
         </Card>
     );
