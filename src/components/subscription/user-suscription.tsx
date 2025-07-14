@@ -1,23 +1,23 @@
 'use client';
 
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
     Dialog,
     DialogContent,
     DialogDescription,
+    DialogHeader,
     DialogTitle,
     DialogTrigger,
 } from '@/components/ui/dialog';
-import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { DialogHeader } from '@/components/ui/dialog';
-import { AlertCircle, CreditCard } from 'lucide-react';
+import { useSubscriptionStore } from '@/store/subscription-store';
+import type { User as SupabaseUser } from '@supabase/supabase-js';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
-import type { User as SupabaseUser } from '@supabase/supabase-js';
-import { useState, useCallback, useEffect } from 'react';
-import { useSubscriptionStore } from '@/store/subscription-store';
+import { AlertCircle, CreditCard } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 import { getPlanNameByPriceId } from '@/lib/stripe/config';
 import { createClient } from '@/lib/supabase/client';
