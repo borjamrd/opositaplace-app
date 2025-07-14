@@ -44,7 +44,20 @@ export function Navbar() {
     );
 
     if (user) {
-        return null;
+        return (
+            <HeaderContainer>
+                <Link href="/" className="flex items-center space-x-2">
+                    <Logo />
+                </Link>
+                <nav className="flex items-center gap-4">
+                    <div className="flex items-center space-x-2">
+                        <Button variant="ghost" asChild>
+                            <Link href="/dashboard">Dashboard</Link>
+                        </Button>
+                    </div>
+                </nav>
+            </HeaderContainer>
+        );
     }
 
     if (loading) {

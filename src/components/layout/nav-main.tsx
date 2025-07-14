@@ -45,7 +45,7 @@ export function NavMain({
                             <SidebarMenuButton
                                 asChild
                                 className={`w-full justify-start ${
-                                    location === item.url ? 'bg-accent text-accent-foreground' : ''
+                                    location === item.url ? 'bg-primary text-primary-foreground' : ''
                                 }`}
                             >
                                 <a href={item.url} className="flex items-center gap-2 w-full">

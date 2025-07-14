@@ -107,7 +107,6 @@ export default function TimerManager() {
                     </div>
                 ) : (
                     <Button
-                        variant="secondary"
                         size="sm"
                         className="gap-2"
                         onClick={() => setModalOpen(true)}

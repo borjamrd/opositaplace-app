@@ -71,7 +71,6 @@ export const useStudySessionStore = create<StudySessionState>((set, get) => ({
         }
     },
 
-    // Acción para cambiar de oposición
     selectOpposition: async (oppositionId) => {
         const { oppositions } = get();
         const newActiveOpposition = oppositions.find((op) => op.id === oppositionId) || null;
