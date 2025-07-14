@@ -354,10 +354,10 @@ export default function OnboardingPage() {
             <Card className="w-full max-w-2xl shadow-xl">
                 <CardHeader className="text-center">
                     <CardTitle className="text-3xl font-bold text-primary">
-                        Configura tu Preparación
+                        ¡Comenzamos! Configura tu perfil
                     </CardTitle>
                     <CardDescription>
-                        Sigue estos pasos para personalizar tu experiencia en OpositaPlace.
+                        Sigue estos pasos para personalizar tu experiencia en Opositaplace.
                     </CardDescription>
                 </CardHeader>
 
@@ -522,10 +522,10 @@ export default function OnboardingPage() {
                                             name="objectives"
                                             render={({ field }) => (
                                                 <FormItem>
-                                                    <FormLabel>Objetivos Principales</FormLabel>
+                                                    <FormLabel>Cuéntame sobre ti y tus principales objetivos</FormLabel>
                                                     <FormControl>
                                                         <Textarea
-                                                            placeholder="Ej: Aprobar la oposición..."
+                                                            placeholder="Ejemplo: Quiero aprobar la oposición en la próxima convocatoria. Para ello creo que necesito mejorar mi capacidad de memorización y optimizar mi tiempo de estudio."
                                                             {...field}
                                                         />
                                                     </FormControl>
@@ -557,7 +557,7 @@ export default function OnboardingPage() {
                                                                             ? 'default'
                                                                             : 'outline'
                                                                     }
-                                                                    className="cursor-pointer select-none"
+                                                                    className="cursor-pointer select-none text-base px-3 py-1 rounded-lg"
                                                                     onClick={() => {
                                                                         const currentValue =
                                                                             field.value || [];

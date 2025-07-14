@@ -104,7 +104,7 @@ export default function ProfileContent() {
                                         onChange={(e) => setUsername(e.target.value)}
                                         placeholder="Introduce tu nombre de usuario"
                                     />
-                                    <Button variant="secondary" onClick={updateUsername}>
+                                    <Button onClick={updateUsername}>
                                         Guardar
                                     </Button>
                                 </div>

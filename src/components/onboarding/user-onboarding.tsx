@@ -275,7 +275,7 @@ export default function UserOnboarding() {
                         </DialogTrigger>
                         <DialogContent className="max-w-6xl max-h-[75vh] overflow-auto w-[90vw]">
                             <DialogHeader>
-                                <DialogTitle>Planificador de Horarios</DialogTitle>
+                                <DialogTitle>Planificador de horarios</DialogTitle>
                             </DialogHeader>
 
                             <div className="flex flex-col lg:flex-row">
