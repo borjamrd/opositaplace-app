@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { TimerDialog } from '@/components/timer/timer-dialog';
 import { useTimerStore } from '@/store/timer-store';
-import { PlayCircle } from 'lucide-react';
+import { Keyboard, PlayCircle } from 'lucide-react';
 
 function formatTime(mode: string, seconds: number) {
     if (mode === 'pomodoro' || mode === 'countdown') {
@@ -33,7 +33,18 @@ export default function TimerManager() {
     const [displayTime, setDisplayTime] = useState(remainingTime);
     const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-    // Mantener el temporizador en tiempo real y recalcular tras navegación
+    // Keyboard shortcut: Ctrl + S to open dialog
+    useEffect(() => {
+        function handleKeyDown(e: KeyboardEvent) {
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+                e.preventDefault();
+                setModalOpen(true);
+            }
+        }
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [setModalOpen]);
+
     useEffect(() => {
         if (!isActive || !startTime) {
             setDisplayTime(remainingTime);
@@ -65,7 +76,6 @@ export default function TimerManager() {
         };
     }, [isActive, startTime, duration, mode, updateRemainingTime]);
 
-    // Sincronizar displayTime si cambia remainingTime por restauración
     useEffect(() => {
         if (!isActive) setDisplayTime(remainingTime);
     }, [remainingTime, isActive]);
@@ -106,13 +116,13 @@ export default function TimerManager() {
                         </Button>
                     </div>
                 ) : (
-                    <Button
-                        size="sm"
-                        className="gap-2"
-                        onClick={() => setModalOpen(true)}
-                    >
+                    <Button size="sm" className="gap-2" onClick={() => setModalOpen(true)}>
                         <PlayCircle className="h-4 w-4" />
-                        Comenzar sesión de estudio
+                        Sesión de estudio
+                        <span className="ml-2 flex items-center rounded border-white border px-2 font-mono">
+                            <Keyboard className="h-5 w-5 mr-1" />
+                            Ctrl + S
+                        </span>
                     </Button>
                 )}
             </div>

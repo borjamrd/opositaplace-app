@@ -1,5 +1,7 @@
+// src/components/oposition-selector.tsx
 'use client';
 
+import { useTransition } from 'react';
 import { Button } from '@/components/ui/button';
 import {
     DropdownMenu,
@@ -8,23 +10,43 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useStudySessionStore } from '@/store/study-session-store';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Check } from 'lucide-react';
 import StudyCycleSelector from './study-cycle-selector';
+import { updateUserActiveOpposition } from '@/actions/session';
+import { useToast } from '@/hooks/use-toast';
 
 const OpositionSelector = () => {
-    const { oppositions, activeOpposition, isLoadingOppositions, selectOpposition } =
-        useStudySessionStore();
+    const { oppositions, activeOpposition, selectOpposition } = useStudySessionStore();
+    const [isPending, startTransition] = useTransition();
+    const { toast } = useToast();
 
-    if (isLoadingOppositions) {
+    const handleSelect = (oppositionId: string) => {
+        if (oppositionId === activeOpposition?.id) return;
+
+        startTransition(async () => {
+            await selectOpposition(oppositionId);
+            const result = await updateUserActiveOpposition(oppositionId);
+
+            if (result.error) {
+                toast({
+                    variant: 'destructive',
+                    title: 'Error',
+                    description: result.error,
+                });
+            }
+        });
+    };
+
+    if (useStudySessionStore.getState().isLoadingOppositions) {
         return (
-            <div className="mt-4 px-2 text-sm flex items-center">
-                <Loader2 className="h-4 w-4 animate-spin mr-2" /> Cargando...
+            <div className="mt-4 px-2">
+                <div className="h-10 w-full animate-pulse rounded-md bg-muted" />
             </div>
         );
     }
 
-    if (oppositions.length === 0) {
-        return <p className="mt-4 px-2 text-sm">No tienes oposiciones.</p>;
+    if (!oppositions || oppositions.length === 0) {
+        return <p className="mt-4 px-2 text-sm text-muted-foreground">No tienes oposiciones.</p>;
     }
 
     return (
@@ -34,20 +56,25 @@ const OpositionSelector = () => {
                     <Button
                         variant="outline"
                         className="justify-between w-full h-fit whitespace-pre-line text-left"
+                        disabled={isPending}
                     >
-                        {activeOpposition ? activeOpposition.name : 'Selecciona una oposición'}
+                        {isPending
+                            ? 'Cambiando...'
+                            : activeOpposition
+                            ? activeOpposition.name
+                            : 'Selecciona una oposición'}
+                        {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
                     </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-full">
+                <DropdownMenuContent className="w-[var(--radix-dropdown-menu-trigger-width)]">
                     {oppositions.map((oppo) => (
                         <DropdownMenuItem
                             key={oppo.id}
-                            onClick={() => selectOpposition(oppo.id)}
-                            className={
-                                activeOpposition?.id === oppo.id ? 'font-semibold bg-accent/50' : ''
-                            }
+                            onClick={() => handleSelect(oppo.id)}
+                            className="flex justify-between items-center"
                         >
-                            {oppo.name}
+                            <span>{oppo.name}</span>
+                            {activeOpposition?.id === oppo.id && <Check className="h-4 w-4" />}
                         </DropdownMenuItem>
                     ))}
                 </DropdownMenuContent>

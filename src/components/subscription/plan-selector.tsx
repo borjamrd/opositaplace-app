@@ -33,7 +33,7 @@ export function PlanSelector({
     const [isLoading, setIsLoading] = useState<string | null>(null);
     const { toast } = useToast();
     const router = useRouter();
-    const { activeSubscription } = useSubscriptionStore();
+    const { subscription: activeSubscription } = useSubscriptionStore();
 
     const handleManageSubscription = async () => {
         if (!user) {

@@ -30,7 +30,7 @@ export default function UserSubscription() {
     const supabase = createClient();
 
     const {
-        activeSubscription,
+        subscription: activeSubscription,
         isLoading: isLoadingSubscription,
         error: subscriptionError,
     } = useSubscriptionStore();

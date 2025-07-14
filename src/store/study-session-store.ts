@@ -1,80 +1,40 @@
+// src/store/study-session-store.ts
 import { create } from 'zustand';
 import { createClient } from '@/lib/supabase/client';
 import type { Database } from '@/lib/database.types';
 
-export type OppositionBase = {
-    id: string;
-    name: string;
-};
-
-const initialState = {
-    oppositions: [],
-    activeOpposition: null,
-    studyCycles: [],
-    activeStudyCycle: null,
-    isLoadingOppositions: false,
-    isLoadingCycles: false,
-};
-
+type Opposition = Database['public']['Tables']['oppositions']['Row'];
 export type StudyCycle = Database['public']['Tables']['user_study_cycles']['Row'];
 
 interface StudySessionState {
-    oppositions: OppositionBase[];
-    activeOpposition: OppositionBase | null;
+    oppositions: Opposition[];
+    activeOpposition: Opposition | null;
     studyCycles: StudyCycle[];
     activeStudyCycle: StudyCycle | null;
-
     isLoadingOppositions: boolean;
     isLoadingCycles: boolean;
-
-    fetchInitialSession: (userId: string) => Promise<void>;
     selectOpposition: (oppositionId: string) => Promise<void>;
     selectStudyCycle: (cycleId: string) => void;
     reset: () => void;
 }
 
-const supabase = createClient();
-
-export const useStudySessionStore = create<StudySessionState>((set, get) => ({
+const initialState: Omit<StudySessionState, 'selectOpposition' | 'selectStudyCycle' | 'reset'> = {
     oppositions: [],
     activeOpposition: null,
     studyCycles: [],
     activeStudyCycle: null,
     isLoadingOppositions: true,
-    isLoadingCycles: false,
-    fetchInitialSession: async (userId) => {
-        set({ isLoadingOppositions: true, oppositions: [], activeOpposition: null });
+    isLoadingCycles: true,
+};
 
-        const { data: userOppositions, error } = await supabase
-            .from('user_oppositions')
-            .select('active, oppositions (id, name)')
-            .eq('profile_id', userId);
+const supabase = createClient();
 
-        if (error || !userOppositions) {
-            set({ isLoadingOppositions: false });
-            return;
-        }
-
-        const availableOppositions = userOppositions
-            .map((uo) => uo.oppositions)
-            .filter((op): op is OppositionBase => op !== null);
-
-        set({ oppositions: availableOppositions, isLoadingOppositions: false });
-
-        // Seleccionar la oposición activa o la primera por defecto
-        const activeUserOpposition = userOppositions.find((uo) => uo.active);
-        const defaultOppositionId =
-            activeUserOpposition?.oppositions?.id ?? availableOppositions[0]?.id;
-
-        if (defaultOppositionId) {
-            await get().selectOpposition(defaultOppositionId);
-        }
-    },
+export const useStudySessionStore = create<StudySessionState>((set, get) => ({
+    ...initialState,
 
     selectOpposition: async (oppositionId) => {
         const { oppositions } = get();
         const newActiveOpposition = oppositions.find((op) => op.id === oppositionId) || null;
-
         set({
             activeOpposition: newActiveOpposition,
             isLoadingCycles: true,
@@ -93,13 +53,13 @@ export const useStudySessionStore = create<StudySessionState>((set, get) => ({
             .eq('opposition_id', newActiveOpposition.id)
             .order('cycle_number', { ascending: true });
 
-        if (error || !cycles) {
+        if (error) {
+            console.error('Error fetching study cycles:', error);
             set({ isLoadingCycles: false });
             return;
         }
 
         const activeCycle = cycles.find((c) => !c.completed_at) ?? cycles[0] ?? null;
-
         set({ studyCycles: cycles, activeStudyCycle: activeCycle, isLoadingCycles: false });
     },
 
@@ -108,6 +68,7 @@ export const useStudySessionStore = create<StudySessionState>((set, get) => ({
         const newActiveCycle = studyCycles.find((c) => c.id === cycleId) || null;
         set({ activeStudyCycle: newActiveCycle });
     },
+
     reset: () => {
         set(initialState);
     },

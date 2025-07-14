@@ -20,7 +20,7 @@ export function SubscribeButton({ plan, user, onboardingCompleted = false }: Sub
     const [loading, setLoading] = useState(false);
     const { toast } = useToast();
     const router = useRouter();
-    const { activeSubscription } = useSubscriptionStore();
+    const { subscription: activeSubscription } = useSubscriptionStore();
 
     const handleSubscribe = async () => {
         if (!user) {

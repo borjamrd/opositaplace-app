@@ -9,8 +9,8 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { PlusCircleIcon, type LucideIcon } from 'lucide-react';
+import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export function NavMain({
     items,
@@ -48,10 +48,10 @@ export function NavMain({
                                     location === item.url ? 'bg-primary text-primary-foreground' : ''
                                 }`}
                             >
-                                <a href={item.url} className="flex items-center gap-2 w-full">
+                                <Link href={item.url} className="flex items-center gap-2 w-full">
                                     {item.icon && <item.icon className="size-4" />}
                                     <span>{item.title}</span>
-                                </a>
+                                </Link>
                             </SidebarMenuButton>
                         </SidebarMenuItem>
                     ))}

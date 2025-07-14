@@ -6,7 +6,7 @@ import {
     SidebarFooter,
     SidebarHeader,
     SidebarMenu,
-    SidebarMenuItem
+    SidebarMenuItem,
 } from '@/components/ui/sidebar';
 
 import {
@@ -21,7 +21,6 @@ import {
 import React from 'react';
 import Logo from '../logo';
 import OpositionSelector from '../oposition-selector';
-import { SessionLoader } from '../session-loader';
 import { NavMain } from './nav-main';
 import { NavUserSection } from './nav-user-section';
 
@@ -79,7 +78,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </SidebarHeader>
 
             <SidebarContent>
-                <SessionLoader />
                 <OpositionSelector />
                 <NavMain items={sidebarData.navMain} />
                 {/* <NavGeneral items={sidebarData.general} /> */}
