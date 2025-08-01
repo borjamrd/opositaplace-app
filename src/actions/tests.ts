@@ -1,9 +1,9 @@
-// src/actions/tests.ts
 'use server';
 
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { Question } from '@/lib/supabase/types';
 import { shuffle } from '@/lib/utils';
+import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
@@ -25,7 +25,7 @@ export async function createTestAttempt(params: CreateTestParams) {
     const {
         data: { user },
     } = await supabase.auth.getUser();
-    if (!user) return { error: 'Usuario no autenticado' };
+    if (!user) return { error: 'User not authenticated' };
 
     let questionIds: Pick<Question, 'id'>[] = [];
     let error: any = null;
@@ -35,13 +35,13 @@ export async function createTestAttempt(params: CreateTestParams) {
             const { data: failedQuestions, error: rpcError } = await supabase.rpc(
                 'get_user_failed_questions'
             );
-            if (rpcError) return { error: 'No se pudieron recuperar las preguntas falladas.' };
+            if (rpcError) return { error: 'Could not retrieve failed questions.' };
             questionIds = (failedQuestions || []).map((id) => ({ id }));
             break;
 
         case 'topics':
             if (!params.topicIds || params.topicIds.length === 0) {
-                return { error: 'Debes seleccionar al menos un tema.' };
+                return { error: 'You must select at least one topic.' };
             }
             const { data: topicQuestions, error: topicsError } = await supabase
                 .from('questions')
@@ -56,30 +56,29 @@ export async function createTestAttempt(params: CreateTestParams) {
         default:
             const { data: randomQuestionsData, error: randomError } = await supabase.rpc(
                 'get_questions_by_opposition',
-                { opp_id: params.oppositionId, include_no_topic: params.includeNoTopic }
+                {
+                    opp_id: params.oppositionId,
+                    include_no_topic: params.includeNoTopic,
+                }
             );
 
             if (randomError) {
-                console.error('Error en RPC get_questions_by_opposition:', randomError);
-                return { error: 'No se pudieron recuperar las preguntas para el modo aleatorio.' };
+                return { error: 'Could not retrieve questions for random mode.' };
             }
-            // `randomQuestionsData` es el array que necesitas
             questionIds = randomQuestionsData?.map((q: any) => ({ id: q.id })) || [];
             break;
     }
 
     if (error || !questionIds || questionIds.length === 0) {
-        return { error: 'No se encontraron preguntas para los criterios seleccionados.' };
+        return { error: 'No questions found for the selected criteria.' };
     }
 
-    const shuffled = shuffle(questionIds);
-    const selectedQuestions = shuffled.slice(0, params.numQuestions);
+    const selectedQuestions = shuffle(questionIds).slice(0, params.numQuestions);
 
     if (selectedQuestions.length === 0) {
-        return { error: 'No hay suficientes preguntas disponibles para crear el test.' };
+        return { error: 'Not enough questions available to create the test.' };
     }
 
-    // --- CAMBIO 1: Buscar el ID del test genérico que creamos ---
     const { data: genericTest, error: genericTestError } = await supabase
         .from('tests')
         .select('id')
@@ -88,10 +87,9 @@ export async function createTestAttempt(params: CreateTestParams) {
         .single();
 
     if (genericTestError || !genericTest) {
-        return { error: 'No se encontró el test contenedor para esta oposición.' };
+        return { error: 'Container test for this opposition not found.' };
     }
 
-    // --- CORRECCIÓN en la inserción ---
     const { data: testAttempt, error: createError } = await supabase
         .from('test_attempts')
         .insert({
@@ -99,25 +97,18 @@ export async function createTestAttempt(params: CreateTestParams) {
             opposition_id: params.oppositionId,
             study_cycle_id: params.studyCycleId,
             total_questions: selectedQuestions.length,
-            test_id: genericTest.id, // <-- Usamos el ID correcto
+            test_id: genericTest.id,
         })
         .select('id')
         .single();
 
     if (createError || !testAttempt) {
-        console.error('Error creating test attempt:', createError);
-        return { error: 'No se pudo crear el intento de test.' };
+        return { error: 'Could not create the test attempt.' };
     }
 
-    // --- CAMBIO 2: Añadir un valor por defecto para `is_correct` ---
-    // Al inicio de un test, ninguna pregunta está contestada (o todas son incorrectas por defecto).
-    // Tu esquema dice que `is_correct` no puede ser nulo.
-    // El campo `answer_id` sí puede ser nulo, lo que indica que no se ha respondido.
     const attemptQuestions = selectedQuestions.map((q) => ({
         test_attempt_id: testAttempt.id,
         question_id: q.id,
-        is_correct: false,
-        answer_id: null,
     }));
 
     const { error: insertQuestionsError } = await supabase
@@ -126,100 +117,98 @@ export async function createTestAttempt(params: CreateTestParams) {
 
     if (insertQuestionsError) {
         await supabase.from('test_attempts').delete().eq('id', testAttempt.id);
-        return { error: 'No se pudieron guardar las preguntas del test.' };
+        return { error: 'Could not save the questions for the test.' };
     }
 
     redirect(`/dashboard/tests/${testAttempt.id}`);
 }
 
-export async function submitTestAttempt(
-    testAttemptId: string,
-    userAnswers: Record<string, string> // formato: { questionId: answerId }
-) {
+export async function submitTestAttempt(testAttemptId: string, answers: Record<string, string>) {
     const cookieStore = cookies();
     const supabase = createSupabaseServerClient(cookieStore);
 
     const {
         data: { user },
     } = await supabase.auth.getUser();
-    if (!user) return { error: 'Usuario no autenticado' };
+
+    if (!user) {
+        return { error: 'User not authenticated' };
+    }
 
     try {
-        // 1. Obtener las preguntas y sus respuestas correctas para este intento
-        const { data: correctAnswersData, error: correctAnswersError } = await supabase
+        // Step 1: Save the user's answers
+        const userAnswersData = Object.entries(answers).map(([question_id, answer_id]) => ({
+            test_attempt_id: testAttemptId,
+            question_id,
+            selected_answer_id: answer_id,
+            user_id: user.id,
+        }));
+
+        const { error: answersError } = await supabase
+            .from('test_attempt_answers')
+            .upsert(userAnswersData, {
+                onConflict: 'test_attempt_id,question_id',
+            });
+
+        if (answersError) {
+            return { error: answersError.message };
+        }
+
+        // Step 2: Fetch the questions to calculate the score
+        const { data: attemptQuestions, error: questionsError } = await supabase
             .from('test_attempt_questions')
-            .select(
-                `
-                question_id,
-                questions (
-                    answers (id, is_correct)
-                )
-            `
-            )
+            .select('questions(*, answers(*))')
             .eq('test_attempt_id', testAttemptId);
 
-        if (correctAnswersError) throw correctAnswersError;
+        if (questionsError) {
+            return { error: questionsError.message };
+        }
 
-        const correctAnswersMap = new Map<string, string>();
-        correctAnswersData.forEach((item) => {
-            const question = item.questions;
-            if (question && question.answers) {
-                const correctAnswer = question.answers.find((a) => a.is_correct);
-                if (correctAnswer) {
-                    correctAnswersMap.set(item.question_id, correctAnswer.id);
+        const questions = attemptQuestions?.map((aq) => aq.questions).filter(Boolean) ?? [];
+        let correctCount = 0;
+        let incorrectCount = 0;
+
+        questions.forEach((question) => {
+            const userAnswerId = answers[question.id];
+            if (userAnswerId) {
+                const isCorrect = question.answers.some(
+                    (a) => a.id === userAnswerId && a.is_correct
+                );
+                if (isCorrect) {
+                    correctCount++;
+                } else {
+                    incorrectCount++;
                 }
             }
         });
 
-        // 2. Calcular la puntuación
-        let correctCount = 0;
-        let incorrectCount = 0;
+        const unansweredCount = questions.length - (correctCount + incorrectCount);
+        // Traditional scoring mode: incorrect answers do not subtract points.
+        const netPoints = correctCount;
+        const finalScore = questions.length > 0 ? (netPoints / questions.length) * 10 : 0;
 
-        const answerUpdates = Object.entries(userAnswers).map(([questionId, answerId]) => {
-            const isCorrect = correctAnswersMap.get(questionId) === answerId;
-            if (isCorrect) {
-                correctCount++;
-            } else {
-                incorrectCount++;
-            }
-            return {
-                test_attempt_id: testAttemptId,
-                question_id: questionId,
-                answer_id: answerId,
-                is_correct: isCorrect,
-            };
-        });
-
-        // 3. Actualizar las respuestas del usuario en la tabla `test_attempt_questions`
-        const { error: updateAnswersError } = await supabase
-            .from('test_attempt_questions')
-            .upsert(answerUpdates, { onConflict: 'test_attempt_id, question_id' });
-
-        if (updateAnswersError) throw updateAnswersError;
-
-        // 4. Actualizar el registro principal de `test_attempts` con el resultado final
-        const totalAnswered = correctCount + incorrectCount;
-        const totalQuestions = correctAnswersData.length;
-        // Puntuación sobre 10: (aciertos - (fallos / 2)) * (10 / total_preguntas) -> Ajusta esta fórmula si quieres otra
-        const score = Math.max(0, (correctCount - incorrectCount / 2) * (10 / totalQuestions));
-
-        const { error: updateAttemptError } = await supabase
+        // Step 3: Update the test_attempts table with the final results
+        const { error: updateError } = await supabase
             .from('test_attempts')
             .update({
-                completed_at: new Date().toISOString(),
+                status: 'completed',
+                finished_at: new Date().toISOString(),
+                score: finalScore,
                 correct_answers: correctCount,
-                wrong_answers: incorrectCount,
-                score: score,
+                incorrect_answers: incorrectCount,
+                unanswered_questions: unansweredCount,
             })
-            .eq('id', testAttemptId)
-            .eq('user_id', user.id);
+            .eq('id', testAttemptId);
 
-        if (updateAttemptError) throw updateAttemptError;
-    } catch (error: any) {
-        console.error('Error submitting test:', error);
-        return { error: 'No se pudo guardar el resultado del test.' };
+        if (updateError) {
+            return { error: updateError.message };
+        }
+
+        revalidatePath('/dashboard/tests');
+        revalidatePath(`/dashboard/tests/${testAttemptId}`);
+
+        return { success: true };
+    } catch (error) {
+        return { error: 'An unexpected error occurred.' };
     }
-
-    // 5. Redirigir a la página de resultados (crea esta página más adelante)
-    redirect(`/dashboard/tests/results/${testAttemptId}`);
 }
