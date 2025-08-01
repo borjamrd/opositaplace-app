@@ -86,12 +86,11 @@ export function CreateTestForm({
 
     return (
         <form onSubmit={handleSubmit(onSubmit)}>
-            <Card className="max-w-2xl mx-auto">
+            <Card variant={'borderless'} className="max-w-4xl mx-auto">
                 <CardHeader>
-                    <CardTitle>Configura tu Test</CardTitle>
+                    <CardTitle>Configura tu test</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-8">
-                    {/* Modo de Test */}
                     <div>
                         <Label className="text-lg font-semibold">1. Elige un modo</Label>
                         <Controller
@@ -105,7 +104,7 @@ export function CreateTestForm({
                                 >
                                     <div className="flex items-center space-x-2">
                                         <RadioGroupItem value="random" id="r1" />
-                                        <Label htmlFor="r1">Test Aleatorio</Label>
+                                        <Label htmlFor="r1">Test aleatorio</Label>
                                     </div>
                                     <div className="flex items-center space-x-2">
                                         <RadioGroupItem value="errors" id="r2" />
@@ -120,7 +119,6 @@ export function CreateTestForm({
                         />
                     </div>
 
-                    {/* Selector de Temas (condicional) */}
                     {mode === 'topics' && (
                         <div>
                             <Label className="text-lg font-semibold">2. Selecciona los temas</Label>
@@ -164,24 +162,6 @@ export function CreateTestForm({
                             </div>
                         </div>
                     )}
-                    {/* {mode === 'random' && (
-                        <div className="flex items-center space-x-2 mt-4">
-                            <Controller
-                                name="includeNoTopic"
-                                control={control}
-                                render={({ field }) => (
-                                    <Switch
-                                        id="include-no-topic-switch"
-                                        checked={field.value}
-                                        onCheckedChange={field.onChange}
-                                    />
-                                )}
-                            />
-                            <Label htmlFor="include-no-topic-switch">
-                                Incluir preguntas sin tema asignado
-                            </Label>
-                        </div>
-                    )} */}
 
                     {/* Número de Preguntas */}
                     <div>
@@ -199,7 +179,7 @@ export function CreateTestForm({
                     </div>
 
                     {/* Opciones Adicionales */}
-                    <div>
+                    {/* <div>
                         <Label className="text-lg font-semibold">4. Opciones</Label>
                         <div className="flex items-center space-x-2 mt-2">
                             <Controller
@@ -215,7 +195,7 @@ export function CreateTestForm({
                             />
                             <Label htmlFor="timer-switch">Activar temporizador</Label>
                         </div>
-                    </div>
+                    </div> */}
                 </CardContent>
                 <CardFooter>
                     <Button type="submit" className="w-full" disabled={isPending}>

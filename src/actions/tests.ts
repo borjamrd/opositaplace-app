@@ -2,12 +2,11 @@
 'use server';
 
 import { createSupabaseServerClient } from '@/lib/supabase/server';
+import { Question } from '@/lib/supabase/types';
+import { shuffle } from '@/lib/utils';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import type { Database } from '@/lib/database.types';
-import { shuffle } from '@/lib/utils';
 
-type Question = Database['public']['Tables']['questions']['Row'];
 type TestMode = 'random' | 'errors' | 'topics';
 
 interface CreateTestParams {

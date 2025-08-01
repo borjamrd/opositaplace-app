@@ -1,20 +1,16 @@
-// src/app/dashboard/tests/[id]/page.tsx
+import { TestSession } from '@/components/tests/test-session';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import type { Tables } from '@/lib/database.types';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
+import { Terminal } from 'lucide-react';
 import { cookies } from 'next/headers';
 import { notFound, redirect } from 'next/navigation';
-import { TestSession } from '@/components/tests/test-session';
 
-// ... (El tipo QuestionWithAnswers no cambia)
-export type QuestionWithAnswers = {
-    id: string;
-    text: string;
-    answers: {
-        id: string;
-        text: string;
-    }[];
+export type QuestionWithAnswers = Tables<'questions'> & {
+    answers: Tables<'answers'>[];
 };
 
-export default async function TestAttemptPage({ params }: { params: { id: string } }) {
+export default async function TestPage({ params }: { params: { id: string } }) {
     const cookieStore = cookies();
     const supabase = createSupabaseServerClient(cookieStore);
 
@@ -23,46 +19,65 @@ export default async function TestAttemptPage({ params }: { params: { id: string
     } = await supabase.auth.getUser();
 
     if (!user) {
-        redirect('/login');
+        console.log('User not found, redirecting to login.');
+        return redirect('/login');
     }
 
-    const { data: testAttempt, error: attemptError } = await supabase
+    const { data: testAttempt, error: testAttemptError } = await supabase
         .from('test_attempts')
-        .select('*')
+        .select('*, tests(*)')
         .eq('id', params.id)
-        .eq('user_id', user.id)
         .single();
 
-    if (attemptError || !testAttempt) {
-        notFound();
+    if (testAttemptError || !testAttempt) {
+        return notFound();
     }
 
-    const { data: questionsData, error: questionsError } = await supabase
+
+    const { data: attemptQuestions, error: attemptQuestionsError } = await supabase
         .from('test_attempt_questions')
-        .select(
-            `
-            questions (
-                id,
-                text,
-                answers (id, text)
-            )
-        `
-        )
-        .eq('test_attempt_id', testAttempt.id)
-        .order('created_at', { ascending: true });
+        .select(`questions(*, answers(*))`)
+        .eq('test_attempt_id', testAttempt.id);
 
-    if (questionsError || !questionsData) {
-        console.error('Error al cargar preguntas del test:', questionsError);
-        return <p>Error al cargar las preguntas del test.</p>;
+    if (attemptQuestionsError) {
+        console.error('Error fetching attempt_questions:', attemptQuestionsError);
+        return (
+            <div className="container mx-auto mt-8">
+                <Alert variant="destructive">
+                    <Terminal className="h-4 w-4" />
+                    <AlertTitle>Error</AlertTitle>
+                    <AlertDescription>
+                        No se pudieron cargar las preguntas del test. Por favor, inténtalo de nuevo.
+                    </AlertDescription>
+                </Alert>
+            </div>
+        );
     }
 
-    const questions: QuestionWithAnswers[] = questionsData
-        .map((item) => item.questions)
-        .filter(Boolean) as QuestionWithAnswers[];
+    const allQuestions: QuestionWithAnswers[] =
+        attemptQuestions?.map((aq) => aq.questions).filter(Boolean) ?? [];
 
-    return (
-        <div className="container mx-auto py-8">
-            <TestSession testAttempt={testAttempt} questions={questions} />
-        </div>
+    // --- FILTRO DE PREGUNTAS VÁLIDAS ---
+    // Aquí está la lógica clave: nos quedamos solo con las preguntas
+    // que tienen al menos una respuesta marcada como correcta.
+    const validQuestions = allQuestions.filter((question) =>
+        question.answers.some((answer) => answer.is_correct)
     );
+
+    if (validQuestions.length === 0) {
+        return (
+            <div className="container mx-auto mt-8">
+                <Alert variant="destructive">
+                    <Terminal className="h-4 w-4" />
+                    <AlertTitle>No hay preguntas válidas</AlertTitle>
+                    <AlertDescription>
+                        Este test no se puede iniciar porque no contiene preguntas con respuestas
+                        correctas definidas. Por favor, contacta con el administrador.
+                    </AlertDescription>
+                </Alert>
+            </div>
+        );
+    }
+
+    return <TestSession testAttempt={testAttempt} questions={validQuestions} />;
 }
