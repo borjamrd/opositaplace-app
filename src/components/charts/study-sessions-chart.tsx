@@ -1,6 +1,6 @@
 'use client';
 
-import { Activity } from 'lucide-react';
+import { Activity, AlertCircle } from 'lucide-react';
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from 'recharts';
 import { useQuery } from '@tanstack/react-query';
 import { createClient } from '@/lib/supabase/client';
@@ -12,6 +12,7 @@ import {
     CardDescription,
     CardFooter,
     CardHeader,
+    CardTitle,
 } from '@/components/ui/card';
 import {
     ChartConfig,
@@ -19,28 +20,26 @@ import {
     ChartTooltip,
     ChartTooltipContent,
 } from '@/components/ui/chart';
+import { Skeleton } from '@/components/ui/skeleton';
 
-// --- Lógica de Fetching (sin cambios, pero ahora recibirá `total_minutes`) ---
 async function fetchStudyData() {
     const supabase = createClient();
     const { data, error } = await supabase.rpc('get_daily_study_summary', {
         days_limit: 30,
     });
-    if (error) throw new Error('Error al cargar los datos de estudio: ' + error.message);
+    if (error) throw new Error('Error fetching study data: ' + error.message);
     return data;
 }
 
-// --- Función de ayuda para formatear minutos ---
 function formatMinutesToHoursAndMinutes(minutes: number): string {
-    if (minutes === 0) return '0';
+    if (minutes === 0) return '0m';
     const h = Math.floor(minutes / 60);
     const m = minutes % 60;
-    const hDisplay = h > 0 ? `${h}` : '';
-    const mDisplay = m > 0 ? `${m}` : '';
+    const hDisplay = h > 0 ? `${h}h` : '';
+    const mDisplay = m > 0 ? `${m}m` : '';
     return `${hDisplay} ${mDisplay}`.trim();
 }
 
-// --- Componente Principal ---
 export function StudySessionsChart() {
     const {
         data: chartData,
@@ -49,7 +48,7 @@ export function StudySessionsChart() {
     } = useQuery({
         queryKey: ['study-sessions-summary'],
         queryFn: fetchStudyData,
-        staleTime: 10000,
+        staleTime: 1000 * 60 * 5, // 5 minutes
     });
 
     const totalMinutes = useMemo(() => {
@@ -60,22 +59,49 @@ export function StudySessionsChart() {
     const chartConfig = {
         minutes: {
             label: 'Minutos',
-            color: 'var(--chart-1)',
+            color: 'hsl(var(--chart-1))',
             icon: Activity,
         },
     } satisfies ChartConfig;
 
     if (isLoading) {
-        /* ... estado de carga sin cambios ... */
+        return (
+            <Card className="w-full h-fit">
+                <CardHeader>
+                    <Skeleton className="h-6 w-3/5" />
+                    <Skeleton className="h-4 w-4/5" />
+                </CardHeader>
+                <CardContent>
+                    <Skeleton className="h-[140px] w-full" />
+                </CardContent>
+                <CardFooter>
+                    <Skeleton className="h-5 w-1/2" />
+                </CardFooter>
+            </Card>
+        );
     }
+
     if (isError) {
-        /* ... estado de error sin cambios ... */
+        return (
+            <Card className="w-full h-fit">
+                <CardHeader>
+                    <CardTitle>Actividad de Estudio</CardTitle>
+                    <CardDescription>Resumen de los últimos 30 días.</CardDescription>
+                </CardHeader>
+                <CardContent className="flex flex-col items-center justify-center h-[140px]">
+                    <AlertCircle className="h-8 w-8 text-destructive" />
+                    <p className="mt-2 text-sm text-destructive">
+                        No se pudieron cargar los datos.
+                    </p>
+                </CardContent>
+            </Card>
+        );
     }
 
     return (
-        <Card className='w-full h-fit'>
+        <Card className="w-full h-fit">
             <CardHeader>
-                {/* <CardTitle>Actividad de Estudio</CardTitle> */}
+                <CardTitle>Actividad de Estudio</CardTitle>
                 <CardDescription>
                     Resumen de tiempo de estudio en los últimos 30 días.
                 </CardDescription>
@@ -85,7 +111,7 @@ export function StudySessionsChart() {
                     <AreaChart
                         accessibilityLayer
                         data={chartData || []}
-                        margin={{ left: 0, right: 12 }}
+                        margin={{ left: 0, right: 12, top: 4 }}
                     >
                         <CartesianGrid vertical={false} />
                         <XAxis
@@ -104,7 +130,6 @@ export function StudySessionsChart() {
                             tickLine={false}
                             axisLine={false}
                             tickMargin={8}
-                            // El eje muestra horas, pero se calcula a partir de minutos
                             tickFormatter={(value) => `${Math.round(value / 60)}h`}
                         />
                         <ChartTooltip
@@ -112,47 +137,33 @@ export function StudySessionsChart() {
                             content={
                                 <ChartTooltipContent
                                     indicator="dot"
-                                    formatter={(value, name, item) =>
-                                        formatMinutesToHoursAndMinutes(item.payload.total_minutes)
+                                    formatter={(value) =>
+                                        formatMinutesToHoursAndMinutes(Number(value))
                                     }
                                 />
                             }
                         />
                         <defs>
-                            <linearGradient id="fillDesktop" x1="0" y1="0" x2="0" y2="1">
+                            <linearGradient id="fillMinutes" x1="0" y1="0" x2="0" y2="1">
                                 <stop
                                     offset="5%"
-                                    stopColor="var(--color-desktop)"
+                                    stopColor="var(--color-minutes)"
                                     stopOpacity={0.8}
                                 />
                                 <stop
                                     offset="95%"
-                                    stopColor="var(--color-desktop)"
-                                    stopOpacity={0.1}
-                                />
-                            </linearGradient>
-                            <linearGradient id="fillMobile" x1="0" y1="0" x2="0" y2="1">
-                                <stop
-                                    offset="5%"
-                                    stopColor="var(--color-mobile)"
-                                    stopOpacity={0.8}
-                                />
-                                <stop
-                                    offset="95%"
-                                    stopColor="var(--color-mobile)"
+                                    stopColor="var(--color-minutes)"
                                     stopOpacity={0.1}
                                 />
                             </linearGradient>
                         </defs>
-
                         <Area
-                            // El dataKey ahora apunta a total_minutes
                             dataKey="total_minutes"
                             name="Minutos"
-                            type="natural"
-                            fill="url(#fillDesktop)"
+                            type="monotone"
+                            fill="url(#fillMinutes)"
                             fillOpacity={0.4}
-                            stroke="var(--color-desktop)"
+                            stroke="var(--color-minutes)"
                             stackId="a"
                         />
                     </AreaChart>
@@ -162,8 +173,7 @@ export function StudySessionsChart() {
                 <div className="flex w-full items-start gap-2 text-sm">
                     <div className="grid gap-2">
                         <div className="flex items-center gap-2 font-medium leading-none">
-                            {/* Mostramos el total con el formato mejorado */}
-                            Total de {formatMinutesToHoursAndMinutes(totalMinutes)} {Math.floor(totalMinutes / 60) !== 1 ? 'minutos' : 'hora'} estudiados en
+                            Total de {formatMinutesToHoursAndMinutes(totalMinutes)} estudiados en
                             este periodo
                         </div>
                     </div>
