@@ -85,7 +85,7 @@ export function StudySessionsChart() {
         return (
             <Card className="w-full h-fit">
                 <CardHeader>
-                    <CardTitle>Actividad de Estudio</CardTitle>
+                    <CardTitle>Actividad de estudio</CardTitle>
                     <CardDescription>Resumen de los últimos 30 días.</CardDescription>
                 </CardHeader>
                 <CardContent className="flex flex-col items-center justify-center h-[140px]">
@@ -101,7 +101,7 @@ export function StudySessionsChart() {
     return (
         <Card className="w-full h-fit">
             <CardHeader>
-                <CardTitle>Actividad de Estudio</CardTitle>
+                <CardTitle>Actividad de estudio</CardTitle>
                 <CardDescription>
                     Resumen de tiempo de estudio en los últimos 30 días.
                 </CardDescription>

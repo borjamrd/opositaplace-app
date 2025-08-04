@@ -71,12 +71,9 @@ export function UrlSubscriptionChanges({ urlId }: { urlId: string }) {
                                 <time className="mb-1 text-sm font-normal leading-none text-gray-400 dark:text-gray-500">
                                     {formatDate(entry.created_at)}
                                 </time>
-                                <div className="p-3 mt-2 bg-secondary/50 rounded-lg border">
+                                <div className="p-3 mt-3 bg-secondary/50 rounded-lg border">
                                     <div>
-                                        <h3 className="text-md font-semibold text-primary">
-                                            Cambios Detectados
-                                        </h3>
-                                        <ul className="list-disc pl-5 mt-2 space-y-1 text-sm">
+                                        <ul className="list-disc pl-5 mt-1 space-y-1 text-sm">
                                             {entry.summary.map((change, changeIndex) => (
                                                 <li
                                                     key={changeIndex}

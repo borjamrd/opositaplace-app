@@ -10,7 +10,7 @@ import { SidebarInset } from '@/components/ui/sidebar';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
     return (
-        <div className="h-screen flex w-full p-4">
+        <div className="flex w-full p-4">
             <AppSidebar variant="inset" />
             <SidebarInset>
                 <SiteHeader />

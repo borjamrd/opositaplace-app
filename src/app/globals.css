@@ -104,6 +104,9 @@
   * {
     @apply border-border;
   }
+  html {
+     font-size: 0.90rem;
+  }
 
   body {
     @apply bg-background text-foreground;

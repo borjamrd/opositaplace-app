@@ -19,16 +19,12 @@ export function FailedQuestionFlashcard({ questions }: FailedQuestionFlashcardPr
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isAnswerVisible, setIsAnswerVisible] = useState(false);
 
-    const shuffledQuestions = useMemo(() => {
-        return [...questions].sort(() => Math.random() - 0.5);
-    }, [questions]);
-
     const handleNextQuestion = () => {
         setIsAnswerVisible(false);
-        setCurrentIndex((prevIndex) => (prevIndex + 1) % shuffledQuestions.length);
+        setCurrentIndex((prevIndex) => (prevIndex + 1) % questions.length);
     };
 
-    const currentQuestion = shuffledQuestions[currentIndex];
+    const currentQuestion = questions[currentIndex];
 
     return (
         <Card className="w-full h-full flex flex-col">
