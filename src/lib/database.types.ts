@@ -1267,7 +1267,9 @@ export type Database = {
       }
       get_user_failed_questions: {
         Args: Record<PropertyKey, never>
-        Returns: string[]
+        Returns: {
+          question_id: string
+        }[]
       }
       has_role: {
         Args: {

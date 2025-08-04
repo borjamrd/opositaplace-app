@@ -38,11 +38,10 @@ export async function createTestAttempt(params: CreateTestParams) {
             );
             if (rpcError) {
                 console.error('Error fetching failed questions:', rpcError);
-                return {
-                    error: 'Could not retrieve failed questions.'
-                }
+                return { error: 'Could not retrieve failed questions.' };
             }
-            candidateQuestionIds = failedQuestions || [];
+            // The RPC returns an array of objects like [{ question_id: '...' }], so we map it to an array of strings.
+            candidateQuestionIds = failedQuestions?.map((q) => q.question_id) || [];
             break;
 
         case 'topics':

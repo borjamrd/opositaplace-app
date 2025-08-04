@@ -69,9 +69,9 @@ export function TestHistoryTable({ attempts }: TestHistoryTableProps) {
               <TableCell className="text-center font-medium text-red-600">
                 {attempt.incorrect_answers ?? '-'}
               </TableCell>
-              <TableCell className="text-center font-medium text-gray-500">
+              {/* <TableCell className="text-center font-medium text-gray-500">
                 {attempt.unanswered_questions ?? '-'}
-              </TableCell>
+              </TableCell> */}
               <TableCell className="text-right">
                 <Button asChild variant="ghost" size="icon">
                   <Link href={`/dashboard/tests/${attempt.id}`}>
