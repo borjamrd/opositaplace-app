@@ -1,6 +1,6 @@
 'use client';
 
-import { TrendingUp, Activity } from 'lucide-react';
+import { Activity } from 'lucide-react';
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from 'recharts';
 import { useQuery } from '@tanstack/react-query';
 import { createClient } from '@/lib/supabase/client';
@@ -12,7 +12,6 @@ import {
     CardDescription,
     CardFooter,
     CardHeader,
-    CardTitle,
 } from '@/components/ui/card';
 import {
     ChartConfig,
@@ -33,11 +32,11 @@ async function fetchStudyData() {
 
 // --- Función de ayuda para formatear minutos ---
 function formatMinutesToHoursAndMinutes(minutes: number): string {
-    if (minutes === 0) return '0m';
+    if (minutes === 0) return '0';
     const h = Math.floor(minutes / 60);
     const m = minutes % 60;
-    const hDisplay = h > 0 ? `${h}h` : '';
-    const mDisplay = m > 0 ? `${m}m` : '';
+    const hDisplay = h > 0 ? `${h}` : '';
+    const mDisplay = m > 0 ? `${m}` : '';
     return `${hDisplay} ${mDisplay}`.trim();
 }
 
@@ -76,7 +75,7 @@ export function StudySessionsChart() {
     return (
         <Card className='w-full h-fit'>
             <CardHeader>
-                <CardTitle>Actividad de Estudio</CardTitle>
+                {/* <CardTitle>Actividad de Estudio</CardTitle> */}
                 <CardDescription>
                     Resumen de tiempo de estudio en los últimos 30 días.
                 </CardDescription>
@@ -164,7 +163,7 @@ export function StudySessionsChart() {
                     <div className="grid gap-2">
                         <div className="flex items-center gap-2 font-medium leading-none">
                             {/* Mostramos el total con el formato mejorado */}
-                            Total de {formatMinutesToHoursAndMinutes(totalMinutes)} estudiadas en
+                            Total de {formatMinutesToHoursAndMinutes(totalMinutes)} {Math.floor(totalMinutes / 60) !== 1 ? 'minutos' : 'hora'} estudiados en
                             este periodo
                         </div>
                     </div>

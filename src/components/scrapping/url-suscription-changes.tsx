@@ -99,7 +99,6 @@ export function UrlSubscriptionChanges({ urlId }: { urlId: string }) {
     return (
         <Card className="w-full max-w-2xl mx-auto">
             <CardHeader>
-                <CardTitle>Cambios a los que estás suscrito</CardTitle>
                 <CardDescription>
                     Últimos 5 cambios detectados para tus URLs suscritas.
                 </CardDescription>

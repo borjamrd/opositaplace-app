@@ -27,16 +27,22 @@ export async function createTestAttempt(params: CreateTestParams) {
     } = await supabase.auth.getUser();
     if (!user) return { error: 'User not authenticated' };
 
-    let questionIds: Pick<Question, 'id'>[] = [];
+    let candidateQuestionIds: string[] = [];
     let error: any = null;
 
+    // Step 1: Get a list of candidate question IDs based on the selected mode
     switch (params.mode) {
         case 'errors':
             const { data: failedQuestions, error: rpcError } = await supabase.rpc(
                 'get_user_failed_questions'
             );
-            if (rpcError) return { error: 'Could not retrieve failed questions.' };
-            questionIds = (failedQuestions || []).map((id) => ({ id }));
+            if (rpcError) {
+                console.error('Error fetching failed questions:', rpcError);
+                return {
+                    error: 'Could not retrieve failed questions.'
+                }
+            }
+            candidateQuestionIds = failedQuestions || [];
             break;
 
         case 'topics':
@@ -49,7 +55,7 @@ export async function createTestAttempt(params: CreateTestParams) {
                 .in('topic_id', params.topicIds)
                 .eq('topics.blocks.opposition_id', params.oppositionId);
 
-            questionIds = topicQuestions?.map((q) => ({ id: q.id })) || [];
+            candidateQuestionIds = topicQuestions?.map((q) => q.id) || [];
             error = topicsError;
             break;
         case 'random':
@@ -65,20 +71,52 @@ export async function createTestAttempt(params: CreateTestParams) {
             if (randomError) {
                 return { error: 'Could not retrieve questions for random mode.' };
             }
-            questionIds = randomQuestionsData?.map((q: any) => ({ id: q.id })) || [];
+            candidateQuestionIds = randomQuestionsData?.map((q: any) => q.id) || [];
             break;
     }
 
-    if (error || !questionIds || questionIds.length === 0) {
+    if (error || !candidateQuestionIds || candidateQuestionIds.length === 0) {
         return { error: 'No questions found for the selected criteria.' };
     }
 
-    const selectedQuestions = shuffle(questionIds).slice(0, params.numQuestions);
+    // Step 2: Validate questions in batches to avoid "URI too large" error
+    const BATCH_SIZE = 200;
+    let validQuestionIds: { id: string }[] = [];
+    for (let i = 0; i < candidateQuestionIds.length; i += BATCH_SIZE) {
+        const batch = candidateQuestionIds.slice(i, i + BATCH_SIZE);
+        const { data: validQuestions, error: validationError } = await supabase
+            .from('questions')
+            .select('id, answers!inner(is_correct)')
+            .in('id', batch)
+            .eq('answers.is_correct', true);
 
-    if (selectedQuestions.length === 0) {
-        return { error: 'Not enough questions available to create the test.' };
+        if (validationError) {
+            console.error('Error validating questions batch:', validationError);
+            return { error: 'Error validating questions.' };
+        }
+        if (validQuestions) {
+            const uniqueValidIds = validQuestions.map((q) => ({ id: q.id }));
+            validQuestionIds = [...validQuestionIds, ...uniqueValidIds];
+        }
     }
 
+    // Remove duplicates that might arise from the join
+    const uniqueValidQuestionIds = Array.from(new Set(validQuestionIds.map((q) => q.id))).map(
+        (id) => ({ id })
+    );
+
+    if (uniqueValidQuestionIds.length === 0) {
+        return { error: 'No valid questions found for the selected criteria.' };
+    }
+
+    // Step 3: Shuffle and select the final questions for the test
+    const selectedQuestions = shuffle(uniqueValidQuestionIds).slice(0, params.numQuestions);
+
+    if (selectedQuestions.length === 0) {
+        return { error: 'Not enough valid questions available to create the test.' };
+    }
+
+    // Step 4: Create the test attempt with the correct number of questions
     const { data: genericTest, error: genericTestError } = await supabase
         .from('tests')
         .select('id')
@@ -96,7 +134,7 @@ export async function createTestAttempt(params: CreateTestParams) {
             user_id: user.id,
             opposition_id: params.oppositionId,
             study_cycle_id: params.studyCycleId,
-            total_questions: selectedQuestions.length,
+            total_questions: selectedQuestions.length, // This is now the correct number
             test_id: genericTest.id,
         })
         .select('id')
@@ -106,6 +144,7 @@ export async function createTestAttempt(params: CreateTestParams) {
         return { error: 'Could not create the test attempt.' };
     }
 
+    // Step 5: Save the (valid) questions for this attempt
     const attemptQuestions = selectedQuestions.map((q) => ({
         test_attempt_id: testAttempt.id,
         question_id: q.id,
@@ -136,7 +175,6 @@ export async function submitTestAttempt(testAttemptId: string, answers: Record<s
     }
 
     try {
-        // Step 1: Save the user's answers
         const userAnswersData = Object.entries(answers).map(([question_id, answer_id]) => ({
             test_attempt_id: testAttemptId,
             question_id,
@@ -154,7 +192,6 @@ export async function submitTestAttempt(testAttemptId: string, answers: Record<s
             return { error: answersError.message };
         }
 
-        // Step 2: Fetch the questions to calculate the score
         const { data: attemptQuestions, error: questionsError } = await supabase
             .from('test_attempt_questions')
             .select('questions(*, answers(*))')
@@ -183,11 +220,9 @@ export async function submitTestAttempt(testAttemptId: string, answers: Record<s
         });
 
         const unansweredCount = questions.length - (correctCount + incorrectCount);
-        // Traditional scoring mode: incorrect answers do not subtract points.
         const netPoints = correctCount;
         const finalScore = questions.length > 0 ? (netPoints / questions.length) * 10 : 0;
 
-        // Step 3: Update the test_attempts table with the final results
         const { error: updateError } = await supabase
             .from('test_attempts')
             .update({

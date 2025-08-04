@@ -49,7 +49,7 @@ export function TestSession({ testAttempt, questions }: TestSessionProps) {
     const { toast } = useToast();
     const [isPending, startTransition] = useTransition();
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-    const [isFinished, setIsFinished] = useState(false); // Estado para controlar la finalización
+    const [isFinished, setIsFinished] = useState(false);
 
     const form = useForm<FormData>({
         resolver: zodResolver(formSchema),
@@ -73,7 +73,6 @@ export function TestSession({ testAttempt, questions }: TestSessionProps) {
                     description: result.error,
                 });
             }
-            // No necesitamos hacer nada más, la UI ya ha cambiado
         });
         setIsFinished(true); // Mostramos los resultados inmediatamente
     };

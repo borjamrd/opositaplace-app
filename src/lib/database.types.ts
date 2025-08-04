@@ -660,6 +660,7 @@ export type Database = {
         Row: {
           completed_at: string | null
           correct_answers: number | null
+          created_at: string
           finished_at: string | null
           id: string
           incorrect_answers: number | null
@@ -675,6 +676,7 @@ export type Database = {
         Insert: {
           completed_at?: string | null
           correct_answers?: number | null
+          created_at?: string
           finished_at?: string | null
           id?: string
           incorrect_answers?: number | null
@@ -690,6 +692,7 @@ export type Database = {
         Update: {
           completed_at?: string | null
           correct_answers?: number | null
+          created_at?: string
           finished_at?: string | null
           id?: string
           incorrect_answers?: number | null

@@ -1,3 +1,4 @@
+import { TestResults } from '@/components/tests/test-results';
 import { TestSession } from '@/components/tests/test-session';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import type { Tables } from '@/lib/database.types';
@@ -32,7 +33,6 @@ export default async function TestPage({ params }: { params: { id: string } }) {
     if (testAttemptError || !testAttempt) {
         return notFound();
     }
-
 
     const { data: attemptQuestions, error: attemptQuestionsError } = await supabase
         .from('test_attempt_questions')
@@ -76,6 +76,39 @@ export default async function TestPage({ params }: { params: { id: string } }) {
                     </AlertDescription>
                 </Alert>
             </div>
+        );
+    }
+
+    if (testAttempt.status === 'completed') {
+        const { data: savedAnswersData, error: answersError } = await supabase
+            .from('test_attempt_answers')
+            .select('question_id, selected_answer_id')
+            .eq('test_attempt_id', testAttempt.id);
+
+        if (answersError) {
+            return (
+                <div className="container mx-auto mt-8">
+                    <Alert variant="destructive">
+                        <Terminal className="h-4 w-4" />
+                        <AlertTitle>Error</AlertTitle>
+                        <AlertDescription>
+                            No se pudieron cargar las respuestas guardadas para este test.
+                        </AlertDescription>
+                    </Alert>
+                </div>
+            );
+        }
+
+        const userAnswers =
+            savedAnswersData?.reduce((acc, item) => {
+                if (item.question_id && item.selected_answer_id) {
+                    acc[item.question_id] = item.selected_answer_id;
+                }
+                return acc;
+            }, {} as Record<string, string>) ?? {};
+
+        return (
+            <TestResults questions={allQuestions} userAnswers={userAnswers} attempt={testAttempt} />
         );
     }
 
