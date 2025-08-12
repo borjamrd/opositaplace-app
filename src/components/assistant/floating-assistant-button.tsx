@@ -35,7 +35,7 @@ export function FloatingAssistantButton() {
                         </span>
                     </Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-4xl h-[80vh]">
+                <DialogContent className="max-w-7xl h-[80vh]">
                     <DialogTitle className='hidden'>Asistente</DialogTitle>
                     <ChatAssistant />
                 </DialogContent>

@@ -8,9 +8,9 @@ import ReactMarkdown from 'react-markdown';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { FileText, HelpCircle, Loader2, Send } from 'lucide-react';
+import { BookCheck, FileText, HelpCircle, Loader2, Send } from 'lucide-react';
 import { Card, CardHeader } from '../ui/card';
-import { HoverCard, HoverCardContent, HoverCardTrigger } from '../ui/hover-card';
+import { ReferencesPanel } from './references-panel';
 
 const suggestedQuestions = [
     {
@@ -36,6 +36,7 @@ export function ChatAssistant() {
     const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [sessionId, setSessionId] = useState<string | undefined>(undefined);
+    const [selectedSources, setSelectedSources] = useState<ChatMessage['sources'] | null>(null);
 
     const scrollAreaRef = useRef<HTMLDivElement | null>(null);
     const messagesEndRef = useRef<HTMLDivElement | null>(null);
@@ -53,20 +54,12 @@ export function ChatAssistant() {
         if (!currentInput) return;
 
         const newUserMessage: ChatMessage = { role: 'user', content: currentInput };
-        // ✅ NO ES NECESARIO AÑADIR UN MENSAJE VACÍO DEL MODELO AQUÍ
-        // Esto se maneja directamente en el flujo de chat, donde se añade un mensaje vacío
-        // Este mensaje vacío se irá rellenando con el stream.
-        // setChatMessages((prev) => [
-        //     ...prev,
-        //     newUserMessage,
-        //     // { role: 'model', content: '' }, // Empezamos con un mensaje de modelo vacío
-        // ]);
 
         setUserInput('');
         setIsLoading(true);
 
         const placeholderModelMessage: ChatMessage = { role: 'model', content: '...' };
-        setChatMessages((prev) => [...prev, placeholderModelMessage]);
+        setChatMessages((prev) => [...prev, newUserMessage, placeholderModelMessage]);
 
         const payload = {
             query: currentInput,
@@ -79,8 +72,6 @@ export function ChatAssistant() {
                 url: '/api/opositaplaceChatFlow',
                 input: payload,
             });
-
-            let accumulatedReply = '';
 
             for await (const chunk of result.stream) {
                 if (chunk?.replyChunk) {
@@ -131,7 +122,7 @@ export function ChatAssistant() {
     };
 
     return (
-        <div className="flex flex-col h-[calc(100vh-10rem)] md:h-[70vh] w-full mx-auto">
+        <div className="relative flex flex-col h-[calc(100vh-10rem)] md:h-[70vh] w-full mx-auto overflow-hidden">
             <ScrollArea className="flex-grow p-4" ref={scrollAreaRef}>
                 {chatMessages.length === 0 ? (
                     <div className="flex flex-col items-center justify-center h-full">
@@ -247,44 +238,22 @@ export function ChatAssistant() {
                                             >
                                                 {msg.content}
                                             </ReactMarkdown>
-                                            {msg.sources && msg.sources.length > 0 && (
-                                                <div className="mt-4">
-                                                    <h4 className="text-sm font-semibold mb-2">
-                                                        Fuentes Consultadas:
-                                                    </h4>
-                                                    <div className="flex flex-col flex-wrap gap-2">
-                                                        {msg.sources.map((source, idx) => (
-                                                            <HoverCard key={source.id + idx}>
-                                                                <HoverCardTrigger asChild>
-                                                                    <span className="bg-muted text-muted-foreground px-2 py-1 rounded-full text-xs cursor-pointer hover:bg-primary/20">
-                                                                        [{idx + 1}]{source.title}{' '}
-                                                                        (pág.{' '}
-                                                                        {source.pageIdentifier})
-                                                                    </span>
-                                                                </HoverCardTrigger>
-                                                                <HoverCardContent
-                                                                    className="w-[40rem]"
-                                                                    side="top"
-                                                                >
-                                                                    <div className="space-y-2">
-                                                                        <p className="text-sm font-semibold">
-                                                                            {source.title} (pág.{' '}
-                                                                            {source.pageIdentifier})
-                                                                        </p>
-
-                                                                        {/* Contenedor con scroll para el texto largo */}
-                                                                        <ScrollArea className="h-[20rem] w-full rounded-md border p-2">
-                                                                            <p className="text-xs text-muted-foreground italic whitespace-pre-wrap">
-                                                                                "{source.text}"
-                                                                            </p>
-                                                                        </ScrollArea>
-                                                                    </div>
-                                                                </HoverCardContent>
-                                                            </HoverCard>
-                                                        ))}
+                                            {msg.role === 'model' &&
+                                                msg.sources &&
+                                                msg.sources.length > 0 && (
+                                                    <div className="mt-4">
+                                                        <Button
+                                                            variant="outline"
+                                                            size="sm"
+                                                            onClick={() =>
+                                                                setSelectedSources(msg.sources)
+                                                            }
+                                                        >
+                                                            <BookCheck className="h-4 w-4 mr-2" />
+                                                            Referencias
+                                                        </Button>
                                                     </div>
-                                                </div>
-                                            )}
+                                                )}
                                         </div>
                                     )}
                                 </div>
@@ -294,7 +263,12 @@ export function ChatAssistant() {
                     </div>
                 )}
             </ScrollArea>
-
+            {selectedSources && (
+                <ReferencesPanel
+                    sources={selectedSources}
+                    onClose={() => setSelectedSources(null)}
+                />
+            )}
             <div className="p-4 border-t bg-background">
                 <form onSubmit={handleSubmit} className="flex items-center gap-2">
                     <Input

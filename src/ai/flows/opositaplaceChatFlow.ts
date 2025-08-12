@@ -92,6 +92,7 @@ export const opositaplaceChatFlow = ai.defineFlow(
             config: { temperature: 0.0 },
         });
         const intent = intentClassification.text.trim();
+        console.log(`Intent classified as: ${intent}`);
 
         switch (intent) {
             case 'KNOWLEDGE_QUERY':
@@ -119,8 +120,42 @@ export const opositaplaceChatFlow = ai.defineFlow(
                             .filter((msg) => msg.role === 'model')
                             .pop();
                         if (lastBotResponse) {
-                            const enrichedQuery = `El usuario no ha entendido o pide una aclaración sobre esta respuesta: "${lastBotResponse.content}". La nueva pregunta es: "${query}". Explica el concepto principal de la respuesta anterior de forma sencilla.`;
-                            finalAnswerText = await streamResponse(enrichedQuery);
+                            const enrichedQuery = `El usuario tiene una duda sobre la siguiente respuesta: "${lastBotResponse.content}". La duda específica es: "${query}".`;
+
+                            // ✅ PASO 2: Volver a buscar en la base de conocimiento con la duda.
+                            // Esto nos dará un nuevo contexto y, crucialmente, las referencias.
+                            const ragResult = await getConversationalAnswer(
+                                enrichedQuery,
+                                sessionPath
+                            );
+
+                            // Guardamos las nuevas referencias y el sessionPath.
+                            references = ragResult.references;
+                            finalSessionPath = ragResult.sessionPath;
+                            const newContext = ragResult.answer;
+                            const finalPrompt = `
+                                    Eres un asistente experto en oposiciones. Tu objetivo es aclarar una duda del usuario sobre tu respuesta anterior.
+
+                                    **Tu respuesta anterior fue:**
+                                    ---
+                                    ${lastBotResponse.content}
+                                    ---
+
+                                    **La nueva pregunta o duda del usuario es:**
+                                    ---
+                                    ${query}
+                                    ---
+
+                                    **Instrucciones:**
+                                    1.  **Analiza la duda:** Si la duda del usuario es vaga (como "no entiendo" o "tengo dudas"), no simplifiques en exceso. En su lugar, intenta abordar el concepto central de tu respuesta anterior desde un ángulo diferente. Puedes usar una analogía o dividirlo en partes más pequeñas.
+                                    2.  **Usa ejemplos concretos:** Si es apropiado, utiliza ejemplos prácticos para ilustrar los puntos clave.
+                                    3.  **Mantén un tono profesional:** Evita un lenguaje demasiado coloquial o infantil (como llamar al Defensor del Pueblo un "superhéroe"). El tono debe ser el de un tutor experto.
+                                    4.  **No repitas, reelabora:** No te limites a repetir la información anterior. Reorganiza, reformula y añade valor para facilitar la comprensión.
+                                    5.  **Si la duda es específica**, céntrate en responder a esa duda concreta.
+
+                                    Basándote en estas instrucciones, proporciona una aclaración útil y detallada.
+                                `;
+                            finalAnswerText = await streamResponse(finalPrompt);
                         } else {
                             finalAnswerText =
                                 'Por favor, ¿puedes recordarme sobre qué tenías la duda?';
@@ -146,7 +181,7 @@ export const opositaplaceChatFlow = ai.defineFlow(
                                     - Resumir artículos o capítulos: "¿Qué dice el Título Preliminar de la Constitución?".
                                     - Definir términos: "¿Qué es un acto administrativo?".
 
-                                    Mi conocimiento se basa únicamente en los documentos proporcionados, y siempre que sea posible, citaré mis fuentes. Si no entiendo algo, ¡puedes pedirme que te lo explique de otra manera!`;
+                                    Mi conocimiento se basa únicamente en la documentación oficial del BOE, y siempre que sea posible, citaré mis fuentes. Si no entiendo algo, ¡puedes pedirme que te lo explique de otra manera!`;
                     sendChunk({ replyChunk: finalAnswerText });
                 } catch (e) {
                     finalAnswerText = 'Lo siento, ha ocurrido un error al mostrar mis capacidades.';
