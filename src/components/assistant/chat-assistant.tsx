@@ -5,14 +5,12 @@ import { streamFlow } from '@genkit-ai/next/client';
 import { FormEvent, useEffect, useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { useStudySessionStore } from '@/store/study-session-store';
-import { FileText, HelpCircle, Loader2, Send, User } from 'lucide-react';
-import { HoverCard, HoverCardContent, HoverCardTrigger } from '../ui/hover-card';
+import { FileText, HelpCircle, Loader2, Send } from 'lucide-react';
 import { Card, CardHeader } from '../ui/card';
+import { HoverCard, HoverCardContent, HoverCardTrigger } from '../ui/hover-card';
 
 const suggestedQuestions = [
     {
@@ -37,13 +35,11 @@ export function ChatAssistant() {
     const [userInput, setUserInput] = useState<string>('');
     const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    const { activeOpposition } = useStudySessionStore();
     const [sessionId, setSessionId] = useState<string | undefined>(undefined);
 
     const scrollAreaRef = useRef<HTMLDivElement | null>(null);
     const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
-    // Para auto-scroll al último mensaje
     useEffect(() => {
         if (messagesEndRef.current) {
             messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
@@ -53,22 +49,29 @@ export function ChatAssistant() {
     const handleSubmit = async (event?: FormEvent<HTMLFormElement>, questionText?: string) => {
         if (event) event.preventDefault();
 
-        const currentInput = questionText || userInput.trim(); // Usamos la pregunta del clic, o la del input
+        const currentInput = questionText || userInput.trim();
         if (!currentInput) return;
 
         const newUserMessage: ChatMessage = { role: 'user', content: currentInput };
-        setChatMessages((prev) => [...prev, newUserMessage]);
-        setUserInput(''); // Limpiamos el input en cualquier caso
+        // ✅ NO ES NECESARIO AÑADIR UN MENSAJE VACÍO DEL MODELO AQUÍ
+        // Esto se maneja directamente en el flujo de chat, donde se añade un mensaje vacío
+        // Este mensaje vacío se irá rellenando con el stream.
+        // setChatMessages((prev) => [
+        //     ...prev,
+        //     newUserMessage,
+        //     // { role: 'model', content: '' }, // Empezamos con un mensaje de modelo vacío
+        // ]);
+
+        setUserInput('');
         setIsLoading(true);
 
         const placeholderModelMessage: ChatMessage = { role: 'model', content: '...' };
         setChatMessages((prev) => [...prev, placeholderModelMessage]);
 
-
         const payload = {
             query: currentInput,
             sessionPath: sessionId,
-            chatHistory: chatMessages,
+            chatHistory: [...chatMessages, newUserMessage],
         };
 
         try {
@@ -80,45 +83,35 @@ export function ChatAssistant() {
             let accumulatedReply = '';
 
             for await (const chunk of result.stream) {
-                if (chunk && typeof chunk.replyChunk === 'string') {
-                    accumulatedReply += chunk.replyChunk;
-                    setChatMessages((prevMessages) =>
-                        prevMessages.map((msg, index) =>
-                            index === prevMessages.length - 1
-                                ? {
-                                      ...msg,
-                                      content: finalOutput.fullReply,
-                                      sources: finalOutput.references,
-                                  }
-                                : msg
-                        )
-                    );
+                if (chunk?.replyChunk) {
+                    setChatMessages((prevMessages) => {
+                        const newMessages = [...prevMessages];
+                        const lastMessage = newMessages[newMessages.length - 1];
+
+                        if (lastMessage && lastMessage.role === 'model') {
+                            lastMessage.content += chunk.replyChunk;
+                        }
+
+                        return newMessages;
+                    });
                 }
             }
 
             const finalOutput = await result.output;
 
-            if (
-                finalOutput &&
-                finalOutput.fullReply &&
-                finalOutput.fullReply !== accumulatedReply
-            ) {
+            if (finalOutput) {
                 setSessionId(finalOutput.sessionPath);
-                setChatMessages((prevMessages) =>
-                    prevMessages.map((msg, index) =>
-                        index === prevMessages.length - 1
-                            ? { ...msg, content: finalOutput.fullReply }
-                            : msg
-                    )
-                );
-            } else if (!finalOutput || !finalOutput.fullReply) {
-                setChatMessages((prevMessages) =>
-                    prevMessages.map((msg, index) =>
-                        index === prevMessages.length - 1 && accumulatedReply
-                            ? { ...msg, content: accumulatedReply }
-                            : msg
-                    )
-                );
+                setChatMessages((prevMessages) => {
+                    const newMessages = [...prevMessages];
+                    const lastMessage = newMessages[newMessages.length - 1];
+
+                    if (lastMessage && lastMessage.role === 'model') {
+                        lastMessage.content = finalOutput.fullReply;
+                        lastMessage.sources = finalOutput.references;
+                    }
+
+                    return newMessages;
+                });
             }
         } catch (error) {
             console.error('Error al llamar al flow:', error);
@@ -175,13 +168,6 @@ export function ChatAssistant() {
                                     msg.role === 'user' ? 'justify-end' : 'justify-start'
                                 }`}
                             >
-                                {/* {msg.role === 'model' && (
-                                <Avatar className="h-8 w-8">
-                                    <AvatarFallback>
-                                        <Bot size={20} />
-                                    </AvatarFallback>
-                                </Avatar>
-                            )} */}
                                 <div
                                     className={`max-w-[70%] rounded-lg px-3 py-2 text-sm md:text-base break-words ${
                                         msg.role === 'user' ? '' : 'bg-muted'

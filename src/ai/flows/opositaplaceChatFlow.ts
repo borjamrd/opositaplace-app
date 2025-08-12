@@ -24,6 +24,7 @@ interface Source {
     pageIdentifier: string;
     title: string;
 }
+
 export interface ChatMessage {
     role: 'user' | 'model';
     content: string;
@@ -55,21 +56,36 @@ export const opositaplaceChatFlow = ai.defineFlow(
     },
     async (input, { sendChunk }) => {
         const { query, sessionPath, chatHistory } = input;
+        let finalAnswerText: string | null = null;
+        let references: Reference[] = [];
+        let finalSessionPath: string | null = sessionPath || null;
+
+        const streamResponse = async (prompt: string): Promise<string> => {
+            const { stream } = await ai.generateStream({ prompt });
+            let accumulatedReply = '';
+            for await (const chunk of stream) {
+                const textChunk = chunk.content[0]?.text;
+                if (textChunk) {
+                    sendChunk({ replyChunk: textChunk });
+                    accumulatedReply += textChunk;
+                }
+            }
+            return accumulatedReply;
+        };
 
         const intentPrompt = `
-      Clasifica la intención de la siguiente "Consulta del Usuario" en una de estas categorías:
+            Clasifica la intención de la siguiente "Consulta del Usuario" en una de estas categorías:
 
-     - KNOWLEDGE_QUERY: El usuario hace una pregunta específica sobre el temario de oposiciones.
-      - CLARIFICATION_REQUEST: El usuario pide una aclaración, un ejemplo, o dice que no entiende la respuesta anterior.
-      - CAPABILITIES_INQUIRY: El usuario pregunta sobre las capacidades del bot.
-      - CONVERSATIONAL_RESPONSE: El usuario da una respuesta corta y conversacional (gracias, hola, ok).
-      - UNRELATED_QUERY: El usuario pregunta sobre temas no relacionados.
+            - KNOWLEDGE_QUERY: El usuario hace una pregunta específica sobre el temario de oposiciones.
+            - CLARIFICATION_REQUEST: El usuario pide una aclaración, un ejemplo, o dice que no entiende la respuesta anterior.
+            - CAPABILITIES_INQUIRY: El usuario pregunta sobre las capacidades del bot.
+            - CONVERSATIONAL_RESPONSE: El usuario da una respuesta corta y conversacional (gracias, hola, ok).
+            - UNRELATED_QUERY: El usuario pregunta sobre temas no relacionados.
 
-      Responde únicamente con el nombre de la categoría (ej: KNOWLEDGE_QUERY).
+            Responde únicamente con el nombre de la categoría (ej: KNOWLEDGE_QUERY).
 
-      Consulta del Usuario: "${query}"
-    `;
-
+            Consulta del Usuario: "${query}"
+            `;
         const intentClassification = await ai.generate({
             prompt: intentPrompt,
             output: { format: 'text' },
@@ -77,102 +93,112 @@ export const opositaplaceChatFlow = ai.defineFlow(
         });
         const intent = intentClassification.text.trim();
 
-        // --- PASO 2: Actuar según la Intención (usando un switch) ---
-
-        let result;
-        let finalAnswerText: string | null = null;
-        let answerText: string | null = null;
-        let references: Reference[] = [];
-        let finalSessionPath: string | null = sessionPath || null;
-
         switch (intent) {
             case 'KNOWLEDGE_QUERY':
-                result = await getConversationalAnswer(query, sessionPath);
-                answerText = result.answer;
-                references = result.references;
-                finalSessionPath = result.sessionPath;
+                try {
+                    const ragResult = await getConversationalAnswer(query, sessionPath);
+                    references = ragResult.references;
+                    finalSessionPath = ragResult.sessionPath;
+                    const context = ragResult.answer;
+                    const prompt = `
+                        Basándote ESTRICTAMENTE en el siguiente contexto, responde a la pregunta del usuario...
+                        CONTEXTO: ${context}
+                        PREGUNTA DEL USUARIO: ${query}
+                    `;
+                    finalAnswerText = await streamResponse(prompt);
+                } catch (e) {
+                    finalAnswerText = 'Lo siento, ha ocurrido un error al procesar tu solicitud.';
+                    sendChunk({ replyChunk: finalAnswerText });
+                }
                 break;
 
             case 'CLARIFICATION_REQUEST':
-                if (chatHistory && chatHistory.length > 0) {
-                    const lastBotResponse = chatHistory.filter((msg) => msg.role === 'model').pop();
-                    if (lastBotResponse) {
-                        const enrichedQuery = `El usuario no ha entendido o pide una aclaración sobre esta respuesta anterior: "${lastBotResponse.content}". Por favor, explica el concepto principal de esa respuesta con otras palabras o de forma más sencilla.`;
-                        result = await getConversationalAnswer(enrichedQuery, sessionPath);
-                        answerText = result.answer;
-                        finalSessionPath = result.sessionPath;
+                try {
+                    if (chatHistory && chatHistory.length > 0) {
+                        const lastBotResponse = chatHistory
+                            .filter((msg) => msg.role === 'model')
+                            .pop();
+                        if (lastBotResponse) {
+                            const enrichedQuery = `El usuario no ha entendido o pide una aclaración sobre esta respuesta: "${lastBotResponse.content}". La nueva pregunta es: "${query}". Explica el concepto principal de la respuesta anterior de forma sencilla.`;
+                            finalAnswerText = await streamResponse(enrichedQuery);
+                        } else {
+                            finalAnswerText =
+                                'Por favor, ¿puedes recordarme sobre qué tenías la duda?';
+                            sendChunk({ replyChunk: finalAnswerText });
+                        }
                     } else {
-                        answerText = 'Por favor, ¿puedes recordarme sobre qué tenías la duda?';
+                        finalAnswerText =
+                            '¿Podrías darme un poco más de contexto sobre lo que no entiendes?';
+                        sendChunk({ replyChunk: finalAnswerText });
                     }
-                } else {
-                    answerText =
-                        '¿Podrías darme un poco más de contexto sobre lo que no entiendes?';
+                } catch (e) {
+                    finalAnswerText =
+                        'Lo siento, ha ocurrido un error al intentar aclarar la respuesta.';
+                    sendChunk({ replyChunk: finalAnswerText });
                 }
                 break;
 
             case 'CAPABILITIES_INQUIRY':
-                answerText = `Mi principal función es ayudarte a entender el temario que has cargado. Puedes pedirme que haga cosas como:
+                try {
+                    finalAnswerText = `Mi principal función es ayudarte a entender el temario que has cargado. Puedes pedirme que haga cosas como:
 
-                - **Explicar conceptos:** "Explícame el recurso de alzada".
-                - **Resumir artículos o capítulos:** "¿Qué dice el Título Preliminar de la Constitución?".
-                - **Definir términos:** "¿Qué es un acto administrativo?".
+                                    - Explicar conceptos: "Explícame el recurso de alzada".
+                                    - Resumir artículos o capítulos: "¿Qué dice el Título Preliminar de la Constitución?".
+                                    - Definir términos: "¿Qué es un acto administrativo?".
 
-                Mi conocimiento se basa únicamente en los documentos proporcionados, y siempre que sea posible, citaré mis fuentes. Si no entiendo algo, ¡puedes pedirme que te lo explique de otra manera!`;
-                result = { references: [] };
+                                    Mi conocimiento se basa únicamente en los documentos proporcionados, y siempre que sea posible, citaré mis fuentes. Si no entiendo algo, ¡puedes pedirme que te lo explique de otra manera!`;
+                    sendChunk({ replyChunk: finalAnswerText });
+                } catch (e) {
+                    finalAnswerText = 'Lo siento, ha ocurrido un error al mostrar mis capacidades.';
+                    sendChunk({ replyChunk: finalAnswerText });
+                }
+                references = [];
                 break;
 
             case 'CONVERSATIONAL_RESPONSE':
-                // Respondemos directamente sin llamar a la API de búsqueda
-                const conversationalPrompt = `
-
-                    El usuario ha dicho algo conversacional que no requiere una búsqueda en el temario.
-                    Su mensaje fue: "${query}"
-
-                    Genera una respuesta corta, amable y adecuada. Si te dan las gracias, responde de nada. Si saludan, devuelve el saludo y ofrece ayuda.
-                    `;
-
                 try {
+                    const conversationalPrompt = `
+                        El usuario ha dicho algo conversacional que no requiere una búsqueda en el temario.
+                        Su mensaje fue: "${query}"
+                        Genera una respuesta corta, amable y adecuada. Si te dan las gracias, responde de nada. Si saludan, devuelve el saludo y ofrece ayuda.
+                    `;
                     const data = await ai.generate({
                         prompt: conversationalPrompt,
                         output: { format: 'text' },
                         config: { temperature: 0.7 },
                     });
-                    answerText = data?.text.trim();
+                    finalAnswerText = data?.text.trim() || '¡Claro que sí!';
+                    sendChunk({ replyChunk: finalAnswerText });
                 } catch (error) {
-                    console.error('Error generating conversational response:', error);
-                    answerText = 'Lo siento, no pude generar una respuesta en este momento.';
+                    finalAnswerText = 'Lo siento, no pude generar una respuesta en este momento.';
+                    sendChunk({ replyChunk: finalAnswerText });
                 }
-
-                result = { references: [] }; // No hay referencias para este tipo de respuesta.
+                references = [];
                 break;
 
             case 'UNRELATED_QUERY':
             default:
-                answerText =
-                    'Lo siento, como OpositaBot, mi especialidad es ayudarte con el temario de tus oposiciones. No puedo responder a preguntas sobre otros temas.';
-                result = { references: [] };
+                try {
+                    finalAnswerText =
+                        'Lo siento, como OpositaBot, mi especialidad es ayudarte con el temario de tus oposiciones. No puedo responder a preguntas sobre otros temas.';
+                    sendChunk({ replyChunk: finalAnswerText });
+                } catch (e) {
+                    finalAnswerText = 'Lo siento, ha ocurrido un error.';
+                    sendChunk({ replyChunk: finalAnswerText });
+                }
+                references = [];
                 break;
         }
 
         const uniqueSources = new Map<string, Reference>();
-        if (references && references.length > 0) {
-            references.forEach((ref) => {
-                const key = `${ref.id}-${ref.pageIdentifier}`;
-                if (!uniqueSources.has(key)) {
-                    uniqueSources.set(key, ref);
-                }
-            });
-        }
+        references.forEach((ref) => {
+            const key = `${ref.id}-${ref.pageIdentifier}`;
+            if (!uniqueSources.has(key)) uniqueSources.set(key, ref);
+        });
         const deDuplicatedReferences = Array.from(uniqueSources.values());
 
-        // Enviamos el chunk con la respuesta principal de texto
-        if (finalAnswerText) {
-            sendChunk({ replyChunk: finalAnswerText });
-        }
-        // Si no hay referencias (respuesta conversacional)
-        sendChunk({ replyChunk: answerText || '' });
         return {
-            fullReply: answerText || 'No se pudo generar una respuesta.',
+            fullReply: finalAnswerText || 'No se pudo generar una respuesta.',
             references: deDuplicatedReferences,
             sessionPath: finalSessionPath || '',
         };
