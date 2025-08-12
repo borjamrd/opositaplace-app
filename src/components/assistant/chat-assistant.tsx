@@ -75,16 +75,20 @@ export function ChatAssistant() {
 
             for await (const chunk of result.stream) {
                 if (chunk?.replyChunk) {
-                    setChatMessages((prevMessages) => {
-                        const newMessages = [...prevMessages];
-                        const lastMessage = newMessages[newMessages.length - 1];
-
-                        if (lastMessage && lastMessage.role === 'model') {
-                            lastMessage.content += chunk.replyChunk;
-                        }
-
-                        return newMessages;
-                    });
+                    setChatMessages((prevMessages) =>
+                        prevMessages.map((msg, index) => {
+                            if (index === prevMessages.length - 1) {
+                                return {
+                                    ...msg,
+                                    content:
+                                        msg.content === '...'
+                                            ? chunk.replyChunk 
+                                            : msg.content + chunk.replyChunk,
+                                };
+                            }
+                            return msg;
+                        })
+                    );
                 }
             }
 
@@ -92,17 +96,18 @@ export function ChatAssistant() {
 
             if (finalOutput) {
                 setSessionId(finalOutput.sessionPath);
-                setChatMessages((prevMessages) => {
-                    const newMessages = [...prevMessages];
-                    const lastMessage = newMessages[newMessages.length - 1];
-
-                    if (lastMessage && lastMessage.role === 'model') {
-                        lastMessage.content = finalOutput.fullReply;
-                        lastMessage.sources = finalOutput.references;
-                    }
-
-                    return newMessages;
-                });
+                setChatMessages((prevMessages) =>
+                    prevMessages.map((msg, index) => {
+                        if (index === prevMessages.length - 1) {
+                            return {
+                                ...msg,
+                                content: finalOutput.fullReply,
+                                sources: finalOutput.references,
+                            };
+                        }
+                        return msg;
+                    })
+                );
             }
         } catch (error) {
             console.error('Error al llamar al flow:', error);

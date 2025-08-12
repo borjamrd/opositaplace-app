@@ -3,6 +3,14 @@ import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
 import { getConversationalAnswer, Reference } from '@/ai/tools/knowledgeSearchTool';
 
+async function streamText(text: string, sendChunk: (chunk: { replyChunk: string }) => void) {
+    const words = text.split(/(\s+)/);
+    for (const word of words) {
+        sendChunk({ replyChunk: word });
+        await new Promise((resolve) => setTimeout(resolve, 25));
+    }
+}
+
 const ReferenceSchema = z.object({
     id: z.string(),
     text: z.string(),
@@ -98,64 +106,49 @@ export const opositaplaceChatFlow = ai.defineFlow(
             case 'KNOWLEDGE_QUERY':
                 try {
                     const ragResult = await getConversationalAnswer(query, sessionPath);
+
                     references = ragResult.references;
                     finalSessionPath = ragResult.sessionPath;
-                    const context = ragResult.answer;
-                    const prompt = `
-                        Basándote ESTRICTAMENTE en el siguiente contexto, responde a la pregunta del usuario...
-                        CONTEXTO: ${context}
-                        PREGUNTA DEL USUARIO: ${query}
-                    `;
-                    finalAnswerText = await streamResponse(prompt);
+                    finalAnswerText = ragResult.answer;
+
+                    if (!finalAnswerText) {
+                        finalAnswerText =
+                            'Lo siento, no pude encontrar información relevante para tu consulta.';
+                    }
+                    await streamText(finalAnswerText, sendChunk);
                 } catch (e) {
                     finalAnswerText = 'Lo siento, ha ocurrido un error al procesar tu solicitud.';
                     sendChunk({ replyChunk: finalAnswerText });
                 }
                 break;
 
+            // En tu fichero: ai/flows/opositaplaceChatFlow.ts
+
             case 'CLARIFICATION_REQUEST':
                 try {
                     if (chatHistory && chatHistory.length > 0) {
                         const lastBotResponse = chatHistory
-                            .filter((msg) => msg.role === 'model')
+                            .filter((msg) => msg.role === 'model' && msg.content !== '...')
                             .pop();
-                        if (lastBotResponse) {
-                            const enrichedQuery = `El usuario tiene una duda sobre la siguiente respuesta: "${lastBotResponse.content}". La duda específica es: "${query}".`;
 
-                            // ✅ PASO 2: Volver a buscar en la base de conocimiento con la duda.
-                            // Esto nos dará un nuevo contexto y, crucialmente, las referencias.
+                        if (lastBotResponse) {
+                            const enrichedQuery = `El usuario tiene una duda sobre esta respuesta: "${lastBotResponse.content}". La nueva pregunta del usuario es: "${query}".`;
+
                             const ragResult = await getConversationalAnswer(
                                 enrichedQuery,
                                 sessionPath
                             );
 
-                            // Guardamos las nuevas referencias y el sessionPath.
                             references = ragResult.references;
                             finalSessionPath = ragResult.sessionPath;
-                            const newContext = ragResult.answer;
-                            const finalPrompt = `
-                                    Eres un asistente experto en oposiciones. Tu objetivo es aclarar una duda del usuario sobre tu respuesta anterior.
+                            finalAnswerText = ragResult.answer;
 
-                                    **Tu respuesta anterior fue:**
-                                    ---
-                                    ${lastBotResponse.content}
-                                    ---
-
-                                    **La nueva pregunta o duda del usuario es:**
-                                    ---
-                                    ${query}
-                                    ---
-
-                                    **Instrucciones:**
-                                    1.  **Analiza la duda:** Si la duda del usuario es vaga (como "no entiendo" o "tengo dudas"), no simplifiques en exceso. En su lugar, intenta abordar el concepto central de tu respuesta anterior desde un ángulo diferente. Puedes usar una analogía o dividirlo en partes más pequeñas.
-                                    2.  **Usa ejemplos concretos:** Si es apropiado, utiliza ejemplos prácticos para ilustrar los puntos clave.
-                                    3.  **Mantén un tono profesional:** Evita un lenguaje demasiado coloquial o infantil (como llamar al Defensor del Pueblo un "superhéroe"). El tono debe ser el de un tutor experto.
-                                    4.  **No repitas, reelabora:** No te limites a repetir la información anterior. Reorganiza, reformula y añade valor para facilitar la comprensión.
-                                    5.  **Si la duda es específica**, céntrate en responder a esa duda concreta.
-
-                                    Basándote en estas instrucciones, proporciona una aclaración útil y detallada.
-                                `;
-                            finalAnswerText = await streamResponse(finalPrompt);
+                        
+                            if (!finalAnswerText) {
+                                finalAnswerText =
+                                    'Lo siento, no pude encontrar información relevante para tu aclaración.';
+                            }
+                            await streamText(finalAnswerText, sendChunk);
                         } else {
                             finalAnswerText =
                                 'Por favor, ¿puedes recordarme sobre qué tenías la duda?';
@@ -167,12 +160,12 @@ export const opositaplaceChatFlow = ai.defineFlow(
                         sendChunk({ replyChunk: finalAnswerText });
                     }
                 } catch (e) {
+                    console.error('Error during clarification request:', e);
                     finalAnswerText =
                         'Lo siento, ha ocurrido un error al intentar aclarar la respuesta.';
                     sendChunk({ replyChunk: finalAnswerText });
                 }
                 break;
-
             case 'CAPABILITIES_INQUIRY':
                 try {
                     finalAnswerText = `Mi principal función es ayudarte a entender el temario que has cargado. Puedes pedirme que haga cosas como:
