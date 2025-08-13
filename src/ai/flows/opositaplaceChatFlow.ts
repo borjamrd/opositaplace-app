@@ -68,21 +68,8 @@ export const opositaplaceChatFlow = ai.defineFlow(
         let references: Reference[] = [];
         let finalSessionPath: string | null = sessionPath || null;
 
-        const streamResponse = async (prompt: string): Promise<string> => {
-            const { stream } = await ai.generateStream({ prompt });
-            let accumulatedReply = '';
-            for await (const chunk of stream) {
-                const textChunk = chunk.content[0]?.text;
-                if (textChunk) {
-                    sendChunk({ replyChunk: textChunk });
-                    accumulatedReply += textChunk;
-                }
-            }
-            return accumulatedReply;
-        };
-
         const intentPrompt = `
-            Clasifica la intención de la siguiente "Consulta del Usuario" en una de estas categorías:
+            Clasifica la intención de la siguiente "Consulta del usuario" en una de estas categorías:
 
             - KNOWLEDGE_QUERY: El usuario hace una pregunta específica sobre el temario de oposiciones.
             - CLARIFICATION_REQUEST: El usuario pide una aclaración, un ejemplo, o dice que no entiende la respuesta anterior.
@@ -132,7 +119,9 @@ export const opositaplaceChatFlow = ai.defineFlow(
                             .pop();
 
                         if (lastBotResponse) {
-                            const enrichedQuery = `El usuario tiene una duda sobre esta respuesta: "${lastBotResponse.content}". La nueva pregunta del usuario es: "${query}".`;
+                            const contextSnippet = lastBotResponse.content.substring(0, 1500);
+
+                            const enrichedQuery = `El usuario tiene una duda sobre esta respuesta: "${contextSnippet}". La nueva pregunta del usuario es: "${query}".`;
 
                             const ragResult = await getConversationalAnswer(
                                 enrichedQuery,
@@ -143,7 +132,6 @@ export const opositaplaceChatFlow = ai.defineFlow(
                             finalSessionPath = ragResult.sessionPath;
                             finalAnswerText = ragResult.answer;
 
-                        
                             if (!finalAnswerText) {
                                 finalAnswerText =
                                     'Lo siento, no pude encontrar información relevante para tu aclaración.';

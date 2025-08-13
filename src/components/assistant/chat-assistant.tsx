@@ -99,9 +99,6 @@ export function ChatAssistant() {
 
         try {
             let conversationId = currentConversationId;
-
-            // --- PASO 1: Determinar el ID de la conversación ---
-            // Si no hay un ID de conversación actual, creamos una nueva.
             if (!conversationId) {
                 const { data, error } = await supabase.functions.invoke('create-conversation');
                 if (error) throw new Error('Failed to create conversation');
@@ -118,6 +115,17 @@ export function ChatAssistant() {
                 newUserMessage,
                 { role: 'model', content: '...' },
             ]);
+
+            const newTitle =
+                currentInput.substring(0, 40) + (currentInput.length > 40 ? '...' : '');
+
+            supabase
+                .from('conversations')
+                .update({ title: newTitle })
+                .eq('id', conversationId)
+                .then(({ error }) => {
+                    if (error) console.error('Error updating title:', error);
+                });
 
             await supabase.from('messages').insert({
                 conversation_id: conversationId,
@@ -210,12 +218,28 @@ export function ChatAssistant() {
         }
     };
 
+    const handleDeleteConversation = async (id: string) => {
+
+        try {
+            const { error } = await supabase.from('conversations').delete().eq('id', id);
+            if (error) throw error;
+
+            if (currentConversationId === id) {
+                setCurrentConversationId(null);
+                setChatMessages([]);
+            }
+        } catch (error) {
+            console.error('Error deleting conversation:', error);
+        }
+    };
+
     return (
         <div className="relative flex w-full mx-auto overflow-hidden">
             <ConversationSidebar
                 currentConversationId={currentConversationId}
                 onSelectConversation={handleSelectConversation}
                 onNewChat={handleNewChat}
+                onDeleteConversation={handleDeleteConversation}
             />
             <div className="flex flex-col flex-1">
                 <ScrollArea className="flex-grow p-4" ref={scrollAreaRef}>

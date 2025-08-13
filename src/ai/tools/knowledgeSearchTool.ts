@@ -3,7 +3,7 @@ import { ConversationalSearchServiceClient } from '@google-cloud/discoveryengine
 import type { protos } from '@google-cloud/discoveryengine';
 
 export interface Reference {
-    id: string; // Usaremos el ID del documento como clave
+    id: string; 
     text: string;
     link: string;
     pageIdentifier: string;
@@ -16,7 +16,6 @@ export interface ConversationalResult {
     sessionPath: string | null;
 }
 
-// --- Configuración del Cliente ---
 const projectId = process.env.GCP_PROJECT_ID!;
 const location = 'eu';
 const collectionId = 'default_collection';
