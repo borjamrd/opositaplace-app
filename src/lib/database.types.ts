@@ -143,6 +143,30 @@ export type Database = {
           },
         ]
       }
+      conversations: {
+        Row: {
+          created_at: string
+          id: string
+          title: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          title?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          title?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       feedback: {
         Row: {
           comment: string | null
@@ -158,6 +182,36 @@ export type Database = {
           comment?: string | null
           created_at?: string
           id?: number
+        }
+        Relationships: []
+      }
+      infografias: {
+        Row: {
+          contenido_html: string | null
+          created_at: string
+          id: string
+          published: boolean
+          title: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          contenido_html?: string | null
+          created_at?: string
+          id: string
+          published?: boolean
+          title: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          contenido_html?: string | null
+          created_at?: string
+          id?: string
+          published?: boolean
+          title?: string
+          updated_at?: string
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -181,6 +235,38 @@ export type Database = {
           name?: string
         }
         Relationships: []
+      }
+      messages: {
+        Row: {
+          content: string
+          conversation_id: string
+          created_at: string
+          id: string
+          role: string
+        }
+        Insert: {
+          content: string
+          conversation_id: string
+          created_at?: string
+          id?: string
+          role: string
+        }
+        Update: {
+          content?: string
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          role?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       onboarding_info: {
         Row: {
@@ -793,6 +879,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      testimonials: {
+        Row: {
+          created_at: string
+          description: string
+          id: string
+          instagram: string | null
+          linkedin: string | null
+          name: string
+          position: string | null
+          reviewed: boolean
+          surname: string | null
+          website: string | null
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          id: string
+          instagram?: string | null
+          linkedin?: string | null
+          name: string
+          position?: string | null
+          reviewed?: boolean
+          surname?: string | null
+          website?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          id?: string
+          instagram?: string | null
+          linkedin?: string | null
+          name?: string
+          position?: string | null
+          reviewed?: boolean
+          surname?: string | null
+          website?: string | null
+        }
+        Relationships: []
       }
       tests: {
         Row: {

@@ -79,7 +79,7 @@ export function SignOutButton() {
                 ) : (
                     <LogOut className="mr-2 h-4 w-4" />
                 )}
-                <span>Cerrar Sesión</span>
+                <span>Cerrar sesión</span>
             </DropdownMenuItem>
 
             <AlertDialog open={isConfirming} onOpenChange={setIsConfirming}>
