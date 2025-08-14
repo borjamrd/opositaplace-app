@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.12 (cd3cf9e)"
@@ -493,6 +493,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "fk_scraped_resources"
+            columns: ["resource_id"]
+            isOneToOne: false
+            referencedRelation: "scraped_resources"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "resource_change_history_resource_id_fkey"
             columns: ["resource_id"]
             isOneToOne: false
@@ -605,7 +612,7 @@ export type Database = {
           created_at: string
           id: string
           last_scraped_at: string | null
-          name: string | null
+          name: string
           status: string | null
           url: string
         }
@@ -616,7 +623,7 @@ export type Database = {
           created_at?: string
           id?: string
           last_scraped_at?: string | null
-          name?: string | null
+          name: string
           status?: string | null
           url: string
         }
@@ -627,7 +634,7 @@ export type Database = {
           created_at?: string
           id?: string
           last_scraped_at?: string | null
-          name?: string | null
+          name?: string
           status?: string | null
           url?: string
         }
@@ -1370,24 +1377,24 @@ export type Database = {
       }
       get_questions_by_opposition: {
         Args:
+          | { include_no_topic?: boolean; opp_id: string }
           | { opp_id: string }
-          | { opp_id: string; include_no_topic?: boolean }
         Returns: string[]
       }
       get_url_history_by_id: {
         Args: { target_url_id: string }
         Returns: {
-          summary: Json
           created_at: string
+          summary: Json
         }[]
       }
       get_urls_with_user_subscription: {
         Args: { user_id_param: string }
         Returns: {
-          id: string
-          name: string
           description: string
+          id: string
           is_subscribed: boolean
+          name: string
         }[]
       }
       get_user_failed_questions: {
@@ -1398,8 +1405,8 @@ export type Database = {
       }
       has_role: {
         Args: {
-          user_id: string
           _role: Database["public"]["Enums"]["app_role"]
+          user_id: string
         }
         Returns: boolean
       }
@@ -1415,20 +1422,20 @@ export type Database = {
         Args: { profile_id: string }
         Returns: {
           id: string
-          name: string
           is_assigned: boolean
+          name: string
         }[]
       }
       rpc_start_next_study_cycle: {
-        Args: { p_user_id: string; p_opposition_id: string }
+        Args: { p_opposition_id: string; p_user_id: string }
         Returns: undefined
       }
       set_correct_answer: {
-        Args: { p_question_id: string; p_new_answer_id: string }
+        Args: { p_new_answer_id: string; p_question_id: string }
         Returns: undefined
       }
       start_next_study_cycle: {
-        Args: { p_user_id: string; p_opposition_id: string }
+        Args: { p_opposition_id: string; p_user_id: string }
         Returns: undefined
       }
     }
