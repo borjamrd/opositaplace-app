@@ -1,9 +1,10 @@
 // app/dashboard/tests/page.tsx
+import { NewTestModal } from '@/components/tests/new-test-modal';
+import { TestHistoryTable } from '@/components/tests/test-history-table';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { CreateTestForm } from '@/components/tests/create-test-form';
 import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 
 export default async function CreateTestPage() {
     const cookieStore = cookies();
@@ -35,6 +36,17 @@ export default async function CreateTestPage() {
         );
     }
 
+    const { data: testAttempts, error: attemptsError } = await supabase
+        .from('test_attempts')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('status', 'completed')
+        .order('created_at', { ascending: false });
+
+    if (attemptsError) {
+        console.error('Error fetching test history:', attemptsError.message);
+    }
+
     const { data: blocksWithTopics, error } = await supabase
         .from('blocks')
         .select('id, name, topics(id, name)')
@@ -46,10 +58,14 @@ export default async function CreateTestPage() {
 
     return (
         <div className="container mx-auto py-10">
-            <CreateTestForm
+            <NewTestModal
                 blocksWithTopics={blocksWithTopics || []}
                 oppositionId={activeUserOpposition.opposition_id}
             />
+            <div>
+                <h2 className="text-2xl font-bold tracking-tight mb-4">Historial de Tests</h2>
+                <TestHistoryTable attempts={testAttempts || []} />
+            </div>
         </div>
     );
 }

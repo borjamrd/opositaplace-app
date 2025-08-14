@@ -3,13 +3,7 @@
 
 import { createTestAttempt } from '@/actions/tests';
 import { Button } from '@/components/ui/button';
-import {
-    Card,
-    CardContent,
-    CardFooter,
-    CardHeader,
-    CardTitle
-} from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -29,6 +23,7 @@ interface IFormInput {
     topicIds: string[];
     numQuestions: number;
     timerEnabled: boolean;
+    includeNoTopic: boolean;
 }
 
 export function CreateTestForm({
@@ -39,7 +34,13 @@ export function CreateTestForm({
     oppositionId: string;
 }) {
     const { control, handleSubmit, watch, setValue } = useForm<IFormInput>({
-        defaultValues: { mode: 'random', numQuestions: 25, timerEnabled: true, topicIds: [] },
+        defaultValues: {
+            mode: 'random',
+            numQuestions: 25,
+            timerEnabled: true,
+            topicIds: [],
+            includeNoTopic: true,
+        },
     });
     const { toast } = useToast();
     const [isPending, startTransition] = useTransition();
@@ -85,12 +86,11 @@ export function CreateTestForm({
 
     return (
         <form onSubmit={handleSubmit(onSubmit)}>
-            <Card className="max-w-2xl mx-auto">
+            <Card variant={'borderless'} className="max-w-4xl mx-auto">
                 <CardHeader>
-                    <CardTitle>Configura tu Test</CardTitle>
+                    <CardTitle>Configura tu test</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-8">
-                    {/* Modo de Test */}
                     <div>
                         <Label className="text-lg font-semibold">1. Elige un modo</Label>
                         <Controller
@@ -104,22 +104,21 @@ export function CreateTestForm({
                                 >
                                     <div className="flex items-center space-x-2">
                                         <RadioGroupItem value="random" id="r1" />
-                                        <Label htmlFor="r1">Test Aleatorio</Label>
+                                        <Label htmlFor="r1">Test aleatorio</Label>
                                     </div>
                                     <div className="flex items-center space-x-2">
                                         <RadioGroupItem value="errors" id="r2" />
-                                        <Label htmlFor="r2">Repaso de Errores</Label>
+                                        <Label htmlFor="r2">Repaso de errores</Label>
                                     </div>
                                     <div className="flex items-center space-x-2">
                                         <RadioGroupItem value="topics" id="r3" />
-                                        <Label htmlFor="r3">Test por Temas</Label>
+                                        <Label htmlFor="r3">Test por temas</Label>
                                     </div>
                                 </RadioGroup>
                             )}
                         />
                     </div>
 
-                    {/* Selector de Temas (condicional) */}
                     {mode === 'topics' && (
                         <div>
                             <Label className="text-lg font-semibold">2. Selecciona los temas</Label>
@@ -135,7 +134,9 @@ export function CreateTestForm({
                                                 >
                                                     <Checkbox
                                                         id={topic.id}
-                                                        checked={!!selectedTopics?.includes(topic.id)}
+                                                        checked={
+                                                            !!selectedTopics?.includes(topic.id)
+                                                        }
                                                         onCheckedChange={(checked) => {
                                                             const isChecked = Boolean(checked);
                                                             const currentIds = selectedTopics || [];
@@ -178,7 +179,7 @@ export function CreateTestForm({
                     </div>
 
                     {/* Opciones Adicionales */}
-                    <div>
+                    {/* <div>
                         <Label className="text-lg font-semibold">4. Opciones</Label>
                         <div className="flex items-center space-x-2 mt-2">
                             <Controller
@@ -194,12 +195,12 @@ export function CreateTestForm({
                             />
                             <Label htmlFor="timer-switch">Activar temporizador</Label>
                         </div>
-                    </div>
+                    </div> */}
                 </CardContent>
                 <CardFooter>
                     <Button type="submit" className="w-full" disabled={isPending}>
                         {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                        Comenzar Test
+                        Comenzar test
                     </Button>
                 </CardFooter>
             </Card>

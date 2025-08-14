@@ -1,12 +1,12 @@
-// src/actions/tests.ts
 'use server';
 
 import { createSupabaseServerClient } from '@/lib/supabase/server';
+import { Question } from '@/lib/supabase/types';
+import { shuffle } from '@/lib/utils';
+import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import type { Database } from '@/lib/database.types';
 
-type Question = Database['public']['Tables']['questions']['Row'];
 type TestMode = 'random' | 'errors' | 'topics';
 
 interface CreateTestParams {
@@ -15,14 +15,7 @@ interface CreateTestParams {
     topicIds?: string[];
     oppositionId: string;
     studyCycleId: string;
-}
-
-function shuffleArray<T>(array: T[]): T[] {
-    for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-    }
-    return array;
+    includeNoTopic?: boolean;
 }
 
 export async function createTestAttempt(params: CreateTestParams) {
@@ -32,59 +25,97 @@ export async function createTestAttempt(params: CreateTestParams) {
     const {
         data: { user },
     } = await supabase.auth.getUser();
-    if (!user) return { error: 'Usuario no autenticado' };
+    if (!user) return { error: 'User not authenticated' };
 
-    let questionIds: Pick<Question, 'id'>[] = [];
+    let candidateQuestionIds: string[] = [];
     let error: any = null;
 
+    // Step 1: Get a list of candidate question IDs based on the selected mode
     switch (params.mode) {
         case 'errors':
             const { data: failedQuestions, error: rpcError } = await supabase.rpc(
                 'get_user_failed_questions'
             );
-            if (rpcError) return { error: 'No se pudieron recuperar las preguntas falladas.' };
-            questionIds = (failedQuestions || []).map((id) => ({ id }));
+            if (rpcError) {
+                console.error('Error fetching failed questions:', rpcError);
+                return { error: 'Could not retrieve failed questions.' };
+            }
+            // The RPC returns an array of objects like [{ question_id: '...' }], so we map it to an array of strings.
+            candidateQuestionIds = failedQuestions?.map((q) => q.question_id) || [];
             break;
 
         case 'topics':
-            if (!params.topicIds || params.topicIds.length === 0)
-                return { error: 'Debes seleccionar al menos un tema.' };
-            {
-                const { data, error: topicsError } = await supabase
-                    .from('questions')
-                    .select('id')
-                    .in('topic_id', params.topicIds);
-                questionIds = data ?? [];
-                error = topicsError;
+            if (!params.topicIds || params.topicIds.length === 0) {
+                return { error: 'You must select at least one topic.' };
             }
-            break;
+            const { data: topicQuestions, error: topicsError } = await supabase
+                .from('questions')
+                .select('id, topics!inner(block_id, blocks!inner(opposition_id))')
+                .in('topic_id', params.topicIds)
+                .eq('topics.blocks.opposition_id', params.oppositionId);
 
+            candidateQuestionIds = topicQuestions?.map((q) => q.id) || [];
+            error = topicsError;
+            break;
         case 'random':
         default:
-            const { data: randomQuestions, error: randomError } = await supabase.rpc(
+            const { data: randomQuestionsData, error: randomError } = await supabase.rpc(
                 'get_questions_by_opposition',
-                { opp_id: params.oppositionId }
+                {
+                    opp_id: params.oppositionId,
+                    include_no_topic: params.includeNoTopic,
+                }
             );
-            console.log({randomQuestions})
-            if (randomError)
-                return { error: 'No se pudieron recuperar las preguntas para el modo aleatorio.' };
-            questionIds = (randomQuestions || []).map((id) => ({ id }));
-            error = randomError;
+
+            if (randomError) {
+                return { error: 'Could not retrieve questions for random mode.' };
+            }
+            candidateQuestionIds = randomQuestionsData?.map((q: any) => q.id) || [];
             break;
     }
 
-    if (error || !questionIds || questionIds.length === 0) {
-        return { error: 'No se encontraron preguntas para los criterios seleccionados.' };
+    if (error || !candidateQuestionIds || candidateQuestionIds.length === 0) {
+        return { error: 'No questions found for the selected criteria.' };
     }
 
-    const shuffled = shuffleArray(questionIds);
-    const selectedQuestions = shuffled.slice(0, params.numQuestions);
+    // Step 2: Validate questions in batches to avoid "URI too large" error
+    const BATCH_SIZE = 200;
+    let validQuestionIds: { id: string }[] = [];
+    for (let i = 0; i < candidateQuestionIds.length; i += BATCH_SIZE) {
+        const batch = candidateQuestionIds.slice(i, i + BATCH_SIZE);
+        const { data: validQuestions, error: validationError } = await supabase
+            .from('questions')
+            .select('id, answers!inner(is_correct)')
+            .in('id', batch)
+            .eq('answers.is_correct', true);
+
+        if (validationError) {
+            console.error('Error validating questions batch:', validationError);
+            return { error: 'Error validating questions.' };
+        }
+        if (validQuestions) {
+            const uniqueValidIds = validQuestions.map((q) => ({ id: q.id }));
+            validQuestionIds = [...validQuestionIds, ...uniqueValidIds];
+        }
+    }
+
+    // Remove duplicates that might arise from the join
+    const uniqueValidQuestionIds = Array.from(new Set(validQuestionIds.map((q) => q.id))).map(
+        (id) => ({ id })
+    );
+
+    if (uniqueValidQuestionIds.length === 0) {
+        return { error: 'No valid questions found for the selected criteria.' };
+    }
+
+    // Step 3: Shuffle and select the final questions for the test
+    const selectedQuestions = shuffle(uniqueValidQuestionIds).slice(0, params.numQuestions);
 
     if (selectedQuestions.length === 0) {
-        return { error: 'No hay suficientes preguntas disponibles para crear el test.' };
+        return { error: 'Not enough valid questions available to create the test.' };
     }
 
-    // --- CAMBIO 1: Buscar el ID del test genérico que creamos ---
+    // Step 4: Create the test attempt with the correct number of questions
     const { data: genericTest, error: genericTestError } = await supabase
         .from('tests')
         .select('id')
@@ -93,36 +124,29 @@ export async function createTestAttempt(params: CreateTestParams) {
         .single();
 
     if (genericTestError || !genericTest) {
-        return { error: 'No se encontró el test contenedor para esta oposición.' };
+        return { error: 'Container test for this opposition not found.' };
     }
 
-    // --- CORRECCIÓN en la inserción ---
     const { data: testAttempt, error: createError } = await supabase
         .from('test_attempts')
         .insert({
             user_id: user.id,
             opposition_id: params.oppositionId,
             study_cycle_id: params.studyCycleId,
-            total_questions: selectedQuestions.length,
-            test_id: genericTest.id, // <-- Usamos el ID correcto
+            total_questions: selectedQuestions.length, // This is now the correct number
+            test_id: genericTest.id,
         })
         .select('id')
         .single();
 
     if (createError || !testAttempt) {
-        console.error('Error creating test attempt:', createError);
-        return { error: 'No se pudo crear el intento de test.' };
+        return { error: 'Could not create the test attempt.' };
     }
 
-    // --- CAMBIO 2: Añadir un valor por defecto para `is_correct` ---
-    // Al inicio de un test, ninguna pregunta está contestada (o todas son incorrectas por defecto).
-    // Tu esquema dice que `is_correct` no puede ser nulo.
-    // El campo `answer_id` sí puede ser nulo, lo que indica que no se ha respondido.
+    // Step 5: Save the (valid) questions for this attempt
     const attemptQuestions = selectedQuestions.map((q) => ({
         test_attempt_id: testAttempt.id,
         question_id: q.id,
-        is_correct: false,
-        answer_id: null, 
     }));
 
     const { error: insertQuestionsError } = await supabase
@@ -131,8 +155,94 @@ export async function createTestAttempt(params: CreateTestParams) {
 
     if (insertQuestionsError) {
         await supabase.from('test_attempts').delete().eq('id', testAttempt.id);
-        return { error: 'No se pudieron guardar las preguntas del test.' };
+        return { error: 'Could not save the questions for the test.' };
     }
 
     redirect(`/dashboard/tests/${testAttempt.id}`);
+}
+
+export async function submitTestAttempt(testAttemptId: string, answers: Record<string, string>) {
+    const cookieStore = cookies();
+    const supabase = createSupabaseServerClient(cookieStore);
+
+    const {
+        data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+        return { error: 'User not authenticated' };
+    }
+
+    try {
+        const userAnswersData = Object.entries(answers).map(([question_id, answer_id]) => ({
+            test_attempt_id: testAttemptId,
+            question_id,
+            selected_answer_id: answer_id,
+            user_id: user.id,
+        }));
+
+        const { error: answersError } = await supabase
+            .from('test_attempt_answers')
+            .upsert(userAnswersData, {
+                onConflict: 'test_attempt_id,question_id',
+            });
+
+        if (answersError) {
+            return { error: answersError.message };
+        }
+
+        const { data: attemptQuestions, error: questionsError } = await supabase
+            .from('test_attempt_questions')
+            .select('questions(*, answers(*))')
+            .eq('test_attempt_id', testAttemptId);
+
+        if (questionsError) {
+            return { error: questionsError.message };
+        }
+
+        const questions = attemptQuestions?.map((aq) => aq.questions).filter(Boolean) ?? [];
+        let correctCount = 0;
+        let incorrectCount = 0;
+
+        questions.forEach((question) => {
+            const userAnswerId = answers[question.id];
+            if (userAnswerId) {
+                const isCorrect = question.answers.some(
+                    (a) => a.id === userAnswerId && a.is_correct
+                );
+                if (isCorrect) {
+                    correctCount++;
+                } else {
+                    incorrectCount++;
+                }
+            }
+        });
+
+        const unansweredCount = questions.length - (correctCount + incorrectCount);
+        const netPoints = correctCount;
+        const finalScore = questions.length > 0 ? (netPoints / questions.length) * 10 : 0;
+
+        const { error: updateError } = await supabase
+            .from('test_attempts')
+            .update({
+                status: 'completed',
+                finished_at: new Date().toISOString(),
+                score: finalScore,
+                correct_answers: correctCount,
+                incorrect_answers: incorrectCount,
+                unanswered_questions: unansweredCount,
+            })
+            .eq('id', testAttemptId);
+
+        if (updateError) {
+            return { error: updateError.message };
+        }
+
+        revalidatePath('/dashboard/tests');
+        revalidatePath(`/dashboard/tests/${testAttemptId}`);
+
+        return { success: true };
+    } catch (error) {
+        return { error: 'An unexpected error occurred.' };
+    }
 }

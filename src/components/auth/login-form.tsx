@@ -19,6 +19,8 @@ import { useEffect, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { AlertCircle, LogIn, Eye, EyeOff } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { signInWithGoogle } from '@/lib/supabase/actions';
+import ProvidersForm from './providers-form';
 
 export function LoginForm() {
     const [state, formAction] = useActionState(signIn, null);
@@ -130,6 +132,7 @@ export function LoginForm() {
                 </CardContent>
                 <CardFooter className="flex flex-col gap-4">
                     <SubmitButton />
+
                     <p className="text-sm text-muted-foreground">
                         ¿No tienes cuenta?{' '}
                         <Button variant="link" asChild className="p-0">
@@ -143,6 +146,7 @@ export function LoginForm() {
                     </p>
                 </CardFooter>
             </form>
+            <ProvidersForm  prefixMessage="Inicia sesión con"/>
         </Card>
     );
 }

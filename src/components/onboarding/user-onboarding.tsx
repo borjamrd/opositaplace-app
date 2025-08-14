@@ -259,23 +259,17 @@ export default function UserOnboarding() {
         <Card className="w-full">
             <CardContent className="space-y-4 pt-6">
                 <div>
-                    <SelectedSlotsSummary
-                        selectedSlots={selectedSlots}
-                    />
+                    <SelectedSlotsSummary selectedSlots={selectedSlots} />
                     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                         <DialogTrigger asChild>
-                            <Button
-                                variant="secondary"
-                                className="w-full sm:w-auto mt-4"
-                                disabled={isUpdating}
-                            >
+                            <Button className="w-full sm:w-auto mt-4" disabled={isUpdating}>
                                 <Calendar className="mr-2 h-4 w-4" />
                                 {isUpdating ? 'Guardando...' : 'Editar Horario'}
                             </Button>
                         </DialogTrigger>
                         <DialogContent className="max-w-6xl max-h-[75vh] overflow-auto w-[90vw]">
                             <DialogHeader>
-                                <DialogTitle>Planificador de Horarios</DialogTitle>
+                                <DialogTitle>Planificador de horarios</DialogTitle>
                             </DialogHeader>
 
                             <div className="flex flex-col lg:flex-row">
@@ -317,7 +311,11 @@ export default function UserOnboarding() {
                             </p>
                             <div className="flex flex-wrap gap-2 mt-1">
                                 {(profile.onboarding.help_with as string[]).map((area) => (
-                                    <Badge key={area} variant={'outline'}>
+                                    <Badge
+                                        key={area}
+                                        className="text-base px-3 py-1 rounded-lg"
+                                        variant={'outline'}
+                                    >
                                         {area}
                                     </Badge>
                                 ))}

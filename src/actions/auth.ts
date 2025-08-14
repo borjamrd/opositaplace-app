@@ -186,5 +186,4 @@ export async function signOut() {
   const cookieStore = cookies();
   const supabase = createSupabaseServerActionClient(cookieStore);
   await supabase.auth.signOut();
-  redirect("/login");
 }
