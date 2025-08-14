@@ -71,14 +71,14 @@ export function UnifiedChangeHistory({ showLink = false, length = 2 }: UnifiedCh
   if (isLoading) {
     return (
       <Card className="w-full h-fit">
-        <CardHeader>
+        <CardContent className="flex flex-col gap-2 mt-6">
           <Skeleton className="h-6 w-3/5" />
           <Skeleton className="h-4 w-4/5" />
-        </CardHeader>
-        <CardContent>
-          <Skeleton className="h-[140px] w-full" />
-          <Separator />
-          <Skeleton className="h-[140px] w-full" />
+          <Skeleton className="h-[100px] w-full" />
+          <Separator className="my-3 bg-muted h-2 rounded-sm" />
+          <Skeleton className="h-6 w-3/5" />
+          <Skeleton className="h-4 w-4/5" />
+          <Skeleton className="h-[100px] w-full" />
         </CardContent>
         <CardFooter>
           <Skeleton className="h-5 w-1/2" />
