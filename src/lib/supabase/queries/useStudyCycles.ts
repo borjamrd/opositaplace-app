@@ -1,62 +1,37 @@
-"use client";
+// src/lib/supabase/queries/useStudyCycles.ts
+'use client';
 
-import { useState, useEffect, useCallback } from "react";
-import { createClient } from "@/lib/supabase/client"; //
-import type { StudyCycle } from "@/store/study-cycle-store";
+import { useQuery } from '@tanstack/react-query';
+import { createClient } from '@/lib/supabase/client';
+import type { StudyCycle } from '@/store/study-session-store';
 
-export function useStudyCycles(oppositionId: string | null | undefined) {
-  const [cycles, setCycles] = useState<StudyCycle[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [error, setError] = useState<any | null>(null);
-  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+const fetchStudyCycles = async (oppositionId: string, userId: string) => {
   const supabase = createClient();
+  const { data, error } = await supabase
+    .from('user_study_cycles')
+    .select('*')
+    .eq('opposition_id', oppositionId)
+    .eq('user_id', userId)
+    .order('cycle_number', { ascending: true });
 
-  // Obtener el ID del usuario actual
-  useEffect(() => {
-    const getUser = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      setCurrentUserId(user?.id || null);
-    };
-    getUser();
-  }, [supabase]);
+  if (error) {
+    throw new Error(error.message);
+  }
+  return data || [];
+};
 
-  const fetchCycles = useCallback(async () => {
-    if (!oppositionId || !currentUserId) {
-      setCycles([]);
-      setIsLoading(false);
-      return;
-    }
-
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const { data, error: fetchError } = await supabase
-        .from("user_study_cycles")
-        .select("*") // Selecciona todas las columnas para tener cycle_number, completed_at, etc.
-        .eq("opposition_id", oppositionId)
-        .eq("user_id", currentUserId) // Muy importante: filtrar por el usuario actual
-        .order("cycle_number", { ascending: true });
-
-      if (fetchError) {
-        throw fetchError;
+export function useStudyCycles(
+  oppositionId: string | null | undefined,
+  userId: string | null | undefined
+) {
+  return useQuery<StudyCycle[], Error>({
+    queryKey: ['studyCycles', oppositionId, userId],
+    queryFn: () => {
+      if (!oppositionId || !userId) {
+        return Promise.resolve([]);
       }
-      setCycles(data || []);
-    } catch (e) {
-      console.error("Error fetching study cycles in hook:", e);
-      setError(e);
-      setCycles([]);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [oppositionId, currentUserId, supabase]);
-
-  // Efecto para llamar a fetchCycles cuando oppositionId o currentUserId cambien
-  useEffect(() => {
-    fetchCycles();
-  }, [fetchCycles]);
-
-  return { data: cycles, isLoading, error, refetch: fetchCycles };
+      return fetchStudyCycles(oppositionId, userId);
+    },
+    enabled: !!oppositionId && !!userId,
+  });
 }
