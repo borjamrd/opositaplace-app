@@ -5,23 +5,40 @@ import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import { Navbar } from '@/components/layout/navbar';
 import Providers from '@/components/providers/providers';
-
+import { StateHydrator } from '@/components/state-hydrator';
+import { getSessionData } from '@/lib/supabase/queries/get-session-data';
 export const metadata: Metadata = {
-    title: 'OpositaPlace - Tu preparación para oposiciones',
+    title: 'Opositaplace - Por opositores, para opositores',
     description:
-        'Organiza tu estudio, sigue tu progreso y alcanza tus metas en las oposiciones con OpositaPlace.',
+        'Organiza tu estudio, realiza tests, sigue tu progreso y consigue tu plaza con Opositaplace.',
 };
 
-export default function RootLayout({
+export default async function RootLayout({
     children,
 }: Readonly<{
     children: React.ReactNode;
 }>) {
+    const {
+        profile,
+        subscription,
+        userOppositions,
+        activeOpposition,
+        studyCycles,
+        activeStudyCycle,
+    } = await getSessionData();
     return (
         <html lang="es" suppressHydrationWarning>
             <body
                 className={`${GeistSans.variable} ${GeistMono.variable} antialiased min-h-screen bg-background font-sans text-foreground`}
             >
+                <StateHydrator
+                    profile={profile}
+                    subscription={subscription}
+                    userOppositions={userOppositions}
+                    activeOpposition={activeOpposition}
+                    studyCycles={studyCycles}
+                    activeStudyCycle={activeStudyCycle}
+                />
                 <Providers>
                     <main className="flex-1">
                         <Navbar />

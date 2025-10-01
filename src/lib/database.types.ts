@@ -7,6 +7,11 @@ export type Json =
   | Json[]
 
 export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "12.2.12 (cd3cf9e)"
+  }
   public: {
     Tables: {
       anki_cards: {
@@ -138,6 +143,30 @@ export type Database = {
           },
         ]
       }
+      conversations: {
+        Row: {
+          created_at: string
+          id: string
+          title: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          title?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          title?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       feedback: {
         Row: {
           comment: string | null
@@ -153,6 +182,36 @@ export type Database = {
           comment?: string | null
           created_at?: string
           id?: number
+        }
+        Relationships: []
+      }
+      infografias: {
+        Row: {
+          contenido_html: string | null
+          created_at: string
+          id: string
+          published: boolean
+          title: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          contenido_html?: string | null
+          created_at?: string
+          id: string
+          published?: boolean
+          title: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          contenido_html?: string | null
+          created_at?: string
+          id?: string
+          published?: boolean
+          title?: string
+          updated_at?: string
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -176,6 +235,38 @@ export type Database = {
           name?: string
         }
         Relationships: []
+      }
+      messages: {
+        Row: {
+          content: string
+          conversation_id: string
+          created_at: string
+          id: string
+          role: string
+        }
+        Insert: {
+          content: string
+          conversation_id: string
+          created_at?: string
+          id?: string
+          role: string
+        }
+        Update: {
+          content?: string
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          role?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       onboarding_info: {
         Row: {
@@ -308,21 +399,37 @@ export type Database = {
       }
       questions: {
         Row: {
+          created_at: string | null
           id: string
+          is_archived: boolean
+          opposition_id: string | null
           text: string
           topic_id: string | null
         }
         Insert: {
+          created_at?: string | null
           id?: string
+          is_archived?: boolean
+          opposition_id?: string | null
           text: string
           topic_id?: string | null
         }
         Update: {
+          created_at?: string | null
           id?: string
+          is_archived?: boolean
+          opposition_id?: string | null
           text?: string
           topic_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "questions_opposition_id_fkey"
+            columns: ["opposition_id"]
+            isOneToOne: false
+            referencedRelation: "oppositions"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "questions_topic_id_fkey"
             columns: ["topic_id"]
@@ -385,6 +492,13 @@ export type Database = {
           summary?: Json | null
         }
         Relationships: [
+          {
+            foreignKeyName: "fk_scraped_resources"
+            columns: ["resource_id"]
+            isOneToOne: false
+            referencedRelation: "scraped_resources"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "resource_change_history_resource_id_fkey"
             columns: ["resource_id"]
@@ -492,32 +606,35 @@ export type Database = {
       }
       scraped_resources: {
         Row: {
+          active: boolean | null
           change_summary: Json | null
           content: string | null
           created_at: string
           id: string
           last_scraped_at: string | null
-          name: string | null
+          name: string
           status: string | null
           url: string
         }
         Insert: {
+          active?: boolean | null
           change_summary?: Json | null
           content?: string | null
           created_at?: string
           id?: string
           last_scraped_at?: string | null
-          name?: string | null
+          name: string
           status?: string | null
           url: string
         }
         Update: {
+          active?: boolean | null
           change_summary?: Json | null
           content?: string | null
           created_at?: string
           id?: string
           last_scraped_at?: string | null
-          name?: string | null
+          name?: string
           status?: string | null
           url?: string
         }
@@ -547,39 +664,75 @@ export type Database = {
         }
         Relationships: []
       }
-      test_attempt_questions: {
+      test_attempt_answers: {
         Row: {
-          answer_id: string | null
-          created_at: string | null
+          created_at: string
           id: string
-          is_correct: boolean
           question_id: string
+          selected_answer_id: string
           test_attempt_id: string
+          user_id: string
         }
         Insert: {
-          answer_id?: string | null
-          created_at?: string | null
+          created_at?: string
           id?: string
-          is_correct: boolean
           question_id: string
+          selected_answer_id: string
           test_attempt_id: string
+          user_id: string
         }
         Update: {
-          answer_id?: string | null
-          created_at?: string | null
+          created_at?: string
           id?: string
-          is_correct?: boolean
           question_id?: string
+          selected_answer_id?: string
           test_attempt_id?: string
+          user_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "test_attempt_questions_answer_id_fkey"
-            columns: ["answer_id"]
+            foreignKeyName: "test_attempt_answers_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "questions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "test_attempt_answers_selected_answer_id_fkey"
+            columns: ["selected_answer_id"]
             isOneToOne: false
             referencedRelation: "answers"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "test_attempt_answers_test_attempt_id_fkey"
+            columns: ["test_attempt_id"]
+            isOneToOne: false
+            referencedRelation: "test_attempts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      test_attempt_questions: {
+        Row: {
+          created_at: string | null
+          id: string
+          question_id: string
+          test_attempt_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          question_id: string
+          test_attempt_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          question_id?: string
+          test_attempt_id?: string
+        }
+        Relationships: [
           {
             foreignKeyName: "test_attempt_questions_question_id_fkey"
             columns: ["question_id"]
@@ -600,38 +753,50 @@ export type Database = {
         Row: {
           completed_at: string | null
           correct_answers: number | null
+          created_at: string
+          finished_at: string | null
           id: string
+          incorrect_answers: number | null
           opposition_id: string
           score: number | null
+          status: string | null
           study_cycle_id: string
           test_id: string
           total_questions: number | null
+          unanswered_questions: number | null
           user_id: string
-          wrong_answers: number | null
         }
         Insert: {
           completed_at?: string | null
           correct_answers?: number | null
+          created_at?: string
+          finished_at?: string | null
           id?: string
+          incorrect_answers?: number | null
           opposition_id: string
           score?: number | null
+          status?: string | null
           study_cycle_id: string
           test_id: string
           total_questions?: number | null
+          unanswered_questions?: number | null
           user_id: string
-          wrong_answers?: number | null
         }
         Update: {
           completed_at?: string | null
           correct_answers?: number | null
+          created_at?: string
+          finished_at?: string | null
           id?: string
+          incorrect_answers?: number | null
           opposition_id?: string
           score?: number | null
+          status?: string | null
           study_cycle_id?: string
           test_id?: string
           total_questions?: number | null
+          unanswered_questions?: number | null
           user_id?: string
-          wrong_answers?: number | null
         }
         Relationships: [
           {
@@ -721,6 +886,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      testimonials: {
+        Row: {
+          created_at: string
+          description: string
+          id: string
+          instagram: string | null
+          linkedin: string | null
+          name: string
+          position: string | null
+          reviewed: boolean
+          surname: string | null
+          website: string | null
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          id: string
+          instagram?: string | null
+          linkedin?: string | null
+          name: string
+          position?: string | null
+          reviewed?: boolean
+          surname?: string | null
+          website?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          id?: string
+          instagram?: string | null
+          linkedin?: string | null
+          name?: string
+          position?: string | null
+          reviewed?: boolean
+          surname?: string | null
+          website?: string | null
+        }
+        Relationships: []
       }
       tests: {
         Row: {
@@ -1157,32 +1361,7 @@ export type Database = {
       }
     }
     Views: {
-      wrong_answers_view: {
-        Row: {
-          created_at: string | null
-          id: string | null
-          pregunta: string | null
-          question_id: string | null
-          tema: string | null
-          user_id: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "test_attempt_questions_question_id_fkey"
-            columns: ["question_id"]
-            isOneToOne: false
-            referencedRelation: "questions"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "test_attempts_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
+      [_ in never]: never
     }
     Functions: {
       delete_user_data: {
@@ -1197,33 +1376,37 @@ export type Database = {
         }[]
       }
       get_questions_by_opposition: {
-        Args: { opp_id: string }
+        Args:
+          | { include_no_topic?: boolean; opp_id: string }
+          | { opp_id: string }
         Returns: string[]
       }
       get_url_history_by_id: {
         Args: { target_url_id: string }
         Returns: {
-          summary: Json
           created_at: string
+          summary: Json
         }[]
       }
       get_urls_with_user_subscription: {
         Args: { user_id_param: string }
         Returns: {
-          id: string
-          name: string
           description: string
+          id: string
           is_subscribed: boolean
+          name: string
         }[]
       }
       get_user_failed_questions: {
         Args: Record<PropertyKey, never>
-        Returns: string[]
+        Returns: {
+          question_id: string
+        }[]
       }
       has_role: {
         Args: {
-          user_id: string
           _role: Database["public"]["Enums"]["app_role"]
+          user_id: string
         }
         Returns: boolean
       }
@@ -1239,16 +1422,20 @@ export type Database = {
         Args: { profile_id: string }
         Returns: {
           id: string
-          name: string
           is_assigned: boolean
+          name: string
         }[]
       }
       rpc_start_next_study_cycle: {
-        Args: { p_user_id: string; p_opposition_id: string }
+        Args: { p_opposition_id: string; p_user_id: string }
+        Returns: undefined
+      }
+      set_correct_answer: {
+        Args: { p_new_answer_id: string; p_question_id: string }
         Returns: undefined
       }
       start_next_study_cycle: {
-        Args: { p_user_id: string; p_opposition_id: string }
+        Args: { p_opposition_id: string; p_user_id: string }
         Returns: undefined
       }
     }
@@ -1262,21 +1449,25 @@ export type Database = {
   }
 }
 
-type DefaultSchema = Database[Extract<keyof Database, "public">]
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
+
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
 
 export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-        Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
     : never = never,
-> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
-  ? (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-      Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
       Row: infer R
     }
     ? R
@@ -1294,14 +1485,16 @@ export type Tables<
 export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
-> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
-  ? Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Insert: infer I
     }
     ? I
@@ -1317,14 +1510,16 @@ export type TablesInsert<
 export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
-> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
-  ? Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Update: infer U
     }
     ? U
@@ -1340,14 +1535,16 @@ export type TablesUpdate<
 export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   EnumName extends DefaultSchemaEnumNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
     : never = never,
-> = DefaultSchemaEnumNameOrOptions extends { schema: keyof Database }
-  ? Database[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+> = DefaultSchemaEnumNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
   : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
     ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
     : never
@@ -1355,14 +1552,16 @@ export type Enums<
 export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
     : never = never,
-> = PublicCompositeTypeNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+> = PublicCompositeTypeNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
   : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
     ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never

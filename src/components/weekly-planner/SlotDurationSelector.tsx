@@ -15,7 +15,8 @@ const SlotDurationSelector: React.FC<SlotDurationSelectorProps> = ({
         <div className="mb-6 flex items-center justify-center sm:justify-start">
             <label
                 htmlFor="slot-duration"
-                className="mr-3 text-slate-700 font-medium text-sm sm:text-base"
+                className="mr-3 font-medium text-sm sm:text-base"
+                style={{ color: 'var(--primary)' }}
             >
                 Duración del espacio de estudio:
             </label>
@@ -23,12 +24,28 @@ const SlotDurationSelector: React.FC<SlotDurationSelectorProps> = ({
                 value={currentDuration.toString()}
                 onValueChange={(value) => onDurationChange(parseInt(value, 10))}
             >
-                <SelectTrigger className="w-[180px]">
+                <SelectTrigger
+                    className="w-[180px] border"
+                    style={{
+                        backgroundColor: 'var(--background)',
+                        color: 'var(--primary)',
+                        borderColor: 'var(--accent)',
+                    }}
+                >
                     <SelectValue placeholder="Selecciona la duración" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent
+                    style={{
+                        backgroundColor: 'var(--background)',
+                        color: 'var(--primary)',
+                    }}
+                >
                     {SLOT_DURATION_OPTIONS.map((duration) => (
-                        <SelectItem key={duration} value={duration.toString()}>
+                        <SelectItem
+                            key={duration}
+                            value={duration.toString()}
+                            style={{ color: 'var(--primary)' }}
+                        >
                             {duration} minutos
                         </SelectItem>
                     ))}

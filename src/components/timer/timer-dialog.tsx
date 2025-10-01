@@ -1,6 +1,6 @@
+// src/components/timer/timer-dialog.tsx
 'use client';
 
-import { useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useTimerStore } from '@/store/timer-store';
@@ -14,7 +14,11 @@ interface TimerDialogProps {
 }
 
 export function TimerDialog({ open, onOpenChange }: TimerDialogProps) {
-    const { mode, setMode } = useTimerStore();
+    // 1. OBTENEMOS EL ESTADO NECESARIO DEL STORE
+    const { mode, setMode, isActive, startTime } = useTimerStore();
+
+    // 2. DETERMINAMOS SI UN TEMPORIZADOR ESTÁ EN CURSO (ACTIVO O PAUSADO)
+    const isTimerSessionActive = isActive || startTime !== null;
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
@@ -24,14 +28,31 @@ export function TimerDialog({ open, onOpenChange }: TimerDialogProps) {
                 </DialogHeader>
                 <Tabs
                     value={mode}
-                    onValueChange={(value) =>
-                        setMode(value as 'countdown' | 'pomodoro' | 'stopwatch')
-                    }
+                    onValueChange={(value) => {
+                        // 3. IMPEDIMOS EL CAMBIO DE PESTAÑA SI HAY UNA SESIÓN ACTIVA
+                        if (isTimerSessionActive) return;
+                        setMode(value as 'countdown' | 'pomodoro' | 'stopwatch');
+                    }}
                 >
                     <TabsList className="grid w-full grid-cols-3">
-                        <TabsTrigger value="countdown">Cuenta atrás</TabsTrigger>
-                        <TabsTrigger value="pomodoro">Pomodoro</TabsTrigger>
-                        <TabsTrigger value="stopwatch">Cronómetro</TabsTrigger>
+                        <TabsTrigger
+                            value="countdown"
+                            disabled={isTimerSessionActive && mode !== 'countdown'}
+                        >
+                            Cuenta atrás
+                        </TabsTrigger>
+                        <TabsTrigger
+                            value="pomodoro"
+                            disabled={isTimerSessionActive && mode !== 'pomodoro'}
+                        >
+                            Pomodoro
+                        </TabsTrigger>
+                        <TabsTrigger
+                            value="stopwatch"
+                            disabled={isTimerSessionActive && mode !== 'stopwatch'}
+                        >
+                            Cronómetro
+                        </TabsTrigger>
                     </TabsList>
                     <TabsContent value="countdown">
                         <TimerCountdown />

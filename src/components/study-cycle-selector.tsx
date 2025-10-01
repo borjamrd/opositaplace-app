@@ -1,3 +1,4 @@
+// src/components/study-cycle-selector.tsx
 'use client';
 
 import { Badge } from '@/components/ui/badge';
@@ -17,19 +18,19 @@ const StudyCycleSelector = () => {
 
     if (isLoadingCycles) {
         return (
-            <div className="text-xs mt-1 flex items-center">
+            <div className="text-xs mt-1 flex items-center text-muted-foreground">
                 <Loader2 className="h-3 w-3 animate-spin mr-1" /> Cargando ciclos...
             </div>
         );
     }
 
-    if (studyCycles.length === 0) {
-        return <div className="text-xs mt-1">No hay ciclos de estudio.</div>;
+    if (!studyCycles || studyCycles.length === 0) {
+        return <div className="text-xs mt-1 text-muted-foreground">No hay ciclos de estudio.</div>;
     }
 
     return (
         <Select value={activeStudyCycle?.id || ''} onValueChange={selectStudyCycle}>
-            <SelectTrigger>
+            <SelectTrigger className="h-9">
                 <SelectValue placeholder="Selecciona una vuelta" />
             </SelectTrigger>
             <SelectContent>
