@@ -77,7 +77,7 @@ export default function ProfileContent() {
             <TabsList className="grid w-full grid-cols-5">
                 <TabsTrigger value="personal">Personal</TabsTrigger>
                 <TabsTrigger value="account">Cuenta</TabsTrigger>
-                <TabsTrigger value="study">Estudio</TabsTrigger>
+                <TabsTrigger value="study">Calendario</TabsTrigger>
                 <TabsTrigger value="security">Seguridad</TabsTrigger>
                 <TabsTrigger value="notifications">Notificaciones</TabsTrigger>
             </TabsList>

@@ -256,8 +256,8 @@ export default function UserOnboarding() {
     }
 
     return (
-        <Card className="w-full">
-            <CardContent className="space-y-4 pt-6">
+        <Card variant={'borderless'} className="w-full">
+            <CardContent className="space-y-4 pt-6 border-none">
                 <div>
                     <SelectedSlotsSummary selectedSlots={selectedSlots} />
                     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>

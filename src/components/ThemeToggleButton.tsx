@@ -5,7 +5,6 @@ import { Moon, Sun } from 'lucide-react';
 import { Button } from './ui/button';
 
 export function ThemeToggleButton() {
-    // Detecta el tema actual leyendo la clase 'dark' en el html
     const isDark =
         typeof window !== 'undefined' && document.documentElement.classList.contains('dark');
     const [darkMode, setDarkMode] = useState(isDark);
