@@ -43,7 +43,7 @@ export const SiteHeader: React.FC = () => {
     const breadcrumbs = getBreadcrumbs().slice(1);
 
     return (
-        <header className="w-full border-b p-4">
+        <header className="w-full">
             <div className="flex items-center gap-2">
                 <div className="flex flex-col gap-1">
                     <Breadcrumb>
