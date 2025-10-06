@@ -367,6 +367,47 @@ export type Database = {
         }
         Relationships: []
       }
+      process_stages: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          key_date: string | null
+          name: string
+          official_link: string | null
+          process_id: string | null
+          stage_order: number
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          key_date?: string | null
+          name: string
+          official_link?: string | null
+          process_id?: string | null
+          stage_order: number
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          key_date?: string | null
+          name?: string
+          official_link?: string | null
+          process_id?: string | null
+          stage_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "process_stages_process_id_fkey"
+            columns: ["process_id"]
+            isOneToOne: false
+            referencedRelation: "selective_processes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -640,6 +681,38 @@ export type Database = {
         }
         Relationships: []
       }
+      selective_processes: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          opposition_id: string | null
+          year: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          opposition_id?: string | null
+          year: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          opposition_id?: string | null
+          year?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "selective_processes_opposition_id_fkey"
+            columns: ["opposition_id"]
+            isOneToOne: false
+            referencedRelation: "oppositions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       study_sounds: {
         Row: {
           created_at: string | null
@@ -761,7 +834,7 @@ export type Database = {
           score: number | null
           status: string | null
           study_cycle_id: string
-          test_id: string
+          title: string | null
           total_questions: number | null
           unanswered_questions: number | null
           user_id: string
@@ -777,7 +850,7 @@ export type Database = {
           score?: number | null
           status?: string | null
           study_cycle_id: string
-          test_id: string
+          title?: string | null
           total_questions?: number | null
           unanswered_questions?: number | null
           user_id: string
@@ -793,7 +866,7 @@ export type Database = {
           score?: number | null
           status?: string | null
           study_cycle_id?: string
-          test_id?: string
+          title?: string | null
           total_questions?: number | null
           unanswered_questions?: number | null
           user_id?: string
@@ -807,13 +880,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "test_attempts_test_id_fkey"
-            columns: ["test_id"]
-            isOneToOne: false
-            referencedRelation: "tests"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "test_attempts_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
@@ -822,67 +888,31 @@ export type Database = {
           },
         ]
       }
-      test_questions: {
+      test_tags: {
         Row: {
           created_at: string | null
           id: string
-          position: number | null
-          question_id: string
-          test_id: string
+          question_id: string | null
+          tag: string
         }
         Insert: {
           created_at?: string | null
           id?: string
-          position?: number | null
-          question_id: string
-          test_id: string
+          question_id?: string | null
+          tag: string
         }
         Update: {
           created_at?: string | null
           id?: string
-          position?: number | null
-          question_id?: string
-          test_id?: string
+          question_id?: string | null
+          tag?: string
         }
         Relationships: [
           {
-            foreignKeyName: "test_questions_question_id_fkey"
+            foreignKeyName: "test_tags_question_id_fkey"
             columns: ["question_id"]
             isOneToOne: false
             referencedRelation: "questions"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "test_questions_test_id_fkey"
-            columns: ["test_id"]
-            isOneToOne: false
-            referencedRelation: "tests"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      test_tags: {
-        Row: {
-          id: string
-          tag: string
-          test_id: string | null
-        }
-        Insert: {
-          id?: string
-          tag: string
-          test_id?: string | null
-        }
-        Update: {
-          id?: string
-          tag?: string
-          test_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "test_tags_test_id_fkey"
-            columns: ["test_id"]
-            isOneToOne: false
-            referencedRelation: "tests"
             referencedColumns: ["id"]
           },
         ]
@@ -925,32 +955,6 @@ export type Database = {
           website?: string | null
         }
         Relationships: []
-      }
-      tests: {
-        Row: {
-          id: string
-          opposition_id: string
-          title: string
-        }
-        Insert: {
-          id?: string
-          opposition_id: string
-          title: string
-        }
-        Update: {
-          id?: string
-          opposition_id?: string
-          title?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "fk_opposition"
-            columns: ["opposition_id"]
-            isOneToOne: false
-            referencedRelation: "oppositions"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       topics: {
         Row: {
@@ -1094,6 +1098,51 @@ export type Database = {
             columns: ["profile_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_process_status: {
+        Row: {
+          created_at: string
+          current_stage_id: string | null
+          id: string
+          process_id: string | null
+          tracking_status: Database["public"]["Enums"]["tracking_status_enum"]
+          user_id: string | null
+          user_notes: string | null
+        }
+        Insert: {
+          created_at?: string
+          current_stage_id?: string | null
+          id?: string
+          process_id?: string | null
+          tracking_status?: Database["public"]["Enums"]["tracking_status_enum"]
+          user_id?: string | null
+          user_notes?: string | null
+        }
+        Update: {
+          created_at?: string
+          current_stage_id?: string | null
+          id?: string
+          process_id?: string | null
+          tracking_status?: Database["public"]["Enums"]["tracking_status_enum"]
+          user_id?: string | null
+          user_notes?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_process_status_current_stage_id_fkey"
+            columns: ["current_stage_id"]
+            isOneToOne: false
+            referencedRelation: "process_stages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_process_status_process_id_fkey"
+            columns: ["process_id"]
+            isOneToOne: false
+            referencedRelation: "selective_processes"
             referencedColumns: ["id"]
           },
         ]
@@ -1379,7 +1428,9 @@ export type Database = {
         Args:
           | { include_no_topic?: boolean; opp_id: string }
           | { opp_id: string }
-        Returns: string[]
+        Returns: {
+          id: string
+        }[]
       }
       get_url_history_by_id: {
         Args: { target_url_id: string }
@@ -1442,6 +1493,7 @@ export type Database = {
     Enums: {
       app_role: "admin" | "user"
       status_enum: "not_started" | "in_progress" | "completed"
+      tracking_status_enum: "TRACKING" | "PREPARING" | "PAUSED"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1571,6 +1623,7 @@ export const Constants = {
     Enums: {
       app_role: ["admin", "user"],
       status_enum: ["not_started", "in_progress", "completed"],
+      tracking_status_enum: ["TRACKING", "PREPARING", "PAUSED"],
     },
   },
 } as const

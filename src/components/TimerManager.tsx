@@ -85,7 +85,7 @@ export default function TimerManager() {
             <div className="flex items-center gap-2">
                 {isActive ||
                 (!isActive && startTime && (remainingTime > 0 || mode === 'stopwatch')) ? (
-                    <div className="flex items-center gap-4 text-primary font-mono">
+                    <div className="flex items-center gap-4 text-primary">
                         <span>Tiempo en curso:</span>
                         <span>{formatTime(mode, displayTime)}</span>
                         {isActive ? (
