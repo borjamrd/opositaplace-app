@@ -41,7 +41,7 @@ export function TestHistoryTable({ attempts }: TestHistoryTableProps) {
               </TableCell>
             </TableRow>
           )}
-          {attempts.map(attempt => (
+          {attempts.map((attempt) => (
             <TableRow key={attempt.id}>
               <TableCell>
                 {new Date(attempt.created_at).toLocaleDateString('es-ES', {
@@ -49,7 +49,6 @@ export function TestHistoryTable({ attempts }: TestHistoryTableProps) {
                   month: 'long',
                   day: 'numeric',
                 })}
-                
               </TableCell>
               <TableCell className="text-center">
                 <Badge

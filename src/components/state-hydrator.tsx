@@ -13,39 +13,39 @@ type Opposition = Database['public']['Tables']['oppositions']['Row'];
 type StudyCycle = Database['public']['Tables']['user_study_cycles']['Row'];
 
 interface StateHydratorProps {
-    profile: Profile | null;
-    subscription: Subscription | null;
-    userOppositions: Opposition[];
-    activeOpposition: Opposition | null;
-    studyCycles: StudyCycle[];
-    activeStudyCycle: StudyCycle | null;
+  profile: Profile | null;
+  subscription: Subscription | null;
+  userOppositions: Opposition[];
+  activeOpposition: Opposition | null;
+  studyCycles: StudyCycle[];
+  activeStudyCycle: StudyCycle | null;
 }
 
 export function StateHydrator({
-    profile,
-    subscription,
-    userOppositions,
-    activeOpposition,
-    studyCycles,
-    activeStudyCycle,
+  profile,
+  subscription,
+  userOppositions,
+  activeOpposition,
+  studyCycles,
+  activeStudyCycle,
 }: StateHydratorProps) {
-    const isInitialized = useRef(false);
+  const isInitialized = useRef(false);
 
-    useEffect(() => {
-        if (!isInitialized.current) {
-            useProfileStore.setState({ profile, isLoading: false, error: null });
-            useSubscriptionStore.setState({ subscription, isLoading: false, error: null });
-            useStudySessionStore.setState({
-                oppositions: userOppositions,
-                activeOpposition: activeOpposition,
-                studyCycles: studyCycles,
-                activeStudyCycle: activeStudyCycle,
-                isLoadingOppositions: false,
-                isLoadingCycles: false,
-            });
-            isInitialized.current = true;
-        }
-    }, [profile, subscription, userOppositions, activeOpposition, studyCycles, activeStudyCycle]);
+  useEffect(() => {
+    if (!isInitialized.current) {
+      useProfileStore.setState({ profile, isLoading: false, error: null });
+      useSubscriptionStore.setState({ subscription, isLoading: false, error: null });
+      useStudySessionStore.setState({
+        oppositions: userOppositions,
+        activeOpposition: activeOpposition,
+        studyCycles: studyCycles,
+        activeStudyCycle: activeStudyCycle,
+        isLoadingOppositions: false,
+        isLoadingCycles: false,
+      });
+      isInitialized.current = true;
+    }
+  }, [profile, subscription, userOppositions, activeOpposition, studyCycles, activeStudyCycle]);
 
-    return null;
+  return null;
 }

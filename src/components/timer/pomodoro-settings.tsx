@@ -4,7 +4,14 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogClose,
+} from '@/components/ui/dialog';
 import { useTimerStore } from '@/store/timer-store';
 
 interface PomodoroSettingsDialogProps {
@@ -13,7 +20,8 @@ interface PomodoroSettingsDialogProps {
 }
 
 export function PomodoroSettingsDialog({ open, onOpenChange }: PomodoroSettingsDialogProps) {
-  const { pomodoroDuration, shortBreakDuration, longBreakDuration, setPomodoroDurations } = useTimerStore();
+  const { pomodoroDuration, shortBreakDuration, longBreakDuration, setPomodoroDurations } =
+    useTimerStore();
 
   // Estado local para los inputs (en minutos)
   const [pomodoro, setPomodoro] = useState(pomodoroDuration / 60);

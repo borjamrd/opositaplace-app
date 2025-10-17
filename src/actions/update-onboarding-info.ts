@@ -1,33 +1,33 @@
 // src/actions/update-onboarding-info.ts
-"use server";
+'use server';
 
-import type { Json, TablesUpdate } from "@/lib/database.types";
-import { createSupabaseServerActionClient } from "@/lib/supabase/server";
-import { cookies } from "next/headers";
-import { z } from "zod";
+import type { Json, TablesUpdate } from '@/lib/database.types';
+import { createSupabaseServerActionClient } from '@/lib/supabase/server';
+import { cookies } from 'next/headers';
+import { z } from 'zod';
 import { SelectedSlots, Day } from '@/components/weekly-planner/types'; // Importar tipos necesarios
 
 // Define un esquema Zod para la carga útil de la actualización
 const updateOnboardingSchema = z.object({
-  userId: z.string().uuid({ message: "ID de usuario inválido." }),
-  studyDays: z.record(
-    z.nativeEnum(Day),
-    z.record(z.string(), z.boolean())
-  ).refine(
-    (data) => Object.values(data).some(daySlots =>
-      Object.values(daySlots).some(isSelected => isSelected)
+  userId: z.string().uuid({ message: 'ID de usuario inválido.' }),
+  studyDays: z
+    .record(z.nativeEnum(Day), z.record(z.string(), z.boolean()))
+    .refine(
+      (data) =>
+        Object.values(data).some((daySlots) =>
+          Object.values(daySlots).some((isSelected) => isSelected)
+        ),
+      {
+        message: 'Debes seleccionar al menos una franja horaria de estudio.',
+        path: ['studyDays'],
+      }
     ),
-    {
-      message: "Debes seleccionar al menos una franja horaria de estudio.",
-      path: ["studyDays"],
-    }
-  ),
   slotDurationMinutes: z.coerce
     .number({
-      invalid_type_error: "La duración debe ser un número entero.",
+      invalid_type_error: 'La duración debe ser un número entero.',
     })
-    .int("La duración debe ser un número entero.")
-    .positive("La duración debe ser un número positivo."),
+    .int('La duración debe ser un número entero.')
+    .positive('La duración debe ser un número positivo.'),
 });
 
 type UpdateOnboardingState = {
@@ -43,10 +43,12 @@ export async function updateOnboardingInfo(
   const cookieStore = cookies();
   const supabase = createSupabaseServerActionClient(cookieStore);
 
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user || user.id !== payload.userId) {
     return {
-      message: "Usuario no autorizado para actualizar esta información.",
+      message: 'Usuario no autorizado para actualizar esta información.',
       success: false,
     };
   }
@@ -55,9 +57,9 @@ export async function updateOnboardingInfo(
   const validationResult = updateOnboardingSchema.safeParse(payload);
 
   if (!validationResult.success) {
-    console.error("Update validation errors:", validationResult.error.flatten().fieldErrors);
+    console.error('Update validation errors:', validationResult.error.flatten().fieldErrors);
     return {
-      message: "Error de validación al actualizar las preferencias.",
+      message: 'Error de validación al actualizar las preferencias.',
       errors: validationResult.error.flatten().fieldErrors as Record<string, string[]>,
       success: false,
     };
@@ -81,7 +83,7 @@ export async function updateOnboardingInfo(
     .single(); // Esperamos que haya un solo registro por usuario
 
   if (error) {
-    console.error("Error al actualizar la información de onboarding:", error);
+    console.error('Error al actualizar la información de onboarding:', error);
     return {
       message: `Error al actualizar las preferencias: ${error.message}`,
       success: false,
@@ -89,7 +91,7 @@ export async function updateOnboardingInfo(
   }
 
   return {
-    message: "Preferencias de estudio actualizadas correctamente.",
+    message: 'Preferencias de estudio actualizadas correctamente.',
     success: true,
   };
 }

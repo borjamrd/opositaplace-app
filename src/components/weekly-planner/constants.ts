@@ -39,10 +39,14 @@ export const generateTimeSlots = (durationInMinutes: number): string[] => {
 
     // If the calculated end time exceeds PLANNER_END_HOUR, cap it
     if (slotEndHour > PLANNER_END_HOUR || (slotEndHour === PLANNER_END_HOUR && slotEndMinute > 0)) {
-      slots.push(`${formatTime(slotStartHour, slotStartMinute)} - ${formatTime(PLANNER_END_HOUR, 0)}`);
+      slots.push(
+        `${formatTime(slotStartHour, slotStartMinute)} - ${formatTime(PLANNER_END_HOUR, 0)}`
+      );
       break; // This is the last slot
     } else {
-      slots.push(`${formatTime(slotStartHour, slotStartMinute)} - ${formatTime(slotEndHour, slotEndMinute)}`);
+      slots.push(
+        `${formatTime(slotStartHour, slotStartMinute)} - ${formatTime(slotEndHour, slotEndMinute)}`
+      );
     }
 
     // Move to the start of the next slot
@@ -50,10 +54,16 @@ export const generateTimeSlots = (durationInMinutes: number): string[] => {
     currentMinute = slotEndMinute;
 
     // Safety break for very small durations or unexpected loops
-    const maxSlots = (PLANNER_END_HOUR - PLANNER_START_HOUR) * (60 / Math.max(1, Math.min(...SLOT_DURATION_OPTIONS))) + 10;
+    const maxSlots =
+      (PLANNER_END_HOUR - PLANNER_START_HOUR) *
+        (60 / Math.max(1, Math.min(...SLOT_DURATION_OPTIONS))) +
+      10;
     if (slots.length > maxSlots) {
-        console.warn("generateTimeSlots: Exceeded maximum expected slots, breaking loop.", {durationInMinutes, slotsCount: slots.length});
-        break;
+      console.warn('generateTimeSlots: Exceeded maximum expected slots, breaking loop.', {
+        durationInMinutes,
+        slotsCount: slots.length,
+      });
+      break;
     }
   }
   return slots;

@@ -140,7 +140,8 @@ export function UnifiedChangeHistory({ showLink = false, length = 4 }: UnifiedCh
                   )}
                 </ul>
                 {entry.summary.length > 3 && (
-                  <Button variant="link"
+                  <Button
+                    variant="link"
                     className="mt-2 text-primary text-xs hover:underline"
                     onClick={(e) => {
                       e.preventDefault();

@@ -17,7 +17,9 @@ Deno.serve(async (req) => {
       { global: { headers: { Authorization: req.headers.get('Authorization')! } } }
     );
 
-    const { data: { user } } = await supabaseClient.auth.getUser();
+    const {
+      data: { user },
+    } = await supabaseClient.auth.getUser();
     if (!user) throw new Error('User not found');
 
     const { count, error: countError } = await supabaseClient
@@ -35,9 +37,9 @@ Deno.serve(async (req) => {
         .order('created_at', { ascending: true })
         .limit(1)
         .single();
-      
+
       if (oldestError) throw oldestError;
-      
+
       if (oldestConversation) {
         await supabaseClient.from('conversations').delete().eq('id', oldestConversation.id);
       }

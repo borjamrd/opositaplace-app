@@ -1,4 +1,4 @@
 import { config } from 'dotenv';
-config(); 
+config();
 
 import './flows/opositaplaceChatFlow';

@@ -13,7 +13,6 @@ interface DashboardContentProps {
 const DashboardContent = ({ failedQuestions }: DashboardContentProps) => {
   return (
     <div className="flex-1 grid container gap-4 md:grid-cols-2 lg:grid-cols-6">
-      
       <div className="row-span-1 col-span-4">
         <StudySessionsChart />
       </div>

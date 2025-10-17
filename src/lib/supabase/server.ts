@@ -34,28 +34,25 @@ export function createSupabaseServerClient(cookieStore: ReturnType<typeof cookie
   );
 }
 
-export function createSupabaseRouteHandlerClient(
-  cookieStore: ReturnType<typeof cookies>
-) {
+export function createSupabaseRouteHandlerClient(cookieStore: ReturnType<typeof cookies>) {
   return createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
         get(name: string) {
-          return cookieStore.get(name)?.value
+          return cookieStore.get(name)?.value;
         },
         set(name: string, value: string, options) {
-          cookieStore.set({ name, value, ...options })
+          cookieStore.set({ name, value, ...options });
         },
         remove(name: string, options) {
-          cookieStore.set({ name, value: '', ...options })
+          cookieStore.set({ name, value: '', ...options });
         },
       },
     }
-  )
+  );
 }
-
 
 // Utility to create Supabase client for server actions
 // Note: Cookie handling in Server Actions needs careful consideration
@@ -64,34 +61,32 @@ export function createSupabaseRouteHandlerClient(
 // However, Supabase's new server-side auth helpers aim to simplify this.
 // This is a basic setup.
 
-export function createSupabaseServerActionClient(
-  cookieStore: ReturnType<typeof cookies>
-) {
+export function createSupabaseServerActionClient(cookieStore: ReturnType<typeof cookies>) {
   return createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
         async get(name: string) {
-          return cookieStore.get(name)?.value
+          return cookieStore.get(name)?.value;
         },
         async set(name: string, value: string, options) {
           try {
             // @ts-ignore
-            cookieStore.set({ name, value, ...options })
+            cookieStore.set({ name, value, ...options });
           } catch (error) {
-            console.warn('Failed to set cookie in Server Action:', error)
+            console.warn('Failed to set cookie in Server Action:', error);
           }
         },
         async remove(name: string, options) {
           try {
-            // @ts-ignore 
-            cookieStore.set({ name, value: '', ...options })
+            // @ts-ignore
+            cookieStore.set({ name, value: '', ...options });
           } catch (error) {
-            console.warn('Failed to remove cookie in Server Action:', error)
+            console.warn('Failed to remove cookie in Server Action:', error);
           }
-        }
+        },
       },
     }
-  )
+  );
 }

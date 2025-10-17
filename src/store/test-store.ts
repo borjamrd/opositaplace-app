@@ -4,8 +4,6 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 // import { Answer, Question, Test } from '@/lib/database.types';
 
-
-
 export type TestState = {
   test: Test | null;
   questions: Question[];
@@ -56,7 +54,7 @@ export const useTestStore = create<TestState>()(
       isFinished: false,
       setTest: (test, questions, answers) => {
         const userAnswers = new Map<string, string | null>();
-        questions.forEach(q => userAnswers.set(q.id, null));
+        questions.forEach((q) => userAnswers.set(q.id, null));
         set({
           test,
           questions,
@@ -67,13 +65,13 @@ export const useTestStore = create<TestState>()(
         });
       },
       setUserAnswer: (questionId, answerId) => {
-        set(state => {
+        set((state) => {
           const newAnswers = new Map(state.userAnswers);
           newAnswers.set(questionId, answerId);
           return { userAnswers: newAnswers };
         });
       },
-      setCurrentQuestionIndex: index => {
+      setCurrentQuestionIndex: (index) => {
         const { questions } = get();
         if (index >= 0 && index < questions.length) {
           set({ currentQuestionIndex: index });

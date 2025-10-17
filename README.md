@@ -1,11 +1,9 @@
 # Opositaplace
 
-
 ```shell
 npm install
 npm run dev
 ```
-
 
 ## Levantar stripe localmente
 

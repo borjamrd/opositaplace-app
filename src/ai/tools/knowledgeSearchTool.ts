@@ -3,17 +3,17 @@ import { ConversationalSearchServiceClient } from '@google-cloud/discoveryengine
 import type { protos } from '@google-cloud/discoveryengine';
 
 export interface Reference {
-    id: string; 
-    text: string;
-    link: string;
-    pageIdentifier: string;
-    title: string;
+  id: string;
+  text: string;
+  link: string;
+  pageIdentifier: string;
+  title: string;
 }
 
 export interface ConversationalResult {
-    answer: string | null;
-    references: Reference[];
-    sessionPath: string | null;
+  answer: string | null;
+  references: Reference[];
+  sessionPath: string | null;
 }
 
 const projectId = process.env.GCP_PROJECT_ID!;
@@ -24,18 +24,18 @@ const credentials = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON!)
 const apiEndpoint = 'eu-discoveryengine.googleapis.com';
 
 const conversationalSearchClient = new ConversationalSearchServiceClient({
-    credentials,
-    apiEndpoint,
+  credentials,
+  apiEndpoint,
 });
 
 const servingConfigPath =
-    conversationalSearchClient.projectLocationCollectionEngineServingConfigPath(
-        projectId,
-        location,
-        collectionId,
-        engineId,
-        'default_config'
-    );
+  conversationalSearchClient.projectLocationCollectionEngineServingConfigPath(
+    projectId,
+    location,
+    collectionId,
+    engineId,
+    'default_config'
+  );
 
 /**
  * Llama al endpoint :answer de Vertex AI. Si no se proporciona una sesión,
@@ -45,32 +45,32 @@ const servingConfigPath =
  * @returns Un objeto con la respuesta generada y la ruta de la sesión.
  */
 export async function getConversationalAnswer(
-    query: string,
-    existingSessionPath?: string
+  query: string,
+  existingSessionPath?: string
 ): Promise<ConversationalResult> {
-    const sessionPath =
-        existingSessionPath ||
-        conversationalSearchClient.projectLocationCollectionEngineSessionPath(
-            projectId,
-            location,
-            collectionId,
-            engineId,
-            '-'
-        );
+  const sessionPath =
+    existingSessionPath ||
+    conversationalSearchClient.projectLocationCollectionEngineSessionPath(
+      projectId,
+      location,
+      collectionId,
+      engineId,
+      '-'
+    );
 
-    const request: protos.google.cloud.discoveryengine.v1alpha.IAnswerQueryRequest = {
-        servingConfig: servingConfigPath,
-        query: {
-            text: query,
-        },
-        session: sessionPath,
-        answerGenerationSpec: {
-            modelSpec: {
-                modelVersion: 'preview',
-            },
-            includeCitations: true,
-            promptSpec: {
-                preamble: `Eres OpositaBot, un asistente virtual experto y amigable para la plataforma OpositaPlace. Tu único propósito es ayudar a los usuarios a estudiar sus oposiciones basándote en la información que se te proporciona.
+  const request: protos.google.cloud.discoveryengine.v1alpha.IAnswerQueryRequest = {
+    servingConfig: servingConfigPath,
+    query: {
+      text: query,
+    },
+    session: sessionPath,
+    answerGenerationSpec: {
+      modelSpec: {
+        modelVersion: 'preview',
+      },
+      includeCitations: true,
+      promptSpec: {
+        preamble: `Eres OpositaBot, un asistente virtual experto y amigable para la plataforma OpositaPlace. Tu único propósito es ayudar a los usuarios a estudiar sus oposiciones basándote en la información que se te proporciona.
 
                         **Reglas Fundamentales:**
 
@@ -83,29 +83,29 @@ export async function getConversationalAnswer(
                         Salvo que no lo veas necesario, no incluyas un saludo inicial o una despedida. Tu objetivo es ser directo y útil, proporcionando información precisa y relevante basada en el contexto que se te ha proporcionado.
                         Si has ofrecido una respuesta, puedes preguntar si el usuario necesita más información o si hay algo más en lo que puedas ayudar, pero siempre basándote en el contexto proporcionado.
                         `,
-            },
-        },
+      },
+    },
+  };
+
+  try {
+    const [response] = await conversationalSearchClient.answerQuery(request);
+    const answer = response.answer;
+
+    const references: Reference[] = (answer?.references || []).map((ref) => ({
+      id: ref.chunkInfo?.documentMetadata?.document || Math.random().toString(),
+      text: ref.chunkInfo?.content || 'Contenido no disponible.',
+      link: ref.chunkInfo?.documentMetadata?.uri || '#',
+      pageIdentifier: ref.chunkInfo?.documentMetadata?.pageIdentifier || 'N/A',
+      title: ref.chunkInfo?.documentMetadata?.title || 'Fuente desconocida',
+    }));
+
+    return {
+      answer: answer?.answerText || 'No se encontró una respuesta directa.',
+      references: references, // Devolvemos el array procesado
+      sessionPath: response.session?.name || null,
     };
-
-    try {
-        const [response] = await conversationalSearchClient.answerQuery(request);
-        const answer = response.answer;
-
-        const references: Reference[] = (answer?.references || []).map((ref) => ({
-            id: ref.chunkInfo?.documentMetadata?.document || Math.random().toString(),
-            text: ref.chunkInfo?.content || 'Contenido no disponible.',
-            link: ref.chunkInfo?.documentMetadata?.uri || '#',
-            pageIdentifier: ref.chunkInfo?.documentMetadata?.pageIdentifier || 'N/A',
-            title: ref.chunkInfo?.documentMetadata?.title || 'Fuente desconocida',
-        }));
-
-        return {
-            answer: answer?.answerText || 'No se encontró una respuesta directa.',
-            references: references, // Devolvemos el array procesado
-            sessionPath: response.session?.name || null,
-        };
-    } catch (error) {
-        console.error('Error in getConversationalAnswer:', error);
-        return { answer: 'Hubo un error...', references: [], sessionPath: null };
-    }
+  } catch (error) {
+    console.error('Error in getConversationalAnswer:', error);
+    return { answer: 'Hubo un error...', references: [], sessionPath: null };
+  }
 }

@@ -1,7 +1,7 @@
 // src/lib/supabase/queries/useUserSubscription.ts
-import { Subscription } from "@/lib/stripe/actions";
-import { createClient } from "@/lib/supabase/client";
-import { useQuery } from "@tanstack/react-query";
+import { Subscription } from '@/lib/stripe/actions';
+import { createClient } from '@/lib/supabase/client';
+import { useQuery } from '@tanstack/react-query';
 
 // Esta función podría ser una Server Action o una API route que llame a la
 // función getUserSubscription que definimos anteriormente.
@@ -33,8 +33,10 @@ export function useUserSubscription() {
   return useQuery<Subscription | null, Error>({
     queryKey: ['userSubscription'],
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return null; 
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) return null;
       return fetchUserSubscription(user.id);
     },
     staleTime: 5 * 60 * 1000, // 5 minutos

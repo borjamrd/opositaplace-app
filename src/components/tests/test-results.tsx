@@ -2,10 +2,10 @@
 
 import type { QuestionWithAnswers } from '@/app/dashboard/tests/[id]/page';
 import {
-    Accordion,
-    AccordionContent,
-    AccordionItem,
-    AccordionTrigger,
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
 } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -39,12 +39,10 @@ export function TestResults({ questions, userAnswers, attempt }: TestResultsProp
       // Fallback calculation for the immediate display after finishing a test.
       let correct = 0;
       let incorrect = 0;
-      questions.forEach(question => {
+      questions.forEach((question) => {
         const userAnswerId = userAnswers[question.id];
         if (userAnswerId) {
-          const isCorrect = question.answers.some(
-            a => a.id === userAnswerId && a.is_correct
-          );
+          const isCorrect = question.answers.some((a) => a.id === userAnswerId && a.is_correct);
           if (isCorrect) {
             correct++;
           } else {
@@ -78,16 +76,12 @@ export function TestResults({ questions, userAnswers, attempt }: TestResultsProp
           <div className="p-4 bg-green-100 dark:bg-green-900/30 rounded-lg">
             <CheckCircle className="w-8 h-8 mx-auto text-green-600" />
             <p className="mt-2 text-lg font-semibold">Correctas</p>
-            <p className="text-3xl font-bold text-green-700 dark:text-green-500">
-              {correctCount}
-            </p>
+            <p className="text-3xl font-bold text-green-700 dark:text-green-500">{correctCount}</p>
           </div>
           <div className="p-4 bg-red-100 dark:bg-red-900/30 rounded-lg">
             <XCircle className="w-8 h-8 mx-auto text-red-600" />
             <p className="mt-2 text-lg font-semibold">Incorrectas</p>
-            <p className="text-3xl font-bold text-red-700 dark:text-red-500">
-              {incorrectCount}
-            </p>
+            <p className="text-3xl font-bold text-red-700 dark:text-red-500">{incorrectCount}</p>
           </div>
           {/* <div className="p-4 bg-gray-100 dark:bg-gray-800/30 rounded-lg">
             <HelpCircle className="w-8 h-8 mx-auto text-gray-600" />
@@ -101,15 +95,12 @@ export function TestResults({ questions, userAnswers, attempt }: TestResultsProp
         <div className="text-center pt-4">
           <p className="text-lg">Calificación Final (sobre 10)</p>
           <p
-            className={`text-5xl font-bold ${
-              finalScore >= 5 ? 'text-green-600' : 'text-red-600'
-            }`}
+            className={`text-5xl font-bold ${finalScore >= 5 ? 'text-green-600' : 'text-red-600'}`}
           >
             {finalScore.toFixed(2)}
           </p>
           <p className="text-sm text-muted-foreground mt-1">
-            Puntuación neta: {netPoints.toFixed(2)} puntos sobre {totalQuestions}{' '}
-            preguntas
+            Puntuación neta: {netPoints.toFixed(2)} puntos sobre {totalQuestions} preguntas
           </p>
         </div>
 
@@ -126,7 +117,7 @@ export function TestResults({ questions, userAnswers, attempt }: TestResultsProp
           <Accordion type="multiple" className="w-full">
             {questions.map((question, index) => {
               const userAnswerId = userAnswers[question.id];
-              const correctAnswer = question.answers.find(a => a.is_correct);
+              const correctAnswer = question.answers.find((a) => a.is_correct);
               const isUserCorrect = userAnswerId === correctAnswer?.id;
 
               return (
@@ -149,7 +140,7 @@ export function TestResults({ questions, userAnswers, attempt }: TestResultsProp
                   </AccordionTrigger>
                   <AccordionContent>
                     <ul className="space-y-3 pl-4 pt-2">
-                      {question.answers.map(answer => {
+                      {question.answers.map((answer) => {
                         const isCorrect = answer.is_correct;
                         const isSelected = answer.id === userAnswerId;
 
