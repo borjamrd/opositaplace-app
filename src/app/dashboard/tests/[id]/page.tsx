@@ -9,16 +9,26 @@ import { notFound, redirect } from 'next/navigation';
 
 export type QuestionWithAnswers = Tables<'questions'> & {
   answers: Tables<'answers'>[];
+  answers: Tables<'answers'>[];
 };
 
 export default async function TestPage({ params }: { params: { id: string } }) {
+  const cookieStore = cookies();
+  const supabase = createSupabaseServerClient(cookieStore);
   const cookieStore = cookies();
   const supabase = createSupabaseServerClient(cookieStore);
 
   const {
     data: { user },
   } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
+  if (!user) {
+    console.log('User not found, redirecting to login.');
+    return redirect('/login');
+  }
   if (!user) {
     console.log('User not found, redirecting to login.');
     return redirect('/login');
@@ -33,7 +43,14 @@ export default async function TestPage({ params }: { params: { id: string } }) {
   if (testAttemptError || !testAttempt) {
     return notFound();
   }
+  if (testAttemptError || !testAttempt) {
+    return notFound();
+  }
 
+  const { data: attemptQuestions, error: attemptQuestionsError } = await supabase
+    .from('test_attempt_questions')
+    .select(`questions(*, answers(*))`)
+    .eq('test_attempt_id', testAttempt.id);
   const { data: attemptQuestions, error: attemptQuestionsError } = await supabase
     .from('test_attempt_questions')
     .select(`questions(*, answers(*))`)
@@ -53,7 +70,23 @@ export default async function TestPage({ params }: { params: { id: string } }) {
       </div>
     );
   }
+  if (attemptQuestionsError) {
+    console.error('Error fetching attempt_questions:', attemptQuestionsError);
+    return (
+      <div className="container mx-auto mt-8">
+        <Alert variant="destructive">
+          <Terminal className="h-4 w-4" />
+          <AlertTitle>Error</AlertTitle>
+          <AlertDescription>
+            No se pudieron cargar las preguntas del test. Por favor, inténtalo de nuevo.
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
 
+  const allQuestions: QuestionWithAnswers[] =
+    attemptQuestions?.map((aq) => aq.questions).filter(Boolean) ?? [];
   const allQuestions: QuestionWithAnswers[] =
     attemptQuestions?.map((aq) => aq.questions).filter(Boolean) ?? [];
 
@@ -78,13 +111,45 @@ export default async function TestPage({ params }: { params: { id: string } }) {
       </div>
     );
   }
+  if (validQuestions.length === 0) {
+    return (
+      <div className="container mx-auto mt-8">
+        <Alert variant="destructive">
+          <Terminal className="h-4 w-4" />
+          <AlertTitle>No hay preguntas válidas</AlertTitle>
+          <AlertDescription>
+            Este test no se puede iniciar porque no contiene preguntas con respuestas correctas
+            definidas. Por favor, contacta con el administrador.
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
 
   if (testAttempt.status === 'completed') {
     const { data: savedAnswersData, error: answersError } = await supabase
       .from('test_attempt_answers')
       .select('question_id, selected_answer_id')
       .eq('test_attempt_id', testAttempt.id);
+  if (testAttempt.status === 'completed') {
+    const { data: savedAnswersData, error: answersError } = await supabase
+      .from('test_attempt_answers')
+      .select('question_id, selected_answer_id')
+      .eq('test_attempt_id', testAttempt.id);
 
+    if (answersError) {
+      return (
+        <div className="container mx-auto mt-8">
+          <Alert variant="destructive">
+            <Terminal className="h-4 w-4" />
+            <AlertTitle>Error</AlertTitle>
+            <AlertDescription>
+              No se pudieron cargar las respuestas guardadas para este test.
+            </AlertDescription>
+          </Alert>
+        </div>
+      );
+    }
     if (answersError) {
       return (
         <div className="container mx-auto mt-8">
@@ -112,6 +177,9 @@ export default async function TestPage({ params }: { params: { id: string } }) {
 
     return <TestResults questions={allQuestions} userAnswers={userAnswers} attempt={testAttempt} />;
   }
+    return <TestResults questions={allQuestions} userAnswers={userAnswers} attempt={testAttempt} />;
+  }
 
+  return <TestSession testAttempt={testAttempt} questions={validQuestions} />;
   return <TestSession testAttempt={testAttempt} questions={validQuestions} />;
 }

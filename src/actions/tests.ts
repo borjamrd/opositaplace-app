@@ -1,7 +1,6 @@
 'use server';
 
 import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { Question } from '@/lib/supabase/types';
 import { shuffle } from '@/lib/utils';
 import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers';
@@ -160,6 +159,7 @@ export async function createTestAttempt(params: CreateTestParams) {
 
   redirect(`/dashboard/tests/${testAttempt.id}`);
 }
+
 
 export async function submitTestAttempt(testAttemptId: string, answers: Record<string, string>) {
   const cookieStore = cookies();
