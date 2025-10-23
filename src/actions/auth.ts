@@ -25,9 +25,8 @@ const signInSchema = z.object({
   password: passwordSchema,
 });
 
-export async function signUp(prevState: any, formData: FormData) {
-
-  const supabase = createSupabaseServerClient();
+export async function signUp(_prevState: any, formData: FormData) {
+  const supabase = await createSupabaseServerClient();
 
   const result = signUpSchema.safeParse(Object.fromEntries(formData));
 
@@ -65,8 +64,7 @@ export async function signUp(prevState: any, formData: FormData) {
 }
 
 export async function signIn(prevState: any, formData: FormData) {
-
-  const supabase = createSupabaseServerClient();
+  const supabase = await createSupabaseServerClient();
 
   const result = signInSchema.safeParse(Object.fromEntries(formData));
 
@@ -102,9 +100,8 @@ const resetPasswordSchema = z.object({
   email: emailSchema,
 });
 
-export async function resetPassword(prevState: any, formData: FormData) {
-
-  const supabase = createSupabaseServerClient();
+export async function resetPassword(_prevState: any, formData: FormData) {
+  const supabase = await createSupabaseServerClient();
 
   const result = resetPasswordSchema.safeParse(Object.fromEntries(formData));
 
@@ -135,8 +132,6 @@ export async function resetPassword(prevState: any, formData: FormData) {
   };
 }
 
-// ...existing code...
-
 const updatePasswordSchema = z
   .object({
     password: passwordSchema,
@@ -148,8 +143,7 @@ const updatePasswordSchema = z
   });
 
 export async function updatePassword(prevState: any, formData: FormData) {
-
-  const supabase = createSupabaseServerClient();
+  const supabase = await createSupabaseServerClient();
 
   const result = updatePasswordSchema.safeParse(Object.fromEntries(formData));
 
@@ -174,7 +168,6 @@ export async function updatePassword(prevState: any, formData: FormData) {
     };
   }
 
-  // Instead of redirecting immediately, return a success message
   return {
     message: 'Contraseña actualizada correctamente',
     errors: {},
@@ -182,7 +175,6 @@ export async function updatePassword(prevState: any, formData: FormData) {
 }
 
 export async function signOut() {
-  const cookieStore = cookies();
-  const supabase = createSupabaseServerClient();
+  const supabase = await createSupabaseServerClient();
   await supabase.auth.signOut();
 }

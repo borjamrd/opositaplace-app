@@ -30,7 +30,7 @@ export async function submitOnboarding(
   formData: FormData
 ): Promise<InitialState> {
 
-  const supabase = createSupabaseServerClient();
+  const supabase = await createSupabaseServerClient();
 
   const {
     data: { user },
