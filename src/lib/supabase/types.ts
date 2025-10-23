@@ -1,15 +1,15 @@
 // src/lib/supabase/types.ts
 
-import { Database } from '@/lib/supabase/database.types';
+import { Tables } from '@/lib/supabase/database.types';
 
-export type Profile = Database['public']['Tables']['profiles']['Row'];
-export type UserStudySession = Database['public']['Tables']['user_study_sessions']['Row'];
-export type Question = Database['public']['Tables']['questions']['Row'];
-export type Answer = Database['public']['Tables']['answers']['Row'];
+export type Profile = Tables<'profiles'>;
+export type UserStudySession = Tables<'user_study_sessions'>;
+export type Question = Tables<'questions'>;
+export type Answer = Tables<'answers'>;
 
-export type SelectiveProcess = Database['public']['Tables']['selective_processes']['Row'];
-export type ProcessStage = Database['public']['Tables']['process_stages']['Row'];
-export type UserProcessStatus = Database['public']['Tables']['user_process_status']['Row'];
+export type SelectiveProcess = Tables<'selective_processes'>;
+export type ProcessStage = Tables<'process_stages'>;
+export type UserProcessStatus = Tables<'user_process_status'>;
 
 //**
 // Tipo combinado para devolver toda la información del proceso del usuario

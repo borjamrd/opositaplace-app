@@ -19,7 +19,8 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@/lib/*": ["./src/lib/*"],
     },
     "types": ["vitest/globals", "@testing-library/jest-dom"]
   },

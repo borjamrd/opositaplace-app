@@ -18,7 +18,9 @@ export async function updateUserActiveOpposition(oppositionId: string) {
   // Desactivar todas las oposiciones del usuario en una transacción
   const { error: deactivateError } = await supabase
     .from('user_oppositions')
-    .update({ active: false })
+    .update({
+      active: false
+    })
     .eq('profile_id', user.id);
 
   if (deactivateError) {

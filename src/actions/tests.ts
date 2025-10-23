@@ -17,7 +17,6 @@ interface CreateTestParams {
 }
 
 export async function createTestAttempt(params: CreateTestParams) {
-
   const supabase = await createSupabaseServerClient();
 
   const {
@@ -159,9 +158,7 @@ export async function createTestAttempt(params: CreateTestParams) {
   redirect(`/dashboard/tests/${testAttempt.id}`);
 }
 
-
 export async function submitTestAttempt(testAttemptId: string, answers: Record<string, string>) {
-
   const supabase = await createSupabaseServerClient();
 
   const {
