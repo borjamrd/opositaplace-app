@@ -1,18 +1,16 @@
 'use server';
 
-import { cookies } from 'next/headers';
 import { createSupabaseServerClient } from './server';
 
-import type { Provider } from '@supabase/auth-js';
 import { redirect } from 'next/navigation';
 
-const signInWith = async (provider: Provider) => {
+const signInWith = async () => {
 
   const supabase = await createSupabaseServerClient();
   const auth_callback_url = `${process.env.NEXT_PUBLIC_BASE_URL}/auth/callback`;
 
   const { data, error } = await supabase.auth.signInWithOAuth({
-    provider,
+    provider: 'google',
     options: {
       redirectTo: auth_callback_url,
     },
@@ -24,6 +22,6 @@ const signInWith = async (provider: Provider) => {
   redirect(data.url);
 };
 
-const signInWithGoogle = () => signInWith('google');
+const signInWithGoogle = () => signInWith();
 
 export { signInWithGoogle };

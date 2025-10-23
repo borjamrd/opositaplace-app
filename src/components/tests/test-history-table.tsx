@@ -9,7 +9,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import type { Tables } from '@/lib/database.types';
+import type { Tables } from '@/lib/supabase/database.types';
 import { Eye } from 'lucide-react';
 import { cn } from '@/lib/utils';
 

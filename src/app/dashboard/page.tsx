@@ -1,5 +1,5 @@
 import { DashboardContent } from '@/components/dashboard/dashboard-content';
-import type { Tables } from '@/lib/database.types';
+import type { Tables } from '@/lib/supabase/database.types';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { shuffle } from '@/lib/utils';
 

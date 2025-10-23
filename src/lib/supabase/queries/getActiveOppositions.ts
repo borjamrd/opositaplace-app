@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/client'; // Usamos el cliente del lado del cliente para esto
-import type { Database } from '@/lib/database.types';
+import type { Database } from '@/lib/supabase/database.types';
 
 export type Opposition = Database['public']['Tables']['oppositions']['Row'];
 

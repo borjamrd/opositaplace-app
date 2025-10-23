@@ -18,7 +18,7 @@ import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import { submitTestAttempt } from '@/actions/tests';
-import type { Tables } from '@/lib/database.types';
+import type { Tables } from '@/lib/supabase/database.types';
 import type { QuestionWithAnswers } from '@/app/dashboard/tests/[id]/page';
 import { ArrowLeft, ArrowRight, CheckCircle, Loader2 } from 'lucide-react';
 import {

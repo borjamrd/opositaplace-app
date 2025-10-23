@@ -1,7 +1,7 @@
 // src/lib/supabase/queries/get-session-data.ts
 "use server";
 
-import type { Database } from '@/lib/database.types';
+import type { Database } from '@/lib/supabase/database.types';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 
 // Tipos para mayor claridad

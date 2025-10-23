@@ -5,7 +5,7 @@ import { useProfileStore } from '@/store/profile-store';
 import { useSubscriptionStore } from '@/store/subscription-store';
 import { useStudySessionStore } from '@/store/study-session-store';
 import { useEffect, useRef } from 'react';
-import type { Database } from '@/lib/database.types';
+import type { Database } from '@/lib/supabase/database.types';
 
 type Profile = Database['public']['Tables']['profiles']['Row'];
 type Subscription = Database['public']['Tables']['user_subscriptions']['Row'];

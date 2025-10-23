@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/client';
 import { useQuery } from '@tanstack/react-query';
-import type { Database } from '@/lib/database.types';
+import type { Database } from '@/lib/supabase/database.types';
 
 type Profile = Database['public']['Tables']['profiles']['Row'];
 type OnboardingInfo = Database['public']['Tables']['onboarding_info']['Row'];

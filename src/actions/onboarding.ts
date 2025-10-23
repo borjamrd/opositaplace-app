@@ -1,6 +1,6 @@
 'use server';
 
-import type { Json, TablesInsert } from '@/lib/database.types';
+import type { Json, TablesInsert } from '@/lib/supabase/database.types';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';

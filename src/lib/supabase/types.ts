@@ -1,6 +1,6 @@
 // src/lib/supabase/types.ts
 
-import { Database } from '@/lib/database.types';
+import { Database } from '@/lib/supabase/database.types';
 
 export type Profile = Database['public']['Tables']['profiles']['Row'];
 export type UserStudySession = Database['public']['Tables']['user_study_sessions']['Row'];

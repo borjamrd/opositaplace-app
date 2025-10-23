@@ -2,7 +2,7 @@
 'use server';
 
 import { Day, SelectedSlots } from '@/components/weekly-planner/types'; // Importar tipos necesarios
-import type { Json, TablesUpdate } from '@/lib/database.types';
+import type { Json, TablesUpdate } from '@/lib/supabase/database.types';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { z } from 'zod';
 

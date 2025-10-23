@@ -5,7 +5,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Button } from '@/components/ui/button';
 import { RefreshCw, Eye } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import type { Tables } from '@/lib/database.types';
+import type { Tables } from '@/lib/supabase/database.types';
 
 type QuestionWithAnswers = Tables<'questions'> & {
   answers: Tables<'answers'>[];

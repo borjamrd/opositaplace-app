@@ -10,7 +10,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import type { Tables } from '@/lib/database.types';
+import type { Tables } from '@/lib/supabase/database.types';
 import { cn } from '@/lib/utils';
 import { Check, CheckCircle, HelpCircle, X, XCircle } from 'lucide-react';
 import Link from 'next/link';

@@ -1,7 +1,7 @@
 import { TestResults } from '@/components/tests/test-results';
 import { TestSession } from '@/components/tests/test-session';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import type { Tables } from '@/lib/database.types';
+import type { Tables } from '@/lib/supabase/database.types';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { Terminal } from 'lucide-react';
 import { notFound, redirect } from 'next/navigation';
