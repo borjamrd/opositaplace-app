@@ -7,7 +7,7 @@
     "genkit:dev": "genkit start -- tsx src/ai/dev.ts",
     "genkit:watch": "genkit start -- tsx --watch src/ai/dev.ts",
     "build": "next build",
-    "supabase:generate": "npx supabase gen types typescript --project-id \"kojhfjnlhuytaiwunnxy\" --schema public > ./src/lib/database.types.ts",
+    "supabase:generate": "npx supabase gen types typescript --project-id \"kojhfjnlhuytaiwunnxy\" --schema public > ./src/lib/supabase/database.types.ts",
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
