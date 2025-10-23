@@ -8,8 +8,8 @@ export async function POST(req: Request) {
   try {
     const { priceId, successUrl, cancelUrl } = await req.json();
 
-    const cookieStore = cookies();
-    const supabase = createSupabaseServerClient(cookieStore);
+  
+    const supabase = await createSupabaseServerClient();
     const {
       data: { user },
     } = await supabase.auth.getUser();

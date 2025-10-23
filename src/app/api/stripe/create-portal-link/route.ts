@@ -7,8 +7,8 @@ import { getOrCreateStripeCustomerId } from '@/lib/stripe/actions'; // Reutiliza
 
 export async function POST(req: Request) {
   try {
-    const cookieStore = cookies();
-    const supabase = createSupabaseServerClient(cookieStore);
+  
+    const supabase = await createSupabaseServerClient();
 
     const {
       data: { user },

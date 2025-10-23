@@ -1,7 +1,6 @@
 import { DashboardContent } from '@/components/dashboard/dashboard-content';
-import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { cookies } from 'next/headers';
 import type { Tables } from '@/lib/database.types';
+import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { shuffle } from '@/lib/utils';
 
 export type QuestionWithAnswers = Tables<'questions'> & {
@@ -9,8 +8,8 @@ export type QuestionWithAnswers = Tables<'questions'> & {
 };
 
 export default async function DashboardPage() {
-  const cookieStore = cookies();
-  const supabase = createSupabaseServerClient(cookieStore);
+
+  const supabase = await createSupabaseServerClient();
 
   const { data: failedQuestionsRpc } = await supabase.rpc('get_user_failed_questions');
   let failedQuestions: QuestionWithAnswers[] = [];

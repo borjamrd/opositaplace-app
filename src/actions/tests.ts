@@ -3,7 +3,6 @@
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { shuffle } from '@/lib/utils';
 import { revalidatePath } from 'next/cache';
-import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
 type TestMode = 'random' | 'errors' | 'topics';
@@ -18,8 +17,8 @@ interface CreateTestParams {
 }
 
 export async function createTestAttempt(params: CreateTestParams) {
-  const cookieStore = cookies();
-  const supabase = createSupabaseServerClient(cookieStore);
+
+  const supabase = await createSupabaseServerClient();
 
   const {
     data: { user },
@@ -162,8 +161,8 @@ export async function createTestAttempt(params: CreateTestParams) {
 
 
 export async function submitTestAttempt(testAttemptId: string, answers: Record<string, string>) {
-  const cookieStore = cookies();
-  const supabase = createSupabaseServerClient(cookieStore);
+
+  const supabase = await createSupabaseServerClient();
 
   const {
     data: { user },

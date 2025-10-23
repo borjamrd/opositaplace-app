@@ -7,9 +7,7 @@ import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { stripe } from '@/lib/stripe';
 
 export async function deleteUserAccount() {
-  const cookieStore = cookies();
-  // Usaremos un cliente con privilegios de servicio para operaciones críticas
-  const supabase = createSupabaseServerClient(cookieStore);
+  const supabase = createSupabaseServerClient();
 
   const {
     data: { user },

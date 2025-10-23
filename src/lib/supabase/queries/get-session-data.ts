@@ -1,8 +1,8 @@
 // src/lib/supabase/queries/get-session-data.ts
-import 'server-only'; // Asegura que este código solo se ejecute en el servidor
-import { cookies } from 'next/headers';
-import { createSupabaseServerClient } from '@/lib/supabase/server';
+"use server";
+
 import type { Database } from '@/lib/database.types';
+import { createSupabaseServerClient } from '@/lib/supabase/server';
 
 // Tipos para mayor claridad
 type Profile = Database['public']['Tables']['profiles']['Row'];
@@ -29,8 +29,8 @@ export interface UserSessionData {
  * Obtiene todos los datos de sesión esenciales para un usuario autenticado.
  */
 export async function getSessionData(): Promise<UserSessionData> {
-  const cookieStore = cookies();
-  const supabase = createSupabaseServerClient(cookieStore);
+
+  const supabase = await createSupabaseServerClient();
 
   const {
     data: { user },

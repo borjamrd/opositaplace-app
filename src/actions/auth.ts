@@ -1,8 +1,7 @@
 'use server';
 
-import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { createSupabaseServerActionClient } from '@/lib/supabase/server';
+import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { z } from 'zod';
 
 const emailSchema = z.string().email({ message: 'Email inválido.' });
@@ -27,8 +26,8 @@ const signInSchema = z.object({
 });
 
 export async function signUp(prevState: any, formData: FormData) {
-  const cookieStore = cookies();
-  const supabase = createSupabaseServerActionClient(cookieStore);
+
+  const supabase = createSupabaseServerClient();
 
   const result = signUpSchema.safeParse(Object.fromEntries(formData));
 
@@ -66,8 +65,8 @@ export async function signUp(prevState: any, formData: FormData) {
 }
 
 export async function signIn(prevState: any, formData: FormData) {
-  const cookieStore = cookies();
-  const supabase = createSupabaseServerActionClient(cookieStore);
+
+  const supabase = createSupabaseServerClient();
 
   const result = signInSchema.safeParse(Object.fromEntries(formData));
 
@@ -104,8 +103,8 @@ const resetPasswordSchema = z.object({
 });
 
 export async function resetPassword(prevState: any, formData: FormData) {
-  const cookieStore = cookies();
-  const supabase = createSupabaseServerActionClient(cookieStore);
+
+  const supabase = createSupabaseServerClient();
 
   const result = resetPasswordSchema.safeParse(Object.fromEntries(formData));
 
@@ -149,8 +148,8 @@ const updatePasswordSchema = z
   });
 
 export async function updatePassword(prevState: any, formData: FormData) {
-  const cookieStore = cookies();
-  const supabase = createSupabaseServerActionClient(cookieStore);
+
+  const supabase = createSupabaseServerClient();
 
   const result = updatePasswordSchema.safeParse(Object.fromEntries(formData));
 
@@ -184,6 +183,6 @@ export async function updatePassword(prevState: any, formData: FormData) {
 
 export async function signOut() {
   const cookieStore = cookies();
-  const supabase = createSupabaseServerActionClient(cookieStore);
+  const supabase = createSupabaseServerClient();
   await supabase.auth.signOut();
 }

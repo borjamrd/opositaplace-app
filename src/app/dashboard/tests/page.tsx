@@ -2,13 +2,12 @@
 import { NewTestModal } from '@/components/tests/new-test-modal';
 import { TestHistoryTable } from '@/components/tests/test-history-table';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { cookies } from 'next/headers';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
 export default async function CreateTestPage() {
-  const cookieStore = cookies();
-  const supabase = createSupabaseServerClient(cookieStore);
+
+  const supabase = await createSupabaseServerClient();
 
   const {
     data: { user },

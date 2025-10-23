@@ -1,13 +1,12 @@
 // src/actions/session.ts
 'use server';
 
-import { revalidatePath } from 'next/cache';
-import { cookies } from 'next/headers';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
+import { revalidatePath } from 'next/cache';
 
 export async function updateUserActiveOpposition(oppositionId: string) {
-  const cookieStore = cookies();
-  const supabase = createSupabaseServerClient(cookieStore);
+
+  const supabase = await createSupabaseServerClient();
 
   const {
     data: { user },
@@ -30,7 +29,9 @@ export async function updateUserActiveOpposition(oppositionId: string) {
   // Activar la nueva oposición seleccionada
   const { error: activateError } = await supabase
     .from('user_oppositions')
-    .update({ active: true })
+    .update({
+      active: true
+    })
     .eq('profile_id', user.id)
     .eq('opposition_id', oppositionId);
 

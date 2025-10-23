@@ -13,8 +13,8 @@ export async function getOrCreateStripeCustomerId(
   user: User,
   params?: Stripe.CustomerCreateParams
 ): Promise<string> {
-  const cookieStore = cookies();
-  const supabase = createSupabaseServerClient(cookieStore);
+
+  const supabase = await createSupabaseServerClient();
 
   const { data: profile, error: profileError } = await supabase
     .from('profiles')
@@ -169,8 +169,8 @@ export async function manageSubscriptionStatusChange(subscriptionId: string, cus
 }
 
 export async function getUserSubscription(): Promise<Subscription | null> {
-  const cookieStore = cookies();
-  const supabase = createSupabaseServerClient(cookieStore);
+
+  const supabase = await createSupabaseServerClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();

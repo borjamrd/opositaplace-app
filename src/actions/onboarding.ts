@@ -1,8 +1,7 @@
 'use server';
 
 import type { Json, TablesInsert } from '@/lib/database.types';
-import { createSupabaseServerActionClient } from '@/lib/supabase/server';
-import { cookies } from 'next/headers';
+import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
 import { createTrialSubscription } from '@/lib/stripe/actions';
@@ -30,8 +29,8 @@ export async function submitOnboarding(
   prevState: InitialState,
   formData: FormData
 ): Promise<InitialState> {
-  const cookieStore = cookies();
-  const supabase = createSupabaseServerActionClient(cookieStore);
+
+  const supabase = createSupabaseServerClient();
 
   const {
     data: { user },

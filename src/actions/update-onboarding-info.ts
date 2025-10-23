@@ -1,11 +1,10 @@
 // src/actions/update-onboarding-info.ts
 'use server';
 
+import { Day, SelectedSlots } from '@/components/weekly-planner/types'; // Importar tipos necesarios
 import type { Json, TablesUpdate } from '@/lib/database.types';
-import { createSupabaseServerActionClient } from '@/lib/supabase/server';
-import { cookies } from 'next/headers';
+import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { z } from 'zod';
-import { SelectedSlots, Day } from '@/components/weekly-planner/types'; // Importar tipos necesarios
 
 // Define un esquema Zod para la carga útil de la actualización
 const updateOnboardingSchema = z.object({
@@ -40,8 +39,7 @@ export async function updateOnboardingInfo(
   prevState: UpdateOnboardingState, // El estado anterior de useActionState (no usado aquí, pero requerido por la firma)
   payload: { userId: string; studyDays: SelectedSlots; slotDurationMinutes: number }
 ): Promise<UpdateOnboardingState> {
-  const cookieStore = cookies();
-  const supabase = createSupabaseServerActionClient(cookieStore);
+  const supabase = await createSupabaseServerClient();
 
   const {
     data: { user },
@@ -75,7 +73,7 @@ export async function updateOnboardingInfo(
   };
 
   // Realizar la actualización en la base de datos
-  const { data, error } = await supabase
+  const { error } = await supabase
     .from('onboarding_info')
     .update(updateData) // Usamos 'update' para un registro existente
     .eq('user_id', userId) // Asegurarse de que solo se actualice el registro del usuario actual
