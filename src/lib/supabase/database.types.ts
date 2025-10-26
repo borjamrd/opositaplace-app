@@ -270,34 +270,34 @@ export type Database = {
       }
       onboarding_info: {
         Row: {
+          baseline_assessment: Json | null
           created_at: string | null
-          help_with: Json | null
           id: string
-          objectives: Json | null
           opposition_id: string | null
           slot_duration_minutes: number
           study_days: Json | null
           user_id: string
+          weekly_study_goal_hours: number | null
         }
         Insert: {
+          baseline_assessment?: Json | null
           created_at?: string | null
-          help_with?: Json | null
           id?: string
-          objectives?: Json | null
           opposition_id?: string | null
           slot_duration_minutes?: number
           study_days?: Json | null
           user_id: string
+          weekly_study_goal_hours?: number | null
         }
         Update: {
+          baseline_assessment?: Json | null
           created_at?: string | null
-          help_with?: Json | null
           id?: string
-          objectives?: Json | null
           opposition_id?: string | null
           slot_duration_minutes?: number
           study_days?: Json | null
           user_id?: string
+          weekly_study_goal_hours?: number | null
         }
         Relationships: [
           {
