@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/client'; // Usamos el cliente del lado del cliente para esto
+import { createClient } from '@/lib/supabase/client';
 import { Opposition } from '../types';
 
 

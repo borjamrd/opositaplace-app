@@ -5,13 +5,11 @@ import { createClient } from '@/lib/supabase/client';
 import type { User } from '@supabase/supabase-js';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import Logo from '../logo';
+import { Logo } from '../logo';
 import { ThemeToggleButton } from '../ThemeToggleButton';
 import { NavUserSection } from './nav-user-section';
-import { usePathname } from 'next/navigation';
 
 export function Header() {
-  const pathname = usePathname();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const supabase = createClient();
@@ -41,11 +39,6 @@ export function Header() {
       authListener?.subscription.unsubscribe();
     };
   }, [supabase]);
-
-  const showNavbar = !pathname.startsWith('/onboarding/');
-  if (!showNavbar) {
-    return null;
-  }
 
   const renderAuthLinks = () => (
     <nav className="flex items-center gap-4">

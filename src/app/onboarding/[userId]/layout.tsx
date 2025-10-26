@@ -1,8 +1,8 @@
 // src/app/onboarding/layout.tsx
 
 import { StateHydrator } from '@/components/state-hydrator';
-import { createSupabaseServerClient } from '@/lib/supabase/server';
 import type { ProfileWithOnboarding } from '@/lib/supabase/queries/get-session-data';
+import { createSupabaseServerClient } from '@/lib/supabase/server';
 import React from 'react';
 
 async function getProfileData() {

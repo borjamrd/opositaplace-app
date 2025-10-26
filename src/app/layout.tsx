@@ -1,4 +1,3 @@
-import { Header } from '@/components/layout/header';
 import Providers from '@/components/providers/providers';
 import { Toaster } from '@/components/ui/toaster';
 import { GeistMono } from 'geist/font/mono';
@@ -16,18 +15,13 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  
   return (
     <html lang="es" suppressHydrationWarning>
       <body
         className={`${GeistSans.variable} ${GeistMono.variable} antialiased min-h-screen bg-background font-sans text-foreground`}
       >
-       
         <Providers>
-          <main className="flex-1">
-            <Header />
-            {children}
-          </main>
+          <main className="flex-1">{children}</main>
           <Toaster />
         </Providers>
       </body>

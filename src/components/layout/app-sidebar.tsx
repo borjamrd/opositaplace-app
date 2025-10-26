@@ -18,7 +18,7 @@ import {
   Map,
 } from 'lucide-react';
 import React from 'react';
-import Logo from '../logo';
+import { Logo } from '../logo';
 import OpositionSelector from '../oposition-selector';
 import { NavMain } from './nav-main';
 
