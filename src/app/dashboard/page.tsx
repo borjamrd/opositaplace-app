@@ -4,7 +4,6 @@ import { QuestionWithAnswers } from '@/lib/supabase/types';
 import { shuffle } from '@/lib/utils';
 
 export default async function DashboardPage() {
-
   const supabase = await createSupabaseServerClient();
 
   const { data: failedQuestionsRpc } = await supabase.rpc('get_user_failed_questions');
@@ -22,5 +21,7 @@ export default async function DashboardPage() {
     }
   }
 
-  return <DashboardContent failedQuestions={failedQuestions} />;
+  return (
+      <DashboardContent failedQuestions={failedQuestions} />
+  );
 }

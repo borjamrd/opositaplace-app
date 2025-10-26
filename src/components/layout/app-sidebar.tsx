@@ -19,6 +19,8 @@ import {
 } from 'lucide-react';
 import React from 'react';
 import { Logo } from '../logo';
+import Link from 'next/link';
+
 import OpositionSelector from '../oposition-selector';
 import { NavMain } from './nav-main';
 
@@ -75,7 +77,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <Logo className="h-8 w-8 flex" />
+            <Link href="/">
+              <Logo className="h-8 w-8 flex" />
+            </Link>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>

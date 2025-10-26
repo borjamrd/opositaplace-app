@@ -1,77 +1,105 @@
+// src/components/layout/header.tsx
 'use client';
 
-import { Button } from '@/components/ui/button';
-import { createClient } from '@/lib/supabase/client';
-import type { User } from '@supabase/supabase-js';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
-import { Logo } from '../logo';
+import React from 'react';
+
 import { ThemeToggleButton } from '../ThemeToggleButton';
 import { NavUserSection } from './nav-user-section';
 
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '@/components/ui/breadcrumb';
+import { ChevronRight } from 'lucide-react';
+import { usePathname } from 'next/navigation';
+import TimerManager from '../TimerManager';
+
 export function Header() {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-  const supabase = createClient();
+  const pathname = usePathname();
+  const paths = pathname.split('/').filter(Boolean);
 
-  useEffect(() => {
-    let isMounted = true;
+  const getBreadcrumbs = () => {
+    const breadcrumbs = paths.map((path, index) => {
+      const url = `/${paths.slice(0, index + 1).join('/')}`;
+      const isLast = index === paths.length - 1;
 
-    async function fetchUser() {
-      const { data } = await supabase.auth.getUser();
-      if (isMounted) {
-        setUser(data.user);
-        setLoading(false);
-      }
-    }
+      const formattedPath = path
+        .split('-')
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
 
-    fetchUser();
-
-    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (isMounted) {
-        setUser(session?.user ?? null);
-        if (_event !== 'INITIAL_SESSION') setLoading(false);
-      }
+      return {
+        path: formattedPath,
+        url,
+        isLast,
+      };
     });
 
-    return () => {
-      isMounted = false;
-      authListener?.subscription.unsubscribe();
-    };
-  }, [supabase]);
+    return breadcrumbs.length > 0 ? breadcrumbs.slice(1) : [];
+  };
 
-  const renderAuthLinks = () => (
-    <nav className="flex items-center gap-4">
-      <div className="flex items-center space-x-2">
-        <Button variant="ghost" asChild>
-          <Link href="/plans">Planes</Link>
-        </Button>
-        <Button variant="ghost" asChild>
-          <Link href="/login">Inicia sesión</Link>
-        </Button>
-        <Button asChild>
-          <Link href="/register">Regístrate</Link>
-        </Button>
-      </div>
-    </nav>
-  );
+  const breadcrumbs = getBreadcrumbs();
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="px-4 md:px-10 flex h-14 items-center justify-between py-1">
-        <Link href="/" className="flex items-center space-x-2">
-          <Logo />
-        </Link>
-        <div className="flex w-full justify-end items-center space-x-4">
-          {loading ? (
-            <div className="h-8 w-20 animate-pulse rounded-md bg-muted" />
-          ) : user ? (
-            <NavUserSection />
-          ) : (
-            renderAuthLinks()
-          )}
-          <ThemeToggleButton />
+    <header className="sticky top-0 z-50 flex h-16 items-center justify-between w-full border-b border-border/40 bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/60 md:px-6">
+      <div className="flex items-center gap-4">
+        <div className="hidden md:flex">
+          {' '}
+          {/* Ocultamos breadcrumbs en móvil para simplicidad */}
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild>
+                  <Link className="text-base font-medium" href="/dashboard">
+                    Dashboard
+                  </Link>
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              {breadcrumbs.length > 0 && (
+                <BreadcrumbSeparator>
+                  <ChevronRight className="mx-1 h-4 w-4 text-muted-foreground" />
+                </BreadcrumbSeparator>
+              )}
+              {breadcrumbs.map((breadcrumb, idx) => (
+                <React.Fragment key={breadcrumb.url}>
+                  <BreadcrumbItem>
+                    {breadcrumb.isLast ? (
+                      <BreadcrumbPage className="text-base font-medium">
+                        {breadcrumb.path}
+                      </BreadcrumbPage>
+                    ) : (
+                      <BreadcrumbLink asChild>
+                        <Link className="text-base font-medium" href={breadcrumb.url}>
+                          {breadcrumb.path}
+                        </Link>
+                      </BreadcrumbLink>
+                    )}
+                  </BreadcrumbItem>
+                  {idx < breadcrumbs.length - 1 && (
+                    <BreadcrumbSeparator>
+                      <ChevronRight className="mx-1 h-4 w-4 text-muted-foreground" />
+                    </BreadcrumbSeparator>
+                  )}
+                </React.Fragment>
+              ))}
+            </BreadcrumbList>
+          </Breadcrumb>
         </div>
+      </div>
+
+      {/* --- GRUPO DERECHO: Controles y Usuario --- */}
+      <div className="flex items-center space-x-2 md:space-x-4">
+        <TimerManager />
+
+        {/* NavUserSection lee de useProfileStore y gestiona su propio estado (loading/user) */}
+        <NavUserSection />
+
+        <ThemeToggleButton />
       </div>
     </header>
   );

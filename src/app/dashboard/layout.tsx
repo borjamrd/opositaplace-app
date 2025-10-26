@@ -3,6 +3,8 @@ import { Header } from '@/components/layout/header';
 import { AppSidebar } from '@/components/layout/app-sidebar';
 import { StateHydrator } from '@/components/state-hydrator';
 import { getSessionData } from '@/lib/supabase/queries/get-session-data';
+import { FloatingAssistantButton } from '@/components/assistant/floating-assistant-button';
+import { StudyDayNotifications } from '@/components/StudyDayNotifications';
 
 export default async function DashboardLayout({
   children,
@@ -14,14 +16,15 @@ export default async function DashboardLayout({
   return (
     <>
       <StateHydrator {...sessionData} />
-
-      <div className="flex">
+      <div className="flex min-h-screen">
         <AppSidebar />
-        <main className="flex-1">
+        <div className="flex-1 flex flex-col">
           <Header />
-          {children}
-        </main>
+          <main className="flex-1 p-10">{children}</main>
+        </div>
       </div>
+      <StudyDayNotifications />
+      <FloatingAssistantButton />
     </>
   );
 }

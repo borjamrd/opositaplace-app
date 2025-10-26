@@ -29,7 +29,7 @@ export function NavUserSection() {
   if (!profile) return null;
 
   return (
-    <div className="flex flex-col items-center gap-2 p-2 border-t border-border/40">
+    <div className="flex flex-col items-center gap-2 p-2">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
