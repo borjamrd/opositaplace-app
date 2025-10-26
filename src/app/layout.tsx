@@ -3,7 +3,7 @@ import { GeistSans } from 'geist/font/sans';
 import { GeistMono } from 'geist/font/mono';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
-import { Navbar } from '@/components/layout/navbar';
+import { Header } from '@/components/layout/navbar';
 import Providers from '@/components/providers/providers';
 import { StateHydrator } from '@/components/state-hydrator';
 import { getSessionData } from '@/lib/supabase/queries/get-session-data';
@@ -41,7 +41,7 @@ export default async function RootLayout({
         />
         <Providers>
           <main className="flex-1">
-            <Navbar />
+            <Header />
             {children}
           </main>
           <Toaster />

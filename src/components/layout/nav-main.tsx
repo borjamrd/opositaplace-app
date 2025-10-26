@@ -57,7 +57,6 @@ export function NavMain({
           ))}
         </SidebarMenu>
       </SidebarGroupContent>
-      {/* El usuario ahora se muestra en la parte inferior del sidebar */}
     </SidebarGroup>
   );
 }

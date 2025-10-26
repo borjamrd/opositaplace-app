@@ -3,14 +3,13 @@
 import { Button } from '@/components/ui/button';
 import { createClient } from '@/lib/supabase/client';
 import type { User } from '@supabase/supabase-js';
-import { Calendar } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import Logo from '../logo';
 import { ThemeToggleButton } from '../ThemeToggleButton';
 import { NavUserSection } from './nav-user-section';
 
-export function Navbar() {
+export function Header() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const supabase = createClient();

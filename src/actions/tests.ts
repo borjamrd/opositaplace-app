@@ -62,7 +62,6 @@ export async function createTestAttempt(params: CreateTestParams) {
         }
       );
 
-      console.log('Random questions data:', randomQuestionsData);
       if (randomError) {
         return { error: 'Could not retrieve questions for random mode.' };
       }
