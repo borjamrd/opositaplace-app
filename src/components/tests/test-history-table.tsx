@@ -37,7 +37,7 @@ export function TestHistoryTable({ attempts }: TestHistoryTableProps) {
         <TableBody>
           {attempts.length === 0 && (
             <TableRow>
-              <TableCell colSpan={6} className="text-center h-24">
+              <TableCell colSpan={7} className="text-center h-24">
                 No has completado ningún test todavía.
               </TableCell>
             </TableRow>
