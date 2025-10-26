@@ -5,8 +5,7 @@ import { useParams } from 'next/navigation';
 import { useActionState, useCallback, useEffect, useState, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-
-import { submitOnboarding } from '@/actions/onboarding'; // Corregido
+import { submitOnboarding } from '@/actions/onboarding';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -48,7 +47,6 @@ import {
   Target,
 } from 'lucide-react';
 
-// Importaciones del planificador semanal
 import {
   DAYS_OF_WEEK_ORDERED,
   SLOT_DURATION_OPTIONS,
@@ -84,24 +82,23 @@ const onboardingFormSchema = z.object({
     .string({ required_error: 'Debes seleccionar una oposición.' })
     .uuid({ message: 'ID de oposición inválido.' })
     .min(1, 'Debes seleccionar una oposición.'),
-  baseline_assessment: z // Corregido: Usar 'baseline_assessment'
+  baseline_assessment: z 
     .string()
     .min(10, 'Describe tu punto de partida (mín. 10 caracteres)')
     .max(500, 'Máximo 500 caracteres'),
   help_with: z.array(z.string()).optional().default([]),
-  weekly_study_goal_hours: z.coerce // Nuevo campo para el Paso 3
+  weekly_study_goal_hours: z.coerce 
     .number({ required_error: 'Define un objetivo de horas.' })
     .int()
     .min(1, 'El objetivo debe ser de al menos 1 hora.')
     .max(100, 'El objetivo no puede superar las 100 horas.'),
   study_days: z
     .record(
-      z.nativeEnum(Day), // Las claves son los días del enum Day
-      z.record(z.string(), z.boolean()) // Los valores son un objeto de timeSlot: boolean
+      z.nativeEnum(Day),
+      z.record(z.string(), z.boolean()) 
     )
     .refine(
       (data) => {
-        // Verifica que al menos un slot esté seleccionado
         return Object.values(data).some((daySlots) =>
           Object.values(daySlots).some((isSelected) => isSelected)
         );
@@ -131,7 +128,6 @@ const initialActionState: { message: string; errors: any; success: boolean } = {
   success: false,
 };
 
-// --- Definición de Pasos ---
 const steps = [
   {
     id: 'step-1-opposition',
@@ -145,7 +141,7 @@ const steps = [
     name: 'Autoevaluación',
     description: 'Conócete a ti mismo',
     icon: Target,
-    fields: ['baseline_assessment', 'help_with'] as const, // Corregido
+    fields: ['baseline_assessment', 'help_with'] as const, 
   },
   {
     id: 'step-3-goal',
@@ -384,10 +380,10 @@ export default function OnboardingForm() {
   const progressPercentage = weeklyGoalHours > 0 ? (totalSelectedHours / weeklyGoalHours) * 100 : 0;
 
   return (
-    <div className="flex min-h-[calc(100vh-4rem)] bg-gradient-to-br from-background to-secondary/30">
-      <div className="flex w-full max-w-6xl mx-auto p-4 md:p-8">
+    <div className="flex min-h-[calc(100vh-10rem)]">
+      <div className="flex w-full max-w-6xl mt-10 mx-auto p-4 md:p-8 bg-background/80 backdrop-blur-sm rounded-lg shadow-xl border">
         {/* --- Sidebar de Pasos (Estilo visual del ejemplo) --- */}
-        <nav className="hidden md:flex md:w-1/3 lg:w-1/4 p-6 border-r">
+        <nav className="hidden md:flex md:w-1/3 lg:w-1/4 p-6 bg-gradient-to-b from-secondary/20 to-background rounded-l-lg">
           <ol className="relative space-y-8">
             {steps.map((step, index) => {
               const isActive = index === currentStep;
@@ -435,7 +431,7 @@ export default function OnboardingForm() {
         <main className="w-full md:w-2/3 lg:w-3/4 md:pl-10 lg:pl-16">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(handleFinalSubmit)} className="h-full">
-              <Card className="flex flex-col h-full shadow-xl">
+              <Card className="flex flex-col h-full bg-transparent border-0 shadow-none">
                 <CardHeader>
                   <CardTitle className="text-2xl font-bold text-primary">
                     Paso {currentStep + 1}: {steps[currentStep].name}
@@ -628,7 +624,6 @@ export default function OnboardingForm() {
                             </FormDescription>
                           </div>
 
-                          {/* --- Barra de Progreso --- */}
                           <div className="space-y-3">
                             <div className="flex justify-between text-sm font-medium">
                               <span className="text-primary">Horas Planificadas</span>
@@ -708,8 +703,7 @@ export default function OnboardingForm() {
                   )}
                 </CardContent>
 
-                <CardFooter className="border-t pt-6 flex justify-between">
-                  {/* --- Botón Anterior --- */}
+                <CardFooter className="pt-6 flex justify-between">
                   <Button
                     type="button"
                     variant="outline"
@@ -720,7 +714,6 @@ export default function OnboardingForm() {
                     Anterior
                   </Button>
 
-                  {/* --- Botón Siguiente / Finalizar --- */}
                   {currentStep < steps.length - 1 ? (
                     <Button type="button" onClick={handleNextStep}>
                       Siguiente
@@ -734,7 +727,7 @@ export default function OnboardingForm() {
                         </>
                       ) : (
                         <>
-                          <Save className="mr-2 h-5 w-5" /> Finalizar Onboarding
+                          <Save className="mr-2 h-5 w-5" /> Finalizar onboarding
                         </>
                       )}
                     </Button>
