@@ -19,7 +19,6 @@ import { useEffect, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { AlertCircle, LogIn, Eye, EyeOff } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { signInWithGoogle } from '@/lib/supabase/actions';
 import ProvidersForm from './providers-form';
 
 export function LoginForm() {
