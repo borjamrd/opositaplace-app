@@ -3,7 +3,7 @@ import { GeistSans } from 'geist/font/sans';
 import { GeistMono } from 'geist/font/mono';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
-import { Header } from '@/components/layout/navbar';
+import { Header } from '@/components/layout/header';
 import Providers from '@/components/providers/providers';
 import { StateHydrator } from '@/components/state-hydrator';
 import { getSessionData } from '@/lib/supabase/queries/get-session-data';
