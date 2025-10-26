@@ -32,7 +32,6 @@ async function LandingHeader() {
     </header>
   );
 }
-// --- Fin del Header Público ---
 
 export default async function PublicLayout({
   children,

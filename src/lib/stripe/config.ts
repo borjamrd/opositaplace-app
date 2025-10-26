@@ -1,8 +1,5 @@
 // src/lib/stripe/config.ts
 
-// Asegúrate de que estas variables de entorno estén definidas
-// en tu .env.local y en tu proveedor de hosting.
-
 export enum StripePlan {
   FREE = 'free',
   BASIC = 'basic',
@@ -13,7 +10,7 @@ export interface Plan {
   type: StripePlan;
   description: string;
   price: string;
-  priceId: string; // El ID del Precio de Stripe
+  priceId: string;
   features: string[];
 }
 

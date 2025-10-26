@@ -50,7 +50,6 @@ export function Header() {
       <div className="flex items-center gap-4">
         <div className="hidden md:flex">
           {' '}
-          {/* Ocultamos breadcrumbs en móvil para simplicidad */}
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem>
@@ -92,13 +91,9 @@ export function Header() {
         </div>
       </div>
 
-      {/* --- GRUPO DERECHO: Controles y Usuario --- */}
       <div className="flex items-center space-x-2 md:space-x-4">
         <TimerManager />
-
-        {/* NavUserSection lee de useProfileStore y gestiona su propio estado (loading/user) */}
         <NavUserSection />
-
         <ThemeToggleButton />
       </div>
     </header>
