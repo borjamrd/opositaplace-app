@@ -50,7 +50,7 @@ export async function getConversationalAnswer(
 ): Promise<ConversationalResult> {
   const sessionPath =
     existingSessionPath ||
-    conversationalSearchClient.projectLocationCollectionEngineSessionPath(
+    conversationalSearchClient.projectLocationCollectionEngineSessionsPath(
       projectId,
       location,
       collectionId,

@@ -1,11 +1,7 @@
 import { DashboardContent } from '@/components/dashboard/dashboard-content';
-import type { Tables } from '@/lib/supabase/database.types';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
+import { QuestionWithAnswers } from '@/lib/supabase/types';
 import { shuffle } from '@/lib/utils';
-
-export type QuestionWithAnswers = Tables<'questions'> & {
-  answers: Tables<'answers'>[];
-};
 
 export default async function DashboardPage() {
 
