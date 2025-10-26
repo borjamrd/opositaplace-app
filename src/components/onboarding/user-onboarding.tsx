@@ -317,8 +317,8 @@ export default function UserOnboarding() {
           <p className="text-sm font-medium text-muted-foreground">Objetivos</p>
           <div className="text-sm text-muted-foreground">
             {profile.onboarding.objectives &&
-              (profile.onboarding.objectives as any)?.main_objective && (
-                <p>{(profile.onboarding.objectives as any).main_objective}</p>
+              (profile.onboarding.objectives as any)?.main_challenge && (
+                <p>{(profile.onboarding.objectives as any).main_challenge}</p>
               )}
           </div>
         </div>

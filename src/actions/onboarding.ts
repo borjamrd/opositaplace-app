@@ -6,6 +6,7 @@ import { redirect } from 'next/navigation';
 import { z } from 'zod';
 import { createTrialSubscription } from '@/lib/stripe/actions';
 
+// Esquema de acción actualizado para coincidir con el nuevo formulario
 const onboardingActionSchema = z.object({
   user_id: z.string().uuid({ message: 'ID de usuario inválido.' }),
   opposition_id: z
@@ -13,9 +14,18 @@ const onboardingActionSchema = z.object({
     .uuid({ message: 'ID de oposición inválido.' })
     .min(1, 'Se requiere ID de oposición.'),
 
-  objectives: z.string().min(1, 'Los objetivos no pueden estar vacíos como JSON string.'),
+  // Cambiado de 'objectives' a 'baseline_assessment'
+  baseline_assessment: z
+    .string()
+    .min(1, 'La autoevaluación no puede estar vacía como JSON string.'),
+
+  // Nuevo campo
+  weekly_study_goal_hours: z.string().min(1, 'El objetivo de horas es requerido.'),
+
   study_days: z.string().min(1, 'Los días de estudio no pueden estar vacíos como JSON string.'),
+
   help_with: z.string().optional().default('[]'),
+
   slot_duration_minutes: z.string().default('60'),
 });
 
@@ -29,7 +39,6 @@ export async function submitOnboarding(
   prevState: InitialState,
   formData: FormData
 ): Promise<InitialState> {
-
   const supabase = await createSupabaseServerClient();
 
   const {
@@ -59,7 +68,9 @@ export async function submitOnboarding(
   const rawFormData = {
     user_id: user.id,
     opposition_id: formData.get('opposition_id'),
-    objectives: formData.get('objectives'),
+    // Mapeo de campos nuevos/actualizados
+    baseline_assessment: formData.get('baseline_assessment'), // Correcto
+    weekly_study_goal_hours: formData.get('weekly_study_goal_hours'),
     study_days: formData.get('study_days'),
     help_with: formData.get('help_with') || '[]',
     slot_duration_minutes: formData.get('slot_duration_minutes') || '60',
@@ -79,7 +90,8 @@ export async function submitOnboarding(
   const {
     user_id,
     opposition_id,
-    objectives: objectivesString,
+    baseline_assessment: baselineAssessmentString, // Actualizado
+    weekly_study_goal_hours, // Nuevo
     study_days: studyDaysString,
     help_with: helpWithString,
     slot_duration_minutes,
@@ -95,26 +107,36 @@ export async function submitOnboarding(
   if (userOppositionsError) {
     console.error('Error inserting user_oppositions:', userOppositionsError);
     if (userOppositionsError.code === '23505') {
+      // Si ya existe, podríamos querer actualizar 'active' a true en lugar de fallar
+      const { error: updateError } = await supabase
+        .from('user_oppositions')
+        .update({ active: true, enrolled_at: new Date().toISOString() })
+        .eq('profile_id', user_id)
+        .eq('opposition_id', opposition_id);
+
+      if (updateError) {
+         return {
+          message: 'Ya estás asociado a esta oposición, pero no pudimos reactivarla.',
+          errors: { opposition_id: ['Error al reactivar oposición existente.'] },
+          success: false,
+        };
+      }
+      // Continuar si la actualización fue exitosa
+    } else {
       return {
-        message: 'Ya estás suscrito a esta oposición. Si es un error, contacta a soporte.',
-        errors: { opposition_id: ['Ya estás asociado a esta oposición.'] },
+        message: `Error al asociar la oposición`,
+        errors: null,
         success: false,
       };
     }
-
-    return {
-      message: `Error al asociar la oposición`,
-      errors: null,
-      success: false,
-    };
   }
 
-  let parsedObjectives: Json;
+  let parsedBaselineAssessment: Json;
   let parsedStudyDays: Json;
   let parsedHelpWith: Json;
 
   try {
-    parsedObjectives = JSON.parse(objectivesString);
+    parsedBaselineAssessment = JSON.parse(baselineAssessmentString); // Actualizado
     parsedStudyDays = JSON.parse(studyDaysString);
     parsedHelpWith = JSON.parse(helpWithString);
 
@@ -136,26 +158,22 @@ export async function submitOnboarding(
 
   const onboardingData: TablesInsert<'onboarding_info'> = {
     user_id: user_id,
-    objectives: parsedObjectives,
+    // Mapeo a la BBDD (asumiendo que `baseline_assessment` se guarda en `objectives`)
+    objectives: parsedBaselineAssessment, // Guardamos la autoevaluación en el campo 'objectives'
     study_days: parsedStudyDays,
     help_with: parsedHelpWith,
     opposition_id: opposition_id,
     slot_duration_minutes: parseInt(slot_duration_minutes, 10),
+    weekly_study_goal_hours: parseInt(weekly_study_goal_hours, 10), // Nuevo campo
   };
 
+  // Usamos 'upsert' para que si el usuario repite el onboarding, se actualice
   const { error: onboardingInfoError } = await supabase
     .from('onboarding_info')
-    .insert(onboardingData);
+    .upsert(onboardingData, { onConflict: 'user_id' }); // Asume que user_id es 'unique'
 
   if (onboardingInfoError) {
-    console.error('Error inserting onboarding_info:', onboardingInfoError);
-    if (onboardingInfoError.code === '23505') {
-      return {
-        message: 'Ya has completado el onboarding (info principal).',
-        errors: null,
-        success: false,
-      };
-    }
+    console.error('Error upserting onboarding_info:', onboardingInfoError);
     return {
       message: `Error al guardar detalles del onboarding: ${onboardingInfoError.message}`,
       errors: null,
@@ -164,12 +182,23 @@ export async function submitOnboarding(
   }
 
   try {
-    await createTrialSubscription(user);
+    // Comprobar si el usuario ya tiene una suscripción antes de crear una de prueba
+    const { data: existingSubscription, error: subError } = await supabase
+      .from('user_subscriptions')
+      .select('id, status')
+      .in('status', ['trialing', 'active'])
+      .single();
+    
+    if (subError && subError.code !== 'PGRST116') { // PGRST116 = no rows found
+      throw new Error(`Error al verificar suscripción: ${subError.message}`);
+    }
+
+    if (!existingSubscription) {
+      await createTrialSubscription(user);
+    }
+    
   } catch (trialError: any) {
     console.error('Error creando la suscripción de prueba:', trialError);
-    // Aunque falle la creación de la prueba, el onboarding se ha completado,
-    // así que podríamos redirigir a una página de error o a los planes.
-    // Por simplicidad, devolvemos un mensaje de error.
     return {
       message: `Tu onboarding se ha guardado, pero hubo un problema al iniciar tu prueba gratuita: ${trialError.message}`,
       errors: null,
@@ -179,3 +208,5 @@ export async function submitOnboarding(
 
   redirect('/dashboard');
 }
+
+
