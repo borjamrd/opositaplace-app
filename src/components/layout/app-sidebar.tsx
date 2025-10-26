@@ -83,7 +83,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarContent>
         <OpositionSelector />
         <NavMain items={sidebarData.navMain} />
-        {/* <NavGeneral items={sidebarData.general} /> */}
       </SidebarContent>
     </Sidebar>
   );
