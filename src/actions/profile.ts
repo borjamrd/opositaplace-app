@@ -1,6 +1,7 @@
 // src/actions/profile.ts
 'use server';
 
+import { revalidatePath } from 'next/cache';
 import { stripe } from '@/lib/stripe';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
@@ -51,4 +52,21 @@ export async function deleteUserAccount() {
   }
 
   redirect('/?message=Cuenta eliminada correctamente');
+}
+
+
+
+export async function updateLoginNotification(profileId: string, newValue: boolean) {
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase
+    .from('profiles')
+    .update({ notify_on_new_login: newValue })
+    .eq('id', profileId);
+
+  if (error) {
+    return { success: false, message: error.message };
+  }
+
+  revalidatePath('/dashboard/profile'); 
+  return { success: true };
 }

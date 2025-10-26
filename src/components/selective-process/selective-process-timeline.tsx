@@ -10,8 +10,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { useStudySessionStore } from '@/store/study-session-store';
-import { CheckCircle, Circle, Milestone } from 'lucide-react';
+import { CheckCircle, Circle, Milestone, Info } from 'lucide-react';
 import { useMemo } from 'react';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 export function SelectiveProcessTimeline() {
   const { toast } = useToast();
@@ -183,16 +184,30 @@ export function SelectiveProcessTimeline() {
                   <p
                     className={`font-semibold ${isCurrent ? 'text-primary' : ''} ${
                       isCompleted ? 'text-muted-foreground line-through' : ''
-                    }`}
+                    } flex items-center`}
                   >
                     {stage.name}
+                    {stage.description && (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button
+                            aria-label="Información de la fase"
+                            className="ml-2 inline-flex items-center rounded-md p-1 text-muted-foreground hover:bg-muted/5"
+                          >
+                            <Info className="h-4 w-4" />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent side="top" align="start" className="max-w-xs">
+                          <p className="text-sm">{stage.description}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    )}
                   </p>
                   {stage.key_date && (
                     <p className="text-sm text-muted-foreground">
                       Fecha clave: {new Date(stage.key_date).toLocaleDateString()}
                     </p>
                   )}
-                  {stage.description && <p className="text-sm mt-1">{stage.description}</p>}
 
                   {/* ✅ Botón para avanzar de etapa */}
                   {isTracking && isCurrent && nextStage && (

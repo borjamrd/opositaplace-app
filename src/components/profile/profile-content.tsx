@@ -19,6 +19,7 @@ import { useEffect, useState } from 'react';
 import UserOnboarding from '../onboarding/user-onboarding';
 import UserSubscription from '../subscription/user-suscription';
 import DeleteProfile from './delete-profile';
+import { SecuritySettingsTab } from './security-settings-tab';
 
 export default function ProfileContent() {
   const { data: profile, isLoading, error, refetch } = useProfile();
@@ -134,69 +135,7 @@ export default function ProfileContent() {
       <TabsContent value="study" className="space-y-6">
         <UserOnboarding />
       </TabsContent>
-      <TabsContent value="security" className="space-y-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Seguridad</CardTitle>
-            <CardDescription>Gestiona la seguridad y autenticación de tu cuenta.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Aquí puedes añadir la lógica de cambio de contraseña, 2FA, sesiones activas, etc. */}
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="space-y-1">
-                  <Label className="text-base">Contraseña</Label>
-                  <p className="text-muted-foreground text-sm">Último cambio hace 3 meses</p>
-                </div>
-                <Button variant="outline">
-                  <Key className="mr-2 h-4 w-4" />
-                  Cambiar contraseña
-                </Button>
-              </div>
-              <Separator />
-              <div className="flex items-center justify-between">
-                <div className="space-y-1">
-                  <Label className="text-base">Doble factor de autenticación</Label>
-                  <p className="text-muted-foreground text-sm">
-                    Añade una capa extra de seguridad a tu cuenta
-                  </p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Badge variant="outline" className="border-green-200 bg-green-50 text-green-700">
-                    Activado
-                  </Badge>
-                  <Button variant="outline" size="sm">
-                    Configurar
-                  </Button>
-                </div>
-              </div>
-              <Separator />
-              <div className="flex items-center justify-between">
-                <div className="space-y-1">
-                  <Label className="text-base">Notificaciones de inicio de sesión</Label>
-                  <p className="text-muted-foreground text-sm">
-                    Recibe avisos cuando alguien inicie sesión en tu cuenta
-                  </p>
-                </div>
-                <Switch defaultChecked />
-              </div>
-              <Separator />
-              <div className="flex items-center justify-between">
-                <div className="space-y-1">
-                  <Label className="text-base">Sesiones activas</Label>
-                  <p className="text-muted-foreground text-sm">
-                    Gestiona los dispositivos conectados a tu cuenta
-                  </p>
-                </div>
-                <Button variant="outline">
-                  <Shield className="mr-2 h-4 w-4" />
-                  Ver sesiones
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </TabsContent>
+      <SecuritySettingsTab />
       <TabsContent value="notifications" className="space-y-6">
         <Card>
           <CardHeader>
