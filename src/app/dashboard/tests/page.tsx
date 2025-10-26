@@ -39,7 +39,6 @@ export default async function CreateTestPage() {
     .from('test_attempts')
     .select('*')
     .eq('user_id', user.id)
-    .eq('status', 'completed')
     .order('created_at', { ascending: false });
 
   if (attemptsError) {

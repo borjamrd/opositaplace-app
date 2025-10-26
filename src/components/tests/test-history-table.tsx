@@ -26,10 +26,11 @@ export function TestHistoryTable({ attempts }: TestHistoryTableProps) {
         <TableHeader>
           <TableRow>
             <TableHead>Fecha</TableHead>
+            <TableHead className="text-center">Estado</TableHead>
             <TableHead className="text-center">Nota</TableHead>
             <TableHead className="text-center">Correctas</TableHead>
             <TableHead className="text-center">Incorrectas</TableHead>
-            {/* <TableHead className="text-center">En Blanco</TableHead> */}
+            <TableHead className="text-center">En Blanco</TableHead>
             <TableHead className="text-right">Acciones</TableHead>
           </TableRow>
         </TableHeader>
@@ -54,6 +55,18 @@ export function TestHistoryTable({ attempts }: TestHistoryTableProps) {
                 <Badge
                   className={cn(
                     'font-semibold',
+                    attempt.status === 'completed'
+                      ? 'bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900/50 dark:text-green-300'
+                      : 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200 dark:bg-yellow-900/50 dark:text-yellow-300'
+                  )}
+                >
+                  {attempt.status === 'completed' ? 'Completado' : 'En Progreso'}
+                </Badge>
+              </TableCell>
+              <TableCell className="text-center">
+                <Badge
+                  className={cn(
+                    'font-semibold',
                     attempt.score && Number(attempt.score) >= 5
                       ? 'bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900/50 dark:text-green-300'
                       : 'bg-red-100 text-red-800 hover:bg-red-200 dark:bg-red-900/50 dark:text-red-300'
@@ -68,9 +81,9 @@ export function TestHistoryTable({ attempts }: TestHistoryTableProps) {
               <TableCell className="text-center font-medium text-red-600">
                 {attempt.incorrect_answers ?? '-'}
               </TableCell>
-              {/* <TableCell className="text-center font-medium text-gray-500">
+              <TableCell className="text-center font-medium text-gray-500">
                 {attempt.unanswered_questions ?? '-'}
-              </TableCell> */}
+              </TableCell>
               <TableCell className="text-right">
                 <Button asChild variant="ghost" size="icon">
                   <Link href={`/dashboard/tests/${attempt.id}`}>

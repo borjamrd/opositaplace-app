@@ -27,7 +27,6 @@ export async function createTestAttempt(params: CreateTestParams) {
   let candidateQuestionIds: string[] = [];
   let error: any = null;
 
-  // Step 1: Get a list of candidate question IDs based on the selected mode
   switch (params.mode) {
     case 'errors':
       const { data: failedQuestions, error: rpcError } = await supabase.rpc(
@@ -37,7 +36,6 @@ export async function createTestAttempt(params: CreateTestParams) {
         console.error('Error fetching failed questions:', rpcError);
         return { error: 'Could not retrieve failed questions.' };
       }
-      // The RPC returns an array of objects like [{ question_id: '...' }], so we map it to an array of strings.
       candidateQuestionIds = failedQuestions?.map((q) => q.question_id) || [];
       break;
 
@@ -64,10 +62,11 @@ export async function createTestAttempt(params: CreateTestParams) {
         }
       );
 
+      console.log('Random questions data:', randomQuestionsData);
       if (randomError) {
         return { error: 'Could not retrieve questions for random mode.' };
       }
-      candidateQuestionIds = randomQuestionsData?.map((q: any) => q.id) || [];
+      candidateQuestionIds = randomQuestionsData?.map((question) => question.id) || [];
       break;
   }
 
@@ -96,7 +95,6 @@ export async function createTestAttempt(params: CreateTestParams) {
     }
   }
 
-  // Remove duplicates that might arise from the join
   const uniqueValidQuestionIds = Array.from(new Set(validQuestionIds.map((q) => q.id))).map(
     (id) => ({ id })
   );
@@ -112,17 +110,13 @@ export async function createTestAttempt(params: CreateTestParams) {
     return { error: 'Not enough valid questions available to create the test.' };
   }
 
-  // Step 4: Create the test attempt with the correct number of questions
-  const { data: genericTest, error: genericTestError } = await supabase
-    .from('tests')
-    .select('id')
-    .eq('title', 'Test Personalizado Dinámico')
-    .eq('opposition_id', params.oppositionId)
-    .single();
+  // ... (El "Paso 3" termina aquí)
 
-  if (genericTestError || !genericTest) {
-    return { error: 'Container test for this opposition not found.' };
-  }
+  // Step 4: Create the test attempt directly (Logic corrected)
+  // We removed the unnecessary 'select' for the container test
+
+  // (Opcional) Genera un título para el test
+  const testTitle = `Test ${params.mode} - ${selectedQuestions.length} preguntas`;
 
   const { data: testAttempt, error: createError } = await supabase
     .from('test_attempts')
@@ -130,13 +124,15 @@ export async function createTestAttempt(params: CreateTestParams) {
       user_id: user.id,
       opposition_id: params.oppositionId,
       study_cycle_id: params.studyCycleId,
-      total_questions: selectedQuestions.length, // This is now the correct number
-      test_id: genericTest.id,
+      total_questions: selectedQuestions.length,
+      title: testTitle, // <-- Añade un título (ya que la columna existe)
+      status: 'in_progress', // <-- Añade un estado inicial
     })
     .select('id')
     .single();
 
   if (createError || !testAttempt) {
+    console.error('Error creating test attempt:', createError);
     return { error: 'Could not create the test attempt.' };
   }
 
@@ -151,13 +147,14 @@ export async function createTestAttempt(params: CreateTestParams) {
     .insert(attemptQuestions);
 
   if (insertQuestionsError) {
+    // Rollback: delete the attempt if questions couldn't be saved
     await supabase.from('test_attempts').delete().eq('id', testAttempt.id);
+    console.error('Error inserting test questions:', insertQuestionsError);
     return { error: 'Could not save the questions for the test.' };
   }
 
   redirect(`/dashboard/tests/${testAttempt.id}`);
 }
-
 export async function submitTestAttempt(testAttemptId: string, answers: Record<string, string>) {
   const supabase = await createSupabaseServerClient();
 

@@ -1,17 +1,16 @@
 // src/store/test-store.ts
-import { Answer, Question, Test } from '@/lib/supabase/types';
+import { Answer, Question, TestAttempt } from '@/lib/supabase/types';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-// import { Answer, Question, Test } from '@/lib/database.types';
 
 export type TestState = {
-  test: Test | null;
+  test: TestAttempt | null;
   questions: Question[];
   answers: Answer[];
   userAnswers: Map<string, string | null>;
   currentQuestionIndex: number;
   isFinished: boolean;
-  setTest: (test: Test, questions: Question[], answers: Answer[]) => void;
+  setTest: (test: TestAttempt, questions: Question[], answers: Answer[]) => void;
   setUserAnswer: (questionId: string, answerId: string | null) => void;
   setCurrentQuestionIndex: (index: number) => void;
   finishTest: () => void;

@@ -1,16 +1,13 @@
 import { TestResults } from '@/components/tests/test-results';
 import { TestSession } from '@/components/tests/test-session';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import type { Tables } from '@/lib/supabase/database.types';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
+import { QuestionWithAnswers } from '@/lib/supabase/types';
 import { Terminal } from 'lucide-react';
 import { notFound, redirect } from 'next/navigation';
 
-export type QuestionWithAnswers = Tables<'questions'> & {
-  answers: Tables<'answers'>[];
-};
-
 export default async function TestPage({ params }: { params: { id: string } }) {
+  const { id } = await params;
   const supabase = await createSupabaseServerClient();
 
   const {
@@ -18,14 +15,13 @@ export default async function TestPage({ params }: { params: { id: string } }) {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    console.log('User not found, redirecting to login.');
     return redirect('/login');
   }
 
   const { data: testAttempt, error: testAttemptError } = await supabase
     .from('test_attempts')
-    .select('*, tests(*)')
-    .eq('id', params.id)
+    .select('*')
+    .eq('id', id)
     .single();
 
   if (testAttemptError || !testAttempt) {
@@ -55,9 +51,6 @@ export default async function TestPage({ params }: { params: { id: string } }) {
   const allQuestions: QuestionWithAnswers[] =
     attemptQuestions?.map((aq) => aq.questions).filter(Boolean) ?? [];
 
-  // --- FILTRO DE PREGUNTAS VÁLIDAS ---
-  // Aquí está la lógica clave: nos quedamos solo con las preguntas
-  // que tienen al menos una respuesta marcada como correcta.
   const validQuestions = allQuestions.filter((question) =>
     question.answers.some((answer) => answer.is_correct)
   );
