@@ -1,10 +1,10 @@
 'use client';
 
-import type { QuestionWithAnswers } from '@/app/dashboard/page';
 import { StudySessionsChart } from '../charts/study-sessions-chart';
 import { UnifiedChangeHistory } from '../scrapping/url-suscription-changes';
 import { FailedQuestionFlashcard } from './failed-question-flashcard';
 import { SelectiveProcessTimeline } from '../selective-process/selective-process-timeline';
+import { QuestionWithAnswers } from '@/lib/supabase/types';
 
 interface DashboardContentProps {
   failedQuestions: QuestionWithAnswers[];
