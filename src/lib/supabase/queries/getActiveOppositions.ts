@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/client'; // Usamos el cliente del lado del cliente para esto
-import type { Database } from '@/lib/supabase/database.types';
+import { Opposition } from '../types';
 
-export type Opposition = Database['public']['Tables']['oppositions']['Row'];
+
 
 export async function getActiveOppositions(): Promise<Opposition[]> {
   const supabase = createClient();

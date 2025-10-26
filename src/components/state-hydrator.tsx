@@ -1,24 +1,19 @@
 // src/components/state-hydrator.tsx
 'use client';
 
+import { Opposition, Profile, StudyCycle, Subscription } from '@/lib/supabase/types';
 import { useProfileStore } from '@/store/profile-store';
-import { useSubscriptionStore } from '@/store/subscription-store';
 import { useStudySessionStore } from '@/store/study-session-store';
-import { useEffect, useRef } from 'react';
-import type { Database } from '@/lib/supabase/database.types';
-
-type Profile = Database['public']['Tables']['profiles']['Row'];
-type Subscription = Database['public']['Tables']['user_subscriptions']['Row'];
-type Opposition = Database['public']['Tables']['oppositions']['Row'];
-type StudyCycle = Database['public']['Tables']['user_study_cycles']['Row'];
+import { useSubscriptionStore } from '@/store/subscription-store';
+import { useEffect } from 'react';
 
 interface StateHydratorProps {
-  profile: Profile | null;
-  subscription: Subscription | null;
-  userOppositions: Opposition[];
-  activeOpposition: Opposition | null;
-  studyCycles: StudyCycle[];
-  activeStudyCycle: StudyCycle | null;
+  profile?: Profile | null;
+  subscription?: Subscription | null;
+  userOppositions?: Opposition[];
+  activeOpposition?: Opposition | null;
+  studyCycles?: StudyCycle[];
+  activeStudyCycle?: StudyCycle | null;
 }
 
 export function StateHydrator({
@@ -29,12 +24,20 @@ export function StateHydrator({
   studyCycles,
   activeStudyCycle,
 }: StateHydratorProps) {
-  const isInitialized = useRef(false);
+  useEffect(() => {
+    if (typeof profile !== 'undefined') {
+      useProfileStore.setState({ profile, isLoading: false, error: null });
+    }
+  }, [profile]);
 
   useEffect(() => {
-    if (!isInitialized.current) {
-      useProfileStore.setState({ profile, isLoading: false, error: null });
+    if (typeof subscription !== 'undefined') {
       useSubscriptionStore.setState({ subscription, isLoading: false, error: null });
+    }
+  }, [subscription]);
+
+  useEffect(() => {
+    if (typeof userOppositions !== 'undefined') {
       useStudySessionStore.setState({
         oppositions: userOppositions,
         activeOpposition: activeOpposition,
@@ -43,9 +46,7 @@ export function StateHydrator({
         isLoadingOppositions: false,
         isLoadingCycles: false,
       });
-      isInitialized.current = true;
     }
-  }, [profile, subscription, userOppositions, activeOpposition, studyCycles, activeStudyCycle]);
-
+  }, [userOppositions, activeOpposition, studyCycles, activeStudyCycle]);
   return null;
 }

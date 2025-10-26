@@ -1,10 +1,9 @@
 'use server';
 
+import { createTrialSubscription } from '@/lib/stripe/actions';
 import type { Json, TablesInsert } from '@/lib/supabase/database.types';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { redirect } from 'next/navigation';
 import { z } from 'zod';
-import { createTrialSubscription } from '@/lib/stripe/actions';
 
 // Esquema de acción actualizado para coincidir con el nuevo formulario
 const onboardingActionSchema = z.object({
@@ -205,8 +204,12 @@ export async function submitOnboarding(
       success: false,
     };
   }
+  return {
+    message: 'Onboarding completado con éxito. Se te redirigirá a tu dashboard.',
+    errors: null,
+    success: true,
+  }
 
-  redirect('/dashboard');
 }
 
 

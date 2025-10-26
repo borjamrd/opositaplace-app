@@ -1,10 +1,5 @@
 'use client';
 
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useParams } from 'next/navigation';
-import { useActionState, useCallback, useEffect, useState, useTransition } from 'react';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
 import { submitOnboarding } from '@/actions/onboarding';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
@@ -31,21 +26,25 @@ import { Progress } from '@/components/ui/progress';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { getActiveOppositions, type Opposition } from '@/lib/supabase/queries/getActiveOppositions';
+import { getActiveOppositions } from '@/lib/supabase/queries/getActiveOppositions';
 import { useStudySessionStore } from '@/store/study-session-store';
+import { zodResolver } from '@hookform/resolvers/zod';
 import {
   AlertCircle,
   ArrowLeft,
   Calendar,
   CheckCircle,
   ChevronRight,
-  Circle,
   Flag,
   Loader2,
   Rocket,
   Save,
-  Target,
+  Target
 } from 'lucide-react';
+import { useParams, useRouter } from 'next/navigation';
+import { useActionState, useCallback, useEffect, useState, useTransition } from 'react';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
 
 import {
   DAYS_OF_WEEK_ORDERED,
@@ -65,7 +64,9 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { initializeSelectedSlots, parseSlotToMinutes } from '@/components/weekly-planner/utils';
+import { Opposition } from '@/lib/supabase/types';
 import { useProfileStore } from '@/store/profile-store';
+import { useQueryClient } from '@tanstack/react-query';
 
 const helpOptions = [
   'Organización del estudio',
@@ -82,32 +83,27 @@ const onboardingFormSchema = z.object({
     .string({ required_error: 'Debes seleccionar una oposición.' })
     .uuid({ message: 'ID de oposición inválido.' })
     .min(1, 'Debes seleccionar una oposición.'),
-  baseline_assessment: z 
+  baseline_assessment: z
     .string()
     .min(10, 'Describe tu punto de partida (mín. 10 caracteres)')
     .max(500, 'Máximo 500 caracteres'),
   help_with: z.array(z.string()).optional().default([]),
-  weekly_study_goal_hours: z.coerce 
+  weekly_study_goal_hours: z.coerce
     .number({ required_error: 'Define un objetivo de horas.' })
     .int()
     .min(1, 'El objetivo debe ser de al menos 1 hora.')
     .max(100, 'El objetivo no puede superar las 100 horas.'),
-  study_days: z
-    .record(
-      z.nativeEnum(Day),
-      z.record(z.string(), z.boolean()) 
-    )
-    .refine(
-      (data) => {
-        return Object.values(data).some((daySlots) =>
-          Object.values(daySlots).some((isSelected) => isSelected)
-        );
-      },
-      {
-        message: 'Debes seleccionar al menos una franja horaria de estudio.',
-        path: ['study_days'],
-      }
-    ),
+  study_days: z.record(z.nativeEnum(Day), z.record(z.string(), z.boolean())).refine(
+    (data) => {
+      return Object.values(data).some((daySlots) =>
+        Object.values(daySlots).some((isSelected) => isSelected)
+      );
+    },
+    {
+      message: 'Debes seleccionar al menos una franja horaria de estudio.',
+      path: ['study_days'],
+    }
+  ),
   slot_duration_minutes: z.coerce
     .number({
       required_error: 'La duración de los slots es requerida.',
@@ -141,7 +137,7 @@ const steps = [
     name: 'Autoevaluación',
     description: 'Conócete a ti mismo',
     icon: Target,
-    fields: ['baseline_assessment', 'help_with'] as const, 
+    fields: ['baseline_assessment', 'help_with'] as const,
   },
   {
     id: 'step-3-goal',
@@ -163,6 +159,9 @@ export default function OnboardingForm() {
   const params = useParams();
   const { toast } = useToast();
   const pageUserId = params.userId as string;
+
+  const queryClient = useQueryClient();
+  const router = useRouter();
 
   const [actionState, formAction] = useActionState(submitOnboarding, initialActionState);
   const [oppositions, setOppositions] = useState<Opposition[]>([]);
@@ -212,6 +211,32 @@ export default function OnboardingForm() {
     }
     loadOppositions();
   }, []);
+
+  useEffect(() => {
+    // Se ejecuta solo si la acción del formulario terminó y fue exitosa
+    if (actionState.success) {
+      // Creamos una función async interna para poder usar await
+      const handleSuccess = async () => {
+        // Invalida la caché de React Query
+        await queryClient.invalidateQueries();
+
+        // Redirige al usuario
+        router.refresh();
+      };
+
+      handleSuccess();
+    } else if (actionState.message && !actionState.success) {
+      // Maneja el error devuelto por la server action
+      // (Solo se muestra si hay un mensaje de error y success es false)
+      toast({
+        title: 'Error',
+        description: actionState.message,
+        variant: 'destructive',
+      });
+    }
+
+    // 'state' es la dependencia clave.
+  }, [actionState]);
 
   // --- Efectos para el Planificador ---
   useEffect(() => {
@@ -468,7 +493,6 @@ export default function OnboardingForm() {
                     </Alert>
                   )}
 
-                  {/* --- Contenido del Paso Actual --- */}
                   {currentStep === 0 && (
                     // --- PASO 1: Oposición ---
                     <FormField
@@ -519,7 +543,7 @@ export default function OnboardingForm() {
                     <>
                       <FormField
                         control={form.control}
-                        name="baseline_assessment" // Corregido
+                        name="baseline_assessment"
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel className="text-base font-semibold">
