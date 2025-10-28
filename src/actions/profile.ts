@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache';
 import { stripe } from '@/lib/stripe';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
+import { ProfileSettings } from '@/lib/supabase/types';
 export async function deleteUserAccount() {
   const supabase = await createSupabaseServerClient();
 
@@ -56,14 +57,18 @@ export async function deleteUserAccount() {
 
 
 
-export async function updateLoginNotification(profileId: string, newValue: boolean) {
+export async function updateProfileSettings(
+  profileId: string,
+  settings: Partial<ProfileSettings>
+) {
   const supabase = await createSupabaseServerClient();
   const { error } = await supabase
     .from('profiles')
-    .update({ notify_on_new_login: newValue })
+    .update(settings) 
     .eq('id', profileId);
 
   if (error) {
+    console.error('Error updating profile settings:', error);
     return { success: false, message: error.message };
   }
 

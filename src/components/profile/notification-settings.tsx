@@ -1,10 +1,10 @@
 // src/app/dashboard/profile/notification-settings.tsx
 'use client';
 
+import { updateProfileSettings } from '@/actions/profile';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { toast } from '@/hooks/use-toast';
-import { updateLoginNotification } from '@/actions/profile';
 import { useTransition } from 'react';
 
 interface NotificationSettingsProps {
@@ -17,7 +17,9 @@ export function NotificationSettings({ currentValue, profileId }: NotificationSe
 
   const handleToggle = (newValue: boolean) => {
     startTransition(async () => {
-      const result = await updateLoginNotification(profileId, newValue);
+      const result = await updateProfileSettings(profileId, {
+        notify_on_new_login: newValue,
+      });
       if (!result.success) {
         toast({
           title: 'Error',
@@ -36,11 +38,7 @@ export function NotificationSettings({ currentValue, profileId }: NotificationSe
           Recibe avisos cuando alguien inicie sesión en tu cuenta.
         </p>
       </div>
-      <Switch
-        checked={currentValue}
-        onCheckedChange={handleToggle}
-        disabled={isPending}
-      />
+      <Switch checked={currentValue} onCheckedChange={handleToggle} disabled={isPending} />
     </div>
   );
 }

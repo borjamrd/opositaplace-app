@@ -1,15 +1,11 @@
 'use client';
 
-import { Key, Shield } from 'lucide-react';
 
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { createClient } from '@/lib/supabase/client';
@@ -19,6 +15,7 @@ import { useEffect, useState } from 'react';
 import UserOnboarding from '../onboarding/user-onboarding';
 import UserSubscription from '../subscription/user-suscription';
 import DeleteProfile from './delete-profile';
+import { NotificationSettingsTab } from './notification-settings-tab';
 import { SecuritySettingsTab } from './security-settings-tab';
 
 export default function ProfileContent() {
@@ -78,7 +75,7 @@ export default function ProfileContent() {
       <TabsList className="grid w-full grid-cols-5">
         <TabsTrigger value="personal">Personal</TabsTrigger>
         <TabsTrigger value="account">Cuenta</TabsTrigger>
-        <TabsTrigger value="study">Calendario</TabsTrigger>
+        <TabsTrigger value="study">Onboarding</TabsTrigger>
         <TabsTrigger value="security">Seguridad</TabsTrigger>
         <TabsTrigger value="notifications">Notificaciones</TabsTrigger>
       </TabsList>
@@ -123,7 +120,6 @@ export default function ProfileContent() {
                 />
               </div>
             </div>
-            {/* Puedes añadir aquí más campos personales si los tienes */}
           </CardContent>
         </Card>
       </TabsContent>
@@ -136,65 +132,7 @@ export default function ProfileContent() {
         <UserOnboarding />
       </TabsContent>
       <SecuritySettingsTab />
-      <TabsContent value="notifications" className="space-y-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Notificaciones</CardTitle>
-            <CardDescription>Elige qué notificaciones quieres recibir.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="space-y-1">
-                  <Label className="text-base">Notificaciones por email</Label>
-                  <p className="text-muted-foreground text-sm">Recibe notificaciones por correo</p>
-                </div>
-                <Switch defaultChecked />
-              </div>
-              <Separator />
-              <div className="flex items-center justify-between">
-                <div className="space-y-1">
-                  <Label className="text-base">Notificaciones push</Label>
-                  <p className="text-muted-foreground text-sm">
-                    Recibe notificaciones push en tu navegador
-                  </p>
-                </div>
-                <Switch />
-              </div>
-              <Separator />
-              <div className="flex items-center justify-between">
-                <div className="space-y-1">
-                  <Label className="text-base">Emails de marketing</Label>
-                  <p className="text-muted-foreground text-sm">
-                    Recibe emails sobre nuevas funciones y actualizaciones
-                  </p>
-                </div>
-                <Switch defaultChecked />
-              </div>
-              <Separator />
-              <div className="flex items-center justify-between">
-                <div className="space-y-1">
-                  <Label className="text-base">Resumen semanal</Label>
-                  <p className="text-muted-foreground text-sm">
-                    Recibe un resumen semanal de tu actividad
-                  </p>
-                </div>
-                <Switch defaultChecked />
-              </div>
-              <Separator />
-              <div className="flex items-center justify-between">
-                <div className="space-y-1">
-                  <Label className="text-base">Alertas de seguridad</Label>
-                  <p className="text-muted-foreground text-sm">
-                    Notificaciones de seguridad importantes (siempre activadas)
-                  </p>
-                </div>
-                <Switch checked disabled />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </TabsContent>
+      <NotificationSettingsTab />
     </Tabs>
   );
 }

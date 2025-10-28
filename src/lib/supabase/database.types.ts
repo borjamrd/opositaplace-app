@@ -420,7 +420,11 @@ export type Database = {
           created_at: string
           email: string | null
           id: string
+          notify_by_email: boolean
+          notify_by_push: boolean
+          notify_marketing_emails: boolean
           notify_on_new_login: boolean
+          notify_weekly_summary: boolean
           stripe_customer_id: string | null
           updated_at: string
           username: string | null
@@ -430,7 +434,11 @@ export type Database = {
           created_at?: string
           email?: string | null
           id: string
+          notify_by_email?: boolean
+          notify_by_push?: boolean
+          notify_marketing_emails?: boolean
           notify_on_new_login?: boolean
+          notify_weekly_summary?: boolean
           stripe_customer_id?: string | null
           updated_at?: string
           username?: string | null
@@ -440,7 +448,11 @@ export type Database = {
           created_at?: string
           email?: string | null
           id?: string
+          notify_by_email?: boolean
+          notify_by_push?: boolean
+          notify_marketing_emails?: boolean
           notify_on_new_login?: boolean
+          notify_weekly_summary?: boolean
           stripe_customer_id?: string | null
           updated_at?: string
           username?: string | null
