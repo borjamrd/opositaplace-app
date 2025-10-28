@@ -19,7 +19,6 @@ import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import { submitTestAttempt } from '@/actions/tests';
 import type { Tables } from '@/lib/supabase/database.types';
-import type { QuestionWithAnswers } from '@/app/dashboard/tests/[id]/page';
 import { ArrowLeft, ArrowRight, CheckCircle, Loader2 } from 'lucide-react';
 import {
   AlertDialog,
@@ -33,6 +32,7 @@ import {
   AlertDialogTrigger,
 } from '../ui/alert-dialog';
 import { TestResults } from './test-results';
+import { QuestionWithAnswers } from '@/lib/supabase/types';
 
 const formSchema = z.object({
   answers: z.record(z.string()),
@@ -74,7 +74,7 @@ export function TestSession({ testAttempt, questions }: TestSessionProps) {
         });
       }
     });
-    setIsFinished(true); // Mostramos los resultados inmediatamente
+    setIsFinished(true); 
   };
 
   if (isFinished) {
