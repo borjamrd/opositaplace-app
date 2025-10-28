@@ -8,9 +8,10 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
+import { useNewTestModalStore } from '@/store/new-test-modal';
 import { PlusCircleIcon, type LucideIcon } from 'lucide-react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 
 export function NavMain({
   items,
@@ -22,6 +23,13 @@ export function NavMain({
   }[];
 }) {
   const location = usePathname();
+  const router = useRouter();
+  const openModal = useNewTestModalStore((state) => state.openModal);
+
+  const handleNewTestClick = () => {
+    openModal();
+    router.push('/dashboard/tests'); 
+  };
 
   return (
     <SidebarGroup>
@@ -33,6 +41,7 @@ export function NavMain({
               variant="outline"
               tooltip="Quick Create"
               className="inline-flex items-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-input bg-background hover:bg-accent hover:text-accent-foreground"
+              onClick={handleNewTestClick}
             >
               <PlusCircleIcon />
               <span>Nuevo test</span>

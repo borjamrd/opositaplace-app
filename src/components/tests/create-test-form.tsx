@@ -28,9 +28,11 @@ interface IFormInput {
 export function CreateTestForm({
   blocksWithTopics,
   oppositionId,
+  setIsOpen,
 }: {
   blocksWithTopics: BlockWithTopics[];
   oppositionId: string;
+  setIsOpen: () => void;
 }) {
   const { control, handleSubmit, watch, setValue } = useForm<IFormInput>({
     defaultValues: {
@@ -79,6 +81,8 @@ export function CreateTestForm({
           title: 'Error al crear el test',
           description: result.error,
         });
+      } else {
+        setIsOpen();
       }
     });
   };
