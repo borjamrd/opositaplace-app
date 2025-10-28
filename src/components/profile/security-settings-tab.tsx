@@ -44,10 +44,10 @@ export function SecuritySettingsTab() {
           <Separator />
           <TwoFactorSettings />
           <Separator />
-          {/* <NotificationSettings
+          <NotificationSettings
             currentValue={profile.notify_on_new_login ?? true}
             profileId={profile.id}
-          /> */}
+          />
           <Separator />
           <SessionManagement />
         </CardContent>

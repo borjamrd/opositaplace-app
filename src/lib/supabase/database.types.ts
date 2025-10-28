@@ -420,6 +420,7 @@ export type Database = {
           created_at: string
           email: string | null
           id: string
+          notify_on_new_login: boolean
           stripe_customer_id: string | null
           updated_at: string
           username: string | null
@@ -429,6 +430,7 @@ export type Database = {
           created_at?: string
           email?: string | null
           id: string
+          notify_on_new_login?: boolean
           stripe_customer_id?: string | null
           updated_at?: string
           username?: string | null
@@ -438,6 +440,7 @@ export type Database = {
           created_at?: string
           email?: string | null
           id?: string
+          notify_on_new_login?: boolean
           stripe_customer_id?: string | null
           updated_at?: string
           username?: string | null
