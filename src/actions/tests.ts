@@ -109,8 +109,6 @@ export async function createTestAttempt(params: CreateTestParams) {
     return { error: 'Not enough valid questions available to create the test.' };
   }
 
-  // ... (El "Paso 3" termina aquí)
-
   // Step 4: Create the test attempt directly (Logic corrected)
   // We removed the unnecessary 'select' for the container test
 
@@ -124,8 +122,8 @@ export async function createTestAttempt(params: CreateTestParams) {
       opposition_id: params.oppositionId,
       study_cycle_id: params.studyCycleId,
       total_questions: selectedQuestions.length,
-      title: testTitle, // <-- Añade un título (ya que la columna existe)
-      status: 'in_progress', // <-- Añade un estado inicial
+      title: testTitle,
+      status: 'in_progress',
     })
     .select('id')
     .single();
