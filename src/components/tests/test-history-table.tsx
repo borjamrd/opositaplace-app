@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import type { Tables } from '@/lib/supabase/database.types';
-import { Eye } from 'lucide-react';
+import { Eye, Pen } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 type TestAttempt = Tables<'test_attempts'>;
@@ -87,7 +87,12 @@ export function TestHistoryTable({ attempts }: TestHistoryTableProps) {
               <TableCell className="text-right">
                 <Button asChild variant="ghost" size="icon">
                   <Link href={`/dashboard/tests/${attempt.id}`}>
-                    <Eye className="h-4 w-4" />
+                    {attempt.status === 'completed' ? (
+                      <Eye className="h-4 w-4" />
+                    ) : (
+                      <Pen className="h-4 w-4" />
+                    )}
+
                     <span className="sr-only">Revisar test</span>
                   </Link>
                 </Button>
