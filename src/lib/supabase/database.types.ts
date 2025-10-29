@@ -762,24 +762,30 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          is_correct: boolean | null
           question_id: string
-          selected_answer_id: string
+          selected_answer_id: string | null
+          status: Database["public"]["Enums"]["test_answer_status"] | null
           test_attempt_id: string
           user_id: string
         }
         Insert: {
           created_at?: string
           id?: string
+          is_correct?: boolean | null
           question_id: string
-          selected_answer_id: string
+          selected_answer_id?: string | null
+          status?: Database["public"]["Enums"]["test_answer_status"] | null
           test_attempt_id: string
           user_id: string
         }
         Update: {
           created_at?: string
           id?: string
+          is_correct?: boolean | null
           question_id?: string
-          selected_answer_id?: string
+          selected_answer_id?: string | null
+          status?: Database["public"]["Enums"]["test_answer_status"] | null
           test_attempt_id?: string
           user_id?: string
         }
@@ -851,6 +857,7 @@ export type Database = {
           finished_at: string | null
           id: string
           incorrect_answers: number | null
+          net_score: number
           opposition_id: string
           score: number | null
           status: string | null
@@ -867,6 +874,7 @@ export type Database = {
           finished_at?: string | null
           id?: string
           incorrect_answers?: number | null
+          net_score?: number
           opposition_id: string
           score?: number | null
           status?: string | null
@@ -883,6 +891,7 @@ export type Database = {
           finished_at?: string | null
           id?: string
           incorrect_answers?: number | null
+          net_score?: number
           opposition_id?: string
           score?: number | null
           status?: string | null
@@ -1511,6 +1520,7 @@ export type Database = {
     Enums: {
       app_role: "admin" | "user"
       status_enum: "not_started" | "in_progress" | "completed"
+      test_answer_status: "correct" | "incorrect" | "blank"
       tracking_status_enum: "TRACKING" | "PREPARING" | "PAUSED"
     }
     CompositeTypes: {
@@ -1641,6 +1651,7 @@ export const Constants = {
     Enums: {
       app_role: ["admin", "user"],
       status_enum: ["not_started", "in_progress", "completed"],
+      test_answer_status: ["correct", "incorrect", "blank"],
       tracking_status_enum: ["TRACKING", "PREPARING", "PAUSED"],
     },
   },

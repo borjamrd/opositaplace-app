@@ -1,6 +1,5 @@
 'use client';
 
-import type { QuestionWithAnswers } from '@/app/dashboard/tests/[id]/page';
 import {
   Accordion,
   AccordionContent,
@@ -10,7 +9,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import type { Tables } from '@/lib/supabase/database.types';
+import { QuestionWithAnswers, TestAttempt } from '@/lib/supabase/types';
 import { cn } from '@/lib/utils';
 import { Check, CheckCircle, HelpCircle, X, XCircle } from 'lucide-react';
 import Link from 'next/link';
@@ -18,29 +17,27 @@ import React from 'react';
 
 interface TestResultsProps {
   questions: QuestionWithAnswers[];
-  userAnswers: Record<string, string>;
-  attempt?: Tables<'test_attempts'>; // The definitive attempt data from DB
+  userAnswers: Record<string, string | null>;
+  attempt?: TestAttempt;
 }
-
 export function TestResults({ questions, userAnswers, attempt }: TestResultsProps) {
   const { correctCount, incorrectCount, unansweredCount, finalScore, netPoints } =
     React.useMemo(() => {
-      // If we have the definitive attempt data from the DB, use it as the source of truth.
       if (attempt?.score !== null && attempt?.score !== undefined) {
         return {
           correctCount: attempt.correct_answers ?? 0,
           incorrectCount: attempt.incorrect_answers ?? 0,
           unansweredCount: attempt.unanswered_questions ?? 0,
           finalScore: Number(attempt.score),
-          netPoints: attempt.correct_answers ?? 0, // Using non-penalizing formula
+          netPoints: attempt.net_score ?? 0, // Usar el net_score guardado de la DB
         };
       }
 
-      // Fallback calculation for the immediate display after finishing a test.
       let correct = 0;
       let incorrect = 0;
       questions.forEach((question) => {
         const userAnswerId = userAnswers[question.id];
+
         if (userAnswerId) {
           const isCorrect = question.answers.some((a) => a.id === userAnswerId && a.is_correct);
           if (isCorrect) {
@@ -52,15 +49,17 @@ export function TestResults({ questions, userAnswers, attempt }: TestResultsProp
       });
 
       const unanswered = questions.length - (correct + incorrect);
-      const net = correct; // Correct non-penalizing formula
-      const score = questions.length > 0 ? (net / questions.length) * 10 : 0;
+
+      const net = correct - incorrect / 3;
+      const finalNet = Math.max(0, net);
+      const score = questions.length > 0 ? (finalNet / questions.length) * 10 : 0;
 
       return {
         correctCount: correct,
         incorrectCount: incorrect,
         unansweredCount: unanswered,
         finalScore: score,
-        netPoints: net,
+        netPoints: finalNet,
       };
     }, [questions, userAnswers, attempt]);
 
@@ -72,7 +71,7 @@ export function TestResults({ questions, userAnswers, attempt }: TestResultsProp
         <CardTitle className="text-2xl text-center">Resumen del test</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-center">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
           <div className="p-4 bg-green-100 dark:bg-green-900/30 rounded-lg">
             <CheckCircle className="w-8 h-8 mx-auto text-green-600" />
             <p className="mt-2 text-lg font-semibold">Correctas</p>
@@ -83,13 +82,11 @@ export function TestResults({ questions, userAnswers, attempt }: TestResultsProp
             <p className="mt-2 text-lg font-semibold">Incorrectas</p>
             <p className="text-3xl font-bold text-red-700 dark:text-red-500">{incorrectCount}</p>
           </div>
-          {/* <div className="p-4 bg-gray-100 dark:bg-gray-800/30 rounded-lg">
+          <div className="p-4 bg-gray-100 dark:bg-gray-800/30 rounded-lg">
             <HelpCircle className="w-8 h-8 mx-auto text-gray-600" />
             <p className="mt-2 text-lg font-semibold">En Blanco</p>
-            <p className="text-3xl font-bold text-gray-700 dark:text-gray-400">
-              {unansweredCount}
-            </p>
-          </div> */}
+            <p className="text-3xl font-bold text-gray-700 dark:text-gray-400">{unansweredCount}</p>
+          </div>
         </div>
 
         <div className="text-center pt-4">
@@ -100,7 +97,12 @@ export function TestResults({ questions, userAnswers, attempt }: TestResultsProp
             {finalScore.toFixed(2)}
           </p>
           <p className="text-sm text-muted-foreground mt-1">
-            Puntuación neta: {netPoints.toFixed(2)} puntos sobre {totalQuestions} preguntas
+            Puntuación neta: {netPoints.toFixed(2)} puntos sobre {totalQuestions}
+          </p>
+          <p className="text-xs text-muted-foreground mt-2 px-4 italic">
+            * Cálculo de la puntuación neta: (Correctas × 1) - (Incorrectas / 3). La calificación
+            final es la puntuación neta ajustada a una escala de 0 a 10. Las preguntas en blanco no
+            penalizan.
           </p>
         </div>
 

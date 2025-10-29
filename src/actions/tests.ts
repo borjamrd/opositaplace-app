@@ -152,7 +152,11 @@ export async function createTestAttempt(params: CreateTestParams) {
 
   redirect(`/dashboard/tests/${testAttempt.id}`);
 }
-export async function submitTestAttempt(testAttemptId: string, answers: Record<string, string>) {
+
+export async function submitTestAttempt(
+  testAttemptId: string,
+  answers: Record<string, string | null>
+) {
   const supabase = await createSupabaseServerClient();
 
   const {
@@ -164,23 +168,6 @@ export async function submitTestAttempt(testAttemptId: string, answers: Record<s
   }
 
   try {
-    const userAnswersData = Object.entries(answers).map(([question_id, answer_id]) => ({
-      test_attempt_id: testAttemptId,
-      question_id,
-      selected_answer_id: answer_id,
-      user_id: user.id,
-    }));
-
-    const { error: answersError } = await supabase
-      .from('test_attempt_answers')
-      .upsert(userAnswersData, {
-        onConflict: 'test_attempt_id,question_id',
-      });
-
-    if (answersError) {
-      return { error: answersError.message };
-    }
-
     const { data: attemptQuestions, error: questionsError } = await supabase
       .from('test_attempt_questions')
       .select('questions(*, answers(*))')
@@ -191,24 +178,61 @@ export async function submitTestAttempt(testAttemptId: string, answers: Record<s
     }
 
     const questions = attemptQuestions?.map((aq) => aq.questions).filter(Boolean) ?? [];
+    if (questions.length === 0) {
+      return { error: 'No se encontraron preguntas para este intento.' };
+    }
+
     let correctCount = 0;
     let incorrectCount = 0;
+    const answerRowsToUpsert = [];
 
-    questions.forEach((question) => {
-      const userAnswerId = answers[question.id];
+    // 3. Recorremos TODAS las preguntas del test
+    for (const question of questions) {
+      const userAnswerId = answers[question.id] || null;
+      let isCorrect = false;
+      let status: 'correct' | 'incorrect' | 'blank' = 'blank';
+
       if (userAnswerId) {
-        const isCorrect = question.answers.some((a) => a.id === userAnswerId && a.is_correct);
+        isCorrect = question.answers.some((a) => a.id === userAnswerId && a.is_correct);
         if (isCorrect) {
           correctCount++;
+          status = 'correct';
         } else {
           incorrectCount++;
+          status = 'incorrect';
         }
       }
-    });
+
+      // Preparamos la fila para insertar/actualizar
+      answerRowsToUpsert.push({
+        test_attempt_id: testAttemptId,
+        question_id: question.id,
+        selected_answer_id: userAnswerId,
+        user_id: user.id,
+        is_correct: isCorrect,
+        status: status,
+      });
+    }
+
+    // 4. Hacemos el UPSERT en test_attempt_answers con los datos completos
+    const { error: answersError } = await supabase
+      .from('test_attempt_answers')
+      .upsert(answerRowsToUpsert, {
+        onConflict: 'test_attempt_id,question_id',
+      });
+
+    if (answersError) {
+      return { error: `Error saving answers: ${answersError.message}` };
+    }
 
     const unansweredCount = questions.length - (correctCount + incorrectCount);
-    const netPoints = correctCount;
-    const finalScore = questions.length > 0 ? (netPoints / questions.length) * 10 : 0;
+
+    const netPoints = correctCount - incorrectCount / 3;
+
+    // 2. Aseguramos que la puntuación directa no sea negativa
+    const finalNetPoints = Math.max(0, netPoints);
+
+    const finalScore = (finalNetPoints / questions.length) * 10;
 
     const { error: updateError } = await supabase
       .from('test_attempts')
@@ -219,18 +243,61 @@ export async function submitTestAttempt(testAttemptId: string, answers: Record<s
         correct_answers: correctCount,
         incorrect_answers: incorrectCount,
         unanswered_questions: unansweredCount,
+        net_score: finalNetPoints,
       })
       .eq('id', testAttemptId);
 
     if (updateError) {
-      return { error: updateError.message };
+      return { error: `Error finalizing attempt: ${updateError.message}` };
     }
 
     revalidatePath('/dashboard/tests');
     revalidatePath(`/dashboard/tests/${testAttemptId}`);
 
+    return { success: true, attemptId: testAttemptId }; // Devolvemos el ID
+  } catch (error: any) {
+    return { error: `An unexpected error occurred: ${error.message}` };
+  }
+}
+
+export async function deleteTestAttempt(testAttemptId: string) {
+  const supabase = await createSupabaseServerClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { error: 'User not authenticated' };
+  }
+
+  try {
+    const { data: attempt, error: fetchError } = await supabase
+      .from('test_attempts')
+      .select('id, user_id')
+      .eq('id', testAttemptId)
+      .eq('user_id', user.id)
+      .single();
+
+    if (fetchError || !attempt) {
+      return { error: 'Test attempt not found or not authorized to delete.' };
+    }
+    const { error: deleteError } = await supabase
+      .from('test_attempts')
+      .delete()
+      .eq('id', testAttemptId);
+
+    if (deleteError) {
+      console.error('Error deleting test attempt:', deleteError);
+      return { error: `Database error: ${deleteError.message}` };
+    }
+
+    // Refrescamos la página de tests para que la tabla se actualice
+    revalidatePath('/dashboard/tests');
+
     return { success: true };
-  } catch (error) {
-    return { error: 'An unexpected error occurred.' };
+  } catch (error: any) {
+    console.error('Unexpected error deleting test attempt:', error);
+    return { error: `An unexpected error occurred: ${error.message}` };
   }
 }

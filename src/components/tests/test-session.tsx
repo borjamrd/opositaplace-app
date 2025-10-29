@@ -1,9 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
-import { useForm, Controller } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
+import { submitTestAttempt } from '@/actions/tests';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -13,13 +10,16 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useToast } from '@/hooks/use-toast';
-import { submitTestAttempt } from '@/actions/tests';
 import type { Tables } from '@/lib/supabase/database.types';
+import { QuestionWithAnswers } from '@/lib/supabase/types';
+import { useTestStore } from '@/store/test-store';
 import { ArrowLeft, ArrowRight, CheckCircle, Loader2 } from 'lucide-react';
+import { useEffect, useState, useTransition } from 'react';
+import { z } from 'zod';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -32,7 +32,6 @@ import {
   AlertDialogTrigger,
 } from '../ui/alert-dialog';
 import { TestResults } from './test-results';
-import { QuestionWithAnswers } from '@/lib/supabase/types';
 
 const formSchema = z.object({
   answers: z.record(z.string()),
@@ -44,41 +43,65 @@ interface TestSessionProps {
   testAttempt: Tables<'test_attempts'>;
   questions: QuestionWithAnswers[];
 }
-
 export function TestSession({ testAttempt, questions }: TestSessionProps) {
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [isFinished, setIsFinished] = useState(false);
 
-  const form = useForm<FormData>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      answers: {},
-    },
-  });
+  const {
+    test,
+    userAnswers,
+    currentQuestionIndex,
+    setTest,
+    setUserAnswer,
+    setCurrentQuestionIndex,
+    reset: resetTestStore,
+  } = useTestStore();
 
-  const { control, watch, handleSubmit } = form;
+  useEffect(() => {
+    if (!test || test.id !== testAttempt.id) {
+      const allAnswers = questions.flatMap((q) => q.answers);
+      setTest(testAttempt, questions, allAnswers);
+    }
+  }, [test, testAttempt, questions, setTest]);
+
   const currentQuestion = questions[currentQuestionIndex];
   const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
-  const watchedAnswers = watch('answers');
 
-  const handleFinishTest = (data: FormData) => {
+  const currentAnswer = userAnswers.get(currentQuestion?.id);
+
+  const handleFinishTest = () => {
     startTransition(async () => {
-      const result = await submitTestAttempt(testAttempt.id, data.answers);
+      const answersObject = Object.fromEntries(userAnswers);
+
+      const result = await submitTestAttempt(testAttempt.id, answersObject);
       if (result?.error) {
         toast({
           variant: 'destructive',
           title: 'Error al finalizar el test',
           description: result.error,
         });
+      } else {
+        setIsFinished(true); // Marcamos como finalizado en el cliente
+        resetTestStore(); // Limpiamos el store
       }
     });
-    setIsFinished(true); 
   };
 
   if (isFinished) {
-    return <TestResults questions={questions} userAnswers={watchedAnswers} />;
+    const answersObject = Object.fromEntries(userAnswers);
+    return <TestResults questions={questions} userAnswers={answersObject} />;
+  }
+
+  if (!currentQuestion) {
+    return (
+      <Card
+        variant={'borderless'}
+        className="max-w-4xl mx-auto flex items-center justify-center min-h-[300px]"
+      >
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </Card>
+    );
   }
 
   return (
@@ -96,42 +119,37 @@ export function TestSession({ testAttempt, questions }: TestSessionProps) {
 
       <CardContent className="min-h-[300px]">
         <h3 className="text-lg font-semibold mb-6">{currentQuestion.text}</h3>
-        <Controller
-          name={`answers.${currentQuestion.id}`}
-          control={control}
-          render={({ field }) => (
-            <RadioGroup onValueChange={field.onChange} value={field.value} className="space-y-3">
-              {currentQuestion.answers.map((answer) => (
-                <Label
-                  key={answer.id}
-                  htmlFor={answer.id}
-                  className="flex items-center gap-3 p-4 border rounded-md cursor-pointer hover:bg-accent/50 transition-colors has-[:checked]:bg-primary/10 has-[:checked]:border-primary"
-                >
-                  <RadioGroupItem value={answer.id} id={answer.id} />
-                  <span>{answer.text}</span>
-                </Label>
-              ))}
-            </RadioGroup>
-          )}
-        />
+
+        <RadioGroup
+          onValueChange={(value) => setUserAnswer(currentQuestion.id, value)}
+          value={currentAnswer || ''}
+          className="space-y-3"
+        >
+          {currentQuestion.answers.map((answer) => (
+            <Label
+              key={answer.id}
+              htmlFor={answer.id}
+              className="flex items-center gap-3 p-4 border rounded-md cursor-pointer hover:bg-accent/50 transition-colors has-[:checked]:bg-primary/10 has-[:checked]:border-primary"
+            >
+              <RadioGroupItem value={answer.id} id={answer.id} />
+              <span>{answer.text}</span>
+            </Label>
+          ))}
+        </RadioGroup>
       </CardContent>
 
       <CardFooter className="flex justify-between">
         <Button
           type="button"
           variant="outline"
-          onClick={() => setCurrentQuestionIndex((prev) => prev - 1)}
+          onClick={() => setCurrentQuestionIndex(currentQuestionIndex - 1)}
           disabled={currentQuestionIndex === 0}
         >
           <ArrowLeft className="mr-2 h-4 w-4" /> Anterior
         </Button>
 
         {currentQuestionIndex < questions.length - 1 ? (
-          <Button
-            type="button"
-            onClick={() => setCurrentQuestionIndex((prev) => prev + 1)}
-            disabled={!watchedAnswers[currentQuestion.id]}
-          >
+          <Button type="button" onClick={() => setCurrentQuestionIndex(currentQuestionIndex + 1)}>
             Siguiente <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
         ) : (
@@ -150,7 +168,7 @@ export function TestSession({ testAttempt, questions }: TestSessionProps) {
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                <AlertDialogAction onClick={handleSubmit(handleFinishTest)} disabled={isPending}>
+                <AlertDialogAction onClick={handleFinishTest} disabled={isPending}>
                   {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   Sí, finalizar y corregir
                 </AlertDialogAction>

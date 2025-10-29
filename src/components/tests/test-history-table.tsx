@@ -1,3 +1,5 @@
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
   Table,
   TableBody,
@@ -6,12 +8,11 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import Link from 'next/link';
 import type { Tables } from '@/lib/supabase/database.types';
-import { Eye, Pen } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Eye, Pen } from 'lucide-react';
+import Link from 'next/link';
+import { DeleteAttemptDialog } from './delete-attempt-dialog';
 
 type TestAttempt = Tables<'test_attempts'>;
 
@@ -31,7 +32,7 @@ export function TestHistoryTable({ attempts }: TestHistoryTableProps) {
             <TableHead className="text-center">Correctas</TableHead>
             <TableHead className="text-center">Incorrectas</TableHead>
             <TableHead className="text-center">En Blanco</TableHead>
-            <TableHead className="text-right">Acciones</TableHead>
+            <TableHead className="text-center">Acciones</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -84,7 +85,7 @@ export function TestHistoryTable({ attempts }: TestHistoryTableProps) {
               <TableCell className="text-center font-medium text-gray-500">
                 {attempt.unanswered_questions ?? '-'}
               </TableCell>
-              <TableCell className="text-right">
+              <TableCell className="text-center">
                 <Button asChild variant="ghost" size="icon">
                   <Link href={`/dashboard/tests/${attempt.id}`}>
                     {attempt.status === 'completed' ? (
@@ -96,6 +97,7 @@ export function TestHistoryTable({ attempts }: TestHistoryTableProps) {
                     <span className="sr-only">Revisar test</span>
                   </Link>
                 </Button>
+                <DeleteAttemptDialog attemptId={attempt.id} />
               </TableCell>
             </TableRow>
           ))}
