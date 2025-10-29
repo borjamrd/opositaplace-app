@@ -21,6 +21,9 @@
     "paths": {
       "@/*": ["./src/*"],
       "@/lib/*": ["./src/lib/*"],
+      "@/components/*": ["./src/components/*"],
+      "@/actions/*": ["./src/actions/*"],
+      "@/types": ["./src/types/*"]
     },
     "types": ["vitest/globals", "@testing-library/jest-dom"]
   },

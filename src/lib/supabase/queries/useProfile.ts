@@ -1,13 +1,7 @@
 import { createClient } from '@/lib/supabase/client';
 import { useQuery } from '@tanstack/react-query';
-import type { Database } from '@/lib/supabase/database.types';
+import { ProfileWithOnboarding } from '../types';
 
-type Profile = Database['public']['Tables']['profiles']['Row'];
-type OnboardingInfo = Database['public']['Tables']['onboarding_info']['Row'];
-
-export type ProfileWithOnboarding = Profile & {
-  onboarding?: OnboardingInfo;
-};
 
 async function fetchProfileWithOnboarding(
   userId: string | null

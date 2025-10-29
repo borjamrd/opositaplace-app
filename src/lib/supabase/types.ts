@@ -20,6 +20,15 @@ export type ProfileWithOnboarding = Profile & {
   onboarding?: OnboardingInfo | null;
 };
 
+export interface UserSessionData {
+  profile: ProfileWithOnboarding | null;
+  subscription: Subscription | null;
+  userOppositions: Opposition[];
+  activeOpposition: Opposition | null;
+  studyCycles: StudyCycle[];
+  activeStudyCycle: StudyCycle | null;
+}
+
 export type QuestionWithAnswers = Tables<'questions'> & {
   answers: Tables<'answers'>[];
 };

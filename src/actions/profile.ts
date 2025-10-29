@@ -5,7 +5,7 @@ import { revalidatePath } from 'next/cache';
 import { stripe } from '@/lib/stripe';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import { ProfileSettings } from '@/lib/supabase/types';
+import { ProfileSettings, ProfileWithOnboarding } from '@/lib/supabase/types';
 export async function deleteUserAccount() {
   const supabase = await createSupabaseServerClient();
 
@@ -55,23 +55,38 @@ export async function deleteUserAccount() {
   redirect('/?message=Cuenta eliminada correctamente');
 }
 
-
-
-export async function updateProfileSettings(
-  profileId: string,
-  settings: Partial<ProfileSettings>
-) {
+export async function updateProfileSettings(profileId: string, settings: Partial<ProfileSettings>) {
   const supabase = await createSupabaseServerClient();
-  const { error } = await supabase
-    .from('profiles')
-    .update(settings) 
-    .eq('id', profileId);
+  const { error } = await supabase.from('profiles').update(settings).eq('id', profileId);
 
   if (error) {
     console.error('Error updating profile settings:', error);
     return { success: false, message: error.message };
   }
 
-  revalidatePath('/dashboard/profile'); 
+  revalidatePath('/dashboard/profile');
   return { success: true };
+}
+
+export async function getProfileData() {
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { profile: null };
+  }
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('*, onboarding_info(*)')
+    .eq('id', user.id)
+    .single();
+
+  const profileWithOnboarding: ProfileWithOnboarding | null = profile
+    ? { ...profile, onboarding: profile.onboarding_info }
+    : null;
+
+  return { profile: profileWithOnboarding };
 }

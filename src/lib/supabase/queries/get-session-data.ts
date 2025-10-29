@@ -1,24 +1,19 @@
 // src/lib/supabase/queries/get-session-data.ts
-"use server";
+'use server';
 
 import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { Opposition, ProfileWithOnboarding, StudyCycle, Subscription } from '../types';
-
-
-export interface UserSessionData {
-  profile: ProfileWithOnboarding | null;
-  subscription: Subscription | null;
-  userOppositions: Opposition[];
-  activeOpposition: Opposition | null;
-  studyCycles: StudyCycle[];
-  activeStudyCycle: StudyCycle | null;
-}
+import {
+  Opposition,
+  ProfileWithOnboarding,
+  StudyCycle,
+  Subscription,
+  UserSessionData,
+} from '../types';
 
 /**
  * Obtiene todos los datos de sesión esenciales para un usuario autenticado.
  */
 export async function getSessionData(): Promise<UserSessionData> {
-
   const supabase = await createSupabaseServerClient();
 
   const {
