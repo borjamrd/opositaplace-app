@@ -1,21 +1,10 @@
 // src/lib/supabase/queries/get-session-data.ts
 "use server";
 
-import type { Database } from '@/lib/supabase/database.types';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
+import { Opposition, ProfileWithOnboarding, StudyCycle, Subscription } from '../types';
 
-// Tipos para mayor claridad
-type Profile = Database['public']['Tables']['profiles']['Row'];
-type Subscription = Database['public']['Tables']['user_subscriptions']['Row'];
-type Opposition = Database['public']['Tables']['oppositions']['Row'];
-type StudyCycle = Database['public']['Tables']['user_study_cycles']['Row'];
-type OnboardingInfo = Database['public']['Tables']['onboarding_info']['Row'];
 
-export type ProfileWithOnboarding = Profile & {
-  onboarding?: OnboardingInfo | null;
-};
-
-// Objeto de retorno unificado para toda la sesión del usuario
 export interface UserSessionData {
   profile: ProfileWithOnboarding | null;
   subscription: Subscription | null;
@@ -37,7 +26,6 @@ export async function getSessionData(): Promise<UserSessionData> {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    // Si no hay usuario, devolvemos un estado vacío
     return {
       profile: null,
       subscription: null,
@@ -48,7 +36,6 @@ export async function getSessionData(): Promise<UserSessionData> {
     };
   }
 
-  // --- 1. Obtener Perfil y Suscripción en paralelo ---
   const [profileResult, subscriptionResult] = await Promise.all([
     supabase.from('profiles').select('*, onboarding_info(*)').eq('id', user.id).single(),
     supabase
@@ -63,7 +50,6 @@ export async function getSessionData(): Promise<UserSessionData> {
     : null;
   const subscription: Subscription | null = subscriptionResult.data;
 
-  // --- 2. Obtener las oposiciones del usuario ---
   const { data: userOppositionsData, error: userOppositionsError } = await supabase
     .from('user_oppositions')
     .select('active, oppositions(*)')
@@ -71,7 +57,6 @@ export async function getSessionData(): Promise<UserSessionData> {
 
   if (userOppositionsError) {
     console.error('Error fetching user oppositions:', userOppositionsError);
-    // Devuelve un estado parcial si falla esta parte
     return {
       profile,
       subscription,
@@ -88,7 +73,6 @@ export async function getSessionData(): Promise<UserSessionData> {
   const activeOpposition: Opposition | null =
     (activeUserOppositionRelation?.oppositions as Opposition) || userOppositions[0] || null;
 
-  // --- 3. Si hay una oposición activa, obtener sus ciclos ---
   let studyCycles: StudyCycle[] = [];
   let activeStudyCycle: StudyCycle | null = null;
 

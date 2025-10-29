@@ -1,7 +1,7 @@
 // src/lib/supabase/types.ts
 
 import { Tables } from '@/lib/supabase/database.types';
-export type Opposition =Tables<'oppositions'>;
+export type Opposition = Tables<'oppositions'>;
 export type Profile = Tables<'profiles'>;
 export type TestAttempt = Tables<'test_attempts'>;
 export type UserStudySession = Tables<'user_study_sessions'>;
@@ -14,6 +14,11 @@ export type SelectiveProcess = Tables<'selective_processes'>;
 export type ProcessStage = Tables<'process_stages'>;
 export type UserProcessStatus = Tables<'user_process_status'>;
 export type ProfileSettings = Tables<'profiles'>;
+export type OnboardingInfo = Tables<'onboarding_info'>;
+
+export type ProfileWithOnboarding = Profile & {
+  onboarding?: OnboardingInfo | null;
+};
 
 export type QuestionWithAnswers = Tables<'questions'> & {
   answers: Tables<'answers'>[];
