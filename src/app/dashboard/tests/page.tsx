@@ -57,7 +57,7 @@ export default async function CreateTestPage() {
     <div className="container mx-auto py-10">
       <div>
         <div className="flex justify-between">
-          <h2 className="text-2xl font-bold tracking-tight mb-4">Historial de Tests</h2>
+          <h2 className="text-2xl font-bold tracking-tight mb-4">Historial de tests</h2>
           <NewTestModal
             blocksWithTopics={blocksWithTopics || []}
             oppositionId={activeUserOpposition.opposition_id}
