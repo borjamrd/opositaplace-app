@@ -1,17 +1,5 @@
 // src/components/assistant/ConversationSidebar.tsx
 
-import { useEffect, useState } from 'react';
-import { createBrowserClient } from '@supabase/ssr';
-import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { MessageSquarePlus, MessageSquareText, Loader2, MoreHorizontal } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -23,6 +11,18 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { cn } from '@/lib/utils';
+import { createBrowserClient } from '@supabase/ssr';
+import { Loader2, MessageSquarePlus, MessageSquareText, MoreVertical } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 type Conversation = {
   id: string;
@@ -50,7 +50,6 @@ export function ConversationSidebar({
   );
 
   useEffect(() => {
-    // Función para obtener las conversaciones iniciales
     const fetchConversations = async () => {
       setIsLoading(true);
       const { data, error } = await supabase
@@ -122,7 +121,7 @@ export function ConversationSidebar({
                       size="icon"
                       className="h-8 w-8 opacity-0 group-hover:opacity-100"
                     >
-                      <MoreHorizontal className="h-4 w-4" />
+                      <MoreVertical className="h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent>

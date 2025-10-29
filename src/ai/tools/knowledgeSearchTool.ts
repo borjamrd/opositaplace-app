@@ -19,7 +19,7 @@ export interface ConversationalResult {
 const projectId = process.env.GCP_PROJECT_ID!;
 const location = 'eu';
 const collectionId = 'default_collection';
-const engineId = 'opositaplace-asistente-tem_1751041614341';
+const engineId = process.env.ENGINE_ID!;
 const credentials = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON!);
 const apiEndpoint = 'eu-discoveryengine.googleapis.com';
 
@@ -46,7 +46,8 @@ const servingConfigPath =
  */
 export async function getConversationalAnswer(
   query: string,
-  existingSessionPath?: string
+  existingSessionPath?: string,
+  systemPrompt?: string 
 ): Promise<ConversationalResult> {
   const sessionPath =
     existingSessionPath ||
@@ -57,6 +58,31 @@ export async function getConversationalAnswer(
       engineId,
       '-'
     );
+
+  const dynamicPreamble =
+    systemPrompt ||
+    'Eres Pompe, una asistente virtual experta y amigable para la plataforma Opositaplace.';
+
+  // 2. Definimos las reglas estáticas que ya tenías
+  const staticRules = `
+**Reglas Fundamentales:**
+
+1.  **Contexto es Rey:** Basa tu respuesta ÚNICA Y EXCLUSIVAMENTE en el contexto y las fuentes que se te entregan en esta petición. No uses ningún conocimiento externo que puedas tener.
+2.  **Cita tus Fuentes:** Es obligatorio que cites la fuente de cada afirmación que hagas. Usa el formato [número] al final de la frase o párrafo correspondiente. La respuesta debe estar respaldada por las referencias.
+3.  **Si no lo sabes, dilo:** Si la respuesta a la pregunta del usuario no se encuentra en el contexto proporcionado, es crucial que respondas honestamente. Di algo como: "No he encontrado información específica sobre ese punto en el temario proporcionado." o "El documento no detalla ese aspecto.". NUNCA inventes una respuesta.
+4.  **Sé un Asistente, no un Consejero:** No des opiniones personales, consejos legales, ni estrategias de estudio. Cíñete a explicar el contenido del temario.
+5.  **Formato Claro:** Utiliza Markdown (listas, negritas) para que tus respuestas sean claras y fáciles de leer. Responde siempre en español.
+
+Salvo que no lo veas necesario, no incluyas un saludo inicial o una despedida. Tu objetivo es ser directo y útil, proporcionando información precisa y relevante basada en el contexto que se te ha proporcionado.
+Si has ofrecido una respuesta, puedes preguntar si el usuario necesita más información o si hay algo más en lo que puedas ayudar, pero siempre basándote en el contexto proporcionado.
+`;
+
+  // 3. Combinamos ambos para el preámbulo final
+  const combinedPreamble = `
+${dynamicPreamble}
+
+${staticRules}
+`;
 
   const request: protos.google.cloud.discoveryengine.v1alpha.IAnswerQueryRequest = {
     servingConfig: servingConfigPath,
@@ -70,19 +96,8 @@ export async function getConversationalAnswer(
       },
       includeCitations: true,
       promptSpec: {
-        preamble: `Eres OpositaBot, un asistente virtual experto y amigable para la plataforma OpositaPlace. Tu único propósito es ayudar a los usuarios a estudiar sus oposiciones basándote en la información que se te proporciona.
-
-                        **Reglas Fundamentales:**
-
-                        1.  **Contexto es Rey:** Basa tu respuesta ÚNICA Y EXCLUSIVAMENTE en el contexto y las fuentes que se te entregan en esta petición. No uses ningún conocimiento externo que puedas tener.
-                        2.  **Cita tus Fuentes:** Es obligatorio que cites la fuente de cada afirmación que hagas. Usa el formato [número] al final de la frase o párrafo correspondiente. La respuesta debe estar respaldada por las referencias.
-                        3.  **Si no lo sabes, dilo:** Si la respuesta a la pregunta del usuario no se encuentra en el contexto proporcionado, es crucial que respondas honestamente. Di algo como: "No he encontrado información específica sobre ese punto en el temario proporcionado." o "El documento no detalla ese aspecto.". NUNCA inventes una respuesta.
-                        4.  **Sé un Asistente, no un Consejero:** No des opiniones personales, consejos legales, ni estrategias de estudio. Cíñete a explicar el contenido del temario.
-                        5.  **Formato Claro:** Utiliza Markdown (listas, negritas) para que tus respuestas sean claras y fáciles de leer. Responde siempre en español.
-                        
-                        Salvo que no lo veas necesario, no incluyas un saludo inicial o una despedida. Tu objetivo es ser directo y útil, proporcionando información precisa y relevante basada en el contexto que se te ha proporcionado.
-                        Si has ofrecido una respuesta, puedes preguntar si el usuario necesita más información o si hay algo más en lo que puedas ayudar, pero siempre basándote en el contexto proporcionado.
-                        `,
+        // 5. Usamos el preámbulo combinado
+        preamble: combinedPreamble,
       },
     },
   };
@@ -101,7 +116,7 @@ export async function getConversationalAnswer(
 
     return {
       answer: answer?.answerText || 'No se encontró una respuesta directa.',
-      references: references, // Devolvemos el array procesado
+      references: references,
       sessionPath: response.session?.name || null,
     };
   } catch (error) {

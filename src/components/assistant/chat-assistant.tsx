@@ -263,7 +263,7 @@ export function ChatAssistant() {
               </div>
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-4 p-10">
               {chatMessages.map((msg, index) => (
                 <div
                   key={index}
@@ -273,7 +273,7 @@ export function ChatAssistant() {
                 >
                   <div
                     className={`max-w-[70%] rounded-lg px-3 py-2 text-sm md:text-base break-words ${
-                      msg.role === 'user' ? '' : 'bg-muted'
+                      msg.role === 'user' ? 'bg-muted' : ''
                     }`}
                   >
                     {msg.content === '...' && isLoading ? (
@@ -285,7 +285,6 @@ export function ChatAssistant() {
                       <div className="prose prose-sm dark:prose-invert max-w-none">
                         <ReactMarkdown
                           components={{
-                            // Personalizamos los elementos de markdown
                             h1: ({ node, ...props }) => (
                               <h1 className="text-lg font-bold my-2" {...props} />
                             ),
