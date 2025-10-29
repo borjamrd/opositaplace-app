@@ -37,11 +37,6 @@ export const sidebarData = {
       icon: Map,
     },
     {
-      title: 'Anki',
-      url: '/dashboard/anki',
-      icon: ArrowUpCircleIcon,
-    },
-    {
       title: 'Tests',
       url: '/dashboard/tests',
       icon: CheckSquare,
