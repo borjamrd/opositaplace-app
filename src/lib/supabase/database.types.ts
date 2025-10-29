@@ -834,6 +834,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "fk_test_attempt"
+            columns: ["test_attempt_id"]
+            isOneToOne: false
+            referencedRelation: "test_attempts"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "test_attempt_questions_question_id_fkey"
             columns: ["question_id"]
             isOneToOne: false
@@ -1459,6 +1466,16 @@ export type Database = {
             }[]
           }
         | { Args: { opp_id: string }; Returns: string[] }
+      get_test_history_summary: {
+        Args: { limit_count?: number }
+        Returns: {
+          correct_answers: number
+          created_at: string
+          id: string
+          incorrect_answers: number
+          unanswered_questions: number
+        }[]
+      }
       get_url_history_by_id: {
         Args: { target_url_id: string }
         Returns: {

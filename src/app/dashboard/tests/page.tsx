@@ -1,4 +1,5 @@
 // app/dashboard/tests/page.tsx
+import { TestHistoryChart } from '@/components/charts/test-history-chart';
 import { NewTestModal } from '@/components/tests/new-test-modal';
 import { TestHistoryTable } from '@/components/tests/test-history-table';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
@@ -6,7 +7,6 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
 export default async function CreateTestPage() {
-
   const supabase = await createSupabaseServerClient();
 
   const {
@@ -55,12 +55,16 @@ export default async function CreateTestPage() {
 
   return (
     <div className="container mx-auto py-10">
-      <NewTestModal
-        blocksWithTopics={blocksWithTopics || []}
-        oppositionId={activeUserOpposition.opposition_id}
-      />
       <div>
-        <h2 className="text-2xl font-bold tracking-tight mb-4">Historial de Tests</h2>
+        <div className="flex justify-between">
+          <h2 className="text-2xl font-bold tracking-tight mb-4">Historial de Tests</h2>
+          <NewTestModal
+            blocksWithTopics={blocksWithTopics || []}
+            oppositionId={activeUserOpposition.opposition_id}
+          />
+        </div>
+
+        <TestHistoryChart />
         <TestHistoryTable attempts={testAttempts || []} />
       </div>
     </div>

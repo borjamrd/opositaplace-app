@@ -253,8 +253,7 @@ export async function submitTestAttempt(
 
     revalidatePath('/dashboard/tests');
     revalidatePath(`/dashboard/tests/${testAttemptId}`);
-
-    return { success: true, attemptId: testAttemptId }; // Devolvemos el ID
+    return { success: true, attemptId: testAttemptId };
   } catch (error: any) {
     return { error: `An unexpected error occurred: ${error.message}` };
   }

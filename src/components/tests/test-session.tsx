@@ -17,9 +17,10 @@ import { useToast } from '@/hooks/use-toast';
 import type { Tables } from '@/lib/supabase/database.types';
 import { QuestionWithAnswers } from '@/lib/supabase/types';
 import { useTestStore } from '@/store/test-store';
+import { useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, ArrowRight, CheckCircle, Loader2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { useEffect, useState, useTransition } from 'react';
-import { z } from 'zod';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -33,12 +34,6 @@ import {
 } from '../ui/alert-dialog';
 import { TestResults } from './test-results';
 
-const formSchema = z.object({
-  answers: z.record(z.string()),
-});
-
-type FormData = z.infer<typeof formSchema>;
-
 interface TestSessionProps {
   testAttempt: Tables<'test_attempts'>;
   questions: QuestionWithAnswers[];
@@ -47,6 +42,9 @@ export function TestSession({ testAttempt, questions }: TestSessionProps) {
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
   const [isFinished, setIsFinished] = useState(false);
+
+  const router = useRouter();
+  const queryClient = useQueryClient();
 
   const {
     test,
@@ -81,9 +79,10 @@ export function TestSession({ testAttempt, questions }: TestSessionProps) {
           title: 'Error al finalizar el test',
           description: result.error,
         });
-      } else {
-        setIsFinished(true); // Marcamos como finalizado en el cliente
-        resetTestStore(); // Limpiamos el store
+      } else if (result?.success) {
+        await queryClient.invalidateQueries({ queryKey: ['test-history-summary-rpc'] });
+        resetTestStore();
+        router.push('/dashboard/tests');
       }
     });
   };
