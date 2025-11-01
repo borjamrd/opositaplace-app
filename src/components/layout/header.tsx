@@ -18,6 +18,7 @@ import {
 import { ChevronRight } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import TimerManager from '../TimerManager';
+import { AppBreadcrumbs } from './app-breadcrums';
 
 export function Header() {
   const pathname = usePathname();
@@ -50,44 +51,7 @@ export function Header() {
       <div className="flex items-center gap-4">
         <div className="hidden md:flex">
           {' '}
-          <Breadcrumb>
-            <BreadcrumbList>
-              <BreadcrumbItem>
-                <BreadcrumbLink asChild>
-                  <Link className="text-base font-medium" href="/dashboard">
-                    Dashboard
-                  </Link>
-                </BreadcrumbLink>
-              </BreadcrumbItem>
-              {breadcrumbs.length > 0 && (
-                <BreadcrumbSeparator>
-                  <ChevronRight className="mx-1 h-4 w-4 text-muted-foreground" />
-                </BreadcrumbSeparator>
-              )}
-              {breadcrumbs.map((breadcrumb, idx) => (
-                <React.Fragment key={breadcrumb.url}>
-                  <BreadcrumbItem>
-                    {breadcrumb.isLast ? (
-                      <BreadcrumbPage className="text-base font-medium">
-                        {breadcrumb.path}
-                      </BreadcrumbPage>
-                    ) : (
-                      <BreadcrumbLink asChild>
-                        <Link className="text-base font-medium" href={breadcrumb.url}>
-                          {breadcrumb.path}
-                        </Link>
-                      </BreadcrumbLink>
-                    )}
-                  </BreadcrumbItem>
-                  {idx < breadcrumbs.length - 1 && (
-                    <BreadcrumbSeparator>
-                      <ChevronRight className="mx-1 h-4 w-4 text-muted-foreground" />
-                    </BreadcrumbSeparator>
-                  )}
-                </React.Fragment>
-              ))}
-            </BreadcrumbList>
-          </Breadcrumb>
+          <AppBreadcrumbs />{' '}
         </div>
       </div>
 
