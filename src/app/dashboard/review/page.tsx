@@ -15,9 +15,7 @@ export default async function ReviewPage() {
             <CardTitle>¡Todo listo! 🥳</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <p className="text-lg text-muted-foreground">
-              No tienes tarjetas pendientes por hoy.
-            </p>
+            <p className="text-lg text-muted-foreground">No tienes tarjetas pendientes por hoy.</p>
             <Button asChild>
               <Link href="/dashboard">Volver al Dashboard</Link>
             </Button>
@@ -27,6 +25,5 @@ export default async function ReviewPage() {
     );
   }
 
-  // 3. Si hay tarjetas, pasamos los datos al componente cliente
   return <ReviewSession initialCards={initialCards} />;
 }

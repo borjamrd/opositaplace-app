@@ -1,15 +1,20 @@
 'use client';
 
-import { useState } from 'react';
+import { processCardReview } from '@/actions/srs';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
-import { processCardReview } from '@/actions/srs';
 import { useToast } from '@/hooks/use-toast';
-// Asegúrate de importar los tipos desde tu archivo types.ts
-import { SrsCard, Json } from '@/lib/supabase/types';
-import Link from 'next/link';
+import { SrsCard } from '@/lib/supabase/types';
+import { useState } from 'react';
 
-// Definimos la estructura del contenido Json para tener tipado
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion';
+import { Info } from 'lucide-react';
+import Link from 'next/link';
 interface CardContentJson {
   text: string;
   explanation?: string;
@@ -20,23 +25,17 @@ interface ReviewSessionProps {
 }
 
 export function ReviewSession({ initialCards }: ReviewSessionProps) {
-  // Esta es la cola de tarjetas para la sesión actual
   const [cardsQueue, setCardsQueue] = useState(initialCards);
   const [isFlipped, setIsFlipped] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
-  // Siempre trabajamos con la primera tarjeta de la cola
   const currentCard = cardsQueue[0];
 
   const handleReview = async (rating: 'again' | 'hard' | 'good' | 'easy') => {
     setIsSubmitting(true);
     try {
-      // 1. Llamamos a la server action para procesar el repaso
       await processCardReview(currentCard.id, rating);
-
-      // 2. Si es 'again', movemos la tarjeta al final de la cola
-      //    para que vuelva a salir en esta misma sesión.
       if (rating === 'again') {
         setCardsQueue((prev) => [...prev.slice(1), prev[0]]);
         toast({
@@ -44,11 +43,8 @@ export function ReviewSession({ initialCards }: ReviewSessionProps) {
           description: 'Esta tarjeta volverá a salir en esta sesión.',
         });
       } else {
-        // 3. Si es 'hard', 'good', o 'easy', la quitamos de la cola de esta sesión
         setCardsQueue((prev) => prev.slice(1));
       }
-
-      // 4. Reseteamos el estado para la siguiente tarjeta
       setIsFlipped(false);
     } catch (error) {
       toast({
@@ -61,9 +57,6 @@ export function ReviewSession({ initialCards }: ReviewSessionProps) {
     }
   };
 
-  // --- Renderizado ---
-
-  // Estado final: Sesión completada
   if (cardsQueue.length === 0) {
     return (
       <div className="flex justify-center items-center pt-20">
@@ -82,22 +75,65 @@ export function ReviewSession({ initialCards }: ReviewSessionProps) {
     );
   }
 
-  // Extraemos el contenido de la tarjeta actual (casteando a nuestro tipo)
   const frontContent = currentCard.front_content as unknown as CardContentJson;
   const backContent = currentCard.back_content as unknown as CardContentJson;
 
-  // Estado principal: Mostrando una tarjeta
   return (
     <div className="w-full max-w-2xl mx-auto pt-10">
+      <Accordion type="single" collapsible className="w-full mb-6">
+        <AccordionItem value="item-1">
+          <AccordionTrigger>
+            <div className="flex items-center gap-2 text-sm font-semibold">
+              <Info className="h-4 w-4" />
+              <span>¿Cómo funciona la Repetición Espaciada?</span>
+            </div>
+          </AccordionTrigger>
+          <AccordionContent className="text-sm text-muted-foreground space-y-3">
+            <p>
+              ¡Estás usando el módulo de Repetición Espaciada (SRS)! El objetivo es ayudarte a
+              memorizar conceptos a largo plazo de forma eficiente.
+            </p>
+            <ul className="list-disc pl-5 space-y-2">
+              <li>
+                <strong>Origen de las tarjetas:</strong> Provienen de las preguntas que has fallado
+                en los tests y que marcaste con "➕ Añadir a Repaso".
+              </li>
+              <li>
+                <strong>El Algoritmo:</strong> El sistema te mostrará una tarjeta justo antes de que
+                estés a punto de olvidarla. Cuanto mejor la sepas, más tiempo tardará en volver a
+                aparecer.
+              </li>
+            </ul>
+            <p className="font-medium text-foreground">¿Qué significa cada botón?</p>
+            <ul className="list-none pl-5 space-y-2">
+              <li>
+                <strong>👎 Otra vez:</strong> Has fallado. La tarjeta se reinicia y te la volveremos
+                a mostrar pronto (en esta sesión o al día siguiente).
+              </li>
+              <li>
+                <strong>🤔 Difícil:</strong> La acertaste, pero dudando. Volverá a aparecer un poco
+                más tarde que antes (ej: de 3 días pasa a 5).
+              </li>
+              <li>
+                <strong>🙂 Bien:</strong> La sabías. El intervalo de tiempo crece bastante (ej: de 3
+                días pasa a 10).
+              </li>
+              <li>
+                <strong>😎 Fácil:</strong> Es una pregunta muy fácil para ti. El intervalo se
+                dispara (ej: de 3 días pasa a 20).
+              </li>
+            </ul>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
+
       <Card>
         <CardContent className="p-6 min-h-[250px] flex flex-col justify-center">
-          {/* Anverso (Pregunta) */}
           <p className="text-xl text-center">{frontContent.text}</p>
 
           {isFlipped && (
             <>
               <hr className="my-4" />
-              {/* Reverso (Respuesta) */}
               <p className="text-xl text-center font-semibold">{backContent.text}</p>
               {backContent.explanation && (
                 <p className="text-sm text-muted-foreground text-center mt-2 italic">
@@ -115,7 +151,6 @@ export function ReviewSession({ initialCards }: ReviewSessionProps) {
               Mostrar Respuesta
             </Button>
           ) : (
-            // Botones de Autoevaluación
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2 w-full">
               <Button
                 variant="destructive"
