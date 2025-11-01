@@ -2,6 +2,7 @@ import { DashboardContent } from '@/components/dashboard/dashboard-content';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { QuestionWithAnswers } from '@/lib/supabase/types';
 import { shuffle } from '@/lib/utils';
+import { getDueReviewCards } from '@/actions/srs';
 
 export default async function DashboardPage() {
   const supabase = await createSupabaseServerClient();
@@ -21,7 +22,8 @@ export default async function DashboardPage() {
     }
   }
 
-  return (
-      <DashboardContent failedQuestions={failedQuestions} />
-  );
+  const dueCards = await getDueReviewCards();
+  const dueCardsCount = dueCards.length;
+
+  return <DashboardContent failedQuestions={failedQuestions} dueCardsCount={dueCardsCount} />;
 }

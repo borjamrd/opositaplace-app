@@ -17,7 +17,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 export function SelectiveProcessTimeline() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const { activeOpposition } = useStudySessionStore(); // Obtener la oposición activa del usuario
+  const { activeOpposition } = useStudySessionStore();
 
   const {
     data: processData,
@@ -26,7 +26,6 @@ export function SelectiveProcessTimeline() {
     error,
   } = useSelectiveProcess(activeOpposition?.id);
 
-  // Hook de mutación para actualizar el estado de seguimiento
   const { mutate: updateStatus, isPending: isUpdatingStatus } = useMutation({
     mutationFn: async ({
       processId,
@@ -73,7 +72,6 @@ export function SelectiveProcessTimeline() {
     },
   });
 
-  // ✅ Lógica dinámica para el estado de las etapas
   const currentStageIndex = useMemo(() => {
     if (!processData?.userStatus?.current_stage_id || !processData?.stages) return 0;
 
@@ -95,7 +93,6 @@ export function SelectiveProcessTimeline() {
     }
   };
 
-  // ----- Renderizado -----
 
   if (isLoading) {
     return <Skeleton className="h-48 w-full" />;
@@ -153,7 +150,7 @@ export function SelectiveProcessTimeline() {
   return (
     <Card variant={'borderless'}>
       <CardHeader>
-        <CardTitle>
+        <CardTitle className="text-lg font-bold">
           {isTracking ? 'Mi camino a la plaza' : 'Así funciona el proceso selectivo'}
         </CardTitle>
         <CardDescription>{process.name}</CardDescription>
@@ -181,7 +178,7 @@ export function SelectiveProcessTimeline() {
                   )}
                 </div>
                 <div className="w-full">
-                  <p
+                  <div
                     className={`font-semibold ${isCurrent ? 'text-primary' : ''} ${
                       isCompleted ? 'text-muted-foreground line-through' : ''
                     } flex items-center`}
@@ -202,7 +199,7 @@ export function SelectiveProcessTimeline() {
                         </TooltipContent>
                       </Tooltip>
                     )}
-                  </p>
+                  </div>
                   {stage.key_date && (
                     <p className="text-sm text-muted-foreground">
                       Fecha clave: {new Date(stage.key_date).toLocaleDateString()}

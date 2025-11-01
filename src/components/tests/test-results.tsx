@@ -1,5 +1,6 @@
 'use client';
 
+import { createReviewCard } from '@/actions/srs';
 import {
   Accordion,
   AccordionContent,
@@ -9,62 +10,95 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { QuestionWithAnswers, TestAttempt } from '@/lib/supabase/types';
+import { useToast } from '@/hooks/use-toast';
+import { Json, QuestionWithAnswers, TestAttempt } from '@/lib/supabase/types';
 import { cn } from '@/lib/utils';
-import { Check, CheckCircle, HelpCircle, X, XCircle } from 'lucide-react';
+import { Check, CheckCircle, HelpCircle, Loader2, X, XCircle } from 'lucide-react';
 import Link from 'next/link';
-import React from 'react';
+import { useMemo, useState } from 'react';
 
 interface TestResultsProps {
   questions: QuestionWithAnswers[];
   userAnswers: Record<string, string | null>;
   attempt?: TestAttempt;
+  addedCardIds: string[];
 }
-export function TestResults({ questions, userAnswers, attempt }: TestResultsProps) {
-  const { correctCount, incorrectCount, unansweredCount, finalScore, netPoints } =
-    React.useMemo(() => {
-      if (attempt?.score !== null && attempt?.score !== undefined) {
-        return {
-          correctCount: attempt.correct_answers ?? 0,
-          incorrectCount: attempt.incorrect_answers ?? 0,
-          unansweredCount: attempt.unanswered_questions ?? 0,
-          finalScore: Number(attempt.score),
-          netPoints: attempt.net_score ?? 0, // Usar el net_score guardado de la DB
-        };
-      }
-
-      let correct = 0;
-      let incorrect = 0;
-      questions.forEach((question) => {
-        const userAnswerId = userAnswers[question.id];
-
-        if (userAnswerId) {
-          const isCorrect = question.answers.some((a) => a.id === userAnswerId && a.is_correct);
-          if (isCorrect) {
-            correct++;
-          } else {
-            incorrect++;
-          }
-        }
-      });
-
-      const unanswered = questions.length - (correct + incorrect);
-
-      const net = correct - incorrect / 3;
-      const finalNet = Math.max(0, net);
-      const score = questions.length > 0 ? (finalNet / questions.length) * 10 : 0;
-
+export function TestResults({ questions, userAnswers, attempt, addedCardIds }: TestResultsProps) {
+  const { toast } = useToast();
+  const [addedIds, setAddedIds] = useState(new Set(addedCardIds));
+  const [isAddingId, setIsAddingId] = useState<string | null>(null);
+  const { correctCount, incorrectCount, unansweredCount, finalScore, netPoints } = useMemo(() => {
+    if (attempt?.score !== null && attempt?.score !== undefined) {
       return {
-        correctCount: correct,
-        incorrectCount: incorrect,
-        unansweredCount: unanswered,
-        finalScore: score,
-        netPoints: finalNet,
+        correctCount: attempt.correct_answers ?? 0,
+        incorrectCount: attempt.incorrect_answers ?? 0,
+        unansweredCount: attempt.unanswered_questions ?? 0,
+        finalScore: Number(attempt.score),
+        netPoints: attempt.net_score ?? 0,
       };
-    }, [questions, userAnswers, attempt]);
+    }
+
+    let correct = 0;
+    let incorrect = 0;
+    questions.forEach((question) => {
+      const userAnswerId = userAnswers[question.id];
+
+      if (userAnswerId) {
+        const isCorrect = question.answers.some((a) => a.id === userAnswerId && a.is_correct);
+        if (isCorrect) {
+          correct++;
+        } else {
+          incorrect++;
+        }
+      }
+    });
+
+    const unanswered = questions.length - (correct + incorrect);
+
+    const net = correct - incorrect / 3;
+    const finalNet = Math.max(0, net);
+    const score = questions.length > 0 ? (finalNet / questions.length) * 10 : 0;
+
+    return {
+      correctCount: correct,
+      incorrectCount: incorrect,
+      unansweredCount: unanswered,
+      finalScore: score,
+      netPoints: finalNet,
+    };
+  }, [questions, userAnswers, attempt]);
 
   const totalQuestions = questions.length;
 
+  const handleAddToReview = async (question: QuestionWithAnswers) => {
+    if (isAddingId) return;
+    setIsAddingId(question.id);
+
+    const correctAnswer = question.answers.find((a) => a.is_correct);
+    const frontContent: Json = { text: question.text };
+    const backContent: Json = {
+      text: correctAnswer?.text || 'Error: Respuesta no encontrada',
+    };
+
+    try {
+      await createReviewCard({
+        frontContent: frontContent,
+        backContent: backContent,
+        sourceQuestionId: question.id,
+      });
+      toast({ title: '¡Genial!', description: 'Tarjeta añadida a tu mazo de repaso.' });
+
+      setAddedIds((prev) => new Set(prev).add(question.id));
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: (error as Error).message,
+        variant: 'destructive',
+      });
+    } finally {
+      setIsAddingId(null);
+    }
+  };
   return (
     <Card className="w-full max-w-3xl mx-auto mt-8 border-none shadow-none">
       <CardHeader>
@@ -121,6 +155,9 @@ export function TestResults({ questions, userAnswers, attempt }: TestResultsProp
               const userAnswerId = userAnswers[question.id];
               const correctAnswer = question.answers.find((a) => a.is_correct);
               const isUserCorrect = userAnswerId === correctAnswer?.id;
+              const wasIncorrect = userAnswerId && !isUserCorrect;
+              const isAlreadyAdded = addedIds.has(question.id);
+              const isAdding = isAddingId === question.id;
 
               return (
                 <AccordionItem value={`item-${index}`} key={question.id}>
@@ -170,6 +207,29 @@ export function TestResults({ questions, userAnswers, attempt }: TestResultsProp
                         );
                       })}
                     </ul>
+                    {wasIncorrect && (
+                      <div className="pl-4 pt-4">
+                        <Button
+                          variant={isAlreadyAdded ? 'secondary' : 'outline'}
+                          size="sm"
+                          onClick={() => handleAddToReview(question)}
+                          disabled={isAlreadyAdded || isAdding}
+                        >
+                          {isAdding ? (
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          ) : isAlreadyAdded ? (
+                            <Check className="mr-2 h-4 w-4" />
+                          ) : (
+                            <span className="mr-2">➕</span>
+                          )}
+                          {isAdding
+                            ? 'Añadiendo...'
+                            : isAlreadyAdded
+                              ? 'Añadido a repaso'
+                              : 'Añadir a repaso espaciado'}
+                        </Button>
+                      </div>
+                    )}
                   </AccordionContent>
                 </AccordionItem>
               );

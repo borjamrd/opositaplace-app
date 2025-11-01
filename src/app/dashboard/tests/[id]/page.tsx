@@ -101,7 +101,26 @@ export default async function TestPage({ params }: { params: { id: string } }) {
         {} as Record<string, string>
       ) ?? {};
 
-    return <TestResults questions={allQuestions} userAnswers={userAnswers} attempt={testAttempt} />;
+    const questionIds = allQuestions.map((q) => q.id);
+    const { data: existingSrsCards } = await supabase
+      .from('srs_cards')
+      .select('source_question_id')
+      .eq('user_id', user.id)
+      .in('source_question_id', questionIds);
+
+    const addedCardIds =
+      existingSrsCards
+        ?.map((card) => card.source_question_id)
+        .filter((id): id is string => id !== null) || [];
+
+    return (
+      <TestResults
+        questions={allQuestions}
+        userAnswers={userAnswers}
+        attempt={testAttempt}
+        addedCardIds={addedCardIds}
+      />
+    );
   }
 
   return <TestSession testAttempt={testAttempt} questions={validQuestions} />;
