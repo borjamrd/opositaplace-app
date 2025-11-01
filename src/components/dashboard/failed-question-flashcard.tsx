@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useMemo } from 'react';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { RefreshCw, Eye } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import type { Tables } from '@/lib/supabase/database.types';
+import { cn } from '@/lib/utils';
+import { Eye, RefreshCw } from 'lucide-react';
+import { useState } from 'react';
 
 type QuestionWithAnswers = Tables<'questions'> & {
   answers: Tables<'answers'>[];

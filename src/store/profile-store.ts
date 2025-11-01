@@ -1,6 +1,6 @@
 // src/store/profile-store.ts
+import { ProfileWithOnboarding } from '@/lib/supabase/types';
 import { create } from 'zustand';
-import type { ProfileWithOnboarding } from '@/lib/supabase/queries/useProfile';
 
 interface ProfileState {
   profile: ProfileWithOnboarding | null;

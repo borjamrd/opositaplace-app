@@ -734,6 +734,45 @@ export type Database = {
           },
         ]
       }
+      srs_cards: {
+        Row: {
+          back_content: Json
+          created_at: string
+          current_interval: number
+          ease_factor: number
+          front_content: Json
+          id: string
+          last_reviewed_at: string | null
+          next_review_at: string
+          source_question_id: string | null
+          user_id: string
+        }
+        Insert: {
+          back_content: Json
+          created_at?: string
+          current_interval?: number
+          ease_factor?: number
+          front_content: Json
+          id?: string
+          last_reviewed_at?: string | null
+          next_review_at?: string
+          source_question_id?: string | null
+          user_id: string
+        }
+        Update: {
+          back_content?: Json
+          created_at?: string
+          current_interval?: number
+          ease_factor?: number
+          front_content?: Json
+          id?: string
+          last_reviewed_at?: string | null
+          next_review_at?: string
+          source_question_id?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       study_sounds: {
         Row: {
           created_at: string | null
