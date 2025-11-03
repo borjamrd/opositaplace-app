@@ -1,6 +1,6 @@
 // src/lib/supabase/types.ts
 
-import { Tables } from '@/lib/supabase/database.types';
+import { Tables, Enums } from '@/lib/supabase/database.types';
 export type { Json } from '@/lib/supabase/database.types';
 
 export type Opposition = Tables<'oppositions'>;
@@ -18,6 +18,9 @@ export type UserProcessStatus = Tables<'user_process_status'>;
 export type ProfileSettings = Tables<'profiles'>;
 export type OnboardingInfo = Tables<'onboarding_info'>;
 export type SrsCard = Tables<'srs_cards'>;
+export type SyllabusStatus = Enums<'syllabus_status'>;
+export type Block = Tables<'blocks'>;
+export type Topic = Tables<'topics'>;
 
 export type ProfileWithOnboarding = Profile & {
   onboarding?: OnboardingInfo | null;

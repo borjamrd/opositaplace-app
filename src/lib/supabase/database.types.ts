@@ -1097,48 +1097,6 @@ export type Database = {
         }
         Relationships: []
       }
-      user_blocks: {
-        Row: {
-          block_id: string | null
-          created_at: string | null
-          id: string
-          status: string | null
-          study_cycle_id: string | null
-          user_id: string | null
-        }
-        Insert: {
-          block_id?: string | null
-          created_at?: string | null
-          id?: string
-          status?: string | null
-          study_cycle_id?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          block_id?: string | null
-          created_at?: string | null
-          id?: string
-          status?: string | null
-          study_cycle_id?: string | null
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "user_blocks_block_id_fkey"
-            columns: ["block_id"]
-            isOneToOne: false
-            referencedRelation: "blocks"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "user_blocks_study_cycle_id_fkey"
-            columns: ["study_cycle_id"]
-            isOneToOne: false
-            referencedRelation: "user_study_cycles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       user_oppositions: {
         Row: {
           active: boolean | null
@@ -1406,41 +1364,44 @@ export type Database = {
           },
         ]
       }
-      user_topics: {
+      user_topic_status: {
         Row: {
           created_at: string
           id: string
-          status: string
+          status: Database["public"]["Enums"]["syllabus_status"]
           study_cycle_id: string
           topic_id: string
+          updated_at: string | null
           user_id: string
         }
         Insert: {
           created_at?: string
           id?: string
-          status?: string
+          status?: Database["public"]["Enums"]["syllabus_status"]
           study_cycle_id: string
           topic_id: string
+          updated_at?: string | null
           user_id: string
         }
         Update: {
           created_at?: string
           id?: string
-          status?: string
+          status?: Database["public"]["Enums"]["syllabus_status"]
           study_cycle_id?: string
           topic_id?: string
+          updated_at?: string | null
           user_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "user_topics_study_cycle_id_fkey"
+            foreignKeyName: "user_topic_status_study_cycle_id_fkey"
             columns: ["study_cycle_id"]
             isOneToOne: false
             referencedRelation: "user_study_cycles"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "user_topics_topic_id_fkey"
+            foreignKeyName: "user_topic_status_topic_id_fkey"
             columns: ["topic_id"]
             isOneToOne: false
             referencedRelation: "topics"
@@ -1576,6 +1537,7 @@ export type Database = {
     Enums: {
       app_role: "admin" | "user"
       status_enum: "not_started" | "in_progress" | "completed"
+      syllabus_status: "not_started" | "in_progress" | "completed"
       test_answer_status: "correct" | "incorrect" | "blank"
       tracking_status_enum: "TRACKING" | "PREPARING" | "PAUSED"
     }
@@ -1707,6 +1669,7 @@ export const Constants = {
     Enums: {
       app_role: ["admin", "user"],
       status_enum: ["not_started", "in_progress", "completed"],
+      syllabus_status: ["not_started", "in_progress", "completed"],
       test_answer_status: ["correct", "incorrect", "blank"],
       tracking_status_enum: ["TRACKING", "PREPARING", "PAUSED"],
     },
