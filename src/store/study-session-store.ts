@@ -1,10 +1,7 @@
 // src/store/study-session-store.ts
-import { create } from 'zustand';
 import { createClient } from '@/lib/supabase/client';
-import type { Database } from '@/lib/supabase/database.types';
-
-type Opposition = Database['public']['Tables']['oppositions']['Row'];
-export type StudyCycle = Database['public']['Tables']['user_study_cycles']['Row'];
+import { Opposition, StudyCycle } from '@/lib/supabase/types';
+import { create } from 'zustand';
 
 interface StudySessionState {
   oppositions: Opposition[];
