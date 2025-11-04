@@ -9,17 +9,17 @@ import {
 } from '@/components/ui/sidebar';
 
 import {
-  ArrowUpCircleIcon,
   Bell,
   BookOpen,
   CheckSquare,
   Database,
   LayoutDashboard,
   Map,
+  Repeat
 } from 'lucide-react';
+import Link from 'next/link';
 import React from 'react';
 import { Logo } from '../logo';
-import Link from 'next/link';
 
 import OpositionSelector from '../oposition-selector';
 import { NavMain } from './nav-main';
@@ -42,9 +42,9 @@ export const sidebarData = {
       icon: CheckSquare,
     },
     {
-      title: 'Cambios URLS',
-      url: '/dashboard/urls-change-history',
-      icon: CheckSquare,
+      title: 'Repetición espaciada',
+      url: '/dashboard/review',
+      icon: Repeat,
     },
   ],
   general: [
