@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useState, useTransition } from 'react';
 import ReactFlow, {
-  Background,
   Edge,
   Node,
   OnEdgesChange,
@@ -10,7 +9,7 @@ import ReactFlow, {
   Position,
   ReactFlowProvider,
   useEdgesState,
-  useNodesState,
+  useNodesState
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 
@@ -20,9 +19,8 @@ import {
   Sheet,
   SheetContent,
   SheetDescription,
-  SheetFooter,
   SheetHeader,
-  SheetTitle,
+  SheetTitle
 } from '@/components/ui/sheet';
 import { useToast } from '@/hooks/use-toast';
 import { Block, StudyCycle, SyllabusStatus, Topic } from '@/lib/supabase/types';
@@ -86,6 +84,9 @@ function FlowCanvas({
 }) {
   return (
     <ReactFlow
+      style={
+        {cursor: 'default'}
+      }
       nodes={nodes}
       edges={edges}
       onNodesChange={onNodesChange}
@@ -94,9 +95,7 @@ function FlowCanvas({
       nodesDraggable={false}
       nodesConnectable={false}
       proOptions={{ hideAttribution: true }}
-    >
-      <Background />
-    </ReactFlow>
+    ></ReactFlow>
   );
 }
 
@@ -125,9 +124,11 @@ export function RoadmapFlow({
       style: {
         width: BLOCK_WIDTH,
         height: NODE_HEIGHT,
+        borderRadius: 8,
         fontSize: '1.2rem',
         fontWeight: 'bold',
         background: '#333',
+        cursor: 'pointer',
         color: 'white',
       },
       sourcePosition: Position.Bottom,
@@ -168,6 +169,7 @@ export function RoadmapFlow({
           height: NODE_HEIGHT,
           background: 'rgba(0, 0, 0, 0.04)',
           border: '1px solid #E0E0E0',
+          cursor: 'pointer',
           fontWeight: '600',
         },
         // Los temas salen de los lados
@@ -212,6 +214,7 @@ export function RoadmapFlow({
             height: 'auto',
             ...getStatusStyle(status),
             whiteSpace: 'pre-wrap',
+            cursor: 'pointer',
           },
           targetPosition: isRightSide ? Position.Left : Position.Right,
         });
@@ -296,7 +299,7 @@ export function RoadmapFlow({
       );
       toast({
         title: '¡Actualizado!',
-        description: `El tema "${selectedTopic.name}" se marcó como ${newStatus}.`,
+        description: `El "${selectedTopic.name}" se marcó como ${newStatus}.`,
       });
       if (result.newCycleStarted) {
         toast({
@@ -328,9 +331,7 @@ export function RoadmapFlow({
           {selectedTopic && (
             <>
               <SheetHeader>
-                <SheetTitle>
-                  Tema {selectedTopic.position}: {selectedTopic.name}
-                </SheetTitle>
+                <SheetTitle>{selectedTopic.name}</SheetTitle>
                 <SheetDescription>
                   Vuelta {initialCycle.cycle_number} · Bloque{' '}
                   {initialBlocks.find((b) => b.id === selectedTopic.block_id)?.name}
