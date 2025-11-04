@@ -130,17 +130,19 @@ export async function updateTopicStatus(topicId: string, newStatus: SyllabusStat
   }
 
   // 1. Actualizar (o insertar) el estado del tema
-  const { error: upsertError } = await supabase
-    .from('user_topic_status')
-    .upsert({
+  const { error: upsertError } = await supabase.from('user_topic_status').upsert(
+    {
       user_id: activeCycle.user_id,
       topic_id: topicId,
       study_cycle_id: activeCycle.id,
       status: newStatus,
       updated_at: new Date().toISOString(),
-    })
-    .eq('study_cycle_id', activeCycle.id)
-    .eq('topic_id', topicId);
+    },
+    {
+      onConflict: 'user_id, topic_id, study_cycle_id',
+      ignoreDuplicates: false,
+    }
+  );
 
   if (upsertError) {
     throw new Error(`Failed to update status: ${upsertError.message}`);
