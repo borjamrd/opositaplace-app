@@ -3,6 +3,9 @@ import Stripe from 'stripe';
 import { stripe } from '@/lib/stripe/stripe';
 import { manageSubscriptionStatusChange } from '@/lib/stripe/actions';
 import { Readable } from 'stream';
+import { sendEmail } from '@/lib/email/email';
+import InvoicePaidEmail from '@/emails/invoice-paid-email';
+import PaymentFailedEmail from '@/emails/payment-failed-email';
 
 async function buffer(readable: Readable) {
   const chunks = [];
@@ -69,6 +72,36 @@ export async function POST(req: NextRequest) {
         }
         case 'invoice.payment_succeeded': {
           const invoice = event.data.object as Stripe.Invoice;
+
+          const customerId =
+            typeof invoice.customer === 'string' ? invoice.customer : invoice.customer?.id;
+
+          if (!customerId) {
+            console.error('Invoice payment succeeded but no customer ID found.');
+            break;
+          }
+
+          try {
+            const customer = (await stripe.customers.retrieve(customerId)) as Stripe.Customer;
+            const userEmail = customer.email;
+            const userName = customer.name?.split(' ')[0] || userEmail?.split('@')[0];
+
+            if (userEmail) {
+              await sendEmail({
+                to: userEmail,
+                subject: 'Tu pago de Opositaplace se ha procesado',
+                emailComponent: InvoicePaidEmail({
+                  userName,
+                  invoiceUrl: invoice.invoice_pdf || undefined,
+                }),
+              });
+            }
+          } catch (e: any) {
+            console.error(
+              `Error al recuperar cliente ${customerId} para enviar factura`,
+              e.message
+            );
+          }
           if ((invoice as any).subscription && (invoice as any).customer) {
             await manageSubscriptionStatusChange(
               (invoice as any).subscription as string,
@@ -79,6 +112,31 @@ export async function POST(req: NextRequest) {
         }
         case 'invoice.payment_failed': {
           const invoice = event.data.object as Stripe.Invoice;
+          const customerId =
+            typeof invoice.customer === 'string' ? invoice.customer : invoice.customer?.id;
+
+          if (!customerId) {
+            console.error('Invoice payment failed but no customer ID found.');
+            break;
+          }
+          try {
+            const customer = (await stripe.customers.retrieve(customerId)) as Stripe.Customer;
+            const userEmail = customer.email;
+            const userName = customer.name?.split(' ')[0] || userEmail?.split('@')[0];
+
+            if (userEmail) {
+              await sendEmail({
+                to: userEmail,
+                subject: 'Acción Requerida: Fallo en el pago de tu suscripción',
+                emailComponent: PaymentFailedEmail({ userName }),
+              });
+            }
+          } catch (e: any) {
+            console.error(
+              `Error al recuperar cliente ${customerId} para aviso de pago fallido`,
+              e.message
+            );
+          }
           if ((invoice as any).subscription && (invoice as any).customer) {
             console.warn(
               `Invoice payment failed for subscription ${(invoice as any).subscription}`
