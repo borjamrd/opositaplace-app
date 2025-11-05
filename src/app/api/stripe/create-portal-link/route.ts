@@ -1,9 +1,8 @@
 // src/app/api/stripe/create-portal-link/route.ts
-import { NextResponse } from 'next/server';
-import { stripe } from '@/lib/stripe'; // Tu instancia de Stripe server-side
+import { getOrCreateStripeCustomerId } from '@/lib/stripe/actions'; 
+import { stripe } from '@/lib/stripe/stripe'; 
 import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { cookies } from 'next/headers';
-import { getOrCreateStripeCustomerId } from '@/lib/stripe/actions'; // Reutiliza tu acción
+import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {
   try {

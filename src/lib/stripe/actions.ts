@@ -1,8 +1,7 @@
-import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { stripe } from '@/lib/stripe';
-import type { User } from '@supabase/supabase-js';
+import { stripe } from '@/lib/stripe/stripe';
 import type { Database } from '@/lib/supabase/database.types';
-import { cookies } from 'next/headers';
+import { createSupabaseServerClient } from '@/lib/supabase/server';
+import type { User } from '@supabase/supabase-js';
 import Stripe from 'stripe';
 import { createClient } from '../supabase/client';
 import { STRIPE_PLANS, StripePlan } from './config';

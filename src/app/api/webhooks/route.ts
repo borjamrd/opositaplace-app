@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
-import { stripe } from '@/lib/stripe';
+import { stripe } from '@/lib/stripe/stripe';
 import { manageSubscriptionStatusChange } from '@/lib/stripe/actions';
 import { Readable } from 'stream';
 

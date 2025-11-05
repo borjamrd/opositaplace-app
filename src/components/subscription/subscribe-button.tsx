@@ -3,16 +3,16 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { getStripe } from '@/lib/stripe-client'; // Asumimos que este archivo existe y funciona
+import { getStripe } from '@/lib/stripe/stripe-client'; 
 import { useToast } from '@/hooks/use-toast';
-import { Plan, StripePlan } from '@/lib/stripe/config'; // Importa tus tipos
-import type { User } from '@supabase/supabase-js'; // O el tipo de usuario que uses
+import { Plan, StripePlan } from '@/lib/stripe/config';
+import type { User } from '@supabase/supabase-js'; 
 import { useRouter } from 'next/navigation';
 import { useSubscriptionStore } from '@/store/subscription-store';
 
 interface SubscribeButtonProps {
   plan: Plan;
-  user: User | null; // El usuario actual, puede ser null si no está logueado
+  user: User | null; 
   onboardingCompleted?: boolean;
 }
 
