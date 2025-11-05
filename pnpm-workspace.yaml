@@ -1,0 +1,10 @@
+ignoredBuiltDependencies:
+  - '@firebase/util'
+  - esbuild
+  - msw
+  - protobufjs
+  - sharp
+  - unrs-resolver
+
+onlyBuiltDependencies:
+  - supabase

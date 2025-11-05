@@ -15,6 +15,7 @@
     "test:watch": "vitest",
     "prettier": "prettier --write .",
     "test:ui": "vitest --ui",
+    "email": "email dev -p 3001 --dir src/emails",
     "prepare": "husky"
   },
   "dependencies": {
@@ -76,6 +77,7 @@
     "zustand": "^5.0.5"
   },
   "devDependencies": {
+    "@react-email/preview-server": "^4.3.2",
     "@tailwindcss/typography": "^0.5.16",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",

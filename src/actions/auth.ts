@@ -1,7 +1,11 @@
 'use server';
 
-import { redirect } from 'next/navigation';
+import ResetPasswordEmail from '@/emails/reset-password-email';
+import WelcomeEmail from '@/emails/welcome-email';
+import { sendEmail } from '@/lib/email/email';
+import { createSupabaseAdminClient } from '@/lib/supabase/admin';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
+import { redirect } from 'next/navigation';
 import { z } from 'zod';
 
 const emailSchema = z.string().email({ message: 'Email inválido.' });
@@ -42,9 +46,6 @@ export async function signUp(_prevState: any, formData: FormData) {
   const { error } = await supabase.auth.signUp({
     email,
     password,
-    options: {
-      emailRedirectTo: `${process.env.NEXT_PUBLIC_BASE_URL}/auth/callback`,
-    },
   });
 
   if (error) {
@@ -55,15 +56,21 @@ export async function signUp(_prevState: any, formData: FormData) {
     };
   }
 
-  // For Supabase, email confirmation is usually required.
-  // You might want to redirect to a page saying "Check your email"
-  // or handle it differently. For now, redirecting to login.
-  // Revalidate path or redirect if needed by Supabase SSR helpers
-  // redirect('/login?message=Revisa tu correo para confirmar tu cuenta');
+  try {
+    console.log({ email });
+    await sendEmail({
+      to: email,
+      subject: '¡Te damos la bienvenida a Opositaplace!',
+      emailComponent: WelcomeEmail({ userName: email.split('@')[0] }),
+    });
+  } catch (emailError) {
+    console.error('Error al enviar el email de bienvenida:', emailError);
+  }
+
   return { message: '¡Registro exitoso! Revisa tu correo para confirmar tu cuenta.', errors: {} };
 }
 
-export async function signIn(prevState: any, formData: FormData) {
+export async function signIn(_prevState: any, formData: FormData) {
   const supabase = await createSupabaseServerClient();
 
   const result = signInSchema.safeParse(Object.fromEntries(formData));
@@ -101,7 +108,7 @@ const resetPasswordSchema = z.object({
 });
 
 export async function resetPassword(_prevState: any, formData: FormData) {
-  const supabase = await createSupabaseServerClient();
+  const supabaseAdmin = createSupabaseAdminClient();
 
   const result = resetPasswordSchema.safeParse(Object.fromEntries(formData));
 
@@ -113,15 +120,36 @@ export async function resetPassword(_prevState: any, formData: FormData) {
   }
 
   const { email } = result.data;
-
-  const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${process.env.NEXT_PUBLIC_BASE_URL}/auth/reset-password`,
+ 
+  const { data, error } = await supabaseAdmin.auth.admin.generateLink({
+    type: 'recovery',
+    email: email,
+    options: {
+      redirectTo: `${process.env.NEXT_PUBLIC_BASE_URL}/auth/reset-password`,
+    },
   });
 
   if (error) {
     console.error('Password reset error:', error);
     return {
       message: 'Error al enviar el correo de recuperación. Inténtalo de nuevo.',
+      errors: {},
+    };
+  }
+
+  const resetLink = data.properties.action_link;
+  const userName = email.split('@')[0];
+
+  try {
+    await sendEmail({
+      to: email,
+      subject: 'Restablece tu contraseña de Opositaplace',
+      emailComponent: ResetPasswordEmail({ userName, resetLink }),
+    });
+  } catch (emailError) {
+    console.error('Error al enviar email de reseteo:', emailError);
+    return {
+      message: 'Se ha enviado un correo con las instrucciones para restablecer tu contraseña.',
       errors: {},
     };
   }
