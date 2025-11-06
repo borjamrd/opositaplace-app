@@ -72,6 +72,7 @@ export async function POST(req: NextRequest) {
         }
         case 'invoice.payment_succeeded': {
           const invoice = event.data.object as Stripe.Invoice;
+          console.log('Invoice payment succeeded webhook received for invoice:', invoice);
 
           const customerId =
             typeof invoice.customer === 'string' ? invoice.customer : invoice.customer?.id;
@@ -98,7 +99,7 @@ export async function POST(req: NextRequest) {
             }
           } catch (e: any) {
             console.error(
-              `Error al recuperar cliente ${customerId} para enviar factura`,
+              `Pago realizado correctamente. Pero hay un error al recuperar cliente ${customerId} para enviar factura`,
               e.message
             );
           }

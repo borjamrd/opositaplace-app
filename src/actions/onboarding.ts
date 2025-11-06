@@ -199,7 +199,7 @@ export async function submitOnboarding(
   } catch (trialError: any) {
     console.error('Error creando la suscripción de prueba:', trialError);
     return {
-      message: `Tu onboarding se ha guardado, pero hubo un problema al iniciar tu prueba gratuita: ${trialError.message}`,
+      message: `Tu onboarding se ha guardado, pero hubo un problema al iniciar tu prueba gratuita`,
       errors: null,
       success: false,
     };

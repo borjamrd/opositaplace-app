@@ -3,7 +3,6 @@ import type { Database } from '@/lib/supabase/database.types';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import type { User } from '@supabase/supabase-js';
 import Stripe from 'stripe';
-import { createClient } from '../supabase/client';
 import { STRIPE_PLANS, StripePlan } from './config';
 
 export type Subscription = Database['public']['Tables']['user_subscriptions']['Row'];
@@ -77,7 +76,9 @@ export async function createTrialSubscription(user: User): Promise<void> {
   await manageSubscriptionStatusChange(stripeSubscription.id, customerId);
 }
 export async function manageSubscriptionStatusChange(subscriptionId: string, customerId: string) {
-  const supabase = createClient();
+  console.log(`Managing subscription status change for subscription ${subscriptionId}`);
+  
+ const supabase = await createSupabaseServerClient();
   const { data: userProfile, error: noUserError } = await supabase
     .from('profiles')
     .select('id')
