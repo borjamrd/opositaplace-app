@@ -1,9 +1,7 @@
 'use server';
 
-import ResetPasswordEmail from '@/emails/reset-password-email';
 import WelcomeEmail from '@/emails/welcome-email';
 import { sendEmail } from '@/lib/email/email';
-import { createSupabaseAdminClient } from '@/lib/supabase/admin';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
@@ -108,7 +106,7 @@ const resetPasswordSchema = z.object({
 });
 
 export async function resetPassword(_prevState: any, formData: FormData) {
-  const supabaseAdmin = createSupabaseAdminClient();
+  const supabase = await createSupabaseServerClient();
 
   const result = resetPasswordSchema.safeParse(Object.fromEntries(formData));
 
@@ -120,36 +118,17 @@ export async function resetPassword(_prevState: any, formData: FormData) {
   }
 
   const { email } = result.data;
- 
-  const { data, error } = await supabaseAdmin.auth.admin.generateLink({
-    type: 'recovery',
-    email: email,
-    options: {
-      redirectTo: `${process.env.NEXT_PUBLIC_BASE_URL}/auth/reset-password`,
-    },
+  
+  const redirectTo = `${process.env.NEXT_PUBLIC_BASE_URL}/auth/callback?next=/auth/reset-password`;
+
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: redirectTo,
   });
 
   if (error) {
     console.error('Password reset error:', error);
     return {
       message: 'Error al enviar el correo de recuperación. Inténtalo de nuevo.',
-      errors: {},
-    };
-  }
-
-  const resetLink = data.properties.action_link;
-  const userName = email.split('@')[0];
-
-  try {
-    await sendEmail({
-      to: email,
-      subject: 'Restablece tu contraseña de Opositaplace',
-      emailComponent: ResetPasswordEmail({ userName, resetLink }),
-    });
-  } catch (emailError) {
-    console.error('Error al enviar email de reseteo:', emailError);
-    return {
-      message: 'Se ha enviado un correo con las instrucciones para restablecer tu contraseña.',
       errors: {},
     };
   }
@@ -197,7 +176,7 @@ export async function updatePassword(prevState: any, formData: FormData) {
   }
 
   return {
-    message: 'Contraseña actualizada correctamente',
+    message: 'Contraseña actualizada correctamente. Se te redirigirá automáticamente al dashboard.',
     errors: {},
   };
 }
