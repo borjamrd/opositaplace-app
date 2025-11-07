@@ -133,7 +133,8 @@ export async function manageSubscriptionStatusChange(subscriptionId: string, cus
     id: subscription.id,
     user_id: userId, // Asegúrate que userId está definido correctamente
     status: subscription.status,
-    price_id: subscription.items.data[0]?.price?.id, // Chequeo opcional por si acaso
+    price_id: subscription.items.data[0]?.price?.id,
+    stripe_customer_id: customerId,
     quantity:
       subscription.items.data.length > 0 && subscription.items.data[0].quantity !== undefined
         ? subscription.items.data[0].quantity

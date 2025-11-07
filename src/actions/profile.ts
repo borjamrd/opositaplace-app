@@ -1,14 +1,14 @@
 // src/actions/profile.ts
 'use server';
 
-import { revalidatePath } from 'next/cache';
 import { stripe } from '@/lib/stripe/stripe';
+import { createSupabaseAdminClient } from '@/lib/supabase/admin';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { redirect } from 'next/navigation';
 import { ProfileSettings, ProfileWithOnboarding } from '@/lib/supabase/types';
+import { revalidatePath } from 'next/cache';
+import { redirect } from 'next/navigation';
 export async function deleteUserAccount() {
   const supabase = await createSupabaseServerClient();
-
   const {
     data: { user },
     error: authError,
@@ -18,34 +18,63 @@ export async function deleteUserAccount() {
     throw new Error('Usuario no autenticado.');
   }
 
-  // 1. Cancelar suscripción en Stripe (si existe)
-  const { data: subscription } = await supabase
-    .from('user_subscriptions')
-    .select('id, stripe_customer_id, status')
-    .in('status', ['trialing', 'active'])
-    .single();
+  const supabaseAdmin = createSupabaseAdminClient();
 
-  if (subscription && subscription.id) {
-    try {
-      await stripe.subscriptions.cancel(subscription.id);
-    } catch (error) {
-      console.error('Error al cancelar la suscripción de Stripe:', error);
-      return {
-        error: 'No se pudo cancelar tu suscripción en Stripe. No se ha eliminado la cuenta.',
-      };
+  let stripeCustomerId: string | null = null;
+
+  try {
+    const { data: profile } = await supabaseAdmin
+      .from('profiles')
+      .select('stripe_customer_id')
+      .eq('id', user.id)
+      .single();
+
+    if (profile && profile.stripe_customer_id) {
+      stripeCustomerId = profile.stripe_customer_id;
     }
+  } catch (error: any) {
+    console.error('Error buscando perfil de usuario:', error.message);
   }
 
-  // 2. Limpiar todos los datos del usuario en la base de datos usando la función RPC
-  const { error: rpcError } = await supabase.rpc('delete_user_data');
+  try {
+    const { data: subscription } = await supabaseAdmin
+      .from('user_subscriptions')
+      .select('id, status')
+      .eq('user_id', user.id)
+      .in('status', ['trialing', 'active', 'past_due'])
+      .maybeSingle();
+
+    if (subscription && subscription.id) {
+      console.log(`Cancelando suscripción ${subscription.id} para usuario ${user.id}`);
+      await stripe.subscriptions.cancel(subscription.id);
+    }
+  } catch (error: any) {
+    console.error('Error al cancelar la suscripción de Stripe:', error.message);
+    return {
+      error: 'No se pudo cancelar tu suscripción en Stripe. No se ha eliminado la cuenta.',
+    };
+  }
+
+  const { error: rpcError } = await supabaseAdmin.rpc('delete_user_data');
 
   if (rpcError) {
     console.error('Error al ejecutar delete_user_data RPC:', rpcError);
     return { error: 'No se pudieron eliminar los datos del usuario.' };
   }
 
-  // 3. Eliminar el usuario de Supabase Auth (requiere la clave de servicio)
-  const { error: deleteUserError } = await supabase.auth.admin.deleteUser(user.id);
+  console.log({ stripeCustomerId });
+  try {
+    if (stripeCustomerId) {
+      console.log(`Eliminando cliente de Stripe ${stripeCustomerId}`);
+      await stripe.customers.del(stripeCustomerId);
+    } else {
+      console.log('No hay cliente de Stripe que eliminar.');
+    }
+  } catch (error: any) {
+    console.error(`Error al eliminar el cliente de Stripe ${stripeCustomerId}:`, error.message);
+  }
+
+  const { error: deleteUserError } = await supabaseAdmin.auth.admin.deleteUser(user.id);
 
   if (deleteUserError) {
     console.error('Error al eliminar el usuario de Supabase Auth:', deleteUserError);
@@ -54,7 +83,6 @@ export async function deleteUserAccount() {
 
   redirect('/?message=Cuenta eliminada correctamente');
 }
-
 export async function updateProfileSettings(profileId: string, settings: Partial<ProfileSettings>) {
   const supabase = await createSupabaseServerClient();
   const { error } = await supabase.from('profiles').update(settings).eq('id', profileId);
