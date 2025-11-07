@@ -1,7 +1,7 @@
 // src/lib/supabase/queries/useUserSubscription.ts
-import { Subscription } from '@/lib/stripe/actions';
 import { createClient } from '@/lib/supabase/client';
 import { useQuery } from '@tanstack/react-query';
+import { Subscription } from '../types';
 
 // Esta función podría ser una Server Action o una API route que llame a la
 // función getUserSubscription que definimos anteriormente.

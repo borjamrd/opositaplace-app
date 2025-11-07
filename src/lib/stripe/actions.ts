@@ -1,17 +1,15 @@
+import TrialEndedEmail from '@/emails/trial-ended-email';
 import { stripe } from '@/lib/stripe/stripe';
-import type { Database } from '@/lib/supabase/database.types';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
+import { InsertSubscription, Subscription } from '@/lib/supabase/types';
 import type { User } from '@supabase/supabase-js';
 import Stripe from 'stripe';
+import { sendEmail } from '../email/email';
 import { STRIPE_PLANS, StripePlan } from './config';
-
-export type Subscription = Database['public']['Tables']['user_subscriptions']['Row'];
-
 export async function getOrCreateStripeCustomerId(
   user: User,
   params?: Stripe.CustomerCreateParams
 ): Promise<string> {
-
   const supabase = await createSupabaseServerClient();
 
   const { data: profile, error: profileError } = await supabase
@@ -77,8 +75,8 @@ export async function createTrialSubscription(user: User): Promise<void> {
 }
 export async function manageSubscriptionStatusChange(subscriptionId: string, customerId: string) {
   console.log(`Managing subscription status change for subscription ${subscriptionId}`);
-  
- const supabase = await createSupabaseServerClient();
+
+  const supabase = await createSupabaseServerClient();
   const { data: userProfile, error: noUserError } = await supabase
     .from('profiles')
     .select('id')
@@ -129,7 +127,7 @@ export async function manageSubscriptionStatusChange(subscriptionId: string, cus
     });
     throw new Error(errorMsg);
   }
-  const subscriptionData: Database['public']['Tables']['user_subscriptions']['Insert'] = {
+  const subscriptionData: InsertSubscription = {
     id: subscription.id,
     user_id: userId, // Asegúrate que userId está definido correctamente
     status: subscription.status,
@@ -170,7 +168,6 @@ export async function manageSubscriptionStatusChange(subscriptionId: string, cus
 }
 
 export async function getUserSubscription(): Promise<Subscription | null> {
-
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
@@ -182,7 +179,7 @@ export async function getUserSubscription(): Promise<Subscription | null> {
     .from('user_subscriptions')
     .select('*')
     .eq('user_id', user.id)
-    .in('status', ['trialing', 'active'])
+    .in('status', ['trialing','past_due', 'active'])
     .maybeSingle();
 
   if (error) {
@@ -190,4 +187,126 @@ export async function getUserSubscription(): Promise<Subscription | null> {
     return null;
   }
   return data;
+}
+
+/**
+ * Realiza un downgrade de un usuario (Pro -> Free)
+ * Llamado desde la UI (ej. PlanSelector)
+ */
+export async function downgradeSubscriptionToFree() {
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    throw new Error('Usuario no autenticado.');
+  }
+
+  // 1. Encontrar la suscripción activa del usuario
+  const { data: activeSubscription } = await supabase
+    .from('user_subscriptions')
+    .select('id, status, price_id')
+    .eq('user_id', user.id)
+    .in('status', ['active', 'past_due', 'trialing'])
+    .single();
+
+  if (!activeSubscription) {
+    throw new Error('No se encontró una suscripción activa para cancelar.');
+  }
+
+  // 2. Encontrar el Price ID del plan gratuito
+  const freePlan = STRIPE_PLANS.find((p) => p.type === StripePlan.FREE);
+  if (!freePlan?.priceId) {
+    throw new Error('Price ID del plan Gratuito no configurado.');
+  }
+
+  // 3. Si ya está en el plan gratuito, no hacer nada
+  if (activeSubscription.price_id === freePlan.priceId) {
+    return { message: 'Ya estás en el plan gratuito.' };
+  }
+
+  // 4. Obtener la suscripción de Stripe para saber el ID del item
+  const stripeSubscription = await stripe.subscriptions.retrieve(activeSubscription.id);
+  const currentItemId = stripeSubscription.items.data[0]?.id;
+
+  if (!currentItemId) {
+    throw new Error('No se encontró el item de la suscripción de Stripe.');
+  }
+
+  // 5. Actualizar la suscripción en Stripe
+  try {
+    await stripe.subscriptions.update(activeSubscription.id, {
+      items: [
+        {
+          id: currentItemId,
+          price: freePlan.priceId, // Cambia al Price ID gratuito
+        },
+      ],
+      proration_behavior: 'none', // No devolver dinero por el tiempo restante
+      cancel_at_period_end: false, // Asegura que el plan gratuito continúe
+    });
+
+    // 6. ¡Éxito!
+    // Stripe enviará un 'customer.subscription.updated'.
+    // Nuestro webhook (que ya funciona) recibirá el evento
+    // y 'manageSubscriptionStatusChange' actualizará Supabase.
+
+    return { message: 'Has cambiado al plan gratuito.' };
+  } catch (error: any) {
+    console.error('Error al hacer downgrade en Stripe:', error.message);
+    throw new Error('Error al actualizar la suscripción en Stripe.');
+  }
+}
+
+
+/**
+ * Realiza el downgrade a "Gratis".
+ * Esta función es segura para ser llamada desde el webhook (no usa auth.getUser()).
+ */
+export async function downgradeToFreePlan(subscriptionId: string, customerId: string) {
+  console.log(`Downgrading subscription ${subscriptionId} to Free Plan.`);
+
+  const freePlan = STRIPE_PLANS.find((p) => p.type === StripePlan.FREE);
+  if (!freePlan?.priceId) {
+    throw new Error('Price ID del plan Gratuito no configurado en config.ts');
+  }
+
+  const currentSubscription = await stripe.subscriptions.retrieve(subscriptionId);
+  const currentItemId = currentSubscription.items.data[0]?.id;
+
+  if (!currentItemId) {
+    throw new Error(`No items found on subscription ${subscriptionId} to update.`);
+  }
+
+  try {
+    // 1. Actualizar la suscripción en Stripe
+    await stripe.subscriptions.update(subscriptionId, {
+      items: [
+        {
+          id: currentItemId,
+          price: freePlan.priceId,
+        },
+      ],
+      proration_behavior: 'none',
+      cancel_at_period_end: false,
+    });
+
+    // 2. Enviar email de aviso
+    
+    const customer = (await stripe.customers.retrieve(customerId)) as Stripe.Customer;
+    const userEmail = customer.email;
+    const userName = customer.name?.split(' ')[0] || userEmail?.split('@')[0];
+
+    if (userEmail) {
+      await sendEmail({
+        to: userEmail,
+        subject: 'Tu prueba de Opositaplace ha terminado',
+        emailComponent: TrialEndedEmail({ userName }),
+      });
+    }
+  } catch (error: any) {
+    console.error(`Error downgrading subscription ${subscriptionId}:`, error.message);
+    throw error;
+  }
 }

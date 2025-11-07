@@ -1,11 +1,15 @@
-import { NextRequest, NextResponse } from 'next/server';
-import Stripe from 'stripe';
-import { stripe } from '@/lib/stripe/stripe';
-import { manageSubscriptionStatusChange } from '@/lib/stripe/actions';
-import { Readable } from 'stream';
-import { sendEmail } from '@/lib/email/email';
 import InvoicePaidEmail from '@/emails/invoice-paid-email';
 import PaymentFailedEmail from '@/emails/payment-failed-email';
+import { sendEmail } from '@/lib/email/email';
+import {
+  downgradeToFreePlan,
+  manageSubscriptionStatusChange
+} from '@/lib/stripe/actions';
+import { stripe } from '@/lib/stripe/stripe';
+import { createSupabaseAdminClient } from '@/lib/supabase/admin';
+import { NextRequest, NextResponse } from 'next/server';
+import { Readable } from 'stream';
+import Stripe from 'stripe';
 
 async function buffer(readable: Readable) {
   const chunks = [];
@@ -63,86 +67,109 @@ export async function POST(req: NextRequest) {
           }
           break;
         }
+
+        case 'customer.subscription.updated': {
+          console.log(
+            `Ignoring customer.subscription.updated event: ${
+              (event.data.object as Stripe.Subscription).id
+            }`
+          );
+          break;
+        }
         case 'customer.subscription.created':
-        case 'customer.subscription.updated':
         case 'customer.subscription.deleted': {
           const subscription = event.data.object as Stripe.Subscription;
           await manageSubscriptionStatusChange(subscription.id, subscription.customer as string);
           break;
         }
+        case 'invoice.paid':
         case 'invoice.payment_succeeded': {
           const invoice = event.data.object as Stripe.Invoice;
-          console.log('Invoice payment succeeded webhook received for invoice:', invoice);
+          if (invoice.amount_paid > 0) {
+            const customerId = (invoice as any).customer as string;
+            const subscriptionId = (invoice as any).subscription as string;
 
-          const customerId =
-            typeof invoice.customer === 'string' ? invoice.customer : invoice.customer?.id;
-
-          if (!customerId) {
-            console.error('Invoice payment succeeded but no customer ID found.');
-            break;
-          }
-
-          try {
-            const customer = (await stripe.customers.retrieve(customerId)) as Stripe.Customer;
-            const userEmail = customer.email;
-            const userName = customer.name?.split(' ')[0] || userEmail?.split('@')[0];
-
-            if (userEmail) {
-              await sendEmail({
-                to: userEmail,
-                subject: 'Tu pago de Opositaplace se ha procesado',
-                emailComponent: InvoicePaidEmail({
-                  userName,
-                  invoiceUrl: invoice.invoice_pdf || undefined,
-                }),
-              });
+            if (!customerId || !subscriptionId) {
+              console.warn('invoice.payment_succeeded event sin customer o subscription ID.');
+              break;
             }
-          } catch (e: any) {
-            console.error(
-              `Pago realizado correctamente. Pero hay un error al recuperar cliente ${customerId} para enviar factura`,
-              e.message
-            );
-          }
-          if ((invoice as any).subscription && (invoice as any).customer) {
-            await manageSubscriptionStatusChange(
-              (invoice as any).subscription as string,
-              (invoice as any).customer as string
-            );
+
+            try {
+              const customer = (await stripe.customers.retrieve(customerId)) as Stripe.Customer;
+              const userEmail = customer.email;
+              const userName = customer.name?.split(' ')[0] || userEmail?.split('@')[0];
+
+              if (userEmail) {
+                await sendEmail({
+                  to: userEmail,
+                  subject: 'Tu pago de Opositaplace se ha procesado',
+                  emailComponent: InvoicePaidEmail({
+                    userName,
+                    invoiceUrl: invoice.invoice_pdf || undefined,
+                  }),
+                });
+              }
+            } catch (e: any) {
+              console.error(
+                `Error al recuperar cliente ${customerId} para enviar factura`,
+                e.message
+              );
+            }
+            if ((invoice as any).subscription && (invoice as any).customer) {
+              await manageSubscriptionStatusChange(
+                (invoice as any).subscription as string,
+                (invoice as any).customer as string
+              );
+            }
           }
           break;
         }
         case 'invoice.payment_failed': {
           const invoice = event.data.object as Stripe.Invoice;
-          const customerId =
-            typeof invoice.customer === 'string' ? invoice.customer : invoice.customer?.id;
+          const subscriptionId = (invoice as any).subscription as string;
+          const customerId = (invoice as any).customer as string;
 
-          if (!customerId) {
-            console.error('Invoice payment failed but no customer ID found.');
+          if (!subscriptionId || !customerId) {
+            console.error('Invoice payment failed sin subscription o customer ID.');
             break;
           }
-          try {
-            const customer = (await stripe.customers.retrieve(customerId)) as Stripe.Customer;
-            const userEmail = customer.email;
-            const userName = customer.name?.split(' ')[0] || userEmail?.split('@')[0];
 
-            if (userEmail) {
-              await sendEmail({
-                to: userEmail,
-                subject: 'Acción Requerida: Fallo en el pago de tu suscripción',
-                emailComponent: PaymentFailedEmail({ userName }),
-              });
+          const supabase = createSupabaseAdminClient();
+          const { data: currentSubscription } = await supabase
+            .from('user_subscriptions')
+            .select('status')
+            .eq('id', subscriptionId)
+            .single();
+
+          if (currentSubscription?.status === 'trialing') {
+            // ¡EL TRIAL HA FALLADO! -> Hacemos downgrade.
+            console.log(`Trial (sub ${subscriptionId}) failed. Downgrading to Free...`);
+            await downgradeToFreePlan(subscriptionId, customerId);
+          } else {
+            // UN PAGO ACTIVO HA FALLADO -> Marcamos 'past_due'.
+            console.log(`Active payment (sub ${subscriptionId}) failed. Setting to past_due...`);
+            await manageSubscriptionStatusChange(subscriptionId, customerId);
+            // Aquí deberías enviar el email de "Pago Fallido"
+            try {
+              const customer = (await stripe.customers.retrieve(customerId)) as Stripe.Customer;
+              const userEmail = customer.email;
+              const userName = customer.name?.split(' ')[0] || userEmail?.split('@')[0];
+
+              if (userEmail) {
+                await sendEmail({
+                  to: userEmail,
+                  subject: 'Acción Requerida: Fallo en el pago de tu suscripción',
+                  emailComponent: PaymentFailedEmail({ userName }),
+                });
+              }
+            } catch (e: any) {
+              console.error(
+                `Error al recuperar cliente ${customerId} para aviso de pago fallido`,
+                e.message
+              );
             }
-          } catch (e: any) {
-            console.error(
-              `Error al recuperar cliente ${customerId} para aviso de pago fallido`,
-              e.message
-            );
           }
-          if ((invoice as any).subscription && (invoice as any).customer) {
-            console.warn(
-              `Invoice payment failed for subscription ${(invoice as any).subscription}`
-            );
-          }
+
           break;
         }
         default:
