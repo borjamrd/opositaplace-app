@@ -33,11 +33,10 @@ export const InvoicePaidEmail = ({ userName = 'Opositor', invoiceUrl }: InvoiceP
       <Body style={main}>
         <Container style={container}>
           <Img src={logoSrc} width="120" alt="Opositaplace Logo" style={logo} />
-          <Heading style={heading}>Gracias por tu pago</Heading>
+          <Heading style={heading}>Aquí tienes tu factura</Heading>
           <Text style={paragraph}>Hola {userName},</Text>
           <Text style={paragraph}>
-            Hemos procesado correctamente el pago de tu suscripción a Opositaplace. ¡Tu acceso
-            premium continúa activo!
+            Te adjuntamos la factura de tu suscripción a Opositaplace.
           </Text>
           {invoiceUrl && (
             <Section style={btnContainer}>
