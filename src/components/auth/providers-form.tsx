@@ -7,7 +7,8 @@ export default function ProvidersForm({ prefixMessage }: { prefixMessage: string
       <Button
         formAction={signInWithGoogle}
         variant="outline"
-        className="flex items-center gap-2 border border-gray-200 bg-white text-gray-900 hover:bg-gray-50"
+        size="lg"
+        className="flex items-center gap-2 border border-gray-200 bg-white text-gray-900 hover:bg-gray-50 rounded-3xl"
       >
         <svg
           width="800px"
