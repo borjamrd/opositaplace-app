@@ -86,12 +86,11 @@ export function RegisterForm() {
               </Alert>
             )}
           <div className="space-y-2">
-            <Label htmlFor="email">Correo Electrónico</Label>
             <Input
               id="email"
               name="email"
               type="email"
-              placeholder="tu@email.com"
+              placeholder="Correo ectrónico"
               required
               className="bg-background/80"
             />
@@ -100,11 +99,11 @@ export function RegisterForm() {
             )}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="password">Contraseña</Label>
             <Input
               id="password"
               name="password"
               type="password"
+              placeholder="Contraseña"
               required
               className="bg-background/80"
             />
@@ -117,6 +116,7 @@ export function RegisterForm() {
             <Input
               id="confirmPassword"
               name="confirmPassword"
+              placeholder="Contraseña"
               type="password"
               required
               className="bg-background/80"

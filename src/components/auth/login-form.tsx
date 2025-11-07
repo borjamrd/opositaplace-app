@@ -84,12 +84,11 @@ export function LoginForm() {
               </Alert>
             )}
           <div className="space-y-2">
-            <Label htmlFor="email">Correo Electrónico</Label>
             <Input
               id="email"
               name="email"
               type="email"
-              placeholder="tu@email.com"
+              placeholder="Correo electrónico"
               required
               className="bg-background/80"
             />
@@ -98,11 +97,11 @@ export function LoginForm() {
             )}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="password">Contraseña</Label>
             <div className="relative">
               <Input
                 id="password"
                 name="password"
+                placeholder="Contraseña"
                 type={showPassword ? 'text' : 'password'}
                 required
                 className="bg-background/80 pr-10"

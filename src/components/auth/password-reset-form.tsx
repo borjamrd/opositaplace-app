@@ -61,7 +61,7 @@ export function ResetPasswordForm() {
               id="email"
               name="email"
               type="email"
-              placeholder="tu@email.com"
+              placeholder="Correo electrónico.com"
               required
               className="bg-background/80"
             />
