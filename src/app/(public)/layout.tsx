@@ -4,12 +4,11 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/logo';
 
-
 async function LandingHeader() {
   const { profile } = await getSessionData();
 
   return (
-    <header className="sticky top-0 z-50 flex h-16 w-full items-center justify-between border-b bg-background/95 px-4 md:px-6">
+    <header className="sticky top-5 b-20 z-50 flex h-16 w-full items-center backdrop-blur-md justify-between border-b bg-background/75 px-4 md:px-6 max-w-5xl mx-auto rounded-4xl">
       <Link href="/">
         <Logo />
       </Link>
@@ -23,7 +22,7 @@ async function LandingHeader() {
             <Button asChild variant="ghost" size="sm">
               <Link href="/login">Entrar</Link>
             </Button>
-            <Button asChild size="sm">
+            <Button asChild size="lg" className='rounded-3xl'>
               <Link href="/register">Crear cuenta</Link>
             </Button>
           </div>

@@ -53,7 +53,7 @@ export function LoginForm() {
   }, [state, toast]);
 
   return (
-    <Card className="w-full max-w-md shadow-xl">
+    <Card className="w-full mt-20 max-w-md shadow-xl">
       <CardHeader className="text-center">
         <CardTitle className="text-3xl font-bold text-primary">Iniciar sesión</CardTitle>
         <CardDescription>Accede a tu cuenta para continuar tu preparación.</CardDescription>

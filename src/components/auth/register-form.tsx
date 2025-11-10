@@ -51,7 +51,7 @@ export function RegisterForm() {
   }, [state, toast]);
 
   return (
-    <Card className="w-full max-w-md shadow-xl">
+    <Card className="w-full mt-20 max-w-md shadow-xl">
       <CardHeader className="text-center">
         <CardTitle className="text-3xl font-bold text-primary">Crear cuenta</CardTitle>
         <CardDescription>Únete a Opositaplace y empieza a prepararte.</CardDescription>

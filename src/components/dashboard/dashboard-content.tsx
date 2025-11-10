@@ -22,11 +22,8 @@ const DashboardContent = ({ failedQuestions, dueCardsCount }: DashboardContentPr
       <div className="row-span-4 lg:col-span-2">
         <SelectiveProcessTimeline />
       </div>
-      <div className="row-span-1 lg:col-span-1">
+      <div className="row-span-1 lg:col-span-2">
         <SRSWidget dueCardsCount={dueCardsCount} />
-      </div>
-      <div className="row-span-1 lg:col-span-3">
-        <UnifiedChangeHistory showLink />
       </div>
       <div className="row-span-1 lg:col-span-4">
         <FailedQuestionFlashcard questions={failedQuestions} />

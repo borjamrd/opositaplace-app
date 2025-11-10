@@ -8,15 +8,7 @@ import {
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
 
-import {
-  Bell,
-  BookOpen,
-  CheckSquare,
-  Database,
-  LayoutDashboard,
-  Map,
-  Repeat
-} from 'lucide-react';
+import { Bell, BookOpen, CheckSquare, Database, LayoutDashboard, Map, Repeat } from 'lucide-react';
 import Link from 'next/link';
 import React from 'react';
 import { Logo } from '../logo';
@@ -68,7 +60,7 @@ export const sidebarData = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
-    <Sidebar className="p-2" collapsible="offcanvas" {...props}>
+    <Sidebar className="p-2" variant="floating" collapsible="offcanvas" {...props}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>

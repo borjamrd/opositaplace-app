@@ -31,32 +31,25 @@ export default function LandingContent() {
   return (
     <div className="flex flex-col min-h-screen">
       {/* Hero Section */}
-      <section className="py-20 md:py-32 bg-gradient-to-br from-primary/10 via-background to-secondary/20">
-        <div className="container mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight mb-6">
-            <span className="text-primary">Opositaplace.</span> Por opositores. Para opositores.
+      <section className="py-20 -mt-20 md:py-32 bg-radial from-amber-400/50 via-background to-secondary/20">
+        <div className="container mx-auto mt-20 px-4 text-center">
+          <h1 className="text-5xl md:text-8xl tracking-tight mb-16">
+            <span className="text-primary font-extrabold ">Organiza tu estudio📖.</span> Por{' '}
+            <span className="border-b-4 border-primary">
+              opositores.<br></br>
+            </span>
+            <span className="font-extrabold ">Para opositores.</span>
           </h1>
-          <p className="text-lg md:text-xl text-foreground/80 max-w-3xl mx-auto mb-10">
-            Organiza tu estudio, sigue tu progreso y alcanza tus metas con nuestra plataforma
-            integral diseñada para opositores como tú.
-          </p>
+
           <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
             <Button
               size="lg"
               asChild
-              className="shadow-lg hover:shadow-primary/30 transition-shadow"
+              className="shadow-lg hover:shadow-primary/30 transition-shadow rounded-3xl"
             >
               <Link href="/register">
                 Comienza tu estudio <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              asChild
-              className="shadow-sm hover:shadow-md transition-shadow"
-            >
-              <Link href="#features">Más Información</Link>
             </Button>
           </div>
         </div>
