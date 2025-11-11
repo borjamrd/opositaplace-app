@@ -7,13 +7,14 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { Json, QuestionWithAnswers, TestAttempt } from '@/lib/supabase/types';
 import { cn } from '@/lib/utils';
-import { Check, CheckCircle, HelpCircle, Loader2, X, XCircle } from 'lucide-react';
+import { Check, CheckCircle, HelpCircle, Lightbulb, Loader2, X, XCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
 
@@ -165,12 +166,12 @@ export function TestResults({ questions, userAnswers, attempt, addedCardIds }: T
                     <div className="flex items-center gap-4">
                       {userAnswerId ? (
                         isUserCorrect ? (
-                          <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
+                          <CheckCircle className="h-5 w-5 text-green-500 shrink-0" />
                         ) : (
-                          <XCircle className="h-5 w-5 text-red-500 flex-shrink-0" />
+                          <XCircle className="h-5 w-5 text-red-500 shrink-0" />
                         )
                       ) : (
-                        <HelpCircle className="h-5 w-5 text-gray-400 flex-shrink-0" />
+                        <HelpCircle className="h-5 w-5 text-gray-400 shrink-0" />
                       )}
                       <span>
                         {index + 1}. {question.text}
@@ -196,17 +197,24 @@ export function TestResults({ questions, userAnswers, attempt, addedCardIds }: T
                             )}
                           >
                             {isCorrect ? (
-                              <Check className="h-5 w-5 text-green-600 flex-shrink-0" />
+                              <Check className="h-5 w-5 text-green-600 shrink-0" />
                             ) : isSelected && !isCorrect ? (
-                              <X className="h-5 w-5 text-red-600 flex-shrink-0" />
+                              <X className="h-5 w-5 text-red-600 shrink-0" />
                             ) : (
-                              <div className="h-5 w-5 flex-shrink-0" />
+                              <div className="h-5 w-5 shrink-0" />
                             )}
                             <span>{answer.text}</span>
                           </li>
                         );
                       })}
                     </ul>
+                    {question.explanation && (
+                      <Alert className="mt-4">
+                        <Lightbulb className="h-4 w-4" />
+                        <AlertTitle>Explicación</AlertTitle>
+                        <AlertDescription>{question.explanation}</AlertDescription>
+                      </Alert>
+                    )}
                     {wasIncorrect && (
                       <div className="pl-4 pt-4">
                         <Button

@@ -1,6 +1,6 @@
 'use client';
-
 import { submitTestAttempt } from '@/actions/tests';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -18,7 +18,15 @@ import type { Tables } from '@/lib/supabase/database.types';
 import { QuestionWithAnswers } from '@/lib/supabase/types';
 import { useTestStore } from '@/store/test-store';
 import { useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, ArrowRight, CheckCircle, Loader2 } from 'lucide-react';
+import {
+  ArrowLeft,
+  ArrowRight,
+  CheckCircle,
+  Eye,
+  EyeClosed,
+  Lightbulb,
+  Loader2,
+} from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, useTransition } from 'react';
 import {
@@ -42,6 +50,7 @@ export function TestSession({ testAttempt, questions }: TestSessionProps) {
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
   const [isFinished, setIsFinished] = useState(false);
+  const [seeExplanation, setSeeExplanation] = useState(false);
 
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -89,7 +98,7 @@ export function TestSession({ testAttempt, questions }: TestSessionProps) {
 
   if (isFinished) {
     const answersObject = Object.fromEntries(userAnswers);
-    return <TestResults questions={questions} userAnswers={answersObject} />;
+    return <TestResults questions={questions} userAnswers={answersObject} addedCardIds={[]} />;
   }
 
   if (!currentQuestion) {
@@ -124,17 +133,36 @@ export function TestSession({ testAttempt, questions }: TestSessionProps) {
           value={currentAnswer || ''}
           className="space-y-3"
         >
-          {currentQuestion.answers.map((answer) => (
+          {currentQuestion.answers.map((answer, index) => (
             <Label
               key={answer.id}
               htmlFor={answer.id}
               className="flex items-center gap-3 p-4 border rounded-md cursor-pointer hover:bg-accent/50 transition-colors has-[:checked]:bg-primary/10 has-[:checked]:border-primary"
             >
               <RadioGroupItem value={answer.id} id={answer.id} />
+              <span className="font-semibold text-muted-foreground mr-2">
+                {String.fromCharCode(65 + index)}.
+              </span>
               <span>{answer.text}</span>
             </Label>
           ))}
         </RadioGroup>
+        <Button
+          className="mt-10 mx-auto"
+          variant={'outline'}
+          onClick={() => setSeeExplanation(!seeExplanation)}
+        >
+          {seeExplanation ? <EyeClosed /> : <Eye />}
+          {seeExplanation ? 'Ocultar explicacion' : ' Ver explicación'}
+        </Button>
+
+        {seeExplanation && (
+          <Alert variant={'success'} className="mt-6">
+            <Lightbulb className="h-4 w-4" />
+            <AlertTitle>Explicación</AlertTitle>
+            <AlertDescription>{currentQuestion.explanation}</AlertDescription>
+          </Alert>
+        )}
       </CardContent>
 
       <CardFooter className="flex justify-between">
@@ -148,7 +176,13 @@ export function TestSession({ testAttempt, questions }: TestSessionProps) {
         </Button>
 
         {currentQuestionIndex < questions.length - 1 ? (
-          <Button type="button" onClick={() => setCurrentQuestionIndex(currentQuestionIndex + 1)}>
+          <Button
+            type="button"
+            onClick={() => {
+              setCurrentQuestionIndex(currentQuestionIndex + 1);
+              setSeeExplanation(false);
+            }}
+          >
             Siguiente <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
         ) : (

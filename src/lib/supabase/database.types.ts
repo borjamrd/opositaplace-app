@@ -354,22 +354,28 @@ export type Database = {
       }
       oppositions: {
         Row: {
+          active: boolean | null
           created_at: string | null
           description: string | null
           id: string
           name: string
+          opposition_scope: Database["public"]["Enums"]["opposition_scope_enum"]
         }
         Insert: {
+          active?: boolean | null
           created_at?: string | null
           description?: string | null
           id?: string
           name: string
+          opposition_scope: Database["public"]["Enums"]["opposition_scope_enum"]
         }
         Update: {
+          active?: boolean | null
           created_at?: string | null
           description?: string | null
           id?: string
           name?: string
+          opposition_scope?: Database["public"]["Enums"]["opposition_scope_enum"]
         }
         Relationships: []
       }
@@ -383,6 +389,7 @@ export type Database = {
           official_link: string | null
           process_id: string | null
           stage_order: number
+          status: Database["public"]["Enums"]["stage_status_enum"]
         }
         Insert: {
           created_at?: string
@@ -393,6 +400,7 @@ export type Database = {
           official_link?: string | null
           process_id?: string | null
           stage_order: number
+          status: Database["public"]["Enums"]["stage_status_enum"]
         }
         Update: {
           created_at?: string
@@ -403,6 +411,7 @@ export type Database = {
           official_link?: string | null
           process_id?: string | null
           stage_order?: number
+          status?: Database["public"]["Enums"]["stage_status_enum"]
         }
         Relationships: [
           {
@@ -462,25 +471,31 @@ export type Database = {
       questions: {
         Row: {
           created_at: string | null
+          explanation: string | null
           id: string
           is_archived: boolean
           opposition_id: string | null
+          reference_url: string | null
           text: string
           topic_id: string | null
         }
         Insert: {
           created_at?: string | null
+          explanation?: string | null
           id?: string
           is_archived?: boolean
           opposition_id?: string | null
+          reference_url?: string | null
           text: string
           topic_id?: string | null
         }
         Update: {
           created_at?: string | null
+          explanation?: string | null
           id?: string
           is_archived?: boolean
           opposition_id?: string | null
+          reference_url?: string | null
           text?: string
           topic_id?: string | null
         }
@@ -708,6 +723,7 @@ export type Database = {
           id: string
           name: string
           opposition_id: string | null
+          status: Database["public"]["Enums"]["process_status_enum"]
           year: number
         }
         Insert: {
@@ -715,6 +731,7 @@ export type Database = {
           id?: string
           name: string
           opposition_id?: string | null
+          status: Database["public"]["Enums"]["process_status_enum"]
           year: number
         }
         Update: {
@@ -722,6 +739,7 @@ export type Database = {
           id?: string
           name?: string
           opposition_id?: string | null
+          status?: Database["public"]["Enums"]["process_status_enum"]
           year?: number
         }
         Relationships: [
@@ -1458,6 +1476,10 @@ export type Database = {
           total_minutes: number
         }[]
       }
+      get_duplicate_questions_count: {
+        Args: { opp_id: string }
+        Returns: number
+      }
       get_questions_by_opposition:
         | {
             Args: { include_no_topic?: boolean; opp_id: string }
@@ -1508,8 +1530,10 @@ export type Database = {
       list_oppositions_with_user_count: {
         Args: never
         Returns: {
+          active: boolean
           id: string
           name: string
+          opposition_scope: Database["public"]["Enums"]["opposition_scope_enum"]
           user_count: number
         }[]
       }
@@ -1536,6 +1560,13 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user"
+      opposition_scope_enum:
+        | "estatal"
+        | "autonomica"
+        | "local"
+        | "union-europea"
+      process_status_enum: "borrador" | "en_curso" | "finalizado"
+      stage_status_enum: "pendiente" | "abierta" | "completada"
       status_enum: "not_started" | "in_progress" | "completed"
       syllabus_status: "not_started" | "in_progress" | "completed"
       test_answer_status: "correct" | "incorrect" | "blank"
@@ -1668,6 +1699,14 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user"],
+      opposition_scope_enum: [
+        "estatal",
+        "autonomica",
+        "local",
+        "union-europea",
+      ],
+      process_status_enum: ["borrador", "en_curso", "finalizado"],
+      stage_status_enum: ["pendiente", "abierta", "completada"],
       status_enum: ["not_started", "in_progress", "completed"],
       syllabus_status: ["not_started", "in_progress", "completed"],
       test_answer_status: ["correct", "incorrect", "blank"],
