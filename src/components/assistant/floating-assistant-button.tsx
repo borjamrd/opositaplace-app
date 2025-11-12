@@ -26,13 +26,17 @@ export function FloatingAssistantButton() {
     <div className="fixed bottom-4 right-4 z-50">
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
-          <Button ref={triggerRef} size="lg" className="gap-2">
+          <Button ref={triggerRef} size="lg" className="gap-2 rounded-2xl">
             <Sparkle className="h-5 w-5" />
             Asistente
-            <span className="ml-2 flex items-center rounded border-white border px-2 font-mono">
-              <Keyboard className="h-5 w-5 mr-1" />
-              Ctrl + K
-            </span>
+            <div className="flex items-center justify-end gap-1">
+              <span className="flex items-center rounded-lg bg-foreground  border px-2 font-mono">
+                Ctrl
+              </span>
+              <span className="flex items-center rounded-lg bg-foreground border px-2 font-mono">
+                K
+              </span>
+            </div>
           </Button>
         </DialogTrigger>
         <DialogContent className="max-w-7xl h-[80vh] p-0">
