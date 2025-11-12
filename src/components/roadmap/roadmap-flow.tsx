@@ -199,6 +199,7 @@ export function RoadmapFlow({
   const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null);
   const [rfInstance, setRfInstance] = useState<ReactFlowInstance | null>(null);
   const [statusMap, setStatusMap] = useState(initialStatusMap);
+  const [loadingKey, setLoadingKey] = useState<SyllabusStatus | null>(null);
 
   const { initialNodes, initialEdges } = useMemo(() => {
     const CENTER_X = 0;
@@ -370,6 +371,7 @@ export function RoadmapFlow({
 
   const handleStatusChange = (newStatus: SyllabusStatus) => {
     if (!selectedTopic) return;
+    setLoadingKey(newStatus);
     const topicId = selectedTopic.id;
     startTransition(async () => {
       const result = await updateTopicStatus(topicId, newStatus);
@@ -379,6 +381,7 @@ export function RoadmapFlow({
           description: result.error,
           variant: 'destructive',
         });
+        setLoadingKey(null);
         return;
       }
       setStatusMap((prevMap) => ({
@@ -398,6 +401,7 @@ export function RoadmapFlow({
         window.location.reload();
       }
       setSelectedTopic(null);
+      setLoadingKey(null);
     });
   };
   const currentStatus = selectedTopic
@@ -413,7 +417,7 @@ export function RoadmapFlow({
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onNodeClick={handleNodeClick}
-        onInit={setRfInstance} 
+        onInit={setRfInstance}
       />
       <Sheet open={!!selectedTopic} onOpenChange={(open) => !open && setSelectedTopic(null)}>
         <SheetContent>
@@ -432,10 +436,20 @@ export function RoadmapFlow({
                     { key: 'not_started', label: 'Sin empezar' },
                   ].map(({ key, label }) => {
                     const isActive = currentStatus === key;
+
+                    // --- INICIO DEL CAMBIO ---
+
+                    // 1. Comprueba si ESTE botón es el que está cargando.
+                    //    (Esto asume que tienes un estado `loadingKey` como muestro más abajo)
+                    const isLoadingThisButton = isPending && loadingKey === key;
+
+                    // --- FIN DEL CAMBIO ---
+
                     return (
                       <Button
                         key={key}
                         onClick={() => handleStatusChange(key as SyllabusStatus)}
+                        // 2. El 'disabled' general se mantiene para todos
                         disabled={isPending || isActive}
                         variant={isActive ? 'default' : 'ghost'}
                         size="sm"
@@ -449,8 +463,12 @@ export function RoadmapFlow({
                             : 'hover:bg-muted/50'
                         }`}
                       >
-                        {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                        {isActive && <Check className="mr-1 h-4 w-4" />}
+                        {/* 3. El Loader solo se muestra si ESTE botón está cargando */}
+                        {isLoadingThisButton && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+
+                        {/* 4. El Check solo se muestra si está activo Y no está cargando */}
+                        {isActive && !isLoadingThisButton && <Check className="mr-1 h-4 w-4" />}
+
                         {label}
                       </Button>
                     );
