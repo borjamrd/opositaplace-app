@@ -271,6 +271,8 @@ export default function OnboardingForm() {
     if (result) {
       if (currentStep < steps.length - 1) {
         setCurrentStep((prev) => prev + 1);
+      } else {
+        form.handleSubmit(handleFinalSubmit)();
       }
     }
   };
@@ -282,6 +284,9 @@ export default function OnboardingForm() {
   };
 
   const handleFinalSubmit = (data: OnboardingFormValues) => {
+    if (currentStep !== steps.length - 1) {
+      return;
+    }
     if (!profile) {
       toast({ title: 'Error', description: 'Usuario no autenticado.', variant: 'destructive' });
       return;
@@ -384,11 +389,14 @@ export default function OnboardingForm() {
           </ol>
         </nav>
 
-        {/* --- Contenido Principal del Formulario --- */}
         <main className="w-full md:w-2/3 lg:w-3/4 md:pl-10 lg:pl-16">
-          {/* El proveedor <Form> envuelve todo */}
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleFinalSubmit)} className="h-full">
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+              }}
+              className="h-full"
+            >
               <Card className="flex flex-col h-full bg-transparent border-0 shadow-none">
                 <CardHeader>
                   <CardTitle className="text-2xl font-bold text-primary">
@@ -397,10 +405,8 @@ export default function OnboardingForm() {
                   <CardDescription>{steps[currentStep].description}</CardDescription>
                 </CardHeader>
 
-                {/* --- INICIO DE LA MODIFICACIÓN --- */}
-                {/* El contenido se renderiza condicionalmente por componente */}
-                <CardContent className="flex-grow space-y-8">
-                  {/* Alertas de error (sin cambios) */}
+              
+                <CardContent className="grow space-y-8">
                   {actionState?.message && !actionState.success && !actionState.errors && (
                     <Alert variant="destructive">
                       <AlertCircle className="h-4 w-4" />
@@ -409,7 +415,7 @@ export default function OnboardingForm() {
                     </Alert>
                   )}
                   {actionState?.errors && (
-                    <Alert variant="destructive">{/* ... renderizado de errores ... */}</Alert>
+                    <Alert variant="destructive">{actionState.errors}</Alert>
                   )}
 
                   {/* Renderizado de Pasos */}
@@ -434,7 +440,6 @@ export default function OnboardingForm() {
                     />
                   )}
                 </CardContent>
-                {/* --- FIN DE LA MODIFICACIÓN --- */}
 
                 <CardFooter className="pt-6 flex justify-between">
                   <Button
@@ -453,7 +458,7 @@ export default function OnboardingForm() {
                       <ChevronRight className="ml-2 h-4 w-4" />
                     </Button>
                   ) : (
-                    <Button type="submit" disabled={isServerActionPending}>
+                    <Button type="button" onClick={handleNextStep} disabled={isServerActionPending}>
                       {isServerActionPending ? (
                         <>
                           <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Guardando...
