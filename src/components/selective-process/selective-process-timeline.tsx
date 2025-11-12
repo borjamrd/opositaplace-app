@@ -147,7 +147,7 @@ export function SelectiveProcessTimeline() {
   const isTracking = userStatus.tracking_status === 'TRACKING';
 
   return (
-    <Card variant={'borderless'}>
+    <Card >
       <CardHeader>
         <CardTitle className="text-lg font-bold">
           {isTracking ? 'Mi proceso selectivo' : 'Así funciona el proceso selectivo'}
@@ -156,7 +156,6 @@ export function SelectiveProcessTimeline() {
       </CardHeader>
       <CardContent>
         <div className="relative space-y-8 pl-8">
-          {/* Línea vertical del timeline */}
           <div className="absolute left-4 top-4 h-full border-l-2 border-dashed"></div>
 
           {stages.map((stage, index) => {
