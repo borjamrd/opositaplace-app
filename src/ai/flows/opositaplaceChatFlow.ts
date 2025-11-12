@@ -4,14 +4,20 @@ import { getConversationalAnswer, Reference } from '@/ai/tools/knowledgeSearchTo
 import { UserSessionData } from '@/lib/supabase/types';
 import { z } from 'genkit';
 
-async function streamText(text: string, sendChunk: (chunk: { replyChunk: string }) => void) {
+async function streamText(
+  text: string,
+  sendChunk: (chunk: { replyChunk?: string; statusUpdate?: string | null }) => void
+) {
   const words = text.split(/(\s+)/);
+
+  sendChunk({ statusUpdate: null });
+
   for (const word of words) {
     sendChunk({ replyChunk: word });
+
     await new Promise((resolve) => setTimeout(resolve, 25));
   }
 }
-
 const ReferenceSchema = z.object({
   id: z.string(),
   text: z.string(),
@@ -53,7 +59,8 @@ export const OpositaPlaceChatInputSchema = z.object({
 });
 
 export const OpositaPlaceChatStreamChunkSchema = z.object({
-  replyChunk: z.string(),
+  replyChunk: z.string().optional(),
+  statusUpdate: z.string().optional().nullable(),
 });
 
 export const opositaplaceChatFlow = ai.defineFlow(
@@ -179,10 +186,13 @@ export const opositaplaceChatFlow = ai.defineFlow(
       config: { temperature: 0.0 },
     });
     const intent = intentClassification.text.trim();
-    console.log('Intent Prompt:', intent);
+
+    sendChunk({ statusUpdate: 'Analizando intención del usuario...' });
+    await new Promise((resolve) => setTimeout(resolve, 100));
 
     switch (intent) {
       case 'KNOWLEDGE_QUERY':
+        sendChunk({ statusUpdate: 'Resolviendo de forma estructurada las dudas...' });
         try {
           const ragResult = await getConversationalAnswer(query, sessionPath, systemPrompt);
           references = ragResult.references;
@@ -208,21 +218,44 @@ export const opositaplaceChatFlow = ai.defineFlow(
               .pop();
 
             if (lastBotResponse) {
-              const contextSnippet = lastBotResponse.content.substring(0, 1500);
-              const enrichedQuery = `El usuario tiene una duda sobre esta respuesta: "${contextSnippet}". La nueva pregunta del usuario es: "${query}".`;
+              const clarificationIntentPrompt = `
+                La respuesta anterior del bot fue: "${lastBotResponse.content.substring(0, 500)}..."
+                La nueva consulta del usuario es: "${query}"
+
+                Clasifica la consulta del usuario en una de estas dos categorías:
+                - FOLLOW_UP: El usuario pide más detalles, un ejemplo, o una aclaración sobre la respuesta anterior.
+                - CORRECTION: El usuario indica que la respuesta anterior era incorrecta, que se refería a otra cosa, o está cambiando de tema.
+                Responde solo con la categoría (FOLLOW_UP o CORRECTION).
+              `;
+
+              const intentResult = await ai.generate({
+                prompt: clarificationIntentPrompt,
+                output: { format: 'text' },
+                config: { temperature: 0.0 },
+              });
+              const subIntent = intentResult.text.trim();
+
+              let queryToUse = query;
+              let systemPromptToUse = systemPrompt;
+
+              // 2. Actúa según la sub-intención
+              if (subIntent === 'FOLLOW_UP') {
+                queryToUse = `El usuario tiene una duda sobre esta respuesta: "${lastBotResponse.content.substring(0, 1500)}". La nueva pregunta del usuario es: "${query}".`;
+              } else {
+                queryToUse = query;
+                systemPromptToUse = `${systemPrompt}\nIMPORTANTE: El usuario está corrigiendo mi respuesta anterior. Ignora el contexto previo y céntrate solo en la nueva consulta.`;
+              }
+
+              // 3. Llama al RAG con la consulta y el prompt correctos
               const ragResult = await getConversationalAnswer(
-                enrichedQuery,
+                queryToUse,
                 sessionPath,
-                systemPrompt
+                systemPromptToUse
               );
+
               references = ragResult.references;
               finalSessionPath = ragResult.sessionPath;
-              finalAnswerText = ragResult.answer;
-
-              if (!finalAnswerText) {
-                finalAnswerText =
-                  'Lo siento, no pude encontrar información relevante para tu aclaración.';
-              }
+              finalAnswerText = ragResult.answer as string;
               await streamText(finalAnswerText, sendChunk);
             } else {
               finalAnswerText = 'Por favor, ¿puedes recordarme sobre qué tenías la duda?';
@@ -242,11 +275,11 @@ export const opositaplaceChatFlow = ai.defineFlow(
       case 'CAPABILITIES_INQUIRY':
         try {
           finalAnswerText = `Mi principal función es ayudarte a entender el temario que has cargado. Puedes pedirme que haga cosas como:
-- Explicar conceptos: "Explícame el recurso de alzada".
-- Resumir artículos o capítulos: "¿Qué dice el Título Preliminar de la Constitución?".
-- Definir términos: "¿Qué es un acto administrativo?".
+            - Explicar conceptos: "Explícame el recurso de alzada".
+            - Resumir artículos o capítulos: "¿Qué dice el Título Preliminar de la Constitución?".
+            - Definir términos: "¿Qué es un acto administrativo?".
 
-Mi conocimiento se basa únicamente en la documentación oficial del BOE, y siempre que sea posible, citaré mis fuentes. Si no entiendo algo, ¡puedes pedirme que te lo explique de otra manera!`;
+            Mi conocimiento se basa únicamente en la documentación oficial del BOE, y siempre que sea posible, citaré mis fuentes. Si no entiendo algo, ¡puedes pedirme que te lo explique de otra manera!`;
 
           await streamText(finalAnswerText, sendChunk);
         } catch (e) {
@@ -259,7 +292,7 @@ Mi conocimiento se basa únicamente en la documentación oficial del BOE, y siem
       case 'CONVERSATIONAL_RESPONSE':
         try {
           const conversationalPrompt = `
-                        ${systemPrompt} 
+                        ${systemPrompt} OpositaPlaceChatStreamChunkSchema
 
                         El usuario ha dicho algo conversacional que no requiere una búsqueda en el temario.
                         Su mensaje fue: "${query}"
@@ -297,7 +330,6 @@ Mi conocimiento se basa únicamente en la documentación oficial del BOE, y siem
           });
           finalAnswerText = data?.text.trim() || 'No estoy seguro de cómo responder a eso.';
 
-          // Usamos streamText
           await streamText(finalAnswerText, sendChunk);
         } catch (error) {
           finalAnswerText = 'Lo siento, no pude generar una respuesta en este momento.';

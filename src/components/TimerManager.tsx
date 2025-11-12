@@ -118,9 +118,9 @@ export default function TimerManager() {
           <Button variant={'ghost'} size="lg" className="gap-2" onClick={() => setModalOpen(true)}>
             <PlayCircle className="h-4 w-4" />
             Sesión de estudio
-            <span className="ml-2 text-xs flex items-center rounded border px-2">
-              <Keyboard className="h-5 w-5 mr-1" />
-              Ctrl + S
+            <span className="flex items-center justify-end gap-1">
+              <span className="flex items-center rounded-lg border px-2 font-mono">Ctrl</span>
+              <span className="flex items-center rounded-lg border px-2 font-mono">S</span>
             </span>
           </Button>
         )}

@@ -40,6 +40,7 @@ export function ChatAssistant() {
   const [sessionId, setSessionId] = useState<string | undefined>(undefined);
   const [selectedSources, setSelectedSources] = useState<ChatMessage['sources'] | null>(null);
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
   const scrollAreaRef = useRef<HTMLDivElement | null>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
@@ -50,7 +51,7 @@ export function ChatAssistant() {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [chatMessages, isLoading]);
+  }, [chatMessages, isLoading, statusMessage]);
 
   const handleNewChat = async () => {
     setIsLoading(true);
@@ -58,6 +59,7 @@ export function ChatAssistant() {
       const { conversation } = await invokeCreateConversation();
       setChatMessages([]);
       setCurrentConversationId(conversation.id);
+      setStatusMessage(null);
     } catch (error) {
       console.error('Error creating new conversation:', error);
     } finally {
@@ -68,6 +70,7 @@ export function ChatAssistant() {
   const handleSelectConversation = async (id: string) => {
     setIsLoading(true);
     setCurrentConversationId(id);
+    setStatusMessage(null);
 
     const { data, error } = await supabase
       .from('messages')
@@ -95,6 +98,7 @@ export function ChatAssistant() {
     if (!currentInput) return;
 
     setIsLoading(true);
+    setStatusMessage('Pensando...');
     setUserInput('');
 
     try {
@@ -158,14 +162,23 @@ export function ChatAssistant() {
       });
 
       for await (const chunk of result.stream) {
-        if (chunk?.replyChunk) {
+        if (chunk?.statusUpdate) {
+          setStatusMessage(chunk.statusUpdate);
+        } else if (chunk?.statusUpdate === null) {
+          setStatusMessage(null);
+        } else if (chunk?.replyChunk) {
+          if (statusMessage) {
+            setStatusMessage(null);
+          }
+
           setChatMessages((prevMessages) =>
             prevMessages.map((msg, index) => {
               if (index === prevMessages.length - 1) {
+                const existing = msg.content ?? '';
+                const addition = chunk.replyChunk ?? '';
                 return {
                   ...msg,
-                  content:
-                    msg.content === '...' ? chunk.replyChunk : msg.content + chunk.replyChunk,
+                  content: existing === '...' ? addition : existing + addition,
                 };
               }
               return msg;
@@ -212,6 +225,7 @@ export function ChatAssistant() {
       );
     } finally {
       setIsLoading(false);
+      setStatusMessage(null);
     }
   };
 
@@ -279,7 +293,7 @@ export function ChatAssistant() {
                     {msg.content === '...' && isLoading ? (
                       <div className="flex items-center space-x-2">
                         <Loader2 className="h-4 w-4 animate-spin" />
-                        <span>Pensando...</span>
+                        <span>{statusMessage || 'Pensando...'}</span>
                       </div>
                     ) : (
                       <div className="prose prose-sm dark:prose-invert max-w-none">
@@ -354,7 +368,7 @@ export function ChatAssistant() {
               onChange={(e) => setUserInput(e.target.value)}
               placeholder="Escribe tu consulta..."
               disabled={isLoading}
-              className="flex-grow min-h-14"
+              className="grow min-h-14"
               aria-label="Tu mensaje"
             />
             <Button type="submit" disabled={isLoading} size="icon">
