@@ -71,9 +71,9 @@ export function NavUserSection() {
         </DropdownMenuContent>
       </DropdownMenu>
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-5xl">
+        <DialogContent className="max-w-7xl">
           <DialogHeader>
-            <DialogTitle>Calendario y Onboarding</DialogTitle>
+            <DialogTitle>Tu calendario de estudio e información de onboarding</DialogTitle>
           </DialogHeader>
           <UserOnboarding />
         </DialogContent>

@@ -119,18 +119,13 @@ export default function ProfileHeader() {
                 {profile.username || 'Sin nombre'}
               </h1>
             </div>
-            {/* <p className="text-muted-foreground">{profile.bio || "Sin biografía"}</p> */}
+            <p className="text-muted-foreground">Sin biografía</p>
             <div className="text-muted-foreground flex flex-wrap gap-4 text-sm">
               <div className="flex items-center gap-1">
                 <Mail className="size-4" />
                 {profile.email}
               </div>
-              {/* {profile.location && (
-                <div className="flex items-center gap-1">
-                  <MapPin className="size-4" />
-                  {profile.location}
-                </div>
-              )} */}
+
               <div className="flex items-center gap-1">
                 <Calendar className="size-4" />
                 {profile.created_at

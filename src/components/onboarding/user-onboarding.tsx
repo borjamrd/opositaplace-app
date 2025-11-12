@@ -26,20 +26,19 @@ import {
 import { Day, SelectedSlots } from '../weekly-planner/types';
 import { initializeSelectedSlots, parseSlotToMinutes } from '../weekly-planner/utils';
 import { useToast } from '@/hooks/use-toast';
-import { updateOnboardingInfo } from '@/actions/update-onboarding-info'; // Importar la nueva Server Action
+import { updateOnboardingInfo } from '@/actions/update-onboarding-info';
 
 export default function UserOnboarding() {
   const { data: profile, isLoading, error, refetch } = useProfile();
   const { toast } = useToast();
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [isUpdating, startUpdateTransition] = useTransition(); // Para el estado de carga de la actualización
+  const [isUpdating, startUpdateTransition] = useTransition();
   const [updateState, updateAction] = useActionState(updateOnboardingInfo, {
     message: '',
     success: false,
-  }); // Para el estado de la acción
+  });
 
-  // Valores por defecto iniciales si no hay perfil
   const defaultInitialDuration = SLOT_DURATION_OPTIONS.includes(30)
     ? 30
     : SLOT_DURATION_OPTIONS[Math.floor(SLOT_DURATION_OPTIONS.length / 2)];
@@ -256,51 +255,27 @@ export default function UserOnboarding() {
   return (
     <Card variant={'borderless'} className="w-full">
       <CardContent className="space-y-4 pt-6 border-none">
-        <div>
-          <SelectedSlotsSummary selectedSlots={selectedSlots} />
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button className="w-full sm:w-auto mt-4" disabled={isUpdating}>
-                <Calendar className="mr-2 h-4 w-4" />
-                {isUpdating ? 'Guardando...' : 'Editar Horario'}
+        <div className="flex flex-col lg:flex-row gap-10">
+          <div className="w-3/5 flex flex-col">
+            <SlotDurationSelector
+              currentDuration={slotDuration}
+              onDurationChange={handleDurationChange}
+            />
+            <WeeklyPlanner
+              selectedSlots={selectedSlots}
+              onToggleSlot={handleToggleSlot}
+              timeSlots={currentTimeSlots}
+            />
+          </div>
+          <div className="w-2/5 mt-6 relative flex flex-col gap-4">
+            <SelectedSlotsSummary selectedSlots={selectedSlots} />
+            <div className="flex justify-end gap-2 p-4 mb-4 pt-0 border-b">
+              <Button onClick={handleSaveChanges} variant={'secondary'} disabled={isUpdating}>
+                {isUpdating ? 'Guardando...' : 'Guardar Cambios'}
               </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-6xl max-h-[75vh] overflow-auto w-[90vw]">
-              <DialogHeader>
-                <DialogTitle>Planificador de horarios</DialogTitle>
-              </DialogHeader>
-
-              <div className="flex flex-col lg:flex-row">
-                <div className="flex flex-col">
-                  <SlotDurationSelector
-                    currentDuration={slotDuration}
-                    onDurationChange={handleDurationChange}
-                  />
-                  <WeeklyPlanner
-                    selectedSlots={selectedSlots}
-                    onToggleSlot={handleToggleSlot}
-                    timeSlots={currentTimeSlots}
-                  />
-                </div>
-                <div className="mt-6 relative">
-                  <div className="sticky top-3 p-4">
-                    <div className="flex justify-end gap-2 p-4 mb-4 pt-0 border-b">
-                      <Button
-                        onClick={handleSaveChanges}
-                        variant={'secondary'}
-                        disabled={isUpdating}
-                      >
-                        {isUpdating ? 'Guardando...' : 'Guardar Cambios'}
-                      </Button>
-                    </div>
-                    <SelectedSlotsSummary selectedSlots={selectedSlots} />
-                  </div>
-                </div>
-              </div>
-            </DialogContent>
-          </Dialog>
+            </div>
+          </div>
         </div>
-
         {profile.onboarding.help_with && (profile.onboarding.help_with as string[]).length > 0 && (
           <div>
             <p className="text-sm font-medium text-muted-foreground">Áreas de ayuda</p>
