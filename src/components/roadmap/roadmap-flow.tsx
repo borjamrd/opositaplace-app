@@ -455,19 +455,13 @@ export function RoadmapFlow({
                   ].map(({ key, label }) => {
                     const isActive = currentStatus === key;
 
-                    // --- INICIO DEL CAMBIO ---
+                   const isLoadingThisButton = isPending && loadingKey === key;
 
-                    // 1. Comprueba si ESTE botón es el que está cargando.
-                    //    (Esto asume que tienes un estado `loadingKey` como muestro más abajo)
-                    const isLoadingThisButton = isPending && loadingKey === key;
-
-                    // --- FIN DEL CAMBIO ---
 
                     return (
                       <Button
                         key={key}
                         onClick={() => handleStatusChange(key as SyllabusStatus)}
-                        // 2. El 'disabled' general se mantiene para todos
                         disabled={isPending || isActive}
                         variant={isActive ? 'default' : 'ghost'}
                         size="sm"
