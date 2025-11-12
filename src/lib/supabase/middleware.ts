@@ -33,6 +33,12 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser();
   const { pathname } = request.nextUrl;
 
+  const protectedPaths = ['/dashboard', '/onboarding'];
+  const publicOnlyPaths = ['/', '/login', '/register', '/reset-password'];
+
+  const isProtected = protectedPaths.some((path) => pathname.startsWith(path));
+  const isPublicOnly = publicOnlyPaths.includes(pathname);
+
   if (user) {
     const { data: onboardingInfo } = await supabase
       .from('onboarding_info')
@@ -40,40 +46,23 @@ export async function updateSession(request: NextRequest) {
       .eq('user_id', user.id)
       .maybeSingle();
 
+    const onboardingCompleted = !!onboardingInfo;
     const onboardingPath = `/onboarding/${user.id}`;
 
-    // Handle dashboard routes
-    if (pathname.startsWith('/dashboard')) {
-      if (!onboardingInfo) {
-        // Redirect to onboarding if not completed
+    if (!onboardingCompleted) {
+      if (pathname !== onboardingPath) {
         return NextResponse.redirect(new URL(onboardingPath, request.url));
       }
-    }
-
-    // Handle onboarding routes
-    if (pathname.startsWith('/onboarding')) {
-      if (pathname === onboardingPath) {
-        if (onboardingInfo) {
-          // If onboarding is complete, redirect to dashboard
-          return NextResponse.redirect(new URL('/dashboard', request.url));
-        }
-        // Allow access to their own onboarding page if not completed
-      } else {
-        // Redirect to appropriate path if trying to access another user's onboarding
-        return NextResponse.redirect(
-          new URL(onboardingInfo ? '/dashboard' : onboardingPath, request.url)
-        );
+    } else {
+      if (isPublicOnly) {
+        return NextResponse.redirect(new URL('/dashboard', request.url));
+      }
+      if (pathname.startsWith('/onboarding')) {
+        return NextResponse.redirect(new URL('/dashboard', request.url));
       }
     }
-
-    // Redirect logged in users away from auth pages
-    if (pathname === '/login' || pathname === '/register') {
-      return NextResponse.redirect(new URL('/dashboard', request.url));
-    }
   } else {
-    // Handle non-authenticated users
-    const protectedPaths = ['/dashboard', '/onboarding'];
-    if (protectedPaths.some((path) => pathname.startsWith(path))) {
+    if (isProtected) {
       const redirectUrl = new URL('/login', request.url);
       redirectUrl.searchParams.set('message', 'Debes iniciar sesión para acceder.');
       redirectUrl.searchParams.set('redirect', pathname);
