@@ -54,10 +54,9 @@ export default async function CreateTestPage() {
   if (error) return <p>Error al cargar el temario.</p>;
 
   return (
-    <div className="container mx-auto py-10">
+    <div className="container mx-auto">
       <div>
         <div className="flex justify-between">
-          <h2 className="text-2xl font-bold tracking-tight mb-4">Historial de tests</h2>
           <NewTestModal
             blocksWithTopics={blocksWithTopics || []}
             oppositionId={activeUserOpposition.opposition_id}

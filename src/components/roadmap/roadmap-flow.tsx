@@ -6,17 +6,18 @@ import ReactFlow, {
   Node,
   OnEdgesChange,
   OnNodesChange,
-  PanOnScrollMode,
   Position,
+  ReactFlowInstance,
   ReactFlowProvider,
   useEdgesState,
   useNodesState,
-  ReactFlowInstance,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 
 import { updateTopicStatus } from '@/actions/roadmap';
+import { createTestAttempt } from '@/actions/tests';
 import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
 import {
   Sheet,
   SheetContent,
@@ -24,9 +25,11 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet';
+import { Slider } from '@/components/ui/slider';
 import { useToast } from '@/hooks/use-toast';
 import { Block, StudyCycle, SyllabusStatus, Topic } from '@/lib/supabase/types';
 import { Check, Loader2 } from 'lucide-react';
+import { Label } from 'recharts';
 
 type StatusMap = Record<string, SyllabusStatus>;
 
@@ -176,9 +179,8 @@ function FlowCanvas({
   onNodesChange: OnNodesChange;
   onEdgesChange: OnEdgesChange;
   onNodeClick: (event: any, node: Node) => void;
-  onInit: (instance: ReactFlowInstance) => void; // <-- TIPO AÑADIDO
+  onInit: (instance: ReactFlowInstance) => void;
 }) {
-  // Eliminamos el useEffect y useReactFlow de aquí
   return (
     <ReactFlow
       style={{ cursor: 'default' }}
@@ -190,11 +192,10 @@ function FlowCanvas({
       nodesDraggable={false}
       nodesConnectable={false}
       proOptions={{ hideAttribution: true }}
-      // Restricciones de navegación
       zoomOnScroll={false}
       zoomOnPinch={false}
       zoomOnDoubleClick={false}
-      onInit={onInit} // <-- ASIGNAMOS EL PROP
+      onInit={onInit} //
     ></ReactFlow>
   );
 }
@@ -211,6 +212,8 @@ export function RoadmapFlow({
   const [rfInstance, setRfInstance] = useState<ReactFlowInstance | null>(null);
   const [statusMap, setStatusMap] = useState(initialStatusMap);
   const [loadingKey, setLoadingKey] = useState<SyllabusStatus | null>(null);
+  const [isCreatingTest, startTestCreation] = useTransition();
+  const [numQuestions, setNumQuestions] = useState(10);
 
   const { initialNodes, initialEdges } = useMemo(() => {
     const CENTER_X = 0;
@@ -387,6 +390,38 @@ export function RoadmapFlow({
     }
   };
 
+  const handleCreateTest = () => {
+    if (!selectedTopic) return;
+
+    const selectedBlock = initialBlocks.find((b) => b.id === selectedTopic.block_id);
+
+    if (!selectedBlock || !selectedBlock?.opposition_id) {
+      toast({
+        title: 'Error de datos',
+        description: 'No se pudo encontrar el bloque asociado a este tema.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    startTestCreation(async () => {
+      const result = await createTestAttempt({
+        mode: 'topics',
+        numQuestions: numQuestions,
+        topicIds: [selectedTopic.id],
+        oppositionId: selectedBlock.opposition_id as string,
+        studyCycleId: initialCycle.id,
+      });
+
+      if (result.error) {
+        toast({
+          title: 'Error al crear el test',
+          description: result.error,
+          variant: 'destructive',
+        });
+      }
+    });
+  };
   const handleStatusChange = (newStatus: SyllabusStatus) => {
     if (!selectedTopic) return;
     setLoadingKey(newStatus);
@@ -454,9 +489,7 @@ export function RoadmapFlow({
                     { key: 'not_started', label: 'Sin empezar' },
                   ].map(({ key, label }) => {
                     const isActive = currentStatus === key;
-
-                   const isLoadingThisButton = isPending && loadingKey === key;
-
+                    const isLoadingThisButton = isPending && loadingKey === key;
 
                     return (
                       <Button
@@ -475,22 +508,53 @@ export function RoadmapFlow({
                             : 'hover:bg-muted/50'
                         }`}
                       >
-                        {/* 3. El Loader solo se muestra si ESTE botón está cargando */}
                         {isLoadingThisButton && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-
-                        {/* 4. El Check solo se muestra si está activo Y no está cargando */}
                         {isActive && !isLoadingThisButton && <Check className="mr-1 h-4 w-4" />}
-
                         {label}
                       </Button>
                     );
                   })}
                 </div>
               </SheetHeader>
-              <div className="py-8">
-                <p className="text-muted-foreground">
-                  Marca el estado de este tema. Esto actualizará tu progreso en el roadmap.
-                </p>
+
+              <div className="py-8 space-y-8">
+                <div>
+                  <h4 className="font-semibold mb-2 text-foreground">Descripción</h4>
+                  <p className="text-sm text-muted-foreground">
+                    {(selectedTopic as any).description || // Asumimos que description existe
+                      'Este tema no tiene una descripción.'}
+                  </p>
+                </div>
+
+                <Separator />
+
+                <div className="text-sm text-muted-foreground space-y-1 rounded-lg border bg-muted/50 p-3">
+                  <h4 className="font-semibold text-foreground">
+                    ¿Te animas con un test del tema {selectedTopic.position + 1}?
+                  </h4>
+                  <div className="space-y-4 mb-6">
+                    <div className="flex justify-between items-center">
+                      <Label id="num-questions" className="text-muted-foreground">
+                        Número de preguntas
+                      </Label>
+                      <span className="text-sm font-medium text-primary">{numQuestions}</span>
+                    </div>
+                    <Slider
+                      id="num-questions"
+                      min={5}
+                      max={100}
+                      step={5}
+                      value={[numQuestions]}
+                      onValueChange={(value) => setNumQuestions(value[0])}
+                      disabled={isCreatingTest}
+                    />
+                  </div>
+
+                  <Button onClick={handleCreateTest} disabled={isCreatingTest} className="w-full">
+                    {isCreatingTest && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    Hacer test
+                  </Button>
+                </div>
               </div>
             </>
           )}

@@ -1,18 +1,11 @@
-// src/components/charts/test-history-chart.tsx
 'use client';
 import { createClient } from '@/lib/supabase/client';
 import { useQuery } from '@tanstack/react-query';
 import { AlertCircle, CheckCircle, HelpCircle, XCircle } from 'lucide-react';
-import { useMemo } from 'react';
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts'; 
+import { useMemo, useState } from 'react';
+import { CartesianGrid, Line, LineChart, XAxis, Legend } from 'recharts';
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader
-} from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   ChartConfig,
   ChartContainer,
@@ -21,15 +14,34 @@ import {
 } from '@/components/ui/chart';
 import { Skeleton } from '@/components/ui/skeleton';
 
-type TestAttemptSummary = {
-  id: string;
-  created_at: string;
-  correct_answers: number | null;
-  incorrect_answers: number | null;
-  unanswered_questions: number | null;
+type ChartData = {
+  date: string;
+  correct: number;
+  incorrect: number;
+  blank: number;
 };
 
-async function fetchTestHistoryDataRpc(limit_count = 15): Promise<TestAttemptSummary[]> {
+const chartConfig = {
+  correct: {
+    label: 'Correctas',
+    color: 'hsl(var(--chart-green))',
+    icon: CheckCircle,
+  },
+  incorrect: {
+    label: 'Incorrectas',
+    color: 'hsl(var(--chart-red))',
+    icon: XCircle,
+  },
+  blank: {
+    label: 'En Blanco',
+    color: 'hsl(var(--chart-gray))',
+    icon: HelpCircle,
+  },
+} satisfies ChartConfig;
+
+type ActiveChartKey = keyof typeof chartConfig;
+
+async function fetchTestHistoryDataRpc(limit_count = 15) {
   const supabase = createClient();
   const { data, error } = await supabase.rpc('get_test_history_summary', {
     limit_count,
@@ -40,53 +52,48 @@ async function fetchTestHistoryDataRpc(limit_count = 15): Promise<TestAttemptSum
 }
 
 export function TestHistoryChart() {
+  const [activeChart, setActiveChart] = useState<ActiveChartKey | null>(null);
+
   const {
     data: chartData,
     isLoading,
     isError,
   } = useQuery({
-    queryKey: ['test-history-summary-rpc'], 
+    queryKey: ['test-history-summary-rpc'],
     queryFn: () => fetchTestHistoryDataRpc(15),
     staleTime: 1000 * 60 * 5,
   });
 
-  const averageCounts = useMemo(() => {
-    if (!chartData || chartData.length === 0) return { correct: 0, incorrect: 0, blank: 0 };
-    const total = chartData.length;
-    const sums = chartData.reduce(
-      (acc, item) => {
-        acc.correct += item.correct_answers ?? 0;
-        acc.incorrect += item.incorrect_answers ?? 0;
-        acc.blank += item.unanswered_questions ?? 0;
+  const sanitizedData: ChartData[] = useMemo(() => {
+    if (!chartData) return [];
+    return chartData.map((item) => ({
+      date: item.created_at,
+      correct: item.correct_answers ?? 0,
+      incorrect: item.incorrect_answers ?? 0,
+      blank: item.unanswered_questions ?? 0,
+    }));
+  }, [chartData]);
+
+  const averages = useMemo(() => {
+    if (sanitizedData.length === 0) {
+      return { correct: 0, incorrect: 0, blank: 0 };
+    }
+    const sums = sanitizedData.reduce(
+      (acc, curr) => {
+        acc.correct += curr.correct;
+        acc.incorrect += curr.incorrect;
+        acc.blank += curr.blank;
         return acc;
       },
       { correct: 0, incorrect: 0, blank: 0 }
     );
+    const totalTests = sanitizedData.length;
     return {
-      correct: sums.correct / total,
-      incorrect: sums.incorrect / total,
-      blank: sums.blank / total,
+      correct: sums.correct / totalTests,
+      incorrect: sums.incorrect / totalTests,
+      blank: sums.blank / totalTests,
     };
-  }, [chartData]);
-
-  // 4. Configuración del gráfico para tests
-  const chartConfig = {
-    correct: {
-      label: 'Correctas',
-      color: 'hsl(var(--chart-green))', // Usar variables CSS definidas
-      icon: CheckCircle,
-    },
-    incorrect: {
-      label: 'Incorrectas',
-      color: 'hsl(var(--chart-red))',
-      icon: XCircle,
-    },
-    blank: {
-      label: 'En Blanco',
-      color: 'hsl(var(--chart-gray))',
-      icon: HelpCircle,
-    },
-  } satisfies ChartConfig;
+  }, [sanitizedData]);
 
   if (isLoading) {
     return (
@@ -96,11 +103,8 @@ export function TestHistoryChart() {
           <Skeleton className="h-4 w-4/5" />
         </CardHeader>
         <CardContent>
-          <Skeleton className="h-[140px] w-full" />
+          <Skeleton className="h-[250px] w-full" />
         </CardContent>
-        <CardFooter>
-          <Skeleton className="h-5 w-1/2" />
-        </CardFooter>
       </Card>
     );
   }
@@ -111,7 +115,7 @@ export function TestHistoryChart() {
         <CardHeader>
           <CardDescription>Error al cargar los últimos tests.</CardDescription>
         </CardHeader>
-        <CardContent className="flex flex-col items-center justify-center h-[140px]">
+        <CardContent className="flex flex-col items-center justify-center h-[250px]">
           <AlertCircle className="h-8 w-8 text-destructive" />
           <p className="mt-2 text-sm text-destructive">No se pudieron cargar los datos.</p>
         </CardContent>
@@ -125,7 +129,7 @@ export function TestHistoryChart() {
         <CardHeader>
           <CardDescription>Rendimiento en tus últimos tests completados.</CardDescription>
         </CardHeader>
-        <CardContent className="flex flex-col items-center justify-center h-[140px]">
+        <CardContent className="flex flex-col items-center justify-center h-[250px]">
           <p className="mt-2 text-sm text-muted-foreground">Aún no has completado ningún test.</p>
         </CardContent>
       </Card>
@@ -133,96 +137,117 @@ export function TestHistoryChart() {
   }
 
   return (
-    <Card className="w-full h-fit mb-4">
-      <CardHeader>
-        <CardDescription>
-          Rendimiento en tus últimos {chartData.length} tests completados.
-        </CardDescription>
+    <Card className="w-full h-fit mb-4 py-4 sm:py-0">
+      <CardHeader className="flex flex-col items-stretch border-b !p-0 sm:flex-row">
+        <div className="flex flex-1 flex-col justify-center gap-1 px-6 pb-3 sm:pb-0">
+          <CardTitle>Histórico de Tests</CardTitle>
+          <CardDescription>
+            Mostrando el rendimiento de tus últimos {sanitizedData.length} tests
+          </CardDescription>
+        </div>
+        <div className="flex">
+          {(['correct', 'incorrect', 'blank'] as ActiveChartKey[]).map((key) => {
+            const chart = key as ActiveChartKey;
+            return (
+              <button
+                key={chart}
+                data-active={activeChart === chart}
+                className="data-[active=true]:bg-muted/50 flex flex-1 flex-col justify-center gap-1 border-t px-6 py-4 text-left even:border-l sm:border-t-0 sm:border-l sm:px-8 sm:py-6"
+                onClick={() => {
+                  if (activeChart === chart) {
+                    setActiveChart(null);
+                  } else {
+                    setActiveChart(chart);
+                  }
+                }}
+              >
+                <span className="text-muted-foreground text-xs">
+                  {chartConfig[chart].label} (Promedio)
+                </span>
+                <span className="text-lg leading-none font-bold sm:text-3xl">
+                  {averages[key].toFixed(1)}
+                </span>
+              </button>
+            );
+          })}
+        </div>
       </CardHeader>
-      <CardContent>
-        {/* 5. Usar ChartContainer y BarChart */}
-        <ChartContainer config={chartConfig} className="h-[100px] w-full">
-          <BarChart
+      <CardContent className="px-2 sm:p-6">
+        <ChartContainer config={chartConfig} className="aspect-auto h-[250px] w-full">
+          <LineChart
             accessibilityLayer
-            data={chartData}
-            margin={{ left: -20, right: 12, top: 4 }} // Ajustar margen izquierdo para YAxis
-            barGap={4} // Espacio entre grupos de barras (si no son apiladas)
+            data={sanitizedData}
+            margin={{
+              left: 12,
+              right: 12,
+            }}
           >
             <CartesianGrid vertical={false} />
             <XAxis
-              dataKey="created_at"
+              dataKey="date"
               tickLine={false}
               axisLine={false}
               tickMargin={8}
-              tickFormatter={(value) =>
-                new Date(value).toLocaleDateString('es-ES', { month: 'short', day: 'numeric' })
-              }
-            />
-            <YAxis
-              tickLine={false}
-              axisLine={false}
-              tickMargin={8}
-              // Ajusta el dominio si esperas muchos más de 100 preguntas
-              domain={[0, 'dataMax + 10']}
+              minTickGap={32}
+              tickFormatter={(value) => {
+                const date = new Date(value);
+                return date.toLocaleDateString('es-ES', {
+                  month: 'short',
+                  day: 'numeric',
+                });
+              }}
             />
             <ChartTooltip
-              cursor={false}
               content={
                 <ChartTooltipContent
-                  indicator="dot"
-                  // Formatter para mostrar el número directamente
-                  formatter={(value, name, item) => {
-                    const key = typeof name === 'string' ? name.split('.')[0] : String(name);
-                    const label =
-                      (chartConfig as Record<string, { label: string }>)[key]?.label ?? key;
-                    return `${label}: ${value}`;
+                  className="w-[100px]"
+                  labelFormatter={(value) => {
+                    return new Date(value).toLocaleDateString('es-ES', {
+                      month: 'short',
+                      day: 'numeric',
+                      year: 'numeric',
+                    });
                   }}
                 />
               }
             />
-            <Bar
-              maxBarSize={40}
-              dataKey="correct_answers"
-              stackId="a"
-              fill="hsl(var(--chart-green))"
-              name="correct.label"
-              radius={[0, 0, 0, 0]}
-            />
-            <Bar
-              maxBarSize={40}
-              dataKey="incorrect_answers"
-              stackId="a"
-              fill="hsl(var(--chart-red))"
-              name="incorrect.label"
-            />
-            <Bar
-              maxBarSize={40}
-              dataKey="unanswered_questions"
-              stackId="a"
-              fill="hsl(var(--chart-gray))"
-              name="blank.label"
-              radius={[4, 4, 0, 0]}
-            />
-          </BarChart>
+            {activeChart === null && <Legend verticalAlign="top" height={36} />}
+            {(activeChart === null || activeChart === 'correct') && (
+              <Line
+                dataKey="correct"
+                type="monotone"
+                stroke={chartConfig.correct.color}
+                strokeWidth={2}
+                dot={false}
+                activeDot={{ r: 4 }}
+                name={chartConfig.correct.label}
+              />
+            )}
+            {(activeChart === null || activeChart === 'incorrect') && (
+              <Line
+                dataKey="incorrect"
+                type="monotone"
+                stroke={chartConfig.incorrect.color}
+                strokeWidth={2}
+                dot={false}
+                activeDot={{ r: 4 }}
+                name={chartConfig.incorrect.label}
+              />
+            )}
+            {(activeChart === null || activeChart === 'blank') && (
+              <Line
+                dataKey="blank"
+                type="monotone"
+                stroke={chartConfig.blank.color}
+                strokeWidth={2}
+                dot={false}
+                activeDot={{ r: 4 }}
+                name={chartConfig.blank.label}
+              />
+            )}
+          </LineChart>
         </ChartContainer>
       </CardContent>
-      <CardFooter>
-        <div className="flex w-full items-start gap-2 text-sm">
-          <div className="grid gap-2">
-            <div className="flex items-center gap-2 font-medium leading-none">
-              Promedio por test en este periodo:
-            </div>
-            <div className="flex items-center gap-1 text-xs text-muted-foreground">
-              <CheckCircle className="h-3 w-3 fill-green-500 text-green-500" /> Correctas:{' '}
-              {averageCounts.correct.toFixed(1)}
-              <XCircle className="ml-2 h-3 w-3 fill-red-500 text-red-500" /> Incorrectas:{' '}
-              {averageCounts.incorrect.toFixed(1)}
-              <HelpCircle className="ml-2 h-3 w-3 fill-gray-400 text-gray-400" /> En Blanco:{' '}
-              {averageCounts.blank.toFixed(1)}
-            </div>
-          </div>
-        </div>
-      </CardFooter>
     </Card>
   );
 }
