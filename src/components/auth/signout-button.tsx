@@ -72,7 +72,6 @@ export function SignOutButton() {
         onSelect={(e) => e.preventDefault()}
         onClick={handleSignOutClick}
         disabled={isSigningOut}
-        className="text-red-600 focus:text-red-600 focus:bg-red-50"
       >
         {isSigningOut ? (
           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
