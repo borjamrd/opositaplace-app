@@ -36,9 +36,7 @@ export function ReferencesPanel({ sources, onClose }: ReferencesPanelProps) {
           {sources.map((source, index) => (
             <Card key={source.id || randomUUID()}>
               <CardHeader>
-                <CardTitle className="text-base">
-                  [{index + 1}] {source.title} (pág. {source.pageIdentifier})
-                </CardTitle>
+                <CardTitle className="text-base">{source.title}</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground italic">"{source.text}"</p>
