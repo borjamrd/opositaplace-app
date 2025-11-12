@@ -14,15 +14,15 @@ async function LandingHeader() {
       </Link>
       <nav>
         {profile ? (
-          <Button asChild size="sm">
+          <Button asChild size="lg" className="rounded-3xl">
             <Link href="/dashboard">Ir al Dashboard</Link>
           </Button>
         ) : (
           <div className="flex items-center gap-2">
-            <Button asChild variant="ghost" size="sm">
+            <Button asChild variant="ghost" size="lg" className="rounded-3xl">
               <Link href="/login">Entrar</Link>
             </Button>
-            <Button asChild size="lg" className='rounded-3xl'>
+            <Button asChild size="lg" className="rounded-3xl">
               <Link href="/register">Crear cuenta</Link>
             </Button>
           </div>

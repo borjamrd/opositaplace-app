@@ -34,7 +34,8 @@ export default function LandingContent() {
       <section className="py-20 -mt-20 md:py-32 bg-radial from-amber-400/50 via-background to-secondary/20">
         <div className="container mx-auto mt-20 px-4 text-center">
           <h1 className="text-5xl md:text-8xl tracking-tight mb-16">
-            <span className="text-primary font-extrabold ">Organiza tu estudio📖.</span> Por{' '}
+            <span className="text-primary font-extrabold ">Organiza tu estudio📖.</span>
+            <br></br> Por{' '}
             <span className="border-b-4 border-primary">
               opositores.<br></br>
             </span>
