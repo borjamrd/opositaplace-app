@@ -101,8 +101,7 @@ const steps = [
   {
     id: 'step-1-opposition',
     name: 'Oposición',
-    description:
-      'Escoge una oposición entre las opciones disponibles',
+    description: 'Escoge una oposición entre las opciones disponibles',
     icon: Flag,
     fields: ['opposition_scope', 'opposition_id'] as const,
   },
@@ -158,7 +157,6 @@ export default function OnboardingForm() {
   const [selectedSlots, setSelectedSlots] = useState<SelectedSlots>(() =>
     initializeSelectedSlots(currentTimeSlots)
   );
-  const [isPlannerOpen, setIsPlannerOpen] = useState(false);
   const [totalSelectedHours, setTotalSelectedHours] = useState(0);
 
   const form = useForm<OnboardingFormValues>({
@@ -266,7 +264,6 @@ export default function OnboardingForm() {
     setSlotDuration(newDuration);
   }, []);
 
-  // --- Handlers de Navegación de Pasos ---
   const handleNextStep = async () => {
     const currentStepFields = steps[currentStep].fields;
     const result = await form.trigger(currentStepFields);
@@ -284,7 +281,6 @@ export default function OnboardingForm() {
     }
   };
 
-  // --- Handler de Envío Final ---
   const handleFinalSubmit = (data: OnboardingFormValues) => {
     if (!profile) {
       toast({ title: 'Error', description: 'Usuario no autenticado.', variant: 'destructive' });
@@ -431,8 +427,6 @@ export default function OnboardingForm() {
                       totalSelectedHours={totalSelectedHours}
                       progressPercentage={progressPercentage}
                       selectedSlots={selectedSlots}
-                      isPlannerOpen={isPlannerOpen}
-                      setIsPlannerOpen={setIsPlannerOpen}
                       slotDuration={slotDuration}
                       handleDurationChange={handleDurationChange}
                       currentTimeSlots={currentTimeSlots}

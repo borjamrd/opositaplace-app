@@ -14,12 +14,8 @@ const SelectedSlotsSummary: React.FC<SelectedSlotsSummaryProps> = ({ selectedSlo
 
   return (
     <div>
-      <h3 className="text-xl font-semibold mb-4 flex items-center">
-        <CheckCircle className="text-primary mr-2" />
-        Tus bloques de estudio semanales
-      </h3>
       {!hasSelections ? (
-        <p className="text-primary">
+        <p className="text-sm text-muted-foreground">
           No tienes bloques de estudio aún. Haz click en el calendario para agregarlos.
         </p>
       ) : (

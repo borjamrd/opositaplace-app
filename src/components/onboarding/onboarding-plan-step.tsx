@@ -1,23 +1,10 @@
 'use client';
 
-import {
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
+import { FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+// Dialogs ya no son necesarios aquí
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Calendar } from 'lucide-react';
+// Calendar (para el botón) ya no es necesario
 import SelectedSlotsSummary from '@/components/weekly-planner/SelectedSlotsSummary';
 import SlotDurationSelector from '@/components/weekly-planner/SlotDurationSelector';
 import WeeklyPlanner from '@/components/weekly-planner/WeeklyPlanner';
@@ -29,8 +16,7 @@ interface OnboardingPlanStepProps {
   totalSelectedHours: number;
   progressPercentage: number;
   selectedSlots: SelectedSlots;
-  isPlannerOpen: boolean;
-  setIsPlannerOpen: (isOpen: boolean) => void;
+  // isPlannerOpen y setIsPlannerOpen se eliminan
   slotDuration: number;
   handleDurationChange: (duration: number) => void;
   currentTimeSlots: string[];
@@ -42,8 +28,6 @@ export default function OnboardingPlanStep({
   totalSelectedHours,
   progressPercentage,
   selectedSlots,
-  isPlannerOpen,
-  setIsPlannerOpen,
   slotDuration,
   handleDurationChange,
   currentTimeSlots,
@@ -58,88 +42,58 @@ export default function OnboardingPlanStep({
       render={() => (
         <FormItem className="space-y-6">
           <div className="space-y-2">
-            <FormLabel className="text-base font-semibold">
-              Crea tu plan de estudio base
-            </FormLabel>
+            <FormLabel className="text-base font-semibold">Crea tu plan de estudio base</FormLabel>
             <FormDescription>
               Basado en tu objetivo de{' '}
-              <strong className="text-primary">{weeklyGoalHours} horas</strong>,
-              asigna tus bloques de estudio.
+              <strong className="text-primary">{weeklyGoalHours} horas</strong> semanales, asigna
+              tus bloques de estudio.
             </FormDescription>
           </div>
 
-          <div className="space-y-3">
-            <div className="flex justify-between text-sm font-medium">
-              <span className="text-primary">Horas Planificadas</span>
-              <span>
-                {totalSelectedHours.toFixed(1)}h / {weeklyGoalHours}h
-              </span>
-            </div>
-            <Progress value={progressPercentage} className="w-full" />
-            {totalSelectedHours > 0 && totalSelectedHours < weeklyGoalHours && (
-              <p className="text-sm text-muted-foreground text-center">
-                ¡Sigue así! Te faltan{' '}
-                {(weeklyGoalHours - totalSelectedHours).toFixed(1)} horas por
-                planificar.
-              </p>
-            )}
-            {totalSelectedHours >= weeklyGoalHours && (
-              <p className="text-sm text-green-600 font-medium text-center">
-                ¡Objetivo de planificación completado!
-              </p>
-            )}
-          </div>
-
-          <SelectedSlotsSummary selectedSlots={selectedSlots} />
-
-          <Dialog open={isPlannerOpen} onOpenChange={setIsPlannerOpen}>
-            <DialogTrigger asChild>
-              <Button type="button" variant="outline" className="w-full sm:w-auto">
-                <Calendar className="mr-2 h-4 w-4" />
-                Abrir planificador semanal
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-6xl max-h-[85vh] overflow-auto w-[90vw]">
-              <DialogHeader>
-                <DialogTitle>Planificador de Horarios</DialogTitle>
-              </DialogHeader>
-              <div className="flex flex-col lg:flex-row gap-6">
-                <div className="flex-grow">
-                  <SlotDurationSelector
-                    currentDuration={slotDuration}
-                    onDurationChange={handleDurationChange}
-                  />
-                  <WeeklyPlanner
-                    selectedSlots={selectedSlots}
-                    onToggleSlot={handleToggleSlot}
-                    timeSlots={currentTimeSlots}
-                  />
-                </div>
-                <div className="lg:w-1/3 relative">
-                  <div className="sticky top-0 p-4 space-y-4">
-                    <h4 className="font-semibold">Resumen de Horas</h4>
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm font-medium">
-                        <span className="text-primary">Planificadas</span>
-                        <span>
-                          {totalSelectedHours.toFixed(1)}h / {weeklyGoalHours}h
-                        </span>
-                      </div>
-                      <Progress value={progressPercentage} className="w-full" />
-                    </div>
-                    <SelectedSlotsSummary selectedSlots={selectedSlots} />
-                    <Button
-                      type="button"
-                      onClick={() => setIsPlannerOpen(false)}
-                      className="w-full"
-                    >
-                      Cerrar Planificador
-                    </Button>
-                  </div>
-                </div>
+          <div className="flex flex-col lg:flex-row gap-8 pt-4">
+            <div className="lg:w-2/3 space-y-4">
+              <div className="p-4 border rounded-lg bg-muted/30">
+                <h4 className="font-semibold text-center mb-3 text-primary">
+                  Bloques seleccionados
+                </h4>
+                <SelectedSlotsSummary selectedSlots={selectedSlots} />
               </div>
-            </DialogContent>
-          </Dialog>
+            </div>
+
+            <div className="lg:w-1/3 space-y-6">
+              <div className="space-y-3 p-4 border rounded-lg bg-muted/30 sticky top-24">
+                <h4 className="font-semibold text-center text-primary">Horas semanales</h4>
+                <div className="flex justify-between text-sm font-medium">
+                  <span className="text-muted-foreground">Planificadas</span>
+                  <span className="font-bold">
+                    {totalSelectedHours.toFixed(1)}h / {weeklyGoalHours}h
+                  </span>
+                </div>
+                <Progress value={progressPercentage} className="w-full" />
+                {totalSelectedHours > 0 && totalSelectedHours < weeklyGoalHours && (
+                  <p className="text-sm text-muted-foreground text-center">
+                    ¡Sigue así! Te faltan {(weeklyGoalHours - totalSelectedHours).toFixed(1)}h por
+                    planificar.
+                  </p>
+                )}
+                {totalSelectedHours >= weeklyGoalHours && (
+                  <p className="text-sm text-green-600 font-medium text-center">
+                    ¡Objetivo de planificación completado!
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+          <SlotDurationSelector
+            currentDuration={slotDuration}
+            onDurationChange={handleDurationChange}
+          />
+          <WeeklyPlanner
+            selectedSlots={selectedSlots}
+            onToggleSlot={handleToggleSlot}
+            timeSlots={currentTimeSlots}
+          />
+
           <FormMessage />
         </FormItem>
       )}
