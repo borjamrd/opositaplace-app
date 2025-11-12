@@ -6,10 +6,12 @@ import ReactFlow, {
   Node,
   OnEdgesChange,
   OnNodesChange,
+  PanOnScrollMode,
   Position,
   ReactFlowProvider,
   useEdgesState,
-  useNodesState
+  useNodesState,
+  ReactFlowInstance,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 
@@ -20,7 +22,7 @@ import {
   SheetContent,
   SheetDescription,
   SheetHeader,
-  SheetTitle
+  SheetTitle,
 } from '@/components/ui/sheet';
 import { useToast } from '@/hooks/use-toast';
 import { Block, StudyCycle, SyllabusStatus, Topic } from '@/lib/supabase/types';
@@ -59,34 +61,114 @@ const getStatusStyle = (status: SyllabusStatus | undefined) => {
   }
 };
 
+function Glossary() {
+  const styles = {
+    wrapper: {
+      position: 'absolute',
+      top: 10,
+      left: 10,
+      zIndex: 10,
+      background: 'white',
+      padding: '10px 15px',
+      borderRadius: '8px',
+      border: '1px solid #eee',
+      boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+      fontSize: '12px',
+    } as React.CSSProperties,
+    title: {
+      fontWeight: 'bold',
+      marginBottom: '8px',
+      fontSize: '14px',
+    } as React.CSSProperties,
+    list: {
+      listStyle: 'none',
+      padding: 0,
+      margin: 0,
+    } as React.CSSProperties,
+    item: {
+      display: 'flex',
+      alignItems: 'center',
+      marginBottom: '5px',
+    } as React.CSSProperties,
+    colorBox: {
+      width: '14px',
+      height: '14px',
+      marginRight: '8px',
+      borderRadius: '3px',
+      border: '1px solid #ccc',
+    } as React.CSSProperties,
+  };
+
+  const completedStyle = getStatusStyle('completed');
+  const inProgressStyle = getStatusStyle('in_progress');
+  const notStartedStyle = getStatusStyle('not_started');
+
+  return (
+    <div style={styles.wrapper}>
+      <div style={styles.title}>Glosario</div>
+      <ul style={styles.list}>
+        <li style={styles.item}>
+          <span
+            style={{
+              ...styles.colorBox,
+              background: completedStyle.background,
+              borderColor: completedStyle.border,
+            }}
+          />
+          Finalizado
+        </li>
+        <li style={styles.item}>
+          <span
+            style={{
+              ...styles.colorBox,
+              background: inProgressStyle.background,
+              borderColor: inProgressStyle.border,
+            }}
+          />
+          En curso
+        </li>
+        <li style={styles.item}>
+          <span
+            style={{
+              ...styles.colorBox,
+              background: notStartedStyle.background,
+              borderColor: notStartedStyle.border,
+            }}
+          />
+          Sin empezar
+        </li>
+      </ul>
+    </div>
+  );
+}
+
 const BLOCK_WIDTH = 400;
 const TOPIC_WIDTH = 350;
 const NODE_HEIGHT = 50;
-const NODE_WIDTH = 300;
 const V_SPACING_BLOCK = 100;
 const V_SPACING_TOPIC = 70;
 const H_SPACING_TOPIC = 300;
 
-const CENTER_X = H_SPACING_TOPIC + TOPIC_WIDTH + 50;
-
+// --- FlowCanvas AHORA RECIBE onInit ---
 function FlowCanvas({
   nodes,
   edges,
   onNodesChange,
   onEdgesChange,
   onNodeClick,
+  onInit, // <-- PROP AÑADIDO
 }: {
   nodes: Node[];
   edges: Edge[];
   onNodesChange: OnNodesChange;
   onEdgesChange: OnEdgesChange;
   onNodeClick: (event: any, node: Node) => void;
+  onInit: (instance: ReactFlowInstance) => void; // <-- TIPO AÑADIDO
 }) {
+  // Eliminamos el useEffect y useReactFlow de aquí
   return (
     <ReactFlow
-      style={
-        {cursor: 'default'}
-      }
+      style={{ cursor: 'default' }}
       nodes={nodes}
       edges={edges}
       onNodesChange={onNodesChange}
@@ -95,6 +177,13 @@ function FlowCanvas({
       nodesDraggable={false}
       nodesConnectable={false}
       proOptions={{ hideAttribution: true }}
+      // Restricciones de navegación
+      zoomOnScroll={false}
+      zoomOnPinch={false}
+      zoomOnDoubleClick={false}
+      panOnDrag={false}
+      panOnScrollMode={PanOnScrollMode.Vertical}
+      onInit={onInit} // <-- ASIGNAMOS EL PROP
     ></ReactFlow>
   );
 }
@@ -108,17 +197,21 @@ export function RoadmapFlow({
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
   const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null);
+  const [rfInstance, setRfInstance] = useState<ReactFlowInstance | null>(null);
   const [statusMap, setStatusMap] = useState(initialStatusMap);
+
   const { initialNodes, initialEdges } = useMemo(() => {
+    const CENTER_X = 0;
+
     const nodes: Node[] = [];
     const edges: Edge[] = [];
-    let currentY = 0;
+    let currentY = 100;
 
     const rootId = `cycle-${initialCycle.id}`;
     nodes.push({
       id: rootId,
       data: { label: `Vuelta ${initialCycle.cycle_number}` },
-      position: { x: CENTER_X - NODE_WIDTH / 2, y: currentY },
+      position: { x: CENTER_X - BLOCK_WIDTH / 2, y: currentY },
       type: 'input',
       selectable: false,
       style: {
@@ -139,30 +232,17 @@ export function RoadmapFlow({
     initialBlocks.forEach((block, index) => {
       const isRightSide = index % 2 === 0;
 
-      // a. Calculamos la altura total de la rama de temas PRIMERO
       const topicsInBlock = initialTopics.filter((t) => t.block_id === block.id);
-      // Altura total de la rama = (Nº temas * altura_nodo) + ((Nº temas - 1) * espacio)
-      // Simplificado: (Nº temas * V_SPACING_TOPIC) - (V_SPACING_TOPIC - NODE_HEIGHT)
       const branchHeight = topicsInBlock.length * V_SPACING_TOPIC - (V_SPACING_TOPIC - NODE_HEIGHT);
-
-      // b. Calculamos el espacio vertical total que ocupará este bloque + ramas
-      // Es el máximo entre la altura del bloque y la altura de la rama
       const totalSectionHeight = Math.max(NODE_HEIGHT, branchHeight) / 2;
-
-      // c. Actualizamos Y para el nuevo bloque
-      // (Espacio desde el último nodo + la mitad de la altura de la sección)
       currentY += V_SPACING_BLOCK + totalSectionHeight / 2;
-
-      // d. Calculamos dónde debe empezar el PRIMER tema (la Y del bloque - la mitad de la altura de la rama)
       let topicY = currentY - branchHeight / 2 + NODE_HEIGHT / 2;
-
-      // 2a. Crear el NODO DE BLOQUE (Posición Y actualizada)
       const blockNodeId = `block-${block.id}`;
 
       nodes.push({
         id: blockNodeId,
         data: { label: `${block.name}` },
-        position: { x: CENTER_X - BLOCK_WIDTH / 2, y: currentY }, // Centrado
+        position: { x: CENTER_X - BLOCK_WIDTH / 2, y: currentY },
         selectable: false,
         style: {
           width: BLOCK_WIDTH,
@@ -172,22 +252,10 @@ export function RoadmapFlow({
           cursor: 'pointer',
           fontWeight: '600',
         },
-        // Los temas salen de los lados
         sourcePosition: isRightSide ? Position.Right : Position.Left,
-
-        // El tronco (hacia abajo) Y el tronco (hacia arriba)
-        // van al centro.
         targetPosition: Position.Top,
-        // (Añadimos esto implícitamente al edge, pero el nodo
-        // debe tener un "handle" en 'Bottom'.
-        // React Flow usará 'sourcePosition' para el edge que sale
-        // a los temas, y el 'source' del edge (Bloque->Bloque)
-        // que definimos abajo usará 'Position.Bottom' por defecto
-        // si no especificamos un 'sourceHandle'.
-        // Para ser explícitos, lo mejor es definirlo en el EDGE.)
       });
 
-      // 2b. Crear EDGE (Línea) del nodo anterior a este bloque
       edges.push({
         id: `e-${prevNodeId}-${blockNodeId}`,
         source: prevNodeId,
@@ -197,7 +265,6 @@ export function RoadmapFlow({
         sourceHandle: 'bottom',
       });
 
-      // 2c. Crear los NODOS DE TEMA para este bloque
       topicsInBlock.forEach((topic) => {
         const topicNodeId = `topic-${topic.id}`;
         const status = statusMap[topic.id];
@@ -219,7 +286,6 @@ export function RoadmapFlow({
           targetPosition: isRightSide ? Position.Left : Position.Right,
         });
 
-        // 2d. Crear EDGE (Línea) del bloque a este tema
         edges.push({
           id: `e-${blockNodeId}-${topicNodeId}`,
           source: blockNodeId,
@@ -229,15 +295,10 @@ export function RoadmapFlow({
           style: { stroke: '#ccc' },
         });
 
-        // Mover el "cursor Y" para el siguiente tema
         topicY += V_SPACING_TOPIC;
       });
 
-      // 2e. Actualizar el cursor 'currentY' general
-      // El siguiente bloque debe empezar después de la sección entera
       currentY += totalSectionHeight / 2;
-
-      // 2f. Guardar este bloque como el "anterior"
       prevNodeId = blockNodeId;
     });
 
@@ -247,6 +308,9 @@ export function RoadmapFlow({
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
+  // --- useEffect SOLO para estilos ---
+  // Este useEffect actualiza los colores cuando `statusMap` cambia.
+  // Ya NO intenta centrar la vista, evitando el reseteo.
   useEffect(() => {
     setNodes((nds) =>
       nds.map((node) => {
@@ -261,7 +325,38 @@ export function RoadmapFlow({
         return node;
       })
     );
-  }, [statusMap, setNodes]);
+
+    // 2. Si la instancia está lista, centramos la vista
+    //    Esto se ejecuta CADA VEZ que statusMap cambia,
+    //    corrigiendo el reseteo de vista que causa setNodes.
+    if (rfInstance) {
+      // 3. Esperamos al siguiente "tick" para que setNodes termine
+      setTimeout(() => {
+        // 4. Pedimos a fitView que calcule el centrado (X e Y)
+        rfInstance.fitView({
+          maxZoom: 1,
+          minZoom: 1,
+          padding: 0.1,
+          duration: 0,
+        });
+
+        // 5. Obtenemos el viewport que fitView acaba de calcular
+        const calculatedViewport = rfInstance.getViewport();
+
+        // 6. Volvemos a setear el viewport, usando el X calculado
+        //    pero FORZANDO la Y a 0 (arriba del todo).
+        rfInstance.setViewport(
+          {
+            x: calculatedViewport.x,
+            y: 0, // <-- TU REQUISITO: SIEMPRE ARRIBA
+            zoom: 1,
+          },
+          { duration: 50 } // Una mini-animación para suavizar
+        );
+      }, 0); // 0ms timeout
+    }
+    // 7. rfInstance se añade a las dependencias
+  }, [statusMap, setNodes, rfInstance]);
 
   const handleNodeClick = (event: any, node: Node) => {
     if (node.id.startsWith('topic-')) {
@@ -279,24 +374,17 @@ export function RoadmapFlow({
     startTransition(async () => {
       const result = await updateTopicStatus(topicId, newStatus);
       if (result.error) {
-        toast({ title: 'Error', description: result.error, variant: 'destructive' });
+        toast({
+          title: 'Error',
+          description: result.error,
+          variant: 'destructive',
+        });
         return;
       }
       setStatusMap((prevMap) => ({
         ...prevMap,
         [topicId]: newStatus,
       }));
-      setNodes((nds) =>
-        nds.map((node) => {
-          if (node.id === `topic-${topicId}`) {
-            return {
-              ...node,
-              style: { ...node.style, ...getStatusStyle(newStatus) },
-            };
-          }
-          return node;
-        })
-      );
       toast({
         title: '¡Actualizado!',
         description: `El "${selectedTopic.name}" se marcó como ${newStatus}.`,
@@ -312,19 +400,20 @@ export function RoadmapFlow({
       setSelectedTopic(null);
     });
   };
-
   const currentStatus = selectedTopic
     ? statusMap[selectedTopic.id] || 'not_started'
     : 'not_started';
 
   return (
     <ReactFlowProvider>
+      <Glossary />
       <FlowCanvas
         nodes={nodes}
         edges={edges}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onNodeClick={handleNodeClick}
+        onInit={setRfInstance} 
       />
       <Sheet open={!!selectedTopic} onOpenChange={(open) => !open && setSelectedTopic(null)}>
         <SheetContent>
