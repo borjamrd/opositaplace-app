@@ -80,6 +80,12 @@ function Glossary() {
       marginBottom: '8px',
       fontSize: '14px',
     } as React.CSSProperties,
+    description: {
+      fontWeight: 'semibold',
+      maxWidth: '20rem',
+      marginBottom: '8px',
+      fontSize: '14px',
+    } as React.CSSProperties,
     list: {
       listStyle: 'none',
       padding: 0,
@@ -106,6 +112,10 @@ function Glossary() {
   return (
     <div style={styles.wrapper}>
       <div style={styles.title}>Glosario</div>
+      <div style={styles.description}>
+        Este es el camino recomendado de estudio para tu oposición. Haciendo click en cada tema podrás
+        actualizar su estado y visualizar a los recursos disponibles.
+      </div>
       <ul style={styles.list}>
         <li style={styles.item}>
           <span
@@ -168,7 +178,7 @@ function FlowCanvas({
   // Eliminamos el useEffect y useReactFlow de aquí
   return (
     <ReactFlow
-      style={{ cursor: 'default' }}
+      style={{ cursor: 'default', overflow: 'scroll' }}
       nodes={nodes}
       edges={edges}
       onNodesChange={onNodesChange}
@@ -218,10 +228,11 @@ export function RoadmapFlow({
       style: {
         width: BLOCK_WIDTH,
         height: NODE_HEIGHT,
-        borderRadius: 8,
+        borderRadius: 18,
         fontSize: '1.2rem',
         fontWeight: 'bold',
         background: '#333',
+        alignItems: 'center',
         cursor: 'pointer',
         color: 'white',
       },
@@ -246,11 +257,13 @@ export function RoadmapFlow({
         position: { x: CENTER_X - BLOCK_WIDTH / 2, y: currentY },
         selectable: false,
         style: {
+          borderRadius: 18,
           width: BLOCK_WIDTH,
           height: NODE_HEIGHT,
           background: 'rgba(0, 0, 0, 0.04)',
           border: '1px solid #E0E0E0',
           cursor: 'pointer',
+          alignItems: 'center',
           fontWeight: '600',
         },
         sourcePosition: isRightSide ? Position.Right : Position.Left,
@@ -281,6 +294,7 @@ export function RoadmapFlow({
             width: TOPIC_WIDTH,
             height: 'auto',
             ...getStatusStyle(status),
+            borderRadius: 18,
             whiteSpace: 'pre-wrap',
             cursor: 'pointer',
           },
@@ -292,7 +306,7 @@ export function RoadmapFlow({
           source: blockNodeId,
           target: topicNodeId,
           type: 'smoothstep',
-          animated: true,
+          animated: status === 'in_progress',
           style: { stroke: '#ccc' },
         });
 
