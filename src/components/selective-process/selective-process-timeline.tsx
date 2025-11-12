@@ -93,7 +93,6 @@ export function SelectiveProcessTimeline() {
     }
   };
 
-
   if (isLoading) {
     return <Skeleton className="h-48 w-full" />;
   }
@@ -151,7 +150,7 @@ export function SelectiveProcessTimeline() {
     <Card variant={'borderless'}>
       <CardHeader>
         <CardTitle className="text-lg font-bold">
-          {isTracking ? 'Mi camino a la plaza' : 'Así funciona el proceso selectivo'}
+          {isTracking ? 'Mi proceso selectivo' : 'Así funciona el proceso selectivo'}
         </CardTitle>
         <CardDescription>{process.name}</CardDescription>
       </CardHeader>
@@ -170,14 +169,14 @@ export function SelectiveProcessTimeline() {
               <div key={stage.id} className="relative flex items-start">
                 <div className="absolute -left-8 z-10 mt-1 flex h-8 w-8 items-center justify-center rounded-full bg-background">
                   {isCompleted ? (
-                    <CheckCircle className="h-6 w-6 text-green-500" />
+                    <CheckCircle className="h-5 w-5 text-green-500" />
                   ) : isCurrent ? (
-                    <Milestone className="h-6 w-6 text-primary animate-pulse" />
+                    <Milestone className="h-5 w-5 text-primary animate-pulse" />
                   ) : (
-                    <Circle className="h-6 w-6 text-muted-foreground" />
+                    <Circle className="h-4 w-4 text-muted-foreground" />
                   )}
                 </div>
-                <div className="w-full">
+                <div className="w-full ms-2">
                   <div
                     className={`font-semibold ${isCurrent ? 'text-primary' : ''} ${
                       isCompleted ? 'text-muted-foreground line-through' : ''
