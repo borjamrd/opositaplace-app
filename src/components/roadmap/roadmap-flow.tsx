@@ -41,22 +41,22 @@ const getStatusStyle = (status: SyllabusStatus | undefined) => {
   switch (status) {
     case 'completed':
       return {
-        background: '#E6F4EA',
-        color: '#1B5E20',
-        border: '1px solid #81C784',
+        background: 'var(--roadmap-completed-bg)',
+        color: 'var(--roadmap-completed-fg)',
+        border: '1px solid var(--roadmap-completed-border)',
       };
     case 'in_progress':
       return {
-        background: '#FFF8E1',
-        color: '#795548',
-        border: '1px solid #FFB300',
+        background: 'var(--roadmap-inprogress-bg)',
+        color: 'var(--roadmap-inprogress-fg)',
+        border: '1px solid var(--roadmap-inprogress-border)',
       };
     case 'not_started':
     default:
       return {
-        background: '#F5F5F5',
-        color: '#616161',
-        border: '1px solid #E0E0E0',
+        background: 'var(--roadmap-default-bg)',
+        color: 'var(--roadmap-default-fg)',
+        border: '1px solid var(--roadmap-default-border)',
       };
   }
 };
@@ -68,28 +68,32 @@ function Glossary() {
       top: 10,
       left: 10,
       zIndex: 10,
-      background: 'white',
+      background: 'var(--color-card)',
+      color: 'var(--color-foreground)',
       padding: '10px 15px',
       borderRadius: '8px',
-      border: '1px solid #eee',
-      boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+      border: '1px solid var(--color-border)',
+      boxShadow: 'var(--shadow-md)',
       fontSize: '12px',
     } as React.CSSProperties,
     title: {
       fontWeight: 'bold',
       marginBottom: '8px',
       fontSize: '14px',
+      color: 'var(--color-foreground)',
     } as React.CSSProperties,
     description: {
       fontWeight: 'semibold',
       maxWidth: '20rem',
       marginBottom: '8px',
       fontSize: '14px',
+      color: 'var(--color-foreground)',
     } as React.CSSProperties,
     list: {
       listStyle: 'none',
       padding: 0,
       margin: 0,
+      color: 'var(--color-muted-foreground)',
     } as React.CSSProperties,
     item: {
       display: 'flex',
@@ -101,7 +105,6 @@ function Glossary() {
       height: '14px',
       marginRight: '8px',
       borderRadius: '3px',
-      border: '1px solid #ccc',
     } as React.CSSProperties,
   };
 
@@ -113,8 +116,8 @@ function Glossary() {
     <div style={styles.wrapper}>
       <div style={styles.title}>Glosario</div>
       <div style={styles.description}>
-        Este es el camino recomendado de estudio para tu oposición. Haciendo click en cada tema podrás
-        actualizar su estado y visualizar a los recursos disponibles.
+        Este es el camino recomendado de estudio para tu oposición. Haciendo click en cada tema
+        podrás actualizar su estado y visualizar a los recursos disponibles.
       </div>
       <ul style={styles.list}>
         <li style={styles.item}>
@@ -178,7 +181,7 @@ function FlowCanvas({
   // Eliminamos el useEffect y useReactFlow de aquí
   return (
     <ReactFlow
-      style={{ cursor: 'default', overflow: 'scroll' }}
+      style={{ cursor: 'default' }}
       nodes={nodes}
       edges={edges}
       onNodesChange={onNodesChange}
@@ -191,8 +194,6 @@ function FlowCanvas({
       zoomOnScroll={false}
       zoomOnPinch={false}
       zoomOnDoubleClick={false}
-      panOnDrag={false}
-      panOnScrollMode={PanOnScrollMode.Vertical}
       onInit={onInit} // <-- ASIGNAMOS EL PROP
     ></ReactFlow>
   );
@@ -216,7 +217,7 @@ export function RoadmapFlow({
 
     const nodes: Node[] = [];
     const edges: Edge[] = [];
-    let currentY = 100;
+    let currentY = 0;
 
     const rootId = `cycle-${initialCycle.id}`;
     nodes.push({
@@ -259,11 +260,13 @@ export function RoadmapFlow({
         style: {
           borderRadius: 18,
           width: BLOCK_WIDTH,
-          height: NODE_HEIGHT,
-          background: 'rgba(0, 0, 0, 0.04)',
-          border: '1px solid #E0E0E0',
+          height: 'auto',
+          background: 'var(--color-muted)',
+          border: '1px solid var(--color-border)',
+          color: 'var(--color-muted-foreground)',
           cursor: 'pointer',
           alignItems: 'center',
+          fontSize: '0.8rem',
           fontWeight: '600',
         },
         sourcePosition: isRightSide ? Position.Right : Position.Left,
@@ -298,6 +301,7 @@ export function RoadmapFlow({
             whiteSpace: 'pre-wrap',
             cursor: 'pointer',
           },
+          sourcePosition: undefined,
           targetPosition: isRightSide ? Position.Left : Position.Right,
         });
 
@@ -363,7 +367,7 @@ export function RoadmapFlow({
         rfInstance.setViewport(
           {
             x: calculatedViewport.x,
-            y: 0, // <-- TU REQUISITO: SIEMPRE ARRIBA
+            y: 100,
             zoom: 1,
           },
           { duration: 50 } // Una mini-animación para suavizar

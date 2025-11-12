@@ -53,6 +53,19 @@
     --shadow-2xl: 2px 2px 0px 0px hsl(20 18% 51% / 0.28);
     --tracking-normal: 0em;
     --spacing: 0.25rem;
+
+     /* ROADMAP */
+    --roadmap-default-bg: oklch(0.968 0.007 247.896); /* --muted */
+    --roadmap-default-fg: oklch(0.554 0.046 257.417); /* --muted-foreground */
+    --roadmap-default-border: oklch(0.929 0.013 255.508); /* --border */
+
+    --roadmap-inprogress-bg: oklch(0.98 0.05 90);    /* Amarillo muy claro */
+    --roadmap-inprogress-fg: oklch(0.5 0.07 90);     /* Amarillo oscuro */
+    --roadmap-inprogress-border: oklch(0.85 0.07 90); /* Amarillo medio */
+    
+    --roadmap-completed-bg: oklch(0.95 0.05 150);   /* Verde muy claro */
+    --roadmap-completed-fg: oklch(0.35 0.07 150);   /* Verde oscuro */
+    --roadmap-completed-border: oklch(0.8 0.07 150); /* Verde medio */
   }
 
   .dark {
@@ -103,6 +116,19 @@
     --shadow-lg: 2px 2px 0px 0px hsl(20 18% 30% / 0.11), 2px 4px 6px -1px hsl(20 18% 30% / 0.11);
     --shadow-xl: 2px 2px 0px 0px hsl(20 18% 30% / 0.11), 2px 8px 10px -1px hsl(20 18% 30% / 0.11);
     --shadow-2xl: 2px 2px 0px 0px hsl(20 18% 30% / 0.28);
+
+    /* ROADMAP */
+    --roadmap-default-bg: oklch(0.279 0.041 260.031); /* --muted */
+    --roadmap-default-fg: oklch(0.704 0.04 256.788);   /* --muted-foreground */
+    --roadmap-default-border: oklch(1 0 0 / 10%);      /* --border */
+
+    --roadmap-inprogress-bg: oklch(0.35 0.07 90);    /* Ámbar oscuro */
+    --roadmap-inprogress-fg: oklch(0.95 0.07 90);    /* Ámbar claro */
+    --roadmap-inprogress-border: oklch(0.5 0.07 90); /* Ámbar medio */
+
+    --roadmap-completed-bg: oklch(0.3 0.07 150);     /* Verde oscuro */
+    --roadmap-completed-fg: oklch(0.9 0.07 150);     /* Verde claro */
+    --roadmap-completed-border: oklch(0.45 0.07 150); /* Verde medio */
   }
 }
 
