@@ -7,7 +7,7 @@ export async function getActiveOppositions(): Promise<Opposition[]> {
   const supabase = createClient();
   const { data, error } = await supabase
     .from('oppositions')
-    .select('id, name, description, created_at')
+    .select('*')
     .order('name', { ascending: true });
 
   if (error) {
