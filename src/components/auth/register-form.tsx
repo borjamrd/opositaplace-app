@@ -130,7 +130,7 @@ export function RegisterForm() {
           <SubmitButton />
           <p className="text-sm text-muted-foreground">
             ¿Ya tienes cuenta?{' '}
-            <Button variant="link" asChild className="p-0 text-accent">
+            <Button variant="link" asChild className="p-0">
               <Link href="/login">Inicia sesión aquí</Link>
             </Button>
           </p>
