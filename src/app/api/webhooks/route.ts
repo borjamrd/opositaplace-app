@@ -1,12 +1,8 @@
 import InvoicePaidEmail from '@/emails/invoice-paid-email';
 import PaymentFailedEmail from '@/emails/payment-failed-email';
 import { sendEmail } from '@/lib/email/email';
-import {
-  downgradeToFreePlan,
-  manageSubscriptionStatusChange
-} from '@/lib/stripe/actions';
+import { downgradeToFreePlan, manageSubscriptionStatusChange } from '@/lib/stripe/actions';
 import { stripe } from '@/lib/stripe/stripe';
-import { createSupabaseAdminClient } from '@/lib/supabase/admin';
 import { NextRequest, NextResponse } from 'next/server';
 import { Readable } from 'stream';
 import Stripe from 'stripe';
@@ -68,14 +64,7 @@ export async function POST(req: NextRequest) {
           break;
         }
 
-        case 'customer.subscription.updated': {
-          console.log(
-            `Ignoring customer.subscription.updated event: ${
-              (event.data.object as Stripe.Subscription).id
-            }`
-          );
-          break;
-        }
+        case 'customer.subscription.updated':
         case 'customer.subscription.created':
         case 'customer.subscription.deleted': {
           const subscription = event.data.object as Stripe.Subscription;
@@ -124,6 +113,7 @@ export async function POST(req: NextRequest) {
           }
           break;
         }
+
         case 'invoice.payment_failed': {
           const invoice = event.data.object as Stripe.Invoice;
           const subscriptionId = (invoice as any).subscription as string;
@@ -134,23 +124,19 @@ export async function POST(req: NextRequest) {
             break;
           }
 
-          const supabase = createSupabaseAdminClient();
-          const { data: currentSubscription } = await supabase
-            .from('user_subscriptions')
-            .select('status')
-            .eq('id', subscriptionId)
-            .single();
+          try {
+            const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+            const trialEndTimestamp = subscription.trial_end;
+            const invoicePeriodStart = invoice.lines.data[0]?.period.start;
 
-          if (currentSubscription?.status === 'trialing') {
-            // ¡EL TRIAL HA FALLADO! -> Hacemos downgrade.
-            console.log(`Trial (sub ${subscriptionId}) failed. Downgrading to Free...`);
-            await downgradeToFreePlan(subscriptionId, customerId);
-          } else {
-            // UN PAGO ACTIVO HA FALLADO -> Marcamos 'past_due'.
-            console.log(`Active payment (sub ${subscriptionId}) failed. Setting to past_due...`);
-            await manageSubscriptionStatusChange(subscriptionId, customerId);
-            // Aquí deberías enviar el email de "Pago Fallido"
-            try {
+            if (trialEndTimestamp && invoicePeriodStart === trialEndTimestamp) {
+              console.error(`Trial failed at conversion. Downgrading to Free...`);
+              await downgradeToFreePlan(subscriptionId, customerId);
+            } else {
+              console.error(`Active payment failed. Setting to past_due...`);
+
+              await manageSubscriptionStatusChange(subscriptionId, customerId);
+
               const customer = (await stripe.customers.retrieve(customerId)) as Stripe.Customer;
               const userEmail = customer.email;
               const userName = customer.name?.split(' ')[0] || userEmail?.split('@')[0];
@@ -162,12 +148,9 @@ export async function POST(req: NextRequest) {
                   emailComponent: PaymentFailedEmail({ userName }),
                 });
               }
-            } catch (e: any) {
-              console.error(
-                `Error al recuperar cliente ${customerId} para aviso de pago fallido`,
-                e.message
-              );
             }
+          } catch (e: any) {
+            console.error(`Error processing invoice.payment_failed for sub `);
           }
 
           break;

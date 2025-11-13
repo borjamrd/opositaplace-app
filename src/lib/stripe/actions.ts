@@ -117,7 +117,7 @@ export async function manageSubscriptionStatusChange(
     console.error(
       `[Webhook Error] Subscription ${subscriptionId} has no items. Cannot determine current period.`
     );
-     throw new Error(
+    throw new Error(
       `Subscription ${subscriptionId} has no items. Cannot determine current period.`
     );
   }
@@ -137,7 +137,7 @@ export async function manageSubscriptionStatusChange(
   }
   const subscriptionData: InsertSubscription = {
     id: subscription.id,
-    user_id: userId, 
+    user_id: userId,
     status: subscription.status,
     price_id: subscription.items.data[0]?.price?.id,
     stripe_customer_id: customerId,
@@ -286,6 +286,7 @@ export async function downgradeToFreePlan(subscriptionId: string, customerId: st
     throw new Error(`No items found on subscription ${subscriptionId} to update.`);
   }
 
+  const latestInvoiceId = currentSubscription.latest_invoice as string;
   try {
     // 1. Actualizar la suscripción en Stripe
     await stripe.subscriptions.update(subscriptionId, {
@@ -297,8 +298,33 @@ export async function downgradeToFreePlan(subscriptionId: string, customerId: st
       ],
       proration_behavior: 'none',
       cancel_at_period_end: false,
+      payment_settings: {
+        payment_method_options: undefined,
+        save_default_payment_method: 'off',
+      },
     });
 
+    if (latestInvoiceId) {
+      try {
+        // 1. Intentamos ANULAR (void) la factura. Esto es lo ideal.
+        await stripe.invoices.voidInvoice(latestInvoiceId);
+        console.log(`Voided invoice.`);
+      } catch (voidError: any) {
+        // 2. Si falla (ej. la factura ya no está 'open'),
+        // volvemos a nuestro plan B: marcarla como no cobrable.
+        console.warn(
+          `Could not void invoice (${voidError.message}). Falling back to markUncollectible.`
+        );
+        try {
+          await stripe.invoices.markUncollectible(latestInvoiceId);
+          console.log(`Marked invoice as uncollectible.`);
+        } catch (uncollectibleError: any) {
+          console.error(
+            `Failed to even mark invoice as uncollectible: ${uncollectibleError.message}`
+          );
+        }
+      }
+    }
     // 2. Enviar email de aviso
 
     const customer = (await stripe.customers.retrieve(customerId)) as Stripe.Customer;
@@ -353,10 +379,7 @@ export async function setupNewUser(user: User) {
       emailComponent: WelcomeEmail({ userName: userName || 'Opositor' }),
     });
   } catch (setupError: any) {
-    console.error(
-      `Error durante el setup (trial/email) del nuevo usuario:`,
-      setupError.message
-    );
+    console.error('Error durante el setup (trial/email) del nuevo usuario');
     throw new Error(`Error en la configuración del nuevo usuario`);
   }
 }
