@@ -1,7 +1,6 @@
 'use server';
 
-import WelcomeEmail from '@/emails/welcome-email';
-import { sendEmail } from '@/lib/email/email';
+import { setupNewUser } from '@/lib/stripe/actions';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
@@ -41,7 +40,7 @@ export async function signUp(_prevState: any, formData: FormData) {
 
   const { email, password } = result.data;
 
-  const { error } = await supabase.auth.signUp({
+  const { error, data } = await supabase.auth.signUp({
     email,
     password,
   });
@@ -54,18 +53,18 @@ export async function signUp(_prevState: any, formData: FormData) {
     };
   }
 
-  try {
-    console.log({ email });
-    await sendEmail({
-      to: email,
-      subject: '¡Te damos la bienvenida a Opositaplace!',
-      emailComponent: WelcomeEmail({ userName: email.split('@')[0] }),
-    });
-  } catch (emailError) {
-    console.error('Error al enviar el email de bienvenida:', emailError);
+  if (data.user) {
+    try {
+      await setupNewUser(data.user);
+    } catch (setupError: any) {
+      console.warn(
+        `Error en el setup del nuevo usuario (manual signup)`,
+        setupError.message
+      );
+    }
   }
 
-  return { message: '¡Registro exitoso! Revisa tu correo para confirmar tu cuenta.', errors: {} };
+  redirect('/dashboard');
 }
 
 export async function signIn(_prevState: any, formData: FormData) {
@@ -118,7 +117,7 @@ export async function resetPassword(_prevState: any, formData: FormData) {
   }
 
   const { email } = result.data;
-  
+
   const redirectTo = `${process.env.NEXT_PUBLIC_BASE_URL}/auth/callback?next=/auth/reset-password`;
 
   const { error } = await supabase.auth.resetPasswordForEmail(email, {

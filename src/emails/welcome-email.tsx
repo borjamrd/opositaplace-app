@@ -21,9 +21,7 @@ interface WelcomeEmailProps {
 const isPreview = process.env.NODE_ENV === 'development';
 
 
-const baseUrl = isPreview
-  ? ''
-  : process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
 
 // logoSrc cambiará según el entorno
 const logoSrc = isPreview
@@ -64,7 +62,7 @@ export const WelcomeEmail = ({
           <Section style={btnContainer}>
             <Button
               style={button}
-              href={`${baseUrl}${dashboardUrl}`} // <-- Lógica de ruta actualizada
+              href={`${baseUrl}${dashboardUrl}`}
             >
               Ir a mi Panel
             </Button>
@@ -86,8 +84,7 @@ export const WelcomeEmail = ({
   );
 };
 
-// --- MEJORA DE LA DOCUMENTACIÓN ---
-// Añadimos props por defecto para el servidor de previsualización
+
 WelcomeEmail.PreviewProps = {
   userName: 'Opositor',
   dashboardUrl: '/dashboard',
@@ -95,7 +92,6 @@ WelcomeEmail.PreviewProps = {
 
 export default WelcomeEmail;
 
-// --- Estilos (sin cambios) ---
 const main = {
   backgroundColor: '#f6f9fc',
   fontFamily:
@@ -120,7 +116,7 @@ const heading = {
   fontWeight: 'bold',
   marginTop: '32px',
   textAlign: 'center' as const,
-  color: '#14213D', // Tu oxford_blue
+  color: '#14213D', 
 };
 
 const paragraph = {
@@ -137,7 +133,7 @@ const btnContainer = {
 };
 
 const button = {
-  backgroundColor: '#4C6EF5', // Tu yinmn_blue
+  backgroundColor: '#4C6EF5', 
   borderRadius: '6px',
   color: '#fff',
   fontSize: '16px',

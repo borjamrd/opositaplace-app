@@ -6,6 +6,7 @@ import type { User } from '@supabase/supabase-js';
 import Stripe from 'stripe';
 import { sendEmail } from '../email/email';
 import { STRIPE_PLANS, StripePlan } from './config';
+import WelcomeEmail from '@/emails/welcome-email';
 export async function getOrCreateStripeCustomerId(
   user: User,
   params?: Stripe.CustomerCreateParams
@@ -71,24 +72,34 @@ export async function createTrialSubscription(user: User): Promise<void> {
     expand: ['latest_invoice.payment_intent'],
   });
 
-  await manageSubscriptionStatusChange(stripeSubscription.id, customerId);
+  await manageSubscriptionStatusChange(stripeSubscription.id, customerId, user.id);
 }
-export async function manageSubscriptionStatusChange(subscriptionId: string, customerId: string) {
-  console.log(`Managing subscription status change for subscription ${subscriptionId}`);
-
+export async function manageSubscriptionStatusChange(
+  subscriptionId: string,
+  customerId: string,
+  knownUserId?: string
+) {
   const supabase = await createSupabaseServerClient();
-  const { data: userProfile, error: noUserError } = await supabase
-    .from('profiles')
-    .select('id')
-    .eq('stripe_customer_id', customerId)
-    .single();
+  let userId: string;
+  if (knownUserId) {
+    console.log(`Using known user ID: ${knownUserId}`);
+    userId = knownUserId;
+  } else {
+    console.log(`Looking up user ID for customer ${customerId}...`);
+    const supabase = await createSupabaseServerClient();
+    const { data: userProfile, error: noUserError } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('stripe_customer_id', customerId)
+      .single();
 
-  if (noUserError || !userProfile) {
-    console.error(`Webhook Error: User not found for Stripe customer ID ${customerId}`);
-    throw new Error(`User not found for Stripe customer ID ${customerId}`);
+    if (noUserError || !userProfile) {
+      console.error(`Webhook Error: User not found for Stripe customer ID ${customerId}`);
+      throw new Error(`User not found for Stripe customer ID ${customerId}`);
+    }
+    userId = userProfile.id;
+    console.log(`Found user ID`);
   }
-
-  const userId = userProfile.id;
 
   const subscription: Stripe.Subscription = await stripe.subscriptions.retrieve(subscriptionId, {
     expand: ['default_payment_method', 'items.data.price.product'],
@@ -106,14 +117,11 @@ export async function manageSubscriptionStatusChange(subscriptionId: string, cus
     console.error(
       `[Webhook Error] Subscription ${subscriptionId} has no items. Cannot determine current period.`
     );
-    // Decide cómo manejar esto: ¿lanzar un error o intentar continuar sin estas fechas?
-    // Si current_period_start/end son NOT NULL en tu DB, necesitas estos valores.
-    throw new Error(
+     throw new Error(
       `Subscription ${subscriptionId} has no items. Cannot determine current period.`
     );
   }
 
-  // Verificación de timestamps críticos
   if (
     typeof createdTimestamp !== 'number' ||
     typeof currentPeriodStartTimestamp !== 'number' ||
@@ -129,7 +137,7 @@ export async function manageSubscriptionStatusChange(subscriptionId: string, cus
   }
   const subscriptionData: InsertSubscription = {
     id: subscription.id,
-    user_id: userId, // Asegúrate que userId está definido correctamente
+    user_id: userId, 
     status: subscription.status,
     price_id: subscription.items.data[0]?.price?.id,
     stripe_customer_id: customerId,
@@ -179,7 +187,7 @@ export async function getUserSubscription(): Promise<Subscription | null> {
     .from('user_subscriptions')
     .select('*')
     .eq('user_id', user.id)
-    .in('status', ['trialing','past_due', 'active'])
+    .in('status', ['trialing', 'past_due', 'active'])
     .maybeSingle();
 
   if (error) {
@@ -259,7 +267,6 @@ export async function downgradeSubscriptionToFree() {
   }
 }
 
-
 /**
  * Realiza el downgrade a "Gratis".
  * Esta función es segura para ser llamada desde el webhook (no usa auth.getUser()).
@@ -293,7 +300,7 @@ export async function downgradeToFreePlan(subscriptionId: string, customerId: st
     });
 
     // 2. Enviar email de aviso
-    
+
     const customer = (await stripe.customers.retrieve(customerId)) as Stripe.Customer;
     const userEmail = customer.email;
     const userName = customer.name?.split(' ')[0] || userEmail?.split('@')[0];
@@ -308,5 +315,48 @@ export async function downgradeToFreePlan(subscriptionId: string, customerId: st
   } catch (error: any) {
     console.error(`Error downgrading subscription ${subscriptionId}:`, error.message);
     throw error;
+  }
+}
+
+/**
+ * Configura un nuevo usuario:
+ * 1. Comprueba si ya tiene suscripción.
+ * 2. Si no, crea una suscripción de prueba (trial).
+ * 3. Envía el email de bienvenida.
+ * Esta función es idempotente (segura de llamar múltiples veces).
+ */
+export async function setupNewUser(user: User) {
+  const supabase = await createSupabaseServerClient();
+
+  // 1. Comprobar si el setup ya se hizo (si ya tiene suscripción)
+  const { data: existingSubscription } = await supabase
+    .from('user_subscriptions')
+    .select('id')
+    .eq('user_id', user.id)
+    .maybeSingle();
+
+  if (existingSubscription) {
+    console.log(`El usuario ya tiene suscripción. Saltando setup de bienvenida.`);
+    return;
+  }
+
+  console.log(`Nuevo usuario. Creando trial y enviando bienvenida...`);
+
+  try {
+    // 2. Crear la suscripción de prueba
+    await createTrialSubscription(user);
+
+    const userName = user.user_metadata?.full_name?.split(' ')[0] || user.email?.split('@')[0];
+    await sendEmail({
+      to: user.email!,
+      subject: '¡Bienvenido/a a Opositaplace!',
+      emailComponent: WelcomeEmail({ userName: userName || 'Opositor' }),
+    });
+  } catch (setupError: any) {
+    console.error(
+      `Error durante el setup (trial/email) del nuevo usuario:`,
+      setupError.message
+    );
+    throw new Error(`Error en la configuración del nuevo usuario`);
   }
 }
