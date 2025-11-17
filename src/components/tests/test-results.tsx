@@ -9,6 +9,7 @@ import {
 } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useToast } from '@/hooks/use-toast';
 import { Json, QuestionWithAnswers, TestAttempt } from '@/lib/supabase/types';
 import { cn } from '@/lib/utils';
@@ -124,7 +125,25 @@ export function TestResults({ questions, userAnswers, attempt, addedCardIds }: T
         <div className="flex flex-col lg:flex-row gap-4 w-full">
           {/* Izquierda: Puntuación - Ocupa 1/4 en pantallas grandes */}
           <div className="w-full lg:w-1/4 flex flex-col justify-center items-center p-6 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
-            <p className="text-lg font-medium text-muted-foreground mb-2">Nota Final</p>
+            {/* Título con Tooltip */}
+            <div className="flex items-center gap-2 mb-2">
+              <p className="text-lg font-medium text-muted-foreground">Nota Final</p>
+              <TooltipProvider>
+                <Tooltip delayDuration={300}>
+                  <TooltipTrigger asChild>
+                    <Info className="h-4 w-4 text-muted-foreground cursor-help hover:text-primary transition-colors" />
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-xs p-4 text-xs">
+                    <p>
+                      * Cálculo de la puntuación neta: (Correctas × 1) - (Incorrectas / 3). La
+                      calificación final es la puntuación neta ajustada a una escala de 0 a 10. Las
+                      preguntas en blanco no penalizan.
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+
             <div className="relative flex items-center justify-center">
               <span
                 className={cn(
