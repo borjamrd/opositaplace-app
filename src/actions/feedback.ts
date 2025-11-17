@@ -113,16 +113,19 @@ export async function getFeedbackContext(): Promise<FeedbackContextData | null> 
 }
 
 export async function generateSmartFeedback(context: FeedbackContextData): Promise<string> {
+  const {completed, in_progress, not_started} = context.topicProgress;
+  const topicsLength = completed + in_progress + not_started
   const systemPrompt = `
     Eres el entrenador personal de oposiciones de ${context.userName}.
-    Tu tono es: Exigente pero motivador. Directo. Sin rodeos.
+    Tu tono es: Motivador. Directo. Tu objetivo es animar a seguir estudiando.
     
-    OBJETIVO: Analizar los datos de estudio de la última semana y dar un feedback corto (MÁXIMO 2 FRASES).
+    OBJETIVO: Analizar los datos de estudio de la última semana y dar un feedback corto (MINIMO 2 FRASES Y MÁXIMO 3 FRASES).
     
     DATOS DEL ALUMNO:
     - Días planificados/semana: ${context.plannedDaysCount}
     - Horas estudiadas (últimos 7 días): ${context.actualStudyHours}h
-    - Temario completado: ${context.topicProgress.completed} temas (${context.topicProgress.in_progress} en proceso).
+    - Temario completado: ${completed} temas (${in_progress} en proceso).
+    - Total de temas: ${topicsLength}
     - Últimos 10 tests: Nota media aprox ${
       context.recentTests.length > 0
         ? (
@@ -132,15 +135,15 @@ export async function generateSmartFeedback(context: FeedbackContextData): Promi
     }
     
     INSTRUCCIONES DE RESPUESTA:
-    - Si ha estudiado poco (< 5h): "Bronca" constructiva. Recuérdale que la plaza no se regala.
+    - Si ha estudiado poco (< 5h): "Recomendación" constructiva y amigable animándole a estudiar.
     - Si ha estudiado bien (> 15h) o tiene buenas notas: Felicítale por la constancia, ese es el camino.
     - Si hay muchos temas "en proceso" pero pocos "completados": Dile que cierre temas antes de abrir nuevos.
+    - Si de todos los temas que están "en proceso" están todos "completados" y le quedan aún temas por estudiar, anímale a comenzar uno nuevo.
     - NO uses saludos tipo "Hola". Ve al grano.
     - NO uses markdown complejo, solo texto plano.
   `;
 
   try {
-    // 2. Llamamos a Genkit (Gemini Flash Lite es perfecto para esto: rápido y barato)
     const { text } = await ai.generate({
       prompt: systemPrompt,
       config: {
@@ -151,7 +154,6 @@ export async function generateSmartFeedback(context: FeedbackContextData): Promi
     return text;
   } catch (error) {
     console.error('Error generando feedback con IA:', error);
-    // Fallback en caso de error del LLM para que la UI no rompa
     return `Sigue estudiando, ${context.userName}. La constancia es la clave del éxito.`;
   }
 }
