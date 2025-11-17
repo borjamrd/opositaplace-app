@@ -19,17 +19,12 @@ export default function OnboardingObjectivesStep() {
       control={control}
       name="weekly_study_goal_hours"
       render={({ field }) => (
-        <FormItem className='flex flex-col space-y-4'>
+        <FormItem className="flex flex-col space-y-4">
           <FormLabel className="text-base font-semibold">
             ¿Cuántas horas netas de estudio quieres dedicar a la semana?
           </FormLabel>
           <FormControl>
-            <Input
-              type="number"
-              placeholder="Ej: 20"
-              {...field}
-              className="max-w-xs"
-            />
+            <Input type="number" placeholder="Ej: 20" {...field} className="max-w-xs" />
           </FormControl>
           <FormDescription>
             Esto se usará para medir tu progreso en el planificador.

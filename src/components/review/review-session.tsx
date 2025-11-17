@@ -73,7 +73,6 @@ export function ReviewSession({ initialCards }: ReviewSessionProps) {
 
   return (
     <div className="w-full max-w-2xl mx-auto pt-10">
-    
       <Card>
         <CardContent className="p-6 min-h-[250px] flex flex-col justify-center">
           <p className="text-xl text-center">{frontContent.text}</p>

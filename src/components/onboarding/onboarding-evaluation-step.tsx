@@ -13,14 +13,14 @@ import { Textarea } from '@/components/ui/textarea';
 import { useFormContext } from 'react-hook-form';
 
 const helpOptions = [
-    'Organización del estudio',
-    'Técnicas de memorización',
-    'Gestión del tiempo',
-    'Realización de tests',
-    'Manejo del estrés y ansiedad',
-    'Planificación de repasos',
-    'Toma de apuntes y síntesis',
-    'Lectura rápida y comprensión',
+  'Organización del estudio',
+  'Técnicas de memorización',
+  'Gestión del tiempo',
+  'Realización de tests',
+  'Manejo del estrés y ansiedad',
+  'Planificación de repasos',
+  'Toma de apuntes y síntesis',
+  'Lectura rápida y comprensión',
 ] as const;
 
 export default function OnboardingEvaluationStep() {

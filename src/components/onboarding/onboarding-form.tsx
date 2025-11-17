@@ -405,7 +405,6 @@ export default function OnboardingForm() {
                   <CardDescription>{steps[currentStep].description}</CardDescription>
                 </CardHeader>
 
-              
                 <CardContent className="grow space-y-8">
                   {actionState?.message && !actionState.success && !actionState.errors && (
                     <Alert variant="destructive">
@@ -414,9 +413,7 @@ export default function OnboardingForm() {
                       <AlertDescription>{actionState.message}</AlertDescription>
                     </Alert>
                   )}
-                  {actionState?.errors && (
-                    <Alert variant="destructive">{actionState.errors}</Alert>
-                  )}
+                  {actionState?.errors && <Alert variant="destructive">{actionState.errors}</Alert>}
 
                   {/* Renderizado de Pasos */}
                   {currentStep === 0 && (

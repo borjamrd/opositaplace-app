@@ -12,9 +12,8 @@ if (!serviceRoleKey) {
   throw new Error('Missing env var SUPABASE_SERVICE_ROLE_KEY');
 }
 
-
 export const createSupabaseAdminClient = () => {
-  return  createClient<Database>(supabaseUrl, serviceRoleKey, {
+  return createClient<Database>(supabaseUrl, serviceRoleKey, {
     auth: {
       autoRefreshToken: false,
       persistSession: false,

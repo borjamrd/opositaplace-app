@@ -9,7 +9,7 @@ import {
   Img,
   Preview,
   Section,
-  Text
+  Text,
 } from '@react-email/components';
 
 interface WelcomeEmailProps {
@@ -17,16 +17,14 @@ interface WelcomeEmailProps {
   dashboardUrl?: string;
 }
 
-
 const isPreview = process.env.NODE_ENV === 'development';
-
 
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
 
 // logoSrc cambiará según el entorno
 const logoSrc = isPreview
   ? '/static/opositaplace_logo_v1.png'
-  : `${baseUrl}/opositaplace_logo_v1.png`; 
+  : `${baseUrl}/opositaplace_logo_v1.png`;
 
 export const WelcomeEmail = ({
   userName = 'Opositor',
@@ -47,43 +45,34 @@ export const WelcomeEmail = ({
             alt="Opositaplace Logo"
             style={logo}
           />
-          <Heading style={heading}>
-            ¡Te damos la bienvenida a Opositaplace!
-          </Heading>
+          <Heading style={heading}>¡Te damos la bienvenida a Opositaplace!</Heading>
           <Text style={paragraph}>Hola {userName},</Text>
           <Text style={paragraph}>
-            Estamos encantados de tenerte a bordo. Opositaplace es tu centro de
-            mandos para conquistar tu oposición.
+            Estamos encantados de tenerte a bordo. Opositaplace es tu centro de mandos para
+            conquistar tu oposición.
           </Text>
           <Text style={paragraph}>
-            Puedes empezar explorando tu panel de control, configurando tus
-            temas o realizando tu primer test.
+            Puedes empezar explorando tu panel de control, configurando tus temas o realizando tu
+            primer test.
           </Text>
           <Section style={btnContainer}>
-            <Button
-              style={button}
-              href={`${baseUrl}${dashboardUrl}`}
-            >
+            <Button style={button} href={`${baseUrl}${dashboardUrl}`}>
               Ir a mi Panel
             </Button>
           </Section>
-          <Text style={paragraph}>
-            Si tienes cualquier duda, no dudes en contactarnos.
-          </Text>
+          <Text style={paragraph}>Si tienes cualquier duda, no dudes en contactarnos.</Text>
           <Text style={paragraph}>
             ¡Mucho ánimo y a por tu plaza!
             <br />- El equipo de Opositaplace
           </Text>
           <Text style={footer}>
-            © {new Date().getFullYear()} Opositaplace. Todos los derechos
-            reservados.
+            © {new Date().getFullYear()} Opositaplace. Todos los derechos reservados.
           </Text>
         </Container>
       </Body>
     </Html>
   );
 };
-
 
 WelcomeEmail.PreviewProps = {
   userName: 'Opositor',
@@ -116,7 +105,7 @@ const heading = {
   fontWeight: 'bold',
   marginTop: '32px',
   textAlign: 'center' as const,
-  color: '#14213D', 
+  color: '#14213D',
 };
 
 const paragraph = {
@@ -133,7 +122,7 @@ const btnContainer = {
 };
 
 const button = {
-  backgroundColor: '#4C6EF5', 
+  backgroundColor: '#4C6EF5',
   borderRadius: '6px',
   color: '#fff',
   fontSize: '16px',

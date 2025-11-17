@@ -25,10 +25,7 @@ interface WeeklySummaryEmailProps {
 
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
 
-export const WeeklySummaryEmail = ({
-  userName,
-  summary,
-}: WeeklySummaryEmailProps) => (
+export const WeeklySummaryEmail = ({ userName, summary }: WeeklySummaryEmailProps) => (
   <Html>
     <Head />
     <Preview>Tu resumen semanal de Opositaplace está listo.</Preview>
@@ -42,10 +39,8 @@ export const WeeklySummaryEmail = ({
           style={logo}
         />
         <Heading style={h1}>¡Aquí tienes tu resumen, {userName}!</Heading>
-        
-        <Text style={text}>
-          ¡Buen trabajo esta semana! Aquí tienes un vistazo a tu progreso:
-        </Text>
+
+        <Text style={text}>¡Buen trabajo esta semana! Aquí tienes un vistazo a tu progreso:</Text>
 
         <Section style={summarySection}>
           <Text style={summaryItem}>
@@ -61,10 +56,8 @@ export const WeeklySummaryEmail = ({
             <strong>Tarjetas repasadas:</strong> {summary.cardsReviewed}
           </Text>
         </Section>
-        
-        <Text style={text}>
-          Sigue así, ¡vas por el buen camino!
-        </Text>
+
+        <Text style={text}>Sigue así, ¡vas por el buen camino!</Text>
         <Link href={baseUrl} style={button}>
           Volver a mi planificación
         </Link>
@@ -76,11 +69,27 @@ export const WeeklySummaryEmail = ({
 export default WeeklySummaryEmail;
 
 // (Añade tus estilos aquí, puedes copiarlos de otros emails)
-const main = { /* ... */ };
-const container = { /* ... */ };
-const logo = { /* ... */ };
-const h1 = { /* ... */ };
-const text = { /* ... */ };
-const summarySection = { /* ... */ };
-const summaryItem = { /* ... */ };
-const button = { /* ... */ };
+const main = {
+  /* ... */
+};
+const container = {
+  /* ... */
+};
+const logo = {
+  /* ... */
+};
+const h1 = {
+  /* ... */
+};
+const text = {
+  /* ... */
+};
+const summarySection = {
+  /* ... */
+};
+const summaryItem = {
+  /* ... */
+};
+const button = {
+  /* ... */
+};

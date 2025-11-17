@@ -1,12 +1,11 @@
 // src/app/api/stripe/create-portal-link/route.ts
-import { getOrCreateStripeCustomerId } from '@/lib/stripe/actions'; 
-import { stripe } from '@/lib/stripe/stripe'; 
+import { getOrCreateStripeCustomerId } from '@/lib/stripe/actions';
+import { stripe } from '@/lib/stripe/stripe';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {
   try {
-  
     const supabase = await createSupabaseServerClient();
 
     const {

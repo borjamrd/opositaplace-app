@@ -14,10 +14,10 @@ import {
 
 // El mapa de traducción
 const BREADCRUMB_NAMES: Record<string, string> = {
-  'dashboard': 'Panel',
-  'review': 'Repetición Espaciada',
-  'tests': 'Tests',
-  'profile': 'Perfil',
+  dashboard: 'Panel',
+  review: 'Repetición Espaciada',
+  tests: 'Tests',
+  profile: 'Perfil',
   'urls-change-history': 'Historial de Cambios',
 };
 

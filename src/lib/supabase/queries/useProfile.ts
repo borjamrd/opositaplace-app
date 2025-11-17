@@ -2,7 +2,6 @@ import { createClient } from '@/lib/supabase/client';
 import { useQuery } from '@tanstack/react-query';
 import { ProfileWithOnboarding } from '../types';
 
-
 async function fetchProfileWithOnboarding(
   userId: string | null
 ): Promise<ProfileWithOnboarding | null> {

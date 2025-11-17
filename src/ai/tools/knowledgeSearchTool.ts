@@ -47,7 +47,7 @@ const servingConfigPath =
 export async function getConversationalAnswer(
   query: string,
   existingSessionPath?: string,
-  systemPrompt?: string 
+  systemPrompt?: string
 ): Promise<ConversationalResult> {
   const sessionPath =
     existingSessionPath ||

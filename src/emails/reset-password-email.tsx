@@ -1,15 +1,15 @@
 // src/emails/reset-password-email.tsx
 import {
-    Body,
-    Button,
-    Container,
-    Head,
-    Heading,
-    Html,
-    Img,
-    Preview,
-    Section,
-    Text
+  Body,
+  Button,
+  Container,
+  Head,
+  Heading,
+  Html,
+  Img,
+  Preview,
+  Section,
+  Text,
 } from '@react-email/components';
 
 interface ResetPasswordEmailProps {
@@ -18,9 +18,7 @@ interface ResetPasswordEmailProps {
 }
 
 const isPreview = process.env.NODE_ENV === 'development';
-const baseUrl = isPreview
-  ? ''
-  : process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+const baseUrl = isPreview ? '' : process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
 const logoSrc = isPreview
   ? '/static/opositaplace_logo_v1.png'
   : `${baseUrl}/opositaplace_logo_v1.png`;
@@ -41,12 +39,12 @@ export const ResetPasswordEmail = ({
           <Heading style={heading}>Restablece tu contraseña</Heading>
           <Text style={paragraph}>Hola {userName},</Text>
           <Text style={paragraph}>
-            Hemos recibido una solicitud para restablecer la contraseña de tu
-            cuenta de Opositaplace.
+            Hemos recibido una solicitud para restablecer la contraseña de tu cuenta de
+            Opositaplace.
           </Text>
           <Text style={paragraph}>
-            Haz clic en el botón de abajo para establecer una nueva contraseña.
-            Este enlace es válido durante 1 hora.
+            Haz clic en el botón de abajo para establecer una nueva contraseña. Este enlace es
+            válido durante 1 hora.
           </Text>
           <Section style={btnContainer}>
             <Button style={button} href={resetLink}>
@@ -54,16 +52,14 @@ export const ResetPasswordEmail = ({
             </Button>
           </Section>
           <Text style={paragraph}>
-            Si no has solicitado este cambio, puedes ignorar este correo sin
-            problemas.
+            Si no has solicitado este cambio, puedes ignorar este correo sin problemas.
           </Text>
           <Text style={paragraph}>
             Un saludo,
             <br />- El equipo de Opositaplace
           </Text>
           <Text style={footer}>
-            © {new Date().getFullYear()} Opositaplace. Todos los derechos
-            reservados.
+            © {new Date().getFullYear()} Opositaplace. Todos los derechos reservados.
           </Text>
         </Container>
       </Body>

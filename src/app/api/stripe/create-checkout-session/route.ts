@@ -7,7 +7,6 @@ export async function POST(req: Request) {
   try {
     const { priceId, successUrl, cancelUrl } = await req.json();
 
-  
     const supabase = await createSupabaseServerClient();
     const {
       data: { user },

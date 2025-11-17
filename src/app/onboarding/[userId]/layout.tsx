@@ -4,11 +4,7 @@ import { getProfileData } from '@/actions/profile';
 import { StateHydrator } from '@/components/state-hydrator';
 import React from 'react';
 
-export default async function OnboardingLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default async function OnboardingLayout({ children }: { children: React.ReactNode }) {
   const { profile } = await getProfileData();
 
   return (

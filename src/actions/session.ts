@@ -5,7 +5,6 @@ import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 
 export async function updateUserActiveOpposition(oppositionId: string) {
-
   const supabase = await createSupabaseServerClient();
 
   const {
@@ -19,7 +18,7 @@ export async function updateUserActiveOpposition(oppositionId: string) {
   const { error: deactivateError } = await supabase
     .from('user_oppositions')
     .update({
-      active: false
+      active: false,
     })
     .eq('profile_id', user.id);
 
@@ -32,7 +31,7 @@ export async function updateUserActiveOpposition(oppositionId: string) {
   const { error: activateError } = await supabase
     .from('user_oppositions')
     .update({
-      active: true
+      active: true,
     })
     .eq('profile_id', user.id)
     .eq('opposition_id', oppositionId);

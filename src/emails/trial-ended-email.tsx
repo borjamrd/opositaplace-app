@@ -1,15 +1,15 @@
 import {
-    Body,
-    Button,
-    Container,
-    Head,
-    Heading,
-    Hr,
-    Html,
-    Img,
-    Preview,
-    Section,
-    Text
+  Body,
+  Button,
+  Container,
+  Head,
+  Heading,
+  Hr,
+  Html,
+  Img,
+  Preview,
+  Section,
+  Text,
 } from '@react-email/components';
 
 interface TrialEndedEmailProps {

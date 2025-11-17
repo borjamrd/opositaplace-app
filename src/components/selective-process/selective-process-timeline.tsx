@@ -147,7 +147,7 @@ export function SelectiveProcessTimeline() {
   const isTracking = userStatus.tracking_status === 'TRACKING';
 
   return (
-    <Card >
+    <Card>
       <CardHeader>
         <CardTitle className="text-lg font-bold">
           {isTracking ? 'Mi proceso selectivo' : 'Así funciona el proceso selectivo'}

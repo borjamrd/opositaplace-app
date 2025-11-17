@@ -8,16 +8,14 @@ const fromEmail = process.env.EMAIL_FROM;
 export async function sendEmail({
   to,
   subject,
-  emailComponent, 
+  emailComponent,
 }: {
   to: string;
   subject: string;
   emailComponent: React.ReactElement;
 }) {
   if (!fromEmail) {
-    throw new Error(
-      'La variable de entorno EMAIL_FROM no está configurada.'
-    );
+    throw new Error('La variable de entorno EMAIL_FROM no está configurada.');
   }
 
   try {

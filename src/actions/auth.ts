@@ -57,10 +57,7 @@ export async function signUp(_prevState: any, formData: FormData) {
     try {
       await setupNewUser(data.user);
     } catch (setupError: any) {
-      console.warn(
-        `Error en el setup del nuevo usuario (manual signup)`,
-        setupError.message
-      );
+      console.warn(`Error en el setup del nuevo usuario (manual signup)`, setupError.message);
     }
   }
 

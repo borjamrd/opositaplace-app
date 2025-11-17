@@ -85,7 +85,6 @@ export async function updateUserTrackingStatus(
   processId: string,
   trackingStatus: 'TRACKING' | 'PREPARING'
 ): Promise<UpdateTrackingStatusResult> {
-
   const supabase = await createSupabaseServerClient();
 
   const {
@@ -124,7 +123,6 @@ export async function updateUserCurrentStage(
   processId: string,
   newStageId: string
 ): Promise<UpdateTrackingStatusResult> {
-
   const supabase = await createSupabaseServerClient();
 
   const {

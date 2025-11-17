@@ -35,9 +35,7 @@ export const InvoicePaidEmail = ({ userName = 'Opositor', invoiceUrl }: InvoiceP
           <Img src={logoSrc} width="120" alt="Opositaplace Logo" style={logo} />
           <Heading style={heading}>Aquí tienes tu factura</Heading>
           <Text style={paragraph}>Hola {userName},</Text>
-          <Text style={paragraph}>
-            Te adjuntamos la factura de tu suscripción a Opositaplace.
-          </Text>
+          <Text style={paragraph}>Te adjuntamos la factura de tu suscripción a Opositaplace.</Text>
           {invoiceUrl && (
             <Section style={btnContainer}>
               <Button style={button} href={invoiceUrl}>

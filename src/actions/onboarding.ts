@@ -114,7 +114,7 @@ export async function submitOnboarding(
         .eq('opposition_id', opposition_id);
 
       if (updateError) {
-         return {
+        return {
           message: 'Ya estás asociado a esta oposición, pero no pudimos reactivarla.',
           errors: { opposition_id: ['Error al reactivar oposición existente.'] },
           success: false,
@@ -187,15 +187,15 @@ export async function submitOnboarding(
       .select('id, status')
       .in('status', ['trialing', 'active'])
       .single();
-    
-    if (subError && subError.code !== 'PGRST116') { // PGRST116 = no rows found
+
+    if (subError && subError.code !== 'PGRST116') {
+      // PGRST116 = no rows found
       throw new Error(`Error al verificar suscripción: ${subError.message}`);
     }
 
     if (!existingSubscription) {
       await createTrialSubscription(user);
     }
-    
   } catch (trialError: any) {
     console.error('Error creando la suscripción de prueba:', trialError);
     return {
@@ -208,8 +208,5 @@ export async function submitOnboarding(
     message: 'Onboarding completado con éxito. Se te redirigirá a tu dashboard.',
     errors: null,
     success: true,
-  }
-
+  };
 }
-
-

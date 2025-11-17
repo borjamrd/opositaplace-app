@@ -28,7 +28,7 @@ export function NavMain({
 
   const handleNewTestClick = () => {
     openModal();
-    router.push('/dashboard/tests'); 
+    router.push('/dashboard/tests');
   };
 
   return (

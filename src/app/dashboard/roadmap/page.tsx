@@ -8,7 +8,7 @@ export default async function RoadmapPage() {
   type RoadmapDataType = {
     blocks: Block[];
     topics: Topic[];
-    topicStatusMap: Record<string, SyllabusStatus>; 
+    topicStatusMap: Record<string, SyllabusStatus>;
     activeCycle: StudyCycle;
   };
 

@@ -16,11 +16,8 @@ interface FailedQuestionFlashcardProps {
 }
 
 export function FailedQuestionFlashcard({ questions }: FailedQuestionFlashcardProps) {
-
-
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAnswerVisible, setIsAnswerVisible] = useState(false);
-  
 
   const handleNextQuestion = () => {
     setIsAnswerVisible(false);

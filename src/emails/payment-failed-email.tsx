@@ -20,9 +20,7 @@ interface PaymentFailedEmailProps {
 }
 
 const isPreview = process.env.NODE_ENV === 'development';
-const baseUrl = isPreview
-  ? ''
-  : process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+const baseUrl = isPreview ? '' : process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
 const logoSrc = isPreview
   ? '/static/opositaplace_logo_v1.png'
   : `${baseUrl}/opositaplace_logo_v1.png`;
@@ -33,9 +31,7 @@ const logoSrc = isPreview
 // redirigir al usuario al portal de Stripe.
 const profileUrl = `${baseUrl}/dashboard/profile`;
 
-export const PaymentFailedEmail = ({
-  userName = 'Opositor',
-}: PaymentFailedEmailProps) => {
+export const PaymentFailedEmail = ({ userName = 'Opositor' }: PaymentFailedEmailProps) => {
   const previewText = `Acción requerida: tu pago de Opositaplace ha fallado`;
 
   return (
@@ -48,13 +44,11 @@ export const PaymentFailedEmail = ({
           <Heading style={heading}>Acción Requerida</Heading>
           <Text style={paragraph}>Hola {userName},</Text>
           <Text style={paragraph}>
-            Hemos intentado renovar tu suscripción de Opositaplace, pero el
-            pago ha fallado.
+            Hemos intentado renovar tu suscripción de Opositaplace, pero el pago ha fallado.
           </Text>
           <Text style={paragraph}>
-            Para evitar la interrupción del servicio, por favor, actualiza tu
-            método de pago lo antes posible. Puedes hacerlo desde tu panel de
-            suscripción.
+            Para evitar la interrupción del servicio, por favor, actualiza tu método de pago lo
+            antes posible. Puedes hacerlo desde tu panel de suscripción.
           </Text>
           <Section style={btnContainer}>
             <Button style={button} href={profileUrl}>
@@ -62,16 +56,15 @@ export const PaymentFailedEmail = ({
             </Button>
           </Section>
           <Text style={paragraph}>
-            Stripe volverá a intentar el cobro automáticamente. Si tu método de
-            pago está actualizado, no necesitas hacer nada más.
+            Stripe volverá a intentar el cobro automáticamente. Si tu método de pago está
+            actualizado, no necesitas hacer nada más.
           </Text>
           <Text style={paragraph}>
             Gracias,
             <br />- El equipo de Opositaplace
           </Text>
           <Text style={footer}>
-            © {new Date().getFullYear()} Opositaplace. Todos los derechos
-            reservados.
+            © {new Date().getFullYear()} Opositaplace. Todos los derechos reservados.
           </Text>
         </Container>
       </Body>
