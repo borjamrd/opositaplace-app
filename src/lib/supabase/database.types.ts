@@ -166,16 +166,19 @@ export type Database = {
           comment: string | null;
           created_at: string;
           id: number;
+          user_id: string | null;
         };
         Insert: {
           comment?: string | null;
           created_at?: string;
           id?: number;
+          user_id?: string | null;
         };
         Update: {
           comment?: string | null;
           created_at?: string;
           id?: number;
+          user_id?: string | null;
         };
         Relationships: [];
       };
