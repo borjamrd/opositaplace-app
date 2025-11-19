@@ -1,27 +1,25 @@
 'use client';
 
-import { useEffect, useMemo, useState, useTransition, useCallback } from 'react';
+import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
 import ReactFlow, {
+  Background,
+  BackgroundVariant,
+  Controls,
   Edge,
+  Handle,
   Node,
-  OnEdgesChange,
-  OnNodesChange,
   Position,
   ReactFlowInstance,
   ReactFlowProvider,
   useEdgesState,
-  useNodesState,
-  Handle,
-  Background,
-  BackgroundVariant,
-  Controls,
-  MarkerType,
+  useNodesState
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 
 import { updateTopicStatus } from '@/actions/roadmap';
 import { createTestAttempt } from '@/actions/tests';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import {
   Sheet,
@@ -33,11 +31,9 @@ import {
 import { Slider } from '@/components/ui/slider';
 import { useToast } from '@/hooks/use-toast';
 import { Block, StudyCycle, SyllabusStatus, Topic } from '@/lib/supabase/types';
-import { Check, Loader2, BookOpen, PlayCircle, CheckCircle2, Circle } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Card, CardContent } from '@/components/ui/card';
+import { BookOpen, CheckCircle2, Circle, Loader2, PlayCircle } from 'lucide-react';
 
-// --- TIPOS ---
 type StatusMap = Record<string, SyllabusStatus>;
 
 interface RoadmapFlowProps {
@@ -47,7 +43,6 @@ interface RoadmapFlowProps {
   initialCycle: StudyCycle;
 }
 
-// --- 1. CUSTOM NODES (Tus estilos modernos) ---
 
 const TopicNode = ({ data }: { data: any }) => {
   const { label, status, isRightSide } = data;
@@ -55,45 +50,47 @@ const TopicNode = ({ data }: { data: any }) => {
   const statusConfig = {
     completed: {
       icon: CheckCircle2,
-      color: "text-green-600",
-      bg: "bg-green-50",
-      border: "border-green-500",
-      shadow: "shadow-md shadow-green-500/10"
+      color: 'text-green-600',
+      bg: 'bg-green-50',
+      border: 'border-green-500',
+      shadow: 'shadow-md shadow-green-500/10',
     },
     in_progress: {
       icon: PlayCircle,
-      color: "text-amber-600",
-      bg: "bg-amber-50",
-      border: "border-amber-500",
-      shadow: "shadow-md shadow-amber-500/10"
+      color: 'text-amber-600',
+      bg: 'bg-amber-50',
+      border: 'border-amber-500',
+      shadow: 'shadow-md shadow-amber-500/10',
     },
     not_started: {
       icon: Circle,
-      color: "text-muted-foreground",
-      bg: "bg-card",
-      border: "border-border",
-      shadow: "shadow-sm"
-    }
+      color: 'text-muted-foreground',
+      bg: 'bg-card',
+      border: 'border-border',
+      shadow: 'shadow-sm',
+    },
   };
 
   const config = statusConfig[status as SyllabusStatus] || statusConfig.not_started;
   const Icon = config.icon;
 
   return (
-    <div className={cn(
-      "relative group min-w-[300px] max-w-[350px] rounded-xl border px-4 py-3 transition-all duration-300 cursor-pointer",
-      config.bg,
-      config.border,
-      config.shadow
-    )}>
-      <Handle 
-        type="target" 
-        position={isRightSide ? Position.Left : Position.Right} 
-        className="!bg-transparent !border-0" 
+    <div
+      className={cn(
+        'relative group min-w-[300px] max-w-[350px] rounded-xl border px-4 py-3 transition-all duration-300 cursor-pointer',
+        config.bg,
+        config.border,
+        config.shadow
+      )}
+    >
+      <Handle
+        type="target"
+        position={isRightSide ? Position.Left : Position.Right}
+        className="!bg-transparent !border-0"
       />
-      
+
       <div className="flex items-center gap-3">
-        <div className={cn("p-2 rounded-full bg-white/80 shrink-0 border", config.color)}>
+        <div className={cn('p-2 rounded-full bg-white/80 shrink-0 border', config.color)}>
           <Icon className="w-5 h-5" />
         </div>
         <div className="flex flex-col">
@@ -101,14 +98,18 @@ const TopicNode = ({ data }: { data: any }) => {
             {label}
           </span>
           <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold mt-1">
-            {status === 'not_started' ? 'Pendiente' : status === 'in_progress' ? 'En Curso' : 'Completado'}
+            {status === 'not_started'
+              ? 'Pendiente'
+              : status === 'in_progress'
+                ? 'En Curso'
+                : 'Completado'}
           </span>
         </div>
       </div>
 
-      <Handle 
-        type="source" 
-        position={isRightSide ? Position.Right : Position.Left} 
+      <Handle
+        type="source"
+        position={isRightSide ? Position.Right : Position.Left}
         className="!bg-transparent !border-0"
       />
     </div>
@@ -116,18 +117,30 @@ const TopicNode = ({ data }: { data: any }) => {
 };
 
 const BlockNode = ({ data }: { data: any }) => {
-  const isRightSide = data.isRightSide; 
-  // En tu lógica antigua, los bloques tenían handles abajo y a los lados.
-  // Añadimos handles dinámicos para mantener la conectividad original.
-  
+
   return (
     <div className="px-6 py-3 rounded-2xl bg-background border-2 border-primary/20 text-primary font-bold text-sm uppercase tracking-widest shadow-sm text-center min-w-[250px] max-w-[400px]">
       <Handle type="target" position={Position.Top} className="!bg-primary !w-3 !h-3 !-top-1.5" />
       {data.label}
-      <Handle type="source" position={Position.Bottom} id="bottom" className="!bg-primary !w-3 !h-3 !-bottom-1.5" />
+      <Handle
+        type="source"
+        position={Position.Bottom}
+        id="bottom"
+        className="!bg-primary !w-3 !h-3 !-bottom-1.5"
+      />
       {/* Handles laterales para conectar con los temas como antes */}
-      <Handle type="source" position={Position.Left} id="left" className="!bg-transparent !border-0" />
-      <Handle type="source" position={Position.Right} id="right" className="!bg-transparent !border-0" />
+      <Handle
+        type="source"
+        position={Position.Left}
+        id="left"
+        className="!bg-transparent !border-0"
+      />
+      <Handle
+        type="source"
+        position={Position.Right}
+        id="right"
+        className="!bg-transparent !border-0"
+      />
     </div>
   );
 };
@@ -149,7 +162,7 @@ const CycleNode = ({ data }: { data: any }) => {
 const nodeTypes = {
   topic: TopicNode,
   block: BlockNode,
-  cycle: CycleNode
+  cycle: CycleNode,
 };
 
 // --- 2. COMPONENTE PRINCIPAL ---
@@ -191,7 +204,7 @@ export function RoadmapFlow({
       type: 'cycle', // Usamos el nuevo estilo
       data: { label: `Vuelta ${initialCycle.cycle_number}` },
       // Ajustamos X para que quede centrado visualmente (el nodo mide aprox 100px, no 400)
-      position: { x: CENTER_X - 40, y: currentY }, 
+      position: { x: CENTER_X - 40, y: currentY },
     });
 
     let prevNodeId = rootId;
@@ -199,14 +212,14 @@ export function RoadmapFlow({
     initialBlocks.forEach((block, index) => {
       const isRightSide = index % 2 === 0;
       const topicsInBlock = initialTopics.filter((t) => t.block_id === block.id);
-      
+
       // Cálculos originales de altura
       const branchHeight = topicsInBlock.length * V_SPACING_TOPIC - (V_SPACING_TOPIC - NODE_HEIGHT);
       const totalSectionHeight = Math.max(NODE_HEIGHT, branchHeight) / 2;
-      
+
       currentY += V_SPACING_BLOCK + totalSectionHeight / 2;
       let topicY = currentY - branchHeight / 2 + NODE_HEIGHT / 2;
-      
+
       const blockNodeId = `block-${block.id}`;
 
       // 2. Nodo Bloque (Posicionado centralmente como antes)
@@ -234,11 +247,9 @@ export function RoadmapFlow({
       topicsInBlock.forEach((topic) => {
         const topicNodeId = `topic-${topic.id}`;
         const status = statusMap[topic.id];
-        
+
         // Posición X original
-        const topicX = isRightSide
-          ? CENTER_X + H_SPACING_TOPIC
-          : CENTER_X - H_SPACING_TOPIC - 300; // -300 aprox ancho del nodo
+        const topicX = isRightSide ? CENTER_X + H_SPACING_TOPIC : CENTER_X - H_SPACING_TOPIC - 300; // -300 aprox ancho del nodo
 
         nodes.push({
           id: topicNodeId,
@@ -256,7 +267,7 @@ export function RoadmapFlow({
           animated: status === 'in_progress',
           sourceHandle: isRightSide ? 'right' : 'left', // Usamos los handles laterales del bloque
           targetHandle: isRightSide ? 'left' : 'right',
-          style: { 
+          style: {
             stroke: status === 'completed' ? '#22c55e' : '#cbd5e1',
             strokeWidth: status === 'completed' ? 2 : 1,
           },
@@ -294,9 +305,22 @@ export function RoadmapFlow({
   // Handlers...
   const onInit = useCallback((instance: ReactFlowInstance) => {
     setRfInstance(instance);
-    setTimeout(() => instance.fitView({ padding: 0.2, duration: 500 }), 50);
-  }, []);
 
+    // Esperamos un instante para asegurar que los nodos se han renderizado
+    setTimeout(() => {
+      // 1. Primero pedimos a React Flow que calcule el centro horizontal ideal
+      instance.fitView({ padding: 0.1, duration: 0 });
+
+      // 2. Obtenemos esa coordenada X centrada
+      const { x } = instance.getViewport();
+
+      // 3. Forzamos la vista:
+      //    - X: La calculada (centrado horizontalmente)
+      //    - Y: 50 (Pegado arriba con un poco de margen)
+      //    - Zoom: 1 (Tamaño real, legible)
+      instance.setViewport({ x, y: 120, zoom: 0.8 }, { duration: 800 });
+    }, 50);
+  }, []);
   const handleNodeClick = (event: any, node: Node) => {
     if (node.type === 'topic') {
       const topicId = node.id.replace('topic-', '');
@@ -336,11 +360,14 @@ export function RoadmapFlow({
         oppositionId: selectedBlock.opposition_id as string,
         studyCycleId: initialCycle.id,
       });
-      if (result.error) toast({ title: 'Error', description: result.error, variant: 'destructive' });
+      if (result.error)
+        toast({ title: 'Error', description: result.error, variant: 'destructive' });
     });
   };
 
-  const currentStatus = selectedTopic ? statusMap[selectedTopic.id] || 'not_started' : 'not_started';
+  const currentStatus = selectedTopic
+    ? statusMap[selectedTopic.id] || 'not_started'
+    : 'not_started';
 
   return (
     // Aquí está el cambio de tamaño que pedías: h-[calc(100vh-X)]
@@ -349,17 +376,25 @@ export function RoadmapFlow({
         <Legend />
         <ReactFlow
           nodes={nodes}
+          style={{ cursor: 'default' }}
           edges={edges}
+          zoomOnScroll={false}
+          zoomOnPinch={false}
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
           onNodeClick={handleNodeClick}
           onInit={onInit}
           nodeTypes={nodeTypes}
-          fitView
-          minZoom={0.2}
+          minZoom={0.8}
           maxZoom={1.5}
         >
-          <Background color="#94a3b8" gap={25} size={1} variant={BackgroundVariant.Dots} className="opacity-20" />
+          <Background
+            color="#94a3b8"
+            gap={25}
+            size={1}
+            variant={BackgroundVariant.Dots}
+            className="opacity-20"
+          />
           <Controls className="bg-white border-slate-200 shadow-md text-slate-600" />
         </ReactFlow>
 
@@ -367,77 +402,112 @@ export function RoadmapFlow({
         <Sheet open={!!selectedTopic} onOpenChange={(open) => !open && setSelectedTopic(null)}>
           <SheetContent className="w-[400px] sm:w-[540px] overflow-y-auto">
             {selectedTopic && (
-               <div className="flex flex-col h-full pt-6">
-                  <SheetHeader className="pb-6">
-                    <SheetTitle className="text-2xl flex items-center gap-2">
-                      {selectedTopic.name}
-                    </SheetTitle>
-                    <SheetDescription>
-                      Bloque: {initialBlocks.find(b => b.id === selectedTopic.block_id)?.name}
-                    </SheetDescription>
-                  </SheetHeader>
-                  
-                  <div className="space-y-8">
-                    <div className="grid grid-cols-3 gap-3">
-                       {[
-                         { key: 'completed', label: 'Listo', icon: CheckCircle2, activeClass: 'bg-green-100 border-green-500 text-green-700' },
-                         { key: 'in_progress', label: 'Estudiando', icon: PlayCircle, activeClass: 'bg-amber-100 border-amber-500 text-amber-700' },
-                         { key: 'not_started', label: 'Pendiente', icon: Circle, activeClass: 'bg-slate-100 border-slate-400 text-slate-700' },
-                       ].map((option) => {
-                         const isActive = currentStatus === option.key;
-                         const isLoading = isPending && loadingKey === option.key;
-                         return (
-                           <Button
-                             key={option.key}
-                             variant="outline"
-                             disabled={isPending}
-                             className={cn(
-                               "h-24 flex flex-col gap-2 border-2 transition-all hover:scale-105",
-                               isActive ? option.activeClass : "border-slate-200 hover:border-slate-300 text-slate-500"
-                             )}
-                             onClick={() => handleStatusChange(option.key as SyllabusStatus)}
-                           >
-                             {isLoading ? <Loader2 className="h-6 w-6 animate-spin" /> : <option.icon className="h-6 w-6" />}
-                             <span className="text-xs font-bold uppercase">{option.label}</span>
-                           </Button>
-                         )
-                       })}
-                    </div>
+              <div className="flex flex-col h-full pt-6">
+                <SheetHeader className="pb-6">
+                  <SheetTitle className="text-2xl flex items-center gap-2">
+                    {selectedTopic.name}
+                  </SheetTitle>
+                  <SheetDescription>
+                    Bloque: {initialBlocks.find((b) => b.id === selectedTopic.block_id)?.name}
+                  </SheetDescription>
+                </SheetHeader>
 
-                    <Separator />
-
-                    <Card className="border-dashed border-2 shadow-none bg-slate-50">
-                      <CardContent className="pt-6 space-y-6">
-                        <div className="flex items-center gap-3">
-                          <div className="p-2.5 bg-primary text-primary-foreground rounded-lg shadow-sm">
-                             <BookOpen className="h-5 w-5" />
-                          </div>
-                          <div>
-                            <h4 className="font-bold text-sm">Simulacro de Examen</h4>
-                            <p className="text-xs text-muted-foreground">Practica preguntas solo de este tema</p>
-                          </div>
-                        </div>
-                        
-                        <div className="space-y-4">
-                           <div className="flex justify-between text-sm px-1">
-                              <span className="text-muted-foreground">Cantidad de preguntas</span>
-                              <span className="font-bold bg-white px-2 py-0.5 rounded border">{numQuestions}</span>
-                           </div>
-                           <Slider
-                              min={5} max={50} step={5}
-                              value={[numQuestions]}
-                              onValueChange={(v) => setNumQuestions(v[0])}
-                              className="py-2"
-                           />
-                           <Button onClick={handleCreateTest} disabled={isCreatingTest} className="w-full h-11 text-base shadow-md">
-                              {isCreatingTest ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <PlayCircle className="mr-2 h-4 w-4" />}
-                              Comenzar Test Ahora
-                           </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
+                <div className="space-y-8">
+                  <div className="grid grid-cols-3 gap-3">
+                    {[
+                      {
+                        key: 'completed',
+                        label: 'Listo',
+                        icon: CheckCircle2,
+                        activeClass: 'bg-green-100 border-green-500 text-green-700',
+                      },
+                      {
+                        key: 'in_progress',
+                        label: 'Estudiando',
+                        icon: PlayCircle,
+                        activeClass: 'bg-amber-100 border-amber-500 text-amber-700',
+                      },
+                      {
+                        key: 'not_started',
+                        label: 'Pendiente',
+                        icon: Circle,
+                        activeClass: 'bg-slate-100 border-slate-400 text-slate-700',
+                      },
+                    ].map((option) => {
+                      const isActive = currentStatus === option.key;
+                      const isLoading = isPending && loadingKey === option.key;
+                      return (
+                        <Button
+                          key={option.key}
+                          variant="outline"
+                          disabled={isPending}
+                          className={cn(
+                            'h-24 flex flex-col gap-2 border-2 transition-all hover:scale-105',
+                            isActive
+                              ? option.activeClass
+                              : 'border-slate-200 hover:border-slate-300 text-slate-500'
+                          )}
+                          onClick={() => handleStatusChange(option.key as SyllabusStatus)}
+                        >
+                          {isLoading ? (
+                            <Loader2 className="h-6 w-6 animate-spin" />
+                          ) : (
+                            <option.icon className="h-6 w-6" />
+                          )}
+                          <span className="text-xs font-bold uppercase">{option.label}</span>
+                        </Button>
+                      );
+                    })}
                   </div>
-               </div>
+
+                  <Separator />
+
+                  <Card className="border-dashed border-2 shadow-none bg-slate-50">
+                    <CardContent className="pt-6 space-y-6">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2.5 bg-primary text-primary-foreground rounded-lg shadow-sm">
+                          <BookOpen className="h-5 w-5" />
+                        </div>
+                        <div>
+                          <h4 className="font-bold text-sm">Simulacro de Examen</h4>
+                          <p className="text-xs text-muted-foreground">
+                            Practica preguntas solo de este tema
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="space-y-4">
+                        <div className="flex justify-between text-sm px-1">
+                          <span className="text-muted-foreground">Cantidad de preguntas</span>
+                          <span className="font-bold bg-white px-2 py-0.5 rounded border">
+                            {numQuestions}
+                          </span>
+                        </div>
+                        <Slider
+                          min={5}
+                          max={50}
+                          step={5}
+                          value={[numQuestions]}
+                          onValueChange={(v) => setNumQuestions(v[0])}
+                          className="py-2"
+                        />
+                        <Button
+                          onClick={handleCreateTest}
+                          disabled={isCreatingTest}
+                          className="w-full h-11 text-base shadow-md"
+                        >
+                          {isCreatingTest ? (
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          ) : (
+                            <PlayCircle className="mr-2 h-4 w-4" />
+                          )}
+                          Comenzar Test Ahora
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
             )}
           </SheetContent>
         </Sheet>
@@ -455,8 +525,11 @@ function Legend() {
           { label: 'En curso', color: 'text-amber-600', icon: PlayCircle },
           { label: 'Pendiente', color: 'text-slate-400', icon: Circle },
         ].map((item) => (
-          <div key={item.label} className="flex items-center gap-1.5 text-xs font-medium text-slate-700">
-            <item.icon className={cn("w-4 h-4", item.color)} />
+          <div
+            key={item.label}
+            className="flex items-center gap-1.5 text-xs font-medium text-slate-700"
+          >
+            <item.icon className={cn('w-4 h-4', item.color)} />
             <span>{item.label}</span>
           </div>
         ))}
