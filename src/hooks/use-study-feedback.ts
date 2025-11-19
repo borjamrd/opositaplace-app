@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { getFeedbackContext } from '@/actions/feedback';
+import { getFeedbackContext } from '@/actions/study-feedback';
 
 export function useStudyFeedbackData() {
   return useQuery({

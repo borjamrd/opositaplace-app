@@ -1,6 +1,6 @@
 'use client';
 
-import { generateSmartFeedback } from '@/actions/feedback';
+import { generateSmartFeedback } from '@/actions/study-feedback';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useStudyFeedbackData } from '@/hooks/use-study-feedback';
