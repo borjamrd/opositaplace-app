@@ -1,15 +1,14 @@
 'use client';
-import { submitTestAttempt } from '@/actions/tests';
+import { discardTestAttempt, submitTestAttempt } from '@/actions/tests';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { discardTestAttempt } from '@/actions/tests';
 import {
   Card,
   CardContent,
-  CardDescription,
   CardFooter,
   CardHeader,
-  CardTitle,
+  CardTitle
 } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
@@ -25,10 +24,15 @@ import {
   CheckCircle,
   Eye,
   EyeClosed,
+  LayoutTemplate,
+  LibraryBig,
   Lightbulb,
   Loader2,
-  Maximize2,
-  Minimize2,
+  Maximize,
+  Minimize,
+  Save,
+  Trash2,
+  X,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState, useTransition } from 'react';
@@ -49,17 +53,19 @@ interface TestSessionProps {
   testAttempt: Tables<'test_attempts'>;
   questions: QuestionWithAnswers[];
 }
+
 export function TestSession({ testAttempt, questions }: TestSessionProps) {
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
   const [isFinished, setIsFinished] = useState(false);
   const [seeExplanation, setSeeExplanation] = useState(false);
+
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [showExitDialog, setShowExitDialog] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const router = useRouter();
   const queryClient = useQueryClient();
-
-  const containerRef = useRef<HTMLDivElement | null>(null);
 
   const {
     test,
@@ -79,55 +85,70 @@ export function TestSession({ testAttempt, questions }: TestSessionProps) {
   }, [test, testAttempt, questions, setTest]);
 
   useEffect(() => {
-    const onFullscreenChange = () => {
-      setIsFullscreen(Boolean(document.fullscreenElement));
-    };
-    document.addEventListener('fullscreenchange', onFullscreenChange);
-    return () => document.removeEventListener('fullscreenchange', onFullscreenChange);
+    const handleFsChange = () => setIsFullscreen(!!document.fullscreenElement);
+    document.addEventListener('fullscreenchange', handleFsChange);
+    return () => document.removeEventListener('fullscreenchange', handleFsChange);
   }, []);
 
-  const toggleFullscreen = async () => {
-    try {
-      if (!document.fullscreenElement) {
-        if (containerRef.current) {
-          await containerRef.current.requestFullscreen();
-        } else {
-          await document.documentElement.requestFullscreen();
-        }
-      } else {
-        await document.exitFullscreen();
-      }
-    } catch (err) {
-      toast({
-        variant: 'destructive',
-        title: 'Error',
-        description: 'No se pudo cambiar al modo pantalla completa.',
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      containerRef.current?.requestFullscreen().catch((err) => {
+        console.error(`Error al activar pantalla completa: ${err.message}`);
       });
+    } else {
+      document.exitFullscreen();
     }
   };
 
   const currentQuestion = questions[currentQuestionIndex];
   const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
-
   const currentAnswer = userAnswers.get(currentQuestion?.id);
+
 
   const handleFinishTest = () => {
     startTransition(async () => {
       const answersObject = Object.fromEntries(userAnswers);
-
       const result = await submitTestAttempt(testAttempt.id, answersObject);
+
       if (result?.error) {
         toast({
           variant: 'destructive',
-          title: 'Error al finalizar el test',
+          title: 'Error al finalizar',
           description: result.error,
         });
       } else if (result?.success) {
+        if (document.fullscreenElement) document.exitFullscreen();
         await queryClient.invalidateQueries({ queryKey: ['test-history-summary-rpc'] });
         resetTestStore();
         router.push('/dashboard/tests');
       }
     });
+  };
+
+  const handleDiscard = () => {
+    startTransition(async () => {
+      try {
+        const res = await discardTestAttempt(testAttempt.id);
+        if (res.success) {
+          if (document.fullscreenElement) document.exitFullscreen();
+          resetTestStore();
+          toast({ title: 'Test descartado', description: 'El intento ha sido eliminado.' });
+          router.push('/dashboard/tests');
+        }
+      } catch (error) {
+        toast({
+          title: 'Error',
+          description: 'No se pudo descartar el test.',
+          variant: 'destructive',
+        });
+      }
+    });
+  };
+
+  const handleSaveAndExit = () => {
+    if (document.fullscreenElement) document.exitFullscreen();
+    toast({ title: 'Test pausado', description: 'Puedes retomarlo desde el historial.' });
+    router.push('/dashboard/tests');
   };
 
   if (isFinished) {
@@ -146,45 +167,71 @@ export function TestSession({ testAttempt, questions }: TestSessionProps) {
     );
   }
 
+  // Casteamos el topic para acceder a propiedades anidadas si existen en tu tipo QuestionWithAnswers
+  // Ajusta 'any' al tipo real si lo tienes definido en types.ts
+  const topicData = (currentQuestion as any).topic;
+  const blockName = topicData?.block?.name;
+  const topicName = topicData?.name;
+
   return (
-    <div ref={containerRef} className={isFullscreen ? 'w-screen h-screen bg-background' : ''}>
+    <div
+      ref={containerRef}
+      className={`bg-background transition-all ${isFullscreen ? 'p-4 md:p-8 h-screen overflow-y-auto flex flex-col' : ''}`}
+    >
+      <div className="max-w-4xl mx-auto w-full mb-4 flex items-center justify-between">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setShowExitDialog(true)}
+          className="text-muted-foreground hover:text-destructive"
+        >
+          <X className="mr-2 h-4 w-4" /> Salir
+        </Button>
+
+        <Button variant="outline" size="sm" onClick={toggleFullscreen}>
+          {isFullscreen ? (
+            <>
+              {' '}
+              <Minimize className="mr-2 h-4 w-4" /> Salir de pantalla completa{' '}
+            </>
+          ) : (
+            <>
+              {' '}
+              <Maximize className="mr-2 h-4 w-4" /> Pantalla completa{' '}
+            </>
+          )}
+        </Button>
+      </div>
+
       <Card
-        variant={'borderless'}
-        className={
-          isFullscreen
-            ? 'w-full h-full m-0 rounded-none'
-            : 'max-w-4xl mx-auto'
-        }
+        variant={isFullscreen ? 'default' : 'borderless'}
+        className="max-w-4xl mx-auto w-full flex-1"
       >
         <CardHeader>
-          <div className="flex items-start justify-between w-full">
+          <div className="flex justify-between items-start">
             <div>
               <CardTitle>Test en curso</CardTitle>
-              <CardDescription>Responde a las siguientes preguntas.</CardDescription>
             </div>
 
-            <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={toggleFullscreen}
-                aria-label={isFullscreen ? 'Salir de pantalla completa' : 'Pantalla completa'}
-              >
-                {isFullscreen ? (
-                  <>
-                    <Minimize2 className="mr-2 h-4 w-4" /> Salir pantalla completa
-                  </>
-                ) : (
-                  <>
-                    <Maximize2 className="mr-2 h-4 w-4" /> Pantalla completa
-                  </>
+            {/* BADGES DE TEMA Y BLOQUE */}
+            {(topicName || blockName) && (
+              <div className="flex flex-col items-end gap-1">
+                {blockName && (
+                  <Badge variant="secondary" className="text-xs text-muted-foreground font-normal">
+                    <LibraryBig className="mr-1 h-3 w-3" /> {blockName}
+                  </Badge>
                 )}
-              </Button>
-            </div>
+                {topicName && (
+                  <Badge variant="outline" className="text-xs text-muted-foreground font-normal">
+                    <LayoutTemplate className="mr-1 h-3 w-3" /> {topicName}
+                  </Badge>
+                )}
+              </div>
+            )}
           </div>
 
           <div className="pt-4">
-            <Progress value={progress} className="w-full" />
+            <Progress value={progress} className="w-full h-2" />
             <p className="text-sm text-muted-foreground mt-2 text-center">
               Pregunta {currentQuestionIndex + 1} de {questions.length}
             </p>
@@ -192,7 +239,7 @@ export function TestSession({ testAttempt, questions }: TestSessionProps) {
         </CardHeader>
 
         <CardContent className="min-h-[300px]">
-          <h3 className="text-lg font-semibold mb-6">{currentQuestion.text}</h3>
+          <h3 className="text-lg font-semibold mb-6 leading-relaxed">{currentQuestion.text}</h3>
 
           <RadioGroup
             onValueChange={(value) => setUserAnswer(currentQuestion.id, value)}
@@ -203,35 +250,51 @@ export function TestSession({ testAttempt, questions }: TestSessionProps) {
               <Label
                 key={answer.id}
                 htmlFor={answer.id}
-                className="flex items-center gap-3 p-4 border rounded-md cursor-pointer hover:bg-accent/50 transition-colors has-checked:bg-primary/10 has-checked:border-primary"
+                className={`flex items-center gap-3 p-4 border rounded-md cursor-pointer transition-all 
+                  hover:bg-accent/50 
+                  ${currentAnswer === answer.id ? 'bg-primary/5 border-primary shadow-sm' : ''}
+                `}
               >
                 <RadioGroupItem value={answer.id} id={answer.id} />
-                <span className="font-semibold text-muted-foreground mr-2">
+                <span className="font-semibold text-muted-foreground mr-2 shrink-0">
                   {String.fromCharCode(65 + index)}.
                 </span>
                 <span>{answer.text}</span>
               </Label>
             ))}
           </RadioGroup>
-          <Button
-            className="mt-10 mx-auto"
-            variant={'outline'}
-            onClick={() => setSeeExplanation(!seeExplanation)}
-          >
-            {seeExplanation ? <EyeClosed /> : <Eye />}
-            {seeExplanation ? 'Ocultar explicacion' : ' Ver explicación'}
-          </Button>
+
+          <div className="mt-8 flex justify-center">
+            <Button
+              variant={'ghost'}
+              size="sm"
+              className="text-muted-foreground"
+              onClick={() => setSeeExplanation(!seeExplanation)}
+            >
+              {seeExplanation ? (
+                <EyeClosed className="mr-2 h-4 w-4" />
+              ) : (
+                <Eye className="mr-2 h-4 w-4" />
+              )}
+              {seeExplanation ? 'Ocultar explicación' : 'Ver explicación'}
+            </Button>
+          </div>
 
           {seeExplanation && (
-            <Alert variant={'success'} className="mt-6">
-              <Lightbulb className="h-4 w-4" />
-              <AlertTitle>Explicación</AlertTitle>
-              <AlertDescription>{currentQuestion.explanation}</AlertDescription>
+            <Alert
+              variant={'success'}
+              className="mt-4 bg-green-50/50 dark:bg-green-900/10 border-green-200 dark:border-green-900"
+            >
+              <Lightbulb className="h-4 w-4 text-green-600" />
+              <AlertTitle className="text-green-700 dark:text-green-400">Explicación</AlertTitle>
+              <AlertDescription className="text-green-800 dark:text-green-300 mt-2">
+                {currentQuestion.explanation || 'No hay explicación disponible para esta pregunta.'}
+              </AlertDescription>
             </Alert>
           )}
         </CardContent>
 
-        <CardFooter className="flex justify-between">
+        <CardFooter className="flex justify-between pt-6">
           <Button
             type="button"
             variant="outline"
@@ -277,6 +340,35 @@ export function TestSession({ testAttempt, questions }: TestSessionProps) {
           )}
         </CardFooter>
       </Card>
+
+      <AlertDialog open={showExitDialog} onOpenChange={setShowExitDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>¿Deseas salir del test?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tienes un test en curso. Puedes guardarlo para continuar luego, o descartarlo
+              permanentemente.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="sm:justify-between gap-2">
+            <Button
+              variant="destructive"
+              onClick={handleDiscard}
+              disabled={isPending}
+              className="sm:mr-auto"
+            >
+              <Trash2 className="h-4 w-4 mr-2" /> Descartar intento
+            </Button>
+
+            <div className="flex gap-2 justify-end w-full sm:w-auto">
+              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+              <Button onClick={handleSaveAndExit}>
+                <Save className="h-4 w-4 mr-2" /> Guardar y Salir
+              </Button>
+            </div>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

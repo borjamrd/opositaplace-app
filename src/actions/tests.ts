@@ -309,10 +309,10 @@ export async function discardTestAttempt(attemptId: string) {
   const { error } = await supabase.from('test_attempts').delete().eq('id', attemptId);
 
   if (error) {
-    console.error('Error discarding attempt:', error);
-    throw new Error('Failed to discard test');
+    console.error('Error descartando test:', error);
+    throw new Error('No se pudo descartar el test.');
   }
 
   revalidatePath('/dashboard/tests');
-  redirect('/dashboard/tests');
+  return { success: true }; 
 }
