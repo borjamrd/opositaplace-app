@@ -1,15 +1,8 @@
 'use client';
 import { discardTestAttempt, submitTestAttempt } from '@/actions/tests';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle
-} from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -22,17 +15,14 @@ import {
   ArrowLeft,
   ArrowRight,
   CheckCircle,
-  Eye,
-  EyeClosed,
   LayoutTemplate,
   LibraryBig,
-  Lightbulb,
   Loader2,
   Maximize,
   Minimize,
   Save,
   Trash2,
-  X,
+  X
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState, useTransition } from 'react';
@@ -103,7 +93,6 @@ export function TestSession({ testAttempt, questions }: TestSessionProps) {
   const currentQuestion = questions[currentQuestionIndex];
   const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
   const currentAnswer = userAnswers.get(currentQuestion?.id);
-
 
   const handleFinishTest = () => {
     startTransition(async () => {
@@ -263,35 +252,6 @@ export function TestSession({ testAttempt, questions }: TestSessionProps) {
               </Label>
             ))}
           </RadioGroup>
-
-          <div className="mt-8 flex justify-center">
-            <Button
-              variant={'ghost'}
-              size="sm"
-              className="text-muted-foreground"
-              onClick={() => setSeeExplanation(!seeExplanation)}
-            >
-              {seeExplanation ? (
-                <EyeClosed className="mr-2 h-4 w-4" />
-              ) : (
-                <Eye className="mr-2 h-4 w-4" />
-              )}
-              {seeExplanation ? 'Ocultar explicación' : 'Ver explicación'}
-            </Button>
-          </div>
-
-          {seeExplanation && (
-            <Alert
-              variant={'success'}
-              className="mt-4 bg-green-50/50 dark:bg-green-900/10 border-green-200 dark:border-green-900"
-            >
-              <Lightbulb className="h-4 w-4 text-green-600" />
-              <AlertTitle className="text-green-700 dark:text-green-400">Explicación</AlertTitle>
-              <AlertDescription className="text-green-800 dark:text-green-300 mt-2">
-                {currentQuestion.explanation || 'No hay explicación disponible para esta pregunta.'}
-              </AlertDescription>
-            </Alert>
-          )}
         </CardContent>
 
         <CardFooter className="flex justify-between pt-6">
