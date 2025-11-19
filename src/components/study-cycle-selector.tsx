@@ -37,10 +37,7 @@ const StudyCycleSelector = () => {
         {studyCycles.map((cycle) => (
           <SelectItem key={cycle.id} value={cycle.id}>
             <div className="flex justify-between items-center w-full gap-3">
-              <span>Vuelta #{cycle.cycle_number}</span>
-              <Badge variant={cycle.completed_at ? 'secondary' : 'outline'}>
-                {cycle.completed_at ? 'Finalizado' : 'Activo'}
-              </Badge>
+              <span>Vuelta {cycle.cycle_number}</span>
             </div>
           </SelectItem>
         ))}
