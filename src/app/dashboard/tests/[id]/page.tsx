@@ -2,7 +2,7 @@ import { TestResults } from '@/components/tests/test-results';
 import { TestSession } from '@/components/tests/test-session';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { QuestionWithAnswers } from '@/lib/supabase/types';
+import { QuestionForSession } from '@/lib/supabase/types';
 import { Terminal } from 'lucide-react';
 import { notFound, redirect } from 'next/navigation';
 
@@ -30,7 +30,20 @@ export default async function TestPage({ params }: { params: { id: string } }) {
 
   const { data: attemptQuestions, error: attemptQuestionsError } = await supabase
     .from('test_attempt_questions')
-    .select(`questions(*, answers(*))`)
+    .select(
+      `
+      questions (
+        *,
+        answers (*),
+        topic: topics (
+          name,
+          block: blocks (
+            name
+          )
+        )
+      )
+    `
+    )
     .eq('test_attempt_id', testAttempt.id);
 
   if (attemptQuestionsError) {
@@ -48,8 +61,9 @@ export default async function TestPage({ params }: { params: { id: string } }) {
     );
   }
 
-  const allQuestions: QuestionWithAnswers[] =
-    attemptQuestions?.map((aq) => aq.questions).filter(Boolean) ?? [];
+  const allQuestions =
+    attemptQuestions?.map((aq) => aq.questions as unknown as QuestionForSession).filter(Boolean) ??
+    [];
 
   const validQuestions = allQuestions.filter((question) =>
     question.answers.some((answer) => answer.is_correct)

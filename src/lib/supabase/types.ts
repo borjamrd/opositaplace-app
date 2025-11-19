@@ -44,6 +44,15 @@ export type QuestionWithAnswers = Tables<'questions'> & {
   answers: Tables<'answers'>[];
 };
 
+export type QuestionForSession = Tables<'questions'> & {
+  answers: Tables<'answers'>[];
+  topic:
+    | (Tables<'topics'> & {
+        block: Tables<'blocks'> | null;
+      })
+    | null;
+};
+
 //**
 /* Tipo combinado para devolver toda la información del proceso del usuario
  */
