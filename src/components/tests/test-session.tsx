@@ -137,7 +137,7 @@ export function TestSession({ testAttempt, questions }: TestSessionProps) {
             <Label
               key={answer.id}
               htmlFor={answer.id}
-              className="flex items-center gap-3 p-4 border rounded-md cursor-pointer hover:bg-accent/50 transition-colors has-[:checked]:bg-primary/10 has-[:checked]:border-primary"
+              className="flex items-center gap-3 p-4 border rounded-md cursor-pointer hover:bg-accent/50 transition-colors has-checked:bg-primary/10 has-checked:border-primary"
             >
               <RadioGroupItem value={answer.id} id={answer.id} />
               <span className="font-semibold text-muted-foreground mr-2">
