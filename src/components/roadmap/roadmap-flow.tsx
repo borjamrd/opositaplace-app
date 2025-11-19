@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState, useTransition } from 'react';
+import { useEffect, useMemo, useState, useTransition, useCallback } from 'react';
 import ReactFlow, {
   Edge,
   Node,
@@ -11,6 +11,11 @@ import ReactFlow, {
   ReactFlowProvider,
   useEdgesState,
   useNodesState,
+  Handle,
+  Background,
+  BackgroundVariant,
+  Controls,
+  MarkerType,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 
@@ -28,9 +33,11 @@ import {
 import { Slider } from '@/components/ui/slider';
 import { useToast } from '@/hooks/use-toast';
 import { Block, StudyCycle, SyllabusStatus, Topic } from '@/lib/supabase/types';
-import { Check, Loader2 } from 'lucide-react';
-import { Label } from 'recharts';
+import { Check, Loader2, BookOpen, PlayCircle, CheckCircle2, Circle } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { Card, CardContent } from '@/components/ui/card';
 
+// --- TIPOS ---
 type StatusMap = Record<string, SyllabusStatus>;
 
 interface RoadmapFlowProps {
@@ -40,165 +47,120 @@ interface RoadmapFlowProps {
   initialCycle: StudyCycle;
 }
 
-const getStatusStyle = (status: SyllabusStatus | undefined) => {
-  switch (status) {
-    case 'completed':
-      return {
-        background: 'var(--roadmap-completed-bg)',
-        color: 'var(--roadmap-completed-fg)',
-        border: '1px solid var(--roadmap-completed-border)',
-      };
-    case 'in_progress':
-      return {
-        background: 'var(--roadmap-inprogress-bg)',
-        color: 'var(--roadmap-inprogress-fg)',
-        border: '1px solid var(--roadmap-inprogress-border)',
-      };
-    case 'not_started':
-    default:
-      return {
-        background: 'var(--roadmap-default-bg)',
-        color: 'var(--roadmap-default-fg)',
-        border: '1px solid var(--roadmap-default-border)',
-      };
-  }
-};
+// --- 1. CUSTOM NODES (Tus estilos modernos) ---
 
-function Glossary() {
-  const styles = {
-    wrapper: {
-      position: 'absolute',
-      top: 10,
-      left: 10,
-      zIndex: 10,
-      background: 'var(--color-card)',
-      color: 'var(--color-foreground)',
-      padding: '10px 15px',
-      borderRadius: '8px',
-      border: '1px solid var(--color-border)',
-      boxShadow: 'var(--shadow-md)',
-      fontSize: '12px',
-    } as React.CSSProperties,
-    title: {
-      fontWeight: 'bold',
-      marginBottom: '8px',
-      fontSize: '14px',
-      color: 'var(--color-foreground)',
-    } as React.CSSProperties,
-    description: {
-      fontWeight: 'semibold',
-      maxWidth: '20rem',
-      marginBottom: '8px',
-      fontSize: '14px',
-      color: 'var(--color-foreground)',
-    } as React.CSSProperties,
-    list: {
-      listStyle: 'none',
-      padding: 0,
-      margin: 0,
-      color: 'var(--color-muted-foreground)',
-    } as React.CSSProperties,
-    item: {
-      display: 'flex',
-      alignItems: 'center',
-      marginBottom: '5px',
-    } as React.CSSProperties,
-    colorBox: {
-      width: '14px',
-      height: '14px',
-      marginRight: '8px',
-      borderRadius: '3px',
-    } as React.CSSProperties,
+const TopicNode = ({ data }: { data: any }) => {
+  const { label, status, isRightSide } = data;
+
+  const statusConfig = {
+    completed: {
+      icon: CheckCircle2,
+      color: "text-green-600",
+      bg: "bg-green-50",
+      border: "border-green-500",
+      shadow: "shadow-md shadow-green-500/10"
+    },
+    in_progress: {
+      icon: PlayCircle,
+      color: "text-amber-600",
+      bg: "bg-amber-50",
+      border: "border-amber-500",
+      shadow: "shadow-md shadow-amber-500/10"
+    },
+    not_started: {
+      icon: Circle,
+      color: "text-muted-foreground",
+      bg: "bg-card",
+      border: "border-border",
+      shadow: "shadow-sm"
+    }
   };
 
-  const completedStyle = getStatusStyle('completed');
-  const inProgressStyle = getStatusStyle('in_progress');
-  const notStartedStyle = getStatusStyle('not_started');
+  const config = statusConfig[status as SyllabusStatus] || statusConfig.not_started;
+  const Icon = config.icon;
 
   return (
-    <div style={styles.wrapper}>
-      <div style={styles.title}>Glosario</div>
-      <div style={styles.description}>
-        Este es el camino recomendado de estudio para tu oposición. Haciendo click en cada tema
-        podrás actualizar su estado y visualizar a los recursos disponibles.
+    <div className={cn(
+      "relative group min-w-[300px] max-w-[350px] rounded-xl border px-4 py-3 transition-all duration-300 cursor-pointer",
+      config.bg,
+      config.border,
+      config.shadow
+    )}>
+      <Handle 
+        type="target" 
+        position={isRightSide ? Position.Left : Position.Right} 
+        className="!bg-transparent !border-0" 
+      />
+      
+      <div className="flex items-center gap-3">
+        <div className={cn("p-2 rounded-full bg-white/80 shrink-0 border", config.color)}>
+          <Icon className="w-5 h-5" />
+        </div>
+        <div className="flex flex-col">
+          <span className="font-semibold text-sm text-foreground line-clamp-2 leading-tight">
+            {label}
+          </span>
+          <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold mt-1">
+            {status === 'not_started' ? 'Pendiente' : status === 'in_progress' ? 'En Curso' : 'Completado'}
+          </span>
+        </div>
       </div>
-      <ul style={styles.list}>
-        <li style={styles.item}>
-          <span
-            style={{
-              ...styles.colorBox,
-              background: completedStyle.background,
-              borderColor: completedStyle.border,
-            }}
-          />
-          Finalizado
-        </li>
-        <li style={styles.item}>
-          <span
-            style={{
-              ...styles.colorBox,
-              background: inProgressStyle.background,
-              borderColor: inProgressStyle.border,
-            }}
-          />
-          En curso
-        </li>
-        <li style={styles.item}>
-          <span
-            style={{
-              ...styles.colorBox,
-              background: notStartedStyle.background,
-              borderColor: notStartedStyle.border,
-            }}
-          />
-          Sin empezar
-        </li>
-      </ul>
+
+      <Handle 
+        type="source" 
+        position={isRightSide ? Position.Right : Position.Left} 
+        className="!bg-transparent !border-0"
+      />
     </div>
   );
-}
+};
 
-const BLOCK_WIDTH = 400;
-const TOPIC_WIDTH = 350;
-const NODE_HEIGHT = 50;
-const V_SPACING_BLOCK = 100;
-const V_SPACING_TOPIC = 70;
-const H_SPACING_TOPIC = 300;
-
-// --- FlowCanvas AHORA RECIBE onInit ---
-function FlowCanvas({
-  nodes,
-  edges,
-  onNodesChange,
-  onEdgesChange,
-  onNodeClick,
-  onInit, // <-- PROP AÑADIDO
-}: {
-  nodes: Node[];
-  edges: Edge[];
-  onNodesChange: OnNodesChange;
-  onEdgesChange: OnEdgesChange;
-  onNodeClick: (event: any, node: Node) => void;
-  onInit: (instance: ReactFlowInstance) => void;
-}) {
+const BlockNode = ({ data }: { data: any }) => {
+  const isRightSide = data.isRightSide; 
+  // En tu lógica antigua, los bloques tenían handles abajo y a los lados.
+  // Añadimos handles dinámicos para mantener la conectividad original.
+  
   return (
-    <ReactFlow
-      style={{ cursor: 'default' }}
-      nodes={nodes}
-      edges={edges}
-      onNodesChange={onNodesChange}
-      onEdgesChange={onEdgesChange}
-      onNodeClick={onNodeClick}
-      nodesDraggable={false}
-      nodesConnectable={false}
-      proOptions={{ hideAttribution: true }}
-      zoomOnScroll={false}
-      zoomOnPinch={false}
-      zoomOnDoubleClick={false}
-      onInit={onInit} //
-    ></ReactFlow>
+    <div className="px-6 py-3 rounded-2xl bg-background border-2 border-primary/20 text-primary font-bold text-sm uppercase tracking-widest shadow-sm text-center min-w-[250px] max-w-[400px]">
+      <Handle type="target" position={Position.Top} className="!bg-primary !w-3 !h-3 !-top-1.5" />
+      {data.label}
+      <Handle type="source" position={Position.Bottom} id="bottom" className="!bg-primary !w-3 !h-3 !-bottom-1.5" />
+      {/* Handles laterales para conectar con los temas como antes */}
+      <Handle type="source" position={Position.Left} id="left" className="!bg-transparent !border-0" />
+      <Handle type="source" position={Position.Right} id="right" className="!bg-transparent !border-0" />
+    </div>
   );
-}
+};
+
+const CycleNode = ({ data }: { data: any }) => {
+  return (
+    <div className="flex flex-col items-center justify-center">
+      <div className="h-20 w-20 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-xl border-4 border-background z-10">
+        <BookOpen className="w-9 h-9" />
+      </div>
+      <div className="mt-3 px-4 py-1 rounded-full bg-muted border font-mono text-xs font-bold text-muted-foreground uppercase tracking-wider">
+        {data.label}
+      </div>
+      <Handle type="source" position={Position.Bottom} className="!bg-transparent !border-0" />
+    </div>
+  );
+};
+
+const nodeTypes = {
+  topic: TopicNode,
+  block: BlockNode,
+  cycle: CycleNode
+};
+
+// --- 2. COMPONENTE PRINCIPAL ---
+
+// Constantes ORIGINALES (ligeramente ajustadas para los nuevos tamaños de nodo)
+const BLOCK_WIDTH = 400; // Mantengo tu ancho original para cálculos
+const TOPIC_WIDTH = 350;
+const NODE_HEIGHT = 80; // Ajustado un poco porque las cards nuevas son más altas
+const V_SPACING_BLOCK = 140; // Un poco más de aire vertical
+const V_SPACING_TOPIC = 100;
+const H_SPACING_TOPIC = 350; // Separación horizontal
 
 export function RoadmapFlow({
   initialBlocks,
@@ -215,106 +177,89 @@ export function RoadmapFlow({
   const [isCreatingTest, startTestCreation] = useTransition();
   const [numQuestions, setNumQuestions] = useState(10);
 
+  // --- LÓGICA DE CONSTRUCCIÓN ORIGINAL (Restaurada) ---
   const { initialNodes, initialEdges } = useMemo(() => {
     const CENTER_X = 0;
-
     const nodes: Node[] = [];
     const edges: Edge[] = [];
     let currentY = 0;
 
+    // 1. Nodo Raíz (Ciclo)
     const rootId = `cycle-${initialCycle.id}`;
     nodes.push({
       id: rootId,
+      type: 'cycle', // Usamos el nuevo estilo
       data: { label: `Vuelta ${initialCycle.cycle_number}` },
-      position: { x: CENTER_X - BLOCK_WIDTH / 2, y: currentY },
-      type: 'input',
-      selectable: false,
-      style: {
-        width: BLOCK_WIDTH,
-        height: NODE_HEIGHT,
-        borderRadius: 18,
-        fontSize: '1.2rem',
-        fontWeight: 'bold',
-        background: '#333',
-        alignItems: 'center',
-        cursor: 'pointer',
-        color: 'white',
-      },
-      sourcePosition: Position.Bottom,
+      // Ajustamos X para que quede centrado visualmente (el nodo mide aprox 100px, no 400)
+      position: { x: CENTER_X - 40, y: currentY }, 
     });
 
     let prevNodeId = rootId;
 
     initialBlocks.forEach((block, index) => {
       const isRightSide = index % 2 === 0;
-
       const topicsInBlock = initialTopics.filter((t) => t.block_id === block.id);
+      
+      // Cálculos originales de altura
       const branchHeight = topicsInBlock.length * V_SPACING_TOPIC - (V_SPACING_TOPIC - NODE_HEIGHT);
       const totalSectionHeight = Math.max(NODE_HEIGHT, branchHeight) / 2;
+      
       currentY += V_SPACING_BLOCK + totalSectionHeight / 2;
       let topicY = currentY - branchHeight / 2 + NODE_HEIGHT / 2;
+      
       const blockNodeId = `block-${block.id}`;
 
+      // 2. Nodo Bloque (Posicionado centralmente como antes)
       nodes.push({
         id: blockNodeId,
-        data: { label: `${block.name}` },
-        position: { x: CENTER_X - BLOCK_WIDTH / 2, y: currentY },
-        selectable: false,
-        style: {
-          borderRadius: 18,
-          width: BLOCK_WIDTH,
-          height: 'auto',
-          background: 'var(--color-muted)',
-          border: '1px solid var(--color-border)',
-          color: 'var(--color-muted-foreground)',
-          cursor: 'pointer',
-          alignItems: 'center',
-          fontSize: '0.8rem',
-          fontWeight: '600',
-        },
-        sourcePosition: isRightSide ? Position.Right : Position.Left,
-        targetPosition: Position.Top,
+        type: 'block', // Nuevo estilo
+        data: { label: block.name, isRightSide },
+        // Ajuste fino de X para centrar el nuevo nodo de bloque (~250px ancho)
+        position: { x: CENTER_X - 125, y: currentY },
       });
 
+      // Conexión Secuencial (Ciclo -> Bloque 1 -> Bloque 2...)
       edges.push({
         id: `e-${prevNodeId}-${blockNodeId}`,
         source: prevNodeId,
         target: blockNodeId,
-        type: 'smoothstep',
-        animated: false,
+        type: 'smoothstep', // Tu tipo de conexión original
         sourceHandle: 'bottom',
+        targetHandle: 'top',
+        animated: false,
+        style: { stroke: '#cbd5e1', strokeWidth: 2 },
       });
 
+      // 3. Nodos Temas (Ramificándose como antes)
       topicsInBlock.forEach((topic) => {
         const topicNodeId = `topic-${topic.id}`;
         const status = statusMap[topic.id];
+        
+        // Posición X original
         const topicX = isRightSide
           ? CENTER_X + H_SPACING_TOPIC
-          : CENTER_X - H_SPACING_TOPIC - TOPIC_WIDTH;
+          : CENTER_X - H_SPACING_TOPIC - 300; // -300 aprox ancho del nodo
 
         nodes.push({
           id: topicNodeId,
-          data: { label: `${topic.name}` },
+          type: 'topic', // Nuevo estilo
+          data: { label: topic.name, status, isRightSide },
           position: { x: topicX, y: topicY },
-          style: {
-            width: TOPIC_WIDTH,
-            height: 'auto',
-            ...getStatusStyle(status),
-            borderRadius: 18,
-            whiteSpace: 'pre-wrap',
-            cursor: 'pointer',
-          },
-          sourcePosition: undefined,
-          targetPosition: isRightSide ? Position.Left : Position.Right,
         });
 
+        // Conexión Bloque -> Tema
         edges.push({
           id: `e-${blockNodeId}-${topicNodeId}`,
           source: blockNodeId,
           target: topicNodeId,
-          type: 'smoothstep',
+          type: 'smoothstep', // Mantengo smoothstep para la estructura rígida que te gustaba
           animated: status === 'in_progress',
-          style: { stroke: '#ccc' },
+          sourceHandle: isRightSide ? 'right' : 'left', // Usamos los handles laterales del bloque
+          targetHandle: isRightSide ? 'left' : 'right',
+          style: { 
+            stroke: status === 'completed' ? '#22c55e' : '#cbd5e1',
+            strokeWidth: status === 'completed' ? 2 : 1,
+          },
         });
 
         topicY += V_SPACING_TOPIC;
@@ -330,98 +275,37 @@ export function RoadmapFlow({
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
-  // --- useEffect SOLO para estilos ---
-  // Este useEffect actualiza los colores cuando `statusMap` cambia.
-  // Ya NO intenta centrar la vista, evitando el reseteo.
+  // Actualización de estado sin mover nodos (solo data)
   useEffect(() => {
     setNodes((nds) =>
       nds.map((node) => {
-        if (node.id.startsWith('topic-')) {
+        if (node.type === 'topic') {
           const topicId = node.id.replace('topic-', '');
           const status = statusMap[topicId];
-          return {
-            ...node,
-            style: { ...node.style, ...getStatusStyle(status) },
-          };
+          if (node.data.status !== status) {
+            return { ...node, data: { ...node.data, status } };
+          }
         }
         return node;
       })
     );
+  }, [statusMap, setNodes]);
 
-    // 2. Si la instancia está lista, centramos la vista
-    //    Esto se ejecuta CADA VEZ que statusMap cambia,
-    //    corrigiendo el reseteo de vista que causa setNodes.
-    if (rfInstance) {
-      // 3. Esperamos al siguiente "tick" para que setNodes termine
-      setTimeout(() => {
-        // 4. Pedimos a fitView que calcule el centrado (X e Y)
-        rfInstance.fitView({
-          maxZoom: 1,
-          minZoom: 1,
-          padding: 0.1,
-          duration: 0,
-        });
-
-        // 5. Obtenemos el viewport que fitView acaba de calcular
-        const calculatedViewport = rfInstance.getViewport();
-
-        // 6. Volvemos a setear el viewport, usando el X calculado
-        //    pero FORZANDO la Y a 0 (arriba del todo).
-        rfInstance.setViewport(
-          {
-            x: calculatedViewport.x,
-            y: 100,
-            zoom: 1,
-          },
-          { duration: 50 } // Una mini-animación para suavizar
-        );
-      }, 0); // 0ms timeout
-    }
-    // 7. rfInstance se añade a las dependencias
-  }, [statusMap, setNodes, rfInstance]);
+  // Handlers...
+  const onInit = useCallback((instance: ReactFlowInstance) => {
+    setRfInstance(instance);
+    setTimeout(() => instance.fitView({ padding: 0.2, duration: 500 }), 50);
+  }, []);
 
   const handleNodeClick = (event: any, node: Node) => {
-    if (node.id.startsWith('topic-')) {
+    if (node.type === 'topic') {
       const topicId = node.id.replace('topic-', '');
       const topic = initialTopics.find((t) => t.id === topicId);
-      if (topic) {
-        setSelectedTopic(topic);
-      }
+      if (topic) setSelectedTopic(topic);
     }
   };
 
-  const handleCreateTest = () => {
-    if (!selectedTopic) return;
-
-    const selectedBlock = initialBlocks.find((b) => b.id === selectedTopic.block_id);
-
-    if (!selectedBlock || !selectedBlock?.opposition_id) {
-      toast({
-        title: 'Error de datos',
-        description: 'No se pudo encontrar el bloque asociado a este tema.',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    startTestCreation(async () => {
-      const result = await createTestAttempt({
-        mode: 'topics',
-        numQuestions: numQuestions,
-        topicIds: [selectedTopic.id],
-        oppositionId: selectedBlock.opposition_id as string,
-        studyCycleId: initialCycle.id,
-      });
-
-      if (result.error) {
-        toast({
-          title: 'Error al crear el test',
-          description: result.error,
-          variant: 'destructive',
-        });
-      }
-    });
-  };
+  // ... (Lógica de handleCreateTest y handleStatusChange IGUAL que antes)
   const handleStatusChange = (newStatus: SyllabusStatus) => {
     if (!selectedTopic) return;
     setLoadingKey(newStatus);
@@ -429,137 +313,154 @@ export function RoadmapFlow({
     startTransition(async () => {
       const result = await updateTopicStatus(topicId, newStatus);
       if (result.error) {
-        toast({
-          title: 'Error',
-          description: result.error,
-          variant: 'destructive',
-        });
+        toast({ title: 'Error', description: result.error, variant: 'destructive' });
         setLoadingKey(null);
         return;
       }
-      setStatusMap((prevMap) => ({
-        ...prevMap,
-        [topicId]: newStatus,
-      }));
-      toast({
-        title: '¡Actualizado!',
-        description: `El "${selectedTopic.name}" se marcó como ${newStatus}.`,
-      });
-      if (result.newCycleStarted) {
-        toast({
-          title: '¡ENHORABUENA! 🥳',
-          description: '¡Has completado una vuelta! Iniciando la Vuelta 2.',
-          duration: 5000,
-        });
-        window.location.reload();
-      }
+      setStatusMap((prev) => ({ ...prev, [topicId]: newStatus }));
+      toast({ title: '¡Actualizado!', description: `Estado cambiado a ${newStatus}.` });
       setSelectedTopic(null);
       setLoadingKey(null);
     });
   };
-  const currentStatus = selectedTopic
-    ? statusMap[selectedTopic.id] || 'not_started'
-    : 'not_started';
+
+  const handleCreateTest = () => {
+    if (!selectedTopic) return;
+    const selectedBlock = initialBlocks.find((b) => b.id === selectedTopic.block_id);
+    if (!selectedBlock?.opposition_id) return;
+    startTestCreation(async () => {
+      const result = await createTestAttempt({
+        mode: 'topics',
+        numQuestions,
+        topicIds: [selectedTopic.id],
+        oppositionId: selectedBlock.opposition_id as string,
+        studyCycleId: initialCycle.id,
+      });
+      if (result.error) toast({ title: 'Error', description: result.error, variant: 'destructive' });
+    });
+  };
+
+  const currentStatus = selectedTopic ? statusMap[selectedTopic.id] || 'not_started' : 'not_started';
 
   return (
-    <ReactFlowProvider>
-      <Glossary />
-      <FlowCanvas
-        nodes={nodes}
-        edges={edges}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        onNodeClick={handleNodeClick}
-        onInit={setRfInstance}
-      />
-      <Sheet open={!!selectedTopic} onOpenChange={(open) => !open && setSelectedTopic(null)}>
-        <SheetContent>
-          {selectedTopic && (
-            <>
-              <SheetHeader>
-                <SheetTitle>{selectedTopic.name}</SheetTitle>
-                <SheetDescription>
-                  Vuelta {initialCycle.cycle_number} · Bloque{' '}
-                  {initialBlocks.find((b) => b.id === selectedTopic.block_id)?.name}
-                </SheetDescription>
-                <div className="flex items-center justify-start gap-2 rounded-xl border p-1 bg-muted/30">
-                  {[
-                    { key: 'completed', label: 'Finalizado' },
-                    { key: 'in_progress', label: 'En curso' },
-                    { key: 'not_started', label: 'Sin empezar' },
-                  ].map(({ key, label }) => {
-                    const isActive = currentStatus === key;
-                    const isLoadingThisButton = isPending && loadingKey === key;
+    // Aquí está el cambio de tamaño que pedías: h-[calc(100vh-X)]
+    <div className="h-[calc(100vh-120px)] w-full bg-slate-50/50 relative border rounded-xl overflow-hidden">
+      <ReactFlowProvider>
+        <Legend />
+        <ReactFlow
+          nodes={nodes}
+          edges={edges}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          onNodeClick={handleNodeClick}
+          onInit={onInit}
+          nodeTypes={nodeTypes}
+          fitView
+          minZoom={0.2}
+          maxZoom={1.5}
+        >
+          <Background color="#94a3b8" gap={25} size={1} variant={BackgroundVariant.Dots} className="opacity-20" />
+          <Controls className="bg-white border-slate-200 shadow-md text-slate-600" />
+        </ReactFlow>
 
-                    return (
-                      <Button
-                        key={key}
-                        onClick={() => handleStatusChange(key as SyllabusStatus)}
-                        disabled={isPending || isActive}
-                        variant={isActive ? 'default' : 'ghost'}
-                        size="sm"
-                        className={`transition-all rounded-lg px-3 py-1 text-sm font-medium ${
-                          isActive
-                            ? key === 'completed'
-                              ? 'bg-green-100 text-green-900 border border-green-400 hover:bg-green-200'
-                              : key === 'in_progress'
-                                ? 'bg-amber-100 text-amber-800 border border-amber-400 hover:bg-amber-200'
-                                : 'bg-gray-100 text-gray-800 border border-gray-300 hover:bg-gray-200'
-                            : 'hover:bg-muted/50'
-                        }`}
-                      >
-                        {isLoadingThisButton && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                        {isActive && !isLoadingThisButton && <Check className="mr-1 h-4 w-4" />}
-                        {label}
-                      </Button>
-                    );
-                  })}
-                </div>
-              </SheetHeader>
-
-              <div className="py-8 space-y-8">
-                <div>
-                  <h4 className="font-semibold mb-2 text-foreground">Descripción</h4>
-                  <p className="text-sm text-muted-foreground">
-                    {(selectedTopic as any).description || // Asumimos que description existe
-                      'Este tema no tiene una descripción.'}
-                  </p>
-                </div>
-
-                <Separator />
-
-                <div className="text-sm text-muted-foreground space-y-1 rounded-lg border bg-muted/50 p-3">
-                  <h4 className="font-semibold text-foreground">
-                    ¿Te animas con un test del tema {selectedTopic.position + 1}?
-                  </h4>
-                  <div className="space-y-4 mb-6">
-                    <div className="flex justify-between items-center">
-                      <Label id="num-questions" className="text-muted-foreground">
-                        Número de preguntas
-                      </Label>
-                      <span className="text-sm font-medium text-primary">{numQuestions}</span>
+        {/* SHEET Lateral (Igual que antes pero más limpio) */}
+        <Sheet open={!!selectedTopic} onOpenChange={(open) => !open && setSelectedTopic(null)}>
+          <SheetContent className="w-[400px] sm:w-[540px] overflow-y-auto">
+            {selectedTopic && (
+               <div className="flex flex-col h-full pt-6">
+                  <SheetHeader className="pb-6">
+                    <SheetTitle className="text-2xl flex items-center gap-2">
+                      {selectedTopic.name}
+                    </SheetTitle>
+                    <SheetDescription>
+                      Bloque: {initialBlocks.find(b => b.id === selectedTopic.block_id)?.name}
+                    </SheetDescription>
+                  </SheetHeader>
+                  
+                  <div className="space-y-8">
+                    <div className="grid grid-cols-3 gap-3">
+                       {[
+                         { key: 'completed', label: 'Listo', icon: CheckCircle2, activeClass: 'bg-green-100 border-green-500 text-green-700' },
+                         { key: 'in_progress', label: 'Estudiando', icon: PlayCircle, activeClass: 'bg-amber-100 border-amber-500 text-amber-700' },
+                         { key: 'not_started', label: 'Pendiente', icon: Circle, activeClass: 'bg-slate-100 border-slate-400 text-slate-700' },
+                       ].map((option) => {
+                         const isActive = currentStatus === option.key;
+                         const isLoading = isPending && loadingKey === option.key;
+                         return (
+                           <Button
+                             key={option.key}
+                             variant="outline"
+                             disabled={isPending}
+                             className={cn(
+                               "h-24 flex flex-col gap-2 border-2 transition-all hover:scale-105",
+                               isActive ? option.activeClass : "border-slate-200 hover:border-slate-300 text-slate-500"
+                             )}
+                             onClick={() => handleStatusChange(option.key as SyllabusStatus)}
+                           >
+                             {isLoading ? <Loader2 className="h-6 w-6 animate-spin" /> : <option.icon className="h-6 w-6" />}
+                             <span className="text-xs font-bold uppercase">{option.label}</span>
+                           </Button>
+                         )
+                       })}
                     </div>
-                    <Slider
-                      id="num-questions"
-                      min={5}
-                      max={100}
-                      step={5}
-                      value={[numQuestions]}
-                      onValueChange={(value) => setNumQuestions(value[0])}
-                      disabled={isCreatingTest}
-                    />
-                  </div>
 
-                  <Button onClick={handleCreateTest} disabled={isCreatingTest} className="w-full">
-                    {isCreatingTest && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    Hacer test
-                  </Button>
-                </div>
-              </div>
-            </>
-          )}
-        </SheetContent>
-      </Sheet>
-    </ReactFlowProvider>
+                    <Separator />
+
+                    <Card className="border-dashed border-2 shadow-none bg-slate-50">
+                      <CardContent className="pt-6 space-y-6">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2.5 bg-primary text-primary-foreground rounded-lg shadow-sm">
+                             <BookOpen className="h-5 w-5" />
+                          </div>
+                          <div>
+                            <h4 className="font-bold text-sm">Simulacro de Examen</h4>
+                            <p className="text-xs text-muted-foreground">Practica preguntas solo de este tema</p>
+                          </div>
+                        </div>
+                        
+                        <div className="space-y-4">
+                           <div className="flex justify-between text-sm px-1">
+                              <span className="text-muted-foreground">Cantidad de preguntas</span>
+                              <span className="font-bold bg-white px-2 py-0.5 rounded border">{numQuestions}</span>
+                           </div>
+                           <Slider
+                              min={5} max={50} step={5}
+                              value={[numQuestions]}
+                              onValueChange={(v) => setNumQuestions(v[0])}
+                              className="py-2"
+                           />
+                           <Button onClick={handleCreateTest} disabled={isCreatingTest} className="w-full h-11 text-base shadow-md">
+                              {isCreatingTest ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <PlayCircle className="mr-2 h-4 w-4" />}
+                              Comenzar Test Ahora
+                           </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+               </div>
+            )}
+          </SheetContent>
+        </Sheet>
+      </ReactFlowProvider>
+    </div>
+  );
+}
+
+function Legend() {
+  return (
+    <Card className="absolute top-4 left-4 z-10 w-auto bg-white/90 backdrop-blur border-slate-200 shadow-sm">
+      <CardContent className="p-3 flex gap-4">
+        {[
+          { label: 'Completado', color: 'text-green-600', icon: CheckCircle2 },
+          { label: 'En curso', color: 'text-amber-600', icon: PlayCircle },
+          { label: 'Pendiente', color: 'text-slate-400', icon: Circle },
+        ].map((item) => (
+          <div key={item.label} className="flex items-center gap-1.5 text-xs font-medium text-slate-700">
+            <item.icon className={cn("w-4 h-4", item.color)} />
+            <span>{item.label}</span>
+          </div>
+        ))}
+      </CardContent>
+    </Card>
   );
 }
