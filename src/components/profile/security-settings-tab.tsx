@@ -42,8 +42,8 @@ export function SecuritySettingsTab() {
         <CardContent className="space-y-6">
           {profile && profile.email && <PasswordSettings userEmail={profile.email} />}
           <Separator />
-          <TwoFactorSettings />
-          <Separator />
+          {/* <TwoFactorSettings /> */}
+          {/* <Separator /> */}
           <NotificationSettings
             currentValue={profile.notify_on_new_login ?? true}
             profileId={profile.id}
