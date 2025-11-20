@@ -61,7 +61,7 @@ export const useTimerStore = create<TimerState>((set, get) => ({
   isModalOpen: false,
   sessionStartedAt: null,
   isActive: false,
-  mode: 'countdown',
+  mode: 'stopwatch',
   startTime: null,
   duration: 0,
   remainingTime: 0,

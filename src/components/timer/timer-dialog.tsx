@@ -35,14 +35,14 @@ export function TimerDialog({ open, onOpenChange }: TimerDialogProps) {
           }}
         >
           <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="stopwatch" disabled={isTimerSessionActive && mode !== 'stopwatch'}>
+              Cronómetro
+            </TabsTrigger>
             <TabsTrigger value="countdown" disabled={isTimerSessionActive && mode !== 'countdown'}>
               Cuenta atrás
             </TabsTrigger>
             <TabsTrigger value="pomodoro" disabled={isTimerSessionActive && mode !== 'pomodoro'}>
               Pomodoro
-            </TabsTrigger>
-            <TabsTrigger value="stopwatch" disabled={isTimerSessionActive && mode !== 'stopwatch'}>
-              Cronómetro
             </TabsTrigger>
           </TabsList>
           <TabsContent value="countdown">
