@@ -27,6 +27,7 @@ export function TestHistoryTable({ attempts }: TestHistoryTableProps) {
         <TableHeader>
           <TableRow>
             <TableHead>Fecha</TableHead>
+            <TableHead className="text-center">Tipo</TableHead>
             <TableHead className="text-center">Estado</TableHead>
             <TableHead className="text-center">Nota</TableHead>
             <TableHead className="text-center">Correctas</TableHead>
@@ -38,7 +39,7 @@ export function TestHistoryTable({ attempts }: TestHistoryTableProps) {
         <TableBody>
           {attempts.length === 0 && (
             <TableRow>
-              <TableCell colSpan={7} className="text-center h-24">
+              <TableCell colSpan={8} className="text-center h-24">
                 No has completado ningún test todavía.
               </TableCell>
             </TableRow>
@@ -51,6 +52,19 @@ export function TestHistoryTable({ attempts }: TestHistoryTableProps) {
                   month: 'long',
                   day: 'numeric',
                 })}
+              </TableCell>
+              <TableCell className="text-center">
+                <Badge variant="outline" className="font-normal">
+                  {attempt.mode === 'random'
+                    ? 'Aleatorio'
+                    : attempt.mode === 'errors'
+                      ? 'Fallos'
+                      : attempt.mode === 'topics'
+                        ? 'Por Temas'
+                        : attempt.mode === 'exams'
+                          ? 'Examen'
+                          : 'Aleatorio'}
+                </Badge>
               </TableCell>
               <TableCell className="text-center">
                 <Badge

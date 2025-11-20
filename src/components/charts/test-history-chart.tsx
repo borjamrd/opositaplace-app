@@ -140,7 +140,7 @@ export function TestHistoryChart() {
     <Card className="w-full h-fit mb-4 py-4 sm:py-0">
       <CardHeader className="flex flex-col items-stretch border-b !p-0 sm:flex-row">
         <div className="flex flex-1 flex-col justify-center gap-1 px-6 pb-3 sm:pb-0">
-          <CardTitle>Histórico de Tests</CardTitle>
+          <CardTitle>Histórico de tests</CardTitle>
           <CardDescription>
             Mostrando el rendimiento de tus últimos {sanitizedData.length} tests
           </CardDescription>

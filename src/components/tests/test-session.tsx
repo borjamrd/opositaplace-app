@@ -109,7 +109,7 @@ export function TestSession({ testAttempt, questions }: TestSessionProps) {
         if (document.fullscreenElement) document.exitFullscreen();
         await queryClient.invalidateQueries({ queryKey: ['test-history-summary-rpc'] });
         resetTestStore();
-        router.push('/dashboard/tests');
+        router.push(`/dashboard/tests/${testAttempt.id}`);
       }
     });
   };

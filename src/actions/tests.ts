@@ -140,6 +140,7 @@ export async function createTestAttempt(params: CreateTestParams) {
       total_questions: selectedQuestions.length,
       title: testTitle,
       status: 'in_progress',
+      mode: params.mode,
     })
     .select('id')
     .single();
