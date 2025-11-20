@@ -161,6 +161,35 @@ export type Database = {
         };
         Relationships: [];
       };
+      exams: {
+        Row: {
+          created_at: string;
+          id: string;
+          name: string;
+          opposition_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          id?: string;
+          name: string;
+          opposition_id: string;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          name?: string;
+          opposition_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'exams_opposition_id_fkey';
+            columns: ['opposition_id'];
+            isOneToOne: false;
+            referencedRelation: 'oppositions';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       feedback: {
         Row: {
           comment: string | null;
@@ -468,6 +497,7 @@ export type Database = {
       questions: {
         Row: {
           created_at: string | null;
+          exam_id: string | null;
           explanation: string | null;
           id: string;
           is_archived: boolean;
@@ -478,6 +508,7 @@ export type Database = {
         };
         Insert: {
           created_at?: string | null;
+          exam_id?: string | null;
           explanation?: string | null;
           id?: string;
           is_archived?: boolean;
@@ -488,6 +519,7 @@ export type Database = {
         };
         Update: {
           created_at?: string | null;
+          exam_id?: string | null;
           explanation?: string | null;
           id?: string;
           is_archived?: boolean;
@@ -497,6 +529,13 @@ export type Database = {
           topic_id?: string | null;
         };
         Relationships: [
+          {
+            foreignKeyName: 'questions_exam_id_fkey';
+            columns: ['exam_id'];
+            isOneToOne: false;
+            referencedRelation: 'exams';
+            referencedColumns: ['id'];
+          },
           {
             foreignKeyName: 'questions_opposition_id_fkey';
             columns: ['opposition_id'];

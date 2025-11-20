@@ -53,6 +53,12 @@ export default async function CreateTestPage() {
 
   if (error) return <p>Error al cargar el temario.</p>;
 
+  const { data: exams } = await supabase
+    .from('exams')
+    .select('id, name')
+    .eq('opposition_id', activeUserOpposition.opposition_id)
+    .order('created_at', { ascending: false });
+
   return (
     <div className="container mx-auto">
       <div>
@@ -60,6 +66,7 @@ export default async function CreateTestPage() {
           <NewTestModal
             blocksWithTopics={blocksWithTopics || []}
             oppositionId={activeUserOpposition.opposition_id}
+            exams={exams || []}
           />
         </div>
 
