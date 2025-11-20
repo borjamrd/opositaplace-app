@@ -19,7 +19,7 @@ type BlockWithTopics = { id: string; name: string; topics: Topic[] };
 type Exam = { id: string; name: string };
 
 interface IFormInput {
-  mode: 'random' | 'errors' | 'topics' | 'exams';
+  mode: 'random' | 'errors' | 'topics' | 'exams' | 'mock';
   topicIds: string[];
   examIds: string[];
   numQuestions: number;
@@ -85,7 +85,7 @@ export function CreateTestForm({
     startTransition(async () => {
       const result = await createTestAttempt({
         ...data,
-        numQuestions,
+        numQuestions: data.mode === 'mock' ? 105 : numQuestions,
         oppositionId,
         studyCycleId: activeStudyCycle.id,
       });
@@ -114,7 +114,19 @@ export function CreateTestForm({
               name="mode"
               control={control}
               render={({ field }) => (
-                <RadioGroup onValueChange={field.onChange} value={field.value} className="mt-2">
+                <RadioGroup
+                  onValueChange={(v) => {
+                    field.onChange(v);
+                    if (v === 'mock') {
+                      setNumQuestionsState(105);
+                      setValue('timerEnabled', true);
+                    } else if (v === 'random') {
+                      setNumQuestionsState(25);
+                    }
+                  }}
+                  value={field.value}
+                  className="mt-2"
+                >
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="random" id="r1" />
                     <Label htmlFor="r1">Test aleatorio</Label>
@@ -126,6 +138,10 @@ export function CreateTestForm({
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="topics" id="r3" />
                     <Label htmlFor="r3">Test por temas</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="mock" id="r5" />
+                    <Label htmlFor="r5">Simulacro de examen (105 preguntas - 90 min)</Label>
                   </div>
                   {exams && exams.length > 0 && (
                     <div className="flex items-center space-x-2">
@@ -205,7 +221,8 @@ export function CreateTestForm({
               3. Número de preguntas: <strong>{numQuestions}</strong>
             </Label>
             <Slider
-              defaultValue={[25]}
+              disabled={mode === 'mock'}
+              value={[numQuestions]}
               max={100}
               min={10}
               step={5}

@@ -10,9 +10,11 @@ export type TestState = {
   userAnswers: Map<string, string | null>;
   currentQuestionIndex: number;
   isFinished: boolean;
+  secondsRemaining: number | null;
   setTest: (test: TestAttempt, questions: Question[], answers: Answer[]) => void;
   setUserAnswer: (questionId: string, answerId: string | null) => void;
   setCurrentQuestionIndex: (index: number) => void;
+  setSecondsRemaining: (seconds: number | null) => void;
   finishTest: () => void;
   reset: () => void;
 };
@@ -51,6 +53,7 @@ export const useTestStore = create<TestState>()(
       userAnswers: new Map(),
       currentQuestionIndex: 0,
       isFinished: false,
+      secondsRemaining: null,
       setTest: (test, questions, answers) => {
         const userAnswers = new Map<string, string | null>();
         questions.forEach((q) => userAnswers.set(q.id, null));
@@ -61,6 +64,7 @@ export const useTestStore = create<TestState>()(
           userAnswers,
           currentQuestionIndex: 0,
           isFinished: false,
+          secondsRemaining: null,
         });
       },
       setUserAnswer: (questionId, answerId) => {
@@ -76,6 +80,7 @@ export const useTestStore = create<TestState>()(
           set({ currentQuestionIndex: index });
         }
       },
+      setSecondsRemaining: (seconds) => set({ secondsRemaining: seconds }),
       finishTest: () => set({ isFinished: true }),
       reset: () => {
         set({
@@ -85,6 +90,7 @@ export const useTestStore = create<TestState>()(
           userAnswers: new Map(),
           currentQuestionIndex: 0,
           isFinished: false,
+          secondsRemaining: null,
         });
       },
     }),

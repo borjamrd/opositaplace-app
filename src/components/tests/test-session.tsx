@@ -61,9 +61,11 @@ export function TestSession({ testAttempt, questions }: TestSessionProps) {
     test,
     userAnswers,
     currentQuestionIndex,
+    secondsRemaining,
     setTest,
     setUserAnswer,
     setCurrentQuestionIndex,
+    setSecondsRemaining,
     reset: resetTestStore,
   } = useTestStore();
 
@@ -71,8 +73,27 @@ export function TestSession({ testAttempt, questions }: TestSessionProps) {
     if (!test || test.id !== testAttempt.id) {
       const allAnswers = questions.flatMap((q) => q.answers);
       setTest(testAttempt, questions, allAnswers);
+      if (testAttempt.mode === 'mock' && secondsRemaining === null) {
+        setSecondsRemaining(90 * 60); // 90 minutes in seconds
+      }
     }
-  }, [test, testAttempt, questions, setTest]);
+  }, [test, testAttempt, questions, setTest, secondsRemaining, setSecondsRemaining]);
+
+  // Timer logic
+  useEffect(() => {
+    if (testAttempt.mode !== 'mock' || isFinished || secondsRemaining === null) return;
+
+    if (secondsRemaining <= 0) {
+      handleFinishTest();
+      return;
+    }
+
+    const timer = setInterval(() => {
+      setSecondsRemaining(secondsRemaining - 1);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [secondsRemaining, testAttempt.mode, isFinished, setSecondsRemaining]);
 
   useEffect(() => {
     const handleFsChange = () => setIsFullscreen(!!document.fullscreenElement);
@@ -140,6 +161,12 @@ export function TestSession({ testAttempt, questions }: TestSessionProps) {
     router.push('/dashboard/tests');
   };
 
+  const formatTime = (seconds: number) => {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  };
+
   if (isFinished) {
     const answersObject = Object.fromEntries(userAnswers);
     return <TestResults questions={questions} userAnswers={answersObject} addedCardIds={[]} />;
@@ -178,6 +205,14 @@ export function TestSession({ testAttempt, questions }: TestSessionProps) {
           >
             <X className="mr-2 h-4 w-4" /> Salir
           </Button>
+        )}
+
+        {testAttempt.mode === 'mock' && secondsRemaining !== null && (
+          <div
+            className={`font-mono text-xl font-bold ${secondsRemaining < 300 ? 'text-red-500 animate-pulse' : 'text-primary'}`}
+          >
+            {formatTime(secondsRemaining)}
+          </div>
         )}
 
         <Button variant="outline" size="sm" className="ml-auto" onClick={toggleFullscreen}>

@@ -5,7 +5,7 @@ import { shuffle } from '@/lib/utils';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
-type TestMode = 'random' | 'errors' | 'topics' | 'exams';
+type TestMode = 'random' | 'errors' | 'topics' | 'exams' | 'mock';
 
 interface CreateTestParams {
   mode: TestMode;
@@ -68,13 +68,14 @@ export async function createTestAttempt(params: CreateTestParams) {
       error = examsError;
       break;
 
+    case 'mock':
     case 'random':
     default:
       const { data: randomQuestionsData, error: randomError } = await supabase.rpc(
         'get_questions_by_opposition',
         {
           opp_id: params.oppositionId,
-          include_no_topic: params.includeNoTopic,
+          include_no_topic: params.includeNoTopic ?? true,
         }
       );
 
