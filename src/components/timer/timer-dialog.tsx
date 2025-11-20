@@ -7,6 +7,7 @@ import { useTimerStore } from '@/store/timer-store';
 import { TimerCountdown } from './timer-countdown';
 import { TimerPomodoro } from './timer-pomodoro';
 import { TimerStopwatch } from './timer-stopwatch';
+import { TimerManual } from './timer-manual';
 
 interface TimerDialogProps {
   open: boolean;
@@ -31,10 +32,10 @@ export function TimerDialog({ open, onOpenChange }: TimerDialogProps) {
           onValueChange={(value) => {
             // 3. IMPEDIMOS EL CAMBIO DE PESTAÑA SI HAY UNA SESIÓN ACTIVA
             if (isTimerSessionActive) return;
-            setMode(value as 'countdown' | 'pomodoro' | 'stopwatch');
+            setMode(value as 'countdown' | 'pomodoro' | 'stopwatch' | 'manual');
           }}
         >
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="stopwatch" disabled={isTimerSessionActive && mode !== 'stopwatch'}>
               Cronómetro
             </TabsTrigger>
@@ -43,6 +44,9 @@ export function TimerDialog({ open, onOpenChange }: TimerDialogProps) {
             </TabsTrigger>
             <TabsTrigger value="pomodoro" disabled={isTimerSessionActive && mode !== 'pomodoro'}>
               Pomodoro
+            </TabsTrigger>
+            <TabsTrigger value="manual" disabled={isTimerSessionActive && mode !== 'manual'}>
+              Manual
             </TabsTrigger>
           </TabsList>
           <TabsContent value="countdown">
@@ -53,6 +57,9 @@ export function TimerDialog({ open, onOpenChange }: TimerDialogProps) {
           </TabsContent>
           <TabsContent value="stopwatch">
             <TimerStopwatch />
+          </TabsContent>
+          <TabsContent value="manual">
+            <TimerManual />
           </TabsContent>
         </Tabs>
       </DialogContent>

@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/client';
 import { create } from 'zustand';
 import { useStudySessionStore } from './study-session-store';
 
-export type TimerMode = 'countdown' | 'pomodoro' | 'stopwatch';
+export type TimerMode = 'countdown' | 'pomodoro' | 'stopwatch' | 'manual';
 export type PomodoroSessionType = 'pomodoro' | 'shortBreak' | 'longBreak';
 
 interface TimerState {
@@ -32,6 +32,7 @@ interface TimerState {
 
   reset: () => void;
   saveSessionAndReset: () => Promise<void>;
+  saveManualSession: (durationSeconds: number) => Promise<void>;
 }
 
 const TIMER_STORAGE_KEY = 'op-timer-state';
@@ -192,8 +193,31 @@ export const useTimerStore = create<TimerState>((set, get) => ({
     // Finalmente, reseteamos el estado del temporizador
     get().reset();
   },
+  saveManualSession: async (durationSeconds: number) => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    const { activeOpposition, activeStudyCycle } = useStudySessionStore.getState();
+
+    const sessionData = {
+      user_id: user?.id,
+      opposition_id: activeOpposition?.id,
+      study_cycle_id: activeStudyCycle?.id,
+      started_at: new Date(Date.now() - durationSeconds * 1000).toISOString(),
+      ended_at: new Date().toISOString(),
+      duration_seconds: Math.round(durationSeconds),
+    };
+
+    const { error } = await supabase.from('user_study_sessions').insert(sessionData);
+
+    if (error) {
+      console.error('Error saving manual study session:', error);
+      throw error;
+    } else {
+      queryClient.invalidateQueries({ queryKey: ['study-sessions-summary'] });
+    }
+  },
   reset: () => {
-    // ¡CORREGIDO! Ahora también resetea la pestaña del Pomodoro
     set({
       isActive: false,
       startTime: null,
@@ -202,12 +226,10 @@ export const useTimerStore = create<TimerState>((set, get) => ({
       sessionStartedAt: null,
       activePomodoroSession: 'pomodoro',
     });
-    // También limpiamos el localStorage para evitar estados inconsistentes
     window.localStorage.removeItem(TIMER_STORAGE_KEY);
   },
 }));
 
-// Hydrate on load (for client only)
 if (typeof window !== 'undefined') {
   useTimerStore.getState().hydrate();
 }
