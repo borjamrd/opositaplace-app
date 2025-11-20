@@ -957,6 +957,7 @@ export type Database = {
           finished_at: string | null;
           id: string;
           incorrect_answers: number | null;
+          mode: string | null;
           net_score: number;
           opposition_id: string;
           score: number | null;
@@ -974,6 +975,7 @@ export type Database = {
           finished_at?: string | null;
           id?: string;
           incorrect_answers?: number | null;
+          mode?: string | null;
           net_score?: number;
           opposition_id: string;
           score?: number | null;
@@ -991,6 +993,7 @@ export type Database = {
           finished_at?: string | null;
           id?: string;
           incorrect_answers?: number | null;
+          mode?: string | null;
           net_score?: number;
           opposition_id?: string;
           score?: number | null;

@@ -40,6 +40,9 @@ export default async function TestPage({ params }: { params: { id: string } }) {
           block: blocks (
             name
           )
+        ),
+        exam: exams (
+          name
         )
       )
     `

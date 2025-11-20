@@ -14,6 +14,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import {
   ArrowLeft,
   ArrowRight,
+  BookOpenCheck,
   CheckCircle,
   LayoutTemplate,
   LibraryBig,
@@ -48,7 +49,6 @@ export function TestSession({ testAttempt, questions }: TestSessionProps) {
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
   const [isFinished, setIsFinished] = useState(false);
-  const [seeExplanation, setSeeExplanation] = useState(false);
 
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showExitDialog, setShowExitDialog] = useState(false);
@@ -161,6 +161,7 @@ export function TestSession({ testAttempt, questions }: TestSessionProps) {
   const topicData = (currentQuestion as any).topic;
   const blockName = topicData?.block?.name;
   const topicName = topicData?.name;
+  const examName = (currentQuestion as any).exam?.name;
 
   return (
     <div
@@ -205,8 +206,13 @@ export function TestSession({ testAttempt, questions }: TestSessionProps) {
             </div>
 
             {/* BADGES DE TEMA Y BLOQUE */}
-            {(topicName || blockName) && (
+            {(topicName || blockName || examName) && (
               <div className="flex flex-col items-end gap-1">
+                {examName && (
+                  <Badge variant="secondary" className="text-xs text-muted-foreground font-normal">
+                    <BookOpenCheck className="mr-1 h-3 w-3" /> {examName}
+                  </Badge>
+                )}
                 {blockName && (
                   <Badge variant="secondary" className="text-xs text-muted-foreground font-normal">
                     <LibraryBig className="mr-1 h-3 w-3" /> {blockName}
@@ -271,7 +277,6 @@ export function TestSession({ testAttempt, questions }: TestSessionProps) {
               type="button"
               onClick={() => {
                 setCurrentQuestionIndex(currentQuestionIndex + 1);
-                setSeeExplanation(false);
               }}
             >
               Siguiente <ArrowRight className="ml-2 h-4 w-4" />
