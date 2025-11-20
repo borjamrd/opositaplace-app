@@ -5,12 +5,13 @@ import { shuffle } from '@/lib/utils';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
-type TestMode = 'random' | 'errors' | 'topics';
+type TestMode = 'random' | 'errors' | 'topics' | 'exams';
 
 interface CreateTestParams {
   mode: TestMode;
   numQuestions: number;
   topicIds?: string[];
+  examIds?: string[];
   oppositionId: string;
   studyCycleId: string;
   includeNoTopic?: boolean;
@@ -52,6 +53,21 @@ export async function createTestAttempt(params: CreateTestParams) {
       candidateQuestionIds = topicQuestions?.map((q) => q.id) || [];
       error = topicsError;
       break;
+
+    case 'exams':
+      if (!params.examIds || params.examIds.length === 0) {
+        return { error: 'You must select at least one exam.' };
+      }
+      const { data: examQuestions, error: examsError } = await supabase
+        .from('questions')
+        .select('id')
+        .in('exam_id', params.examIds)
+        .eq('opposition_id', params.oppositionId);
+
+      candidateQuestionIds = examQuestions?.map((q) => q.id) || [];
+      error = examsError;
+      break;
+
     case 'random':
     default:
       const { data: randomQuestionsData, error: randomError } = await supabase.rpc(
@@ -314,5 +330,5 @@ export async function discardTestAttempt(attemptId: string) {
   }
 
   revalidatePath('/dashboard/tests');
-  return { success: true }; 
+  return { success: true };
 }

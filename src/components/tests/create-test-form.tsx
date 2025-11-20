@@ -16,10 +16,12 @@ import { Controller, useForm } from 'react-hook-form';
 
 type Topic = { id: string; name: string };
 type BlockWithTopics = { id: string; name: string; topics: Topic[] };
+type Exam = { id: string; name: string };
 
 interface IFormInput {
-  mode: 'random' | 'errors' | 'topics';
+  mode: 'random' | 'errors' | 'topics' | 'exams';
   topicIds: string[];
+  examIds: string[];
   numQuestions: number;
   timerEnabled: boolean;
   includeNoTopic: boolean;
@@ -29,10 +31,12 @@ export function CreateTestForm({
   blocksWithTopics,
   oppositionId,
   setIsOpen,
+  exams,
 }: {
   blocksWithTopics: BlockWithTopics[];
   oppositionId: string;
   setIsOpen: () => void;
+  exams?: Exam[];
 }) {
   const { control, handleSubmit, watch, setValue } = useForm<IFormInput>({
     defaultValues: {
@@ -40,6 +44,7 @@ export function CreateTestForm({
       numQuestions: 25,
       timerEnabled: true,
       topicIds: [],
+      examIds: [],
       includeNoTopic: true,
     },
   });
@@ -49,6 +54,7 @@ export function CreateTestForm({
   const activeStudyCycle = useStudySessionStore((state) => state.activeStudyCycle);
   const mode = watch('mode');
   const selectedTopics = watch('topicIds');
+  const selectedExams = watch('examIds');
 
   const onSubmit = (data: IFormInput) => {
     if (!activeStudyCycle) {
@@ -64,6 +70,14 @@ export function CreateTestForm({
         variant: 'destructive',
         title: 'Error',
         description: 'Debes seleccionar al menos un tema.',
+      });
+      return;
+    }
+    if (data.mode === 'exams' && data.examIds.length === 0) {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Debes seleccionar al menos un examen.',
       });
       return;
     }
@@ -113,6 +127,12 @@ export function CreateTestForm({
                     <RadioGroupItem value="topics" id="r3" />
                     <Label htmlFor="r3">Test por temas</Label>
                   </div>
+                  {exams && exams.length > 0 && (
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="exams" id="r4" />
+                      <Label htmlFor="r4">Exámenes anteriores</Label>
+                    </div>
+                  )}
                 </RadioGroup>
               )}
             />
@@ -152,6 +172,33 @@ export function CreateTestForm({
             </div>
           )}
 
+          {mode === 'exams' && exams && (
+            <div>
+              <Label className="text-lg font-semibold">2. Selecciona los exámenes</Label>
+              <div className="space-y-4 mt-2 max-h-60 overflow-y-auto p-2 border rounded-md">
+                {exams.map((exam) => (
+                  <div key={exam.id} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={exam.id}
+                      checked={!!selectedExams?.includes(exam.id)}
+                      onCheckedChange={(checked) => {
+                        const isChecked = Boolean(checked);
+                        const currentIds = selectedExams || [];
+                        const newIds = isChecked
+                          ? [...currentIds, exam.id]
+                          : currentIds.filter((id) => id !== exam.id);
+                        setValue('examIds', newIds);
+                      }}
+                    />
+                    <Label htmlFor={exam.id} className="font-normal">
+                      {exam.name}
+                    </Label>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Número de Preguntas */}
           <div>
             <Label className="text-lg font-semibold">
@@ -166,25 +213,6 @@ export function CreateTestForm({
               onValueChange={(v) => setNumQuestionsState(v[0])}
             />
           </div>
-
-          {/* Opciones Adicionales */}
-          {/* <div>
-                        <Label className="text-lg font-semibold">4. Opciones</Label>
-                        <div className="flex items-center space-x-2 mt-2">
-                            <Controller
-                                name="timerEnabled"
-                                control={control}
-                                render={({ field }) => (
-                                    <Switch
-                                        id="timer-switch"
-                                        checked={field.value}
-                                        onCheckedChange={field.onChange}
-                                    />
-                                )}
-                            />
-                            <Label htmlFor="timer-switch">Activar temporizador</Label>
-                        </div>
-                    </div> */}
         </CardContent>
         <CardFooter>
           <Button type="submit" className="w-full" disabled={isPending}>

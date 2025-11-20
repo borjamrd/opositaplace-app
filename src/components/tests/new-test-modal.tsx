@@ -16,9 +16,10 @@ type BlockWithTopics = {
 interface NewTestModalProps {
   blocksWithTopics: BlockWithTopics[];
   oppositionId: string;
+  exams: { id: string; name: string }[];
 }
 
-export function NewTestModal({ blocksWithTopics, oppositionId }: NewTestModalProps) {
+export function NewTestModal({ blocksWithTopics, oppositionId, exams }: NewTestModalProps) {
   const { isOpen, openModal, closeModal } = useNewTestModalStore();
 
   const handleOpenChange = (open: boolean) => {
@@ -42,6 +43,7 @@ export function NewTestModal({ blocksWithTopics, oppositionId }: NewTestModalPro
           blocksWithTopics={blocksWithTopics}
           oppositionId={oppositionId}
           setIsOpen={closeModal}
+          exams={exams}
         />
       </DialogContent>
     </Dialog>
