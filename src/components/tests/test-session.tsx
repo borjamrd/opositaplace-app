@@ -22,7 +22,7 @@ import {
   Minimize,
   Save,
   Trash2,
-  X
+  X,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState, useTransition } from 'react';
@@ -168,16 +168,18 @@ export function TestSession({ testAttempt, questions }: TestSessionProps) {
       className={`bg-background transition-all ${isFullscreen ? 'p-4 md:p-8 h-screen overflow-y-auto flex flex-col' : ''}`}
     >
       <div className="max-w-4xl mx-auto w-full mb-4 flex items-center justify-between">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => setShowExitDialog(true)}
-          className="text-muted-foreground hover:text-destructive"
-        >
-          <X className="mr-2 h-4 w-4" /> Salir
-        </Button>
+        {!isFullscreen && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowExitDialog(true)}
+            className="text-muted-foreground hover:text-destructive"
+          >
+            <X className="mr-2 h-4 w-4" /> Salir
+          </Button>
+        )}
 
-        <Button variant="outline" size="sm" onClick={toggleFullscreen}>
+        <Button variant="outline" size="sm" className="ml-auto" onClick={toggleFullscreen}>
           {isFullscreen ? (
             <>
               {' '}
