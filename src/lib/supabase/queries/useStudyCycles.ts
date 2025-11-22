@@ -3,7 +3,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { createClient } from '@/lib/supabase/client';
-import type { StudyCycle } from '@/store/study-session-store';
+import { StudyCycle } from '@/lib/supabase/types';
 
 const fetchStudyCycles = async (oppositionId: string, userId: string) => {
   const supabase = createClient();

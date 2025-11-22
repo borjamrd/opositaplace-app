@@ -1,4 +1,4 @@
-import { Subscription } from '@/lib/stripe/actions';
+import { Subscription } from '@/lib/supabase/types';
 import { create } from 'zustand';
 
 interface SubscriptionStore {
