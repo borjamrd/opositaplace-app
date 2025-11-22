@@ -9,16 +9,26 @@ import {
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
 
-import { Bell, BookOpen, CheckSquare, Database, LayoutDashboard, Map, Repeat } from 'lucide-react';
+import {
+  Bell,
+  BookOpen,
+  Briefcase,
+  CheckSquare,
+  Database,
+  LayoutDashboard,
+  Map,
+  Repeat,
+} from 'lucide-react';
 import Link from 'next/link';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Logo } from '../logo';
 
+import { useStudySessionStore } from '@/store/study-session-store';
 import OpositionSelector from '../oposition-selector';
 import { NavMain } from './nav-main';
 import { NavUserSection } from './nav-user-section';
 
-export const sidebarData = {
+export const baseNavItems = {
   navMain: [
     {
       title: 'Dashboard',
@@ -61,6 +71,21 @@ export const sidebarData = {
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const activeOpposition = useStudySessionStore((state) => state.activeOpposition);
+
+  const navItems = useMemo(() => {
+    const items = [...baseNavItems.navMain];
+
+    if (activeOpposition?.metadata?.features?.has_practical_case) {
+      items.push({
+        title: 'Casos prácticos',
+        url: '/dashboard/practical-cases',
+        icon: Briefcase,
+      });
+    }
+
+    return items;
+  }, [activeOpposition]);
   return (
     <Sidebar className="p-2" variant="floating" collapsible="offcanvas" {...props}>
       <SidebarHeader>
@@ -75,7 +100,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
       <SidebarContent>
         <OpositionSelector />
-        <NavMain items={sidebarData.navMain} />
+        <NavMain items={navItems} />
       </SidebarContent>
       <SidebarFooter>
         <NavUserSection />
