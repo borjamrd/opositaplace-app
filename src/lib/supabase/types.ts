@@ -1,9 +1,16 @@
 // src/lib/supabase/types.ts
 
 import { Tables, Enums, TablesInsert } from '@/lib/supabase/database.types';
+import { OppositionMetadata } from '../schemas/opposition-metadata';
 export type { Json } from '@/lib/supabase/database.types';
 
-export type Opposition = Tables<'oppositions'>;
+export type OppositionRow = Tables<'oppositions'> & {
+  metadata: unknown;
+};
+
+export type Opposition = Omit<OppositionRow, 'metadata'> & {
+  metadata: OppositionMetadata;
+};
 export type Profile = Tables<'profiles'>;
 export type TestAttempt = Tables<'test_attempts'>;
 export type UserStudySession = Tables<'user_study_sessions'>;

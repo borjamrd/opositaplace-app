@@ -384,6 +384,7 @@ export type Database = {
           created_at: string | null;
           description: string | null;
           id: string;
+          metadata: Json | null;
           name: string;
           opposition_scope: Database['public']['Enums']['opposition_scope_enum'];
         };
@@ -392,6 +393,7 @@ export type Database = {
           created_at?: string | null;
           description?: string | null;
           id?: string;
+          metadata?: Json | null;
           name: string;
           opposition_scope: Database['public']['Enums']['opposition_scope_enum'];
         };
@@ -400,6 +402,7 @@ export type Database = {
           created_at?: string | null;
           description?: string | null;
           id?: string;
+          metadata?: Json | null;
           name?: string;
           opposition_scope?: Database['public']['Enums']['opposition_scope_enum'];
         };
