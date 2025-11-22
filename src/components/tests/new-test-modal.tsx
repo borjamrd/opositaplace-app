@@ -1,17 +1,12 @@
 // src/components/tests/new-test-modal.tsx
 'use client';
 
-import { Dialog, DialogContent, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { CreateTestForm } from './create-test-form';
-import { Plus } from 'lucide-react';
+import { Dialog, DialogContent, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { BlockWithTopics } from '@/lib/supabase/types';
 import { useNewTestModalStore } from '@/store/new-test-modal';
-
-type BlockWithTopics = {
-  id: string;
-  name: string;
-  topics: { id: string; name: string }[];
-};
+import { Plus } from 'lucide-react';
+import { CreateTestForm } from './create-test-form';
 
 interface NewTestModalProps {
   blocksWithTopics: BlockWithTopics[];

@@ -68,3 +68,9 @@ export type FullUserProcess = {
   stages: ProcessStage[];
   userStatus: UserProcessStatus | null;
 };
+
+export type BlockWithTopics = {
+  id: string;
+  name: string;
+  topics: Pick<Topic, 'id' | 'name'>[];
+};

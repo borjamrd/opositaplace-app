@@ -1,4 +1,4 @@
-// app/dashboard/tests/_components/create-test-form.tsx
+// src/components/tests/create-test-form.tsx
 'use client';
 
 import { createTestAttempt } from '@/actions/tests';
@@ -9,14 +9,25 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Slider } from '@/components/ui/slider';
 import { useToast } from '@/hooks/use-toast';
+import { BlockWithTopics } from '@/lib/supabase/types';
 import { useStudySessionStore } from '@/store/study-session-store';
-import { Loader2 } from 'lucide-react';
+import { Clock, Loader2 } from 'lucide-react';
 import { useState, useTransition } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
-type Topic = { id: string; name: string };
-type BlockWithTopics = { id: string; name: string; topics: Topic[] };
 type Exam = { id: string; name: string };
+
+type ExerciseType = 'test' | 'practical' | 'oral' | 'physical' | 'language' | 'psychotechnical';
+type Exercise = {
+  id: string;
+  name: string;
+  type: ExerciseType;
+  duration_minutes?: number;
+  question_count?: number;
+};
+type OppositionMetadata = {
+  exercises: Exercise[];
+};
 
 interface IFormInput {
   mode: 'random' | 'errors' | 'topics' | 'exams' | 'mock';
@@ -25,6 +36,7 @@ interface IFormInput {
   numQuestions: number;
   timerEnabled: boolean;
   includeNoTopic: boolean;
+  duration?: number;
 }
 
 export function CreateTestForm({
@@ -32,11 +44,13 @@ export function CreateTestForm({
   oppositionId,
   setIsOpen,
   exams,
+  oppositionMetadata,
 }: {
   blocksWithTopics: BlockWithTopics[];
   oppositionId: string;
   setIsOpen: () => void;
   exams?: Exam[];
+  oppositionMetadata?: OppositionMetadata | null;
 }) {
   const { control, handleSubmit, watch, setValue } = useForm<IFormInput>({
     defaultValues: {
@@ -48,13 +62,28 @@ export function CreateTestForm({
       includeNoTopic: true,
     },
   });
+
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
   const [numQuestions, setNumQuestionsState] = useState(25);
+  const [mockDuration, setMockDuration] = useState<number | null>(null);
+
   const activeStudyCycle = useStudySessionStore((state) => state.activeStudyCycle);
   const mode = watch('mode');
   const selectedTopics = watch('topicIds');
   const selectedExams = watch('examIds');
+
+  const configureMockMode = () => {
+    const testConfig = oppositionMetadata?.exercises?.find((e) => e.type === 'test');
+    const officialQuestions = testConfig?.question_count || 105;
+    const officialDuration = testConfig?.duration_minutes || 90;
+
+    setNumQuestionsState(officialQuestions);
+    setMockDuration(officialDuration);
+
+    setValue('timerEnabled', true);
+    setValue('duration', officialDuration);
+  };
 
   const onSubmit = (data: IFormInput) => {
     if (!activeStudyCycle) {
@@ -85,7 +114,7 @@ export function CreateTestForm({
     startTransition(async () => {
       const result = await createTestAttempt({
         ...data,
-        numQuestions: data.mode === 'mock' ? 105 : numQuestions,
+        numQuestions: data.mode === 'mock' ? numQuestions : data.numQuestions,
         oppositionId,
         studyCycleId: activeStudyCycle.id,
       });
@@ -117,10 +146,12 @@ export function CreateTestForm({
                 <RadioGroup
                   onValueChange={(v) => {
                     field.onChange(v);
+
+                    setMockDuration(null);
+
                     if (v === 'mock') {
-                      setNumQuestionsState(105);
-                      setValue('timerEnabled', true);
-                    } else if (v === 'random') {
+                      configureMockMode();
+                    } else {
                       setNumQuestionsState(25);
                     }
                   }}
@@ -139,14 +170,23 @@ export function CreateTestForm({
                     <RadioGroupItem value="topics" id="r3" />
                     <Label htmlFor="r3">Test por temas</Label>
                   </div>
+
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="mock" id="r5" />
-                    <Label htmlFor="r5">Simulacro de examen (105 preguntas - 90 min)</Label>
+                    <Label htmlFor="r5" className="flex items-center gap-2">
+                      Simulacro de examen
+                      {oppositionMetadata?.exercises?.some((e) => e.type === 'test') && (
+                        <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">
+                          Oficial
+                        </span>
+                      )}
+                    </Label>
                   </div>
+
                   {exams && exams.length > 0 && (
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="exams" id="r4" />
-                      <Label htmlFor="r4">Exámenes anteriores</Label>
+                      <Label htmlFor="r4">Exámenes anteriores (Práctica libre)</Label>
                     </div>
                   )}
                 </RadioGroup>
@@ -215,20 +255,50 @@ export function CreateTestForm({
             </div>
           )}
 
-          {/* Número de Preguntas */}
           <div>
-            <Label className="text-lg font-semibold">
-              3. Número de preguntas: <strong>{numQuestions}</strong>
-            </Label>
+            <div className="flex items-center justify-between">
+              <Label className="text-lg font-semibold">
+                3. Número de preguntas: <strong>{numQuestions}</strong>
+              </Label>
+
+              {mode === 'mock' && (
+                <div className="flex items-center text-muted-foreground text-sm gap-2">
+                  {mockDuration && (
+                    <span className="flex items-center gap-1">
+                      <Clock className="w-4 h-4" />
+                      {mockDuration} min
+                    </span>
+                  )}
+                  <span className="text-xs bg-muted px-2 py-1 rounded">Modo Simulación</span>
+                </div>
+              )}
+            </div>
+
             <Slider
               disabled={mode === 'mock'}
               value={[numQuestions]}
-              max={100}
-              min={10}
+              max={mode === 'exams' ? 150 : 100}
+              min={5}
               step={5}
               className="mt-3"
-              onValueChange={(v) => setNumQuestionsState(v[0])}
+              onValueChange={(v) => {
+                setNumQuestionsState(v[0]);
+                setValue('numQuestions', v[0]);
+              }}
             />
+
+            {mode === 'mock' && (
+              <p className="text-xs text-muted-foreground mt-2">
+                * En el modo simulacro, el número de preguntas y el tiempo están fijados según la
+                estructura oficial de la oposición.
+              </p>
+            )}
+
+            {mode === 'exams' && (
+              <p className="text-xs text-muted-foreground mt-2">
+                * Selecciona cuántas preguntas quieres repasar de los exámenes elegidos.
+              </p>
+            )}
           </div>
         </CardContent>
         <CardFooter>
