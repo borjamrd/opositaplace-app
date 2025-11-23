@@ -44,9 +44,6 @@ export interface UserSessionData {
   activeStudyCycle: StudyCycle | null;
 }
 
-//**
-/* Tipo combinado para devolver una pregunta con sus respuestas
- */
 export type QuestionWithAnswers = Tables<'questions'> & {
   answers: Tables<'answers'>[];
 };
@@ -60,9 +57,6 @@ export type QuestionForSession = Tables<'questions'> & {
     | null;
 };
 
-//**
-/* Tipo combinado para devolver toda la información del proceso del usuario
- */
 export type FullUserProcess = {
   process: SelectiveProcess;
   stages: ProcessStage[];
@@ -73,4 +67,27 @@ export type BlockWithTopics = {
   id: string;
   name: string;
   topics: Pick<Topic, 'id' | 'name'>[];
+};
+
+export type PracticalCase = Tables<'practical_cases'>;
+export type PracticalCaseAttempt = Tables<'practical_case_attempts'>;
+
+export interface AICorrectionAnalysis {
+  score: number;
+  summary: string;
+  key_points: {
+    concept: string;
+    present: boolean;
+    explanation?: string;
+  }[];
+  legal_check?: {
+    article: string;
+    status: 'correct' | 'missing' | 'wrong';
+    comment?: string;
+  }[];
+  suggestions: string[];
+}
+
+export type PracticalCaseAttemptWithAnalysis = Omit<PracticalCaseAttempt, 'feedback_analysis'> & {
+  feedback_analysis: AICorrectionAnalysis | null;
 };

@@ -408,6 +408,111 @@ export type Database = {
         };
         Relationships: [];
       };
+      practical_case_attempts: {
+        Row: {
+          case_id: string;
+          created_at: string | null;
+          feedback_analysis: Json | null;
+          id: string;
+          status: Database['public']['Enums']['case_attempt_status'] | null;
+          submitted_at: string | null;
+          updated_at: string | null;
+          user_answer: string | null;
+          user_id: string;
+        };
+        Insert: {
+          case_id: string;
+          created_at?: string | null;
+          feedback_analysis?: Json | null;
+          id?: string;
+          status?: Database['public']['Enums']['case_attempt_status'] | null;
+          submitted_at?: string | null;
+          updated_at?: string | null;
+          user_answer?: string | null;
+          user_id: string;
+        };
+        Update: {
+          case_id?: string;
+          created_at?: string | null;
+          feedback_analysis?: Json | null;
+          id?: string;
+          status?: Database['public']['Enums']['case_attempt_status'] | null;
+          submitted_at?: string | null;
+          updated_at?: string | null;
+          user_answer?: string | null;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'practical_case_attempts_case_id_fkey';
+            columns: ['case_id'];
+            isOneToOne: false;
+            referencedRelation: 'practical_cases';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'practical_case_attempts_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      practical_cases: {
+        Row: {
+          created_at: string | null;
+          difficulty: Database['public']['Enums']['difficulty_level'] | null;
+          evaluation_criteria: Json | null;
+          id: string;
+          official_solution: string;
+          opposition_id: string;
+          statement: string;
+          title: string;
+          topic_id: string | null;
+          updated_at: string | null;
+        };
+        Insert: {
+          created_at?: string | null;
+          difficulty?: Database['public']['Enums']['difficulty_level'] | null;
+          evaluation_criteria?: Json | null;
+          id?: string;
+          official_solution: string;
+          opposition_id: string;
+          statement: string;
+          title: string;
+          topic_id?: string | null;
+          updated_at?: string | null;
+        };
+        Update: {
+          created_at?: string | null;
+          difficulty?: Database['public']['Enums']['difficulty_level'] | null;
+          evaluation_criteria?: Json | null;
+          id?: string;
+          official_solution?: string;
+          opposition_id?: string;
+          statement?: string;
+          title?: string;
+          topic_id?: string | null;
+          updated_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'practical_cases_opposition_id_fkey';
+            columns: ['opposition_id'];
+            isOneToOne: false;
+            referencedRelation: 'oppositions';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'practical_cases_topic_id_fkey';
+            columns: ['topic_id'];
+            isOneToOne: false;
+            referencedRelation: 'topics';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       process_stages: {
         Row: {
           created_at: string;
@@ -1602,6 +1707,8 @@ export type Database = {
     };
     Enums: {
       app_role: 'admin' | 'user';
+      case_attempt_status: 'draft' | 'submitted' | 'corrected';
+      difficulty_level: 'Baja' | 'Media' | 'Alta' | 'Muy Alta';
       opposition_scope_enum: 'estatal' | 'autonomica' | 'local' | 'union-europea';
       process_status_enum: 'borrador' | 'en_curso' | 'finalizado';
       stage_status_enum: 'pendiente' | 'abierta' | 'completada';
@@ -1735,6 +1842,8 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ['admin', 'user'],
+      case_attempt_status: ['draft', 'submitted', 'corrected'],
+      difficulty_level: ['Baja', 'Media', 'Alta', 'Muy Alta'],
       opposition_scope_enum: ['estatal', 'autonomica', 'local', 'union-europea'],
       process_status_enum: ['borrador', 'en_curso', 'finalizado'],
       stage_status_enum: ['pendiente', 'abierta', 'completada'],
