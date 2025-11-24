@@ -1,5 +1,4 @@
-// src/ai/flows/correction-flow.ts
-import { ai } from '@/ai/genkit';
+import { aiGemini3 } from '@/ai/genkit';
 import { z } from 'zod';
 import { CorrectionSchema } from '../schemas/correction-schema';
 
@@ -10,7 +9,7 @@ const CorrectionInputSchema = z.object({
   evaluation_criteria: z.array(z.string()).optional(),
 });
 
-export const correctPracticalCaseFlow = ai.defineFlow(
+export const correctPracticalCaseFlow = aiGemini3.defineFlow(
   {
     name: 'correctPracticalCase',
     inputSchema: CorrectionInputSchema,
@@ -20,14 +19,21 @@ export const correctPracticalCaseFlow = ai.defineFlow(
     const { statement, official_solution, user_answer, evaluation_criteria = [] } = input;
 
     const promptText = `
-     Actúa como un TRIBUNAL DE OPOSICIÓN objetivo y experto.
-      Tu tarea es corregir la resolución de un caso práctico realizada por un opositor.
+      Actúa como un TRIBUNAL DE OPOSICIÓN experto y justo.
+      Tu objetivo es evaluar la **solvencia jurídica** del opositor al resolver el caso práctico.
 
-      INSTRUCCIONES DE CORRECCIÓN PRIORITARIAS:
-      1. SI LA RESPUESTA DEL ALUMNO ES SUSTANCIALMENTE IDÉNTICA O MUY PARECIDA A LA SOLUCIÓN OFICIAL, LA CALIFICACIÓN DEBE SER 10/10 SIN EXCEPCIONES.
-      2. Evalúa únicamente basándote en la <official_solution> provista.
-      3. Sé riguroso con la terminología jurídica, pero premia la precisión.
-      4. Responde SIEMPRE en ESPAÑOL.
+      INSTRUCCIONES MAESTRAS DE CORRECCIÓN:
+      1. **PRINCIPIO DE EQUIVALENCIA JURÍDICA**: No busques coincidencias literales de texto. Si el opositor explica el concepto jurídico correcto, aplica la normativa adecuada y llega a la conclusión correcta usando sus propias palabras, **DEBES DARLO POR VÁLIDO**.
+      
+      2. **CLÁUSULA DE PERFECCIÓN**: Si la respuesta es sustancialmente idéntica a la solución oficial (copia literal), la calificación es 10/10 automáticamente.
+
+      3. **USO DE CRITERIOS**: Utiliza la lista de <evaluation_criteria> como una lista de verificación.
+         - Si el criterio es "Citar art 25", valora si menciona el artículo.
+         - Si el criterio es "Explicar el silencio", valora si la explicación es jurídicamente correcta, aunque no use las mismas palabras que la solución.
+
+      4. **RIGOR vs FLEXIBILIDAD**:
+         - Sé RIGUROSO con: Plazos, tipos de recursos, órganos competentes y sentido del silencio (positivo/negativo). Un error aquí penaliza.
+         - Sé FLEXIBLE con: El estilo de redacción y la estructura, siempre que sea coherente.
 
       <case_context>
       ${statement}
@@ -45,16 +51,19 @@ export const correctPracticalCaseFlow = ai.defineFlow(
       ${user_answer}
       </student_answer>
 
-      Genera el informe de corrección en formato JSON estricto.
+      Devuelve el análisis en JSON según el esquema, en ESPAÑOL.
     `;
 
-    const { output } = await ai.generate({
+    const { output } = await aiGemini3.generate({
       prompt: promptText,
       output: { schema: CorrectionSchema },
+      config: {
+        temperature: 0.2,
+      },
     });
 
     if (!output) {
-      throw new Error('El agente nogeneró una respuesta válida.');
+      throw new Error('La IA no generó una respuesta válida.');
     }
 
     return output;

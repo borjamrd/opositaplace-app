@@ -8,6 +8,8 @@ import Link from 'next/link';
 import { useState } from 'react';
 
 import { PracticalCase, PracticalCaseAttemptWithAnalysis } from '@/lib/supabase/types';
+import { cn } from '@/lib/utils';
+import { Maximize, Minimize } from 'lucide-react';
 import { CaseEditor } from './case-editor';
 import { CorrectionFeedback } from './correction-feedback';
 
@@ -17,20 +19,19 @@ interface Props {
 }
 
 export function PracticalCaseView({ caseData, initialAttempt }: Props) {
-  // Si ya viene corregido de base, mostramos el feedback inicialmente
   const [feedback, setFeedback] = useState(initialAttempt?.feedback_analysis || null);
-
-  // Estado para alternar entre "Ver corrección" y "Seguir editando"
-  // Si ya está corregido, por defecto vemos el feedback, pero podemos querer revisar el texto
   const [viewMode, setViewMode] = useState<'edit' | 'feedback'>(
     initialAttempt?.status === 'corrected' ? 'feedback' : 'edit'
   );
+  const [isFullScreen, setIsFullScreen] = useState(false); // New state for fullscreen
 
   return (
-    <div className="flex flex-col h-[calc(100vh-4rem)]">
-      {' '}
-      {/* Altura completa menos header */}
-      {/* Header Interno del Caso */}
+    <div
+      className={cn(
+        'flex flex-col',
+        isFullScreen ? 'h-screen absolute inset-0 z-50 bg-background' : 'h-[calc(100vh-4rem)]'
+      )}
+    >
       <div className="flex items-center justify-between px-6 py-3 border-b bg-background shrink-0">
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="sm" asChild>
@@ -48,44 +49,44 @@ export function PracticalCaseView({ caseData, initialAttempt }: Props) {
           </div>
         </div>
 
-        {/* Selector de vista (Solo aparece si ya tenemos corrección) */}
-        {feedback && (
-          <div className="flex bg-muted p-1 rounded-md">
-            <Button
-              variant={viewMode === 'edit' ? 'default' : 'ghost'}
-              size="sm"
-              onClick={() => setViewMode('edit')}
-              className="h-7 text-xs"
-            >
-              Mi Respuesta
-            </Button>
-            <Button
-              variant={viewMode === 'feedback' ? 'default' : 'ghost'}
-              size="sm"
-              onClick={() => setViewMode('feedback')}
-              className="h-7 text-xs"
-            >
-              Corrección IA
-            </Button>
-          </div>
-        )}
+        <div className="flex items-center gap-2">
+          {feedback && (
+            <div className="flex bg-muted p-1 rounded-md">
+              <Button
+                variant={viewMode === 'edit' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('edit')}
+                className="h-7 text-xs"
+              >
+                Mi Respuesta
+              </Button>
+              <Button
+                variant={viewMode === 'feedback' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('feedback')}
+                className="h-7 text-xs"
+              >
+                Última corrección
+              </Button>
+            </div>
+          )}
+          <Button variant="ghost" size="sm" onClick={() => setIsFullScreen(!isFullScreen)}>
+            {isFullScreen ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
+          </Button>
+        </div>
       </div>
-      {/* SPLIT VIEW CONTENT */}
       <div className="flex flex-1 overflow-hidden">
-        {/* COLUMNA IZQUIERDA: Enunciado (40% ancho en desktop) */}
         <div className="w-full lg:w-[40%] border-r bg-muted/5 hidden lg:block">
           <ScrollArea className="h-full">
             <div className="p-8 prose prose-sm dark:prose-invert max-w-none">
               <h3 className="flex items-center gap-2 text-foreground/80 mb-4">
                 <LayoutPanelLeft className="w-4 h-4" /> Enunciado
               </h3>
-              {/* Renderizamos el HTML/Markdown del enunciado */}
               <div dangerouslySetInnerHTML={{ __html: caseData.statement }} />
             </div>
           </ScrollArea>
         </div>
 
-        {/* COLUMNA DERECHA: Editor o Feedback (60% ancho en desktop) */}
         <div className="flex-1 flex flex-col min-w-0 bg-background">
           {viewMode === 'edit' ? (
             <CaseEditor
