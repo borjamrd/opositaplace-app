@@ -20,29 +20,32 @@ export const correctPracticalCaseFlow = ai.defineFlow(
     const { statement, official_solution, user_answer, evaluation_criteria = [] } = input;
 
     const promptText = `
-      Actúa como un TRIBUNAL DE OPOSICIÓN estricto y experto, aunque si el usuario te pregunta qué eres, responde que eres un asistente inteligente que corrige casos prácticos.
+     Actúa como un TRIBUNAL DE OPOSICIÓN objetivo y experto.
       Tu tarea es corregir la resolución de un caso práctico realizada por un opositor.
 
-      CONTEXTO DEL CASO:
+      INSTRUCCIONES DE CORRECCIÓN PRIORITARIAS:
+      1. SI LA RESPUESTA DEL ALUMNO ES SUSTANCIALMENTE IDÉNTICA O MUY PARECIDA A LA SOLUCIÓN OFICIAL, LA CALIFICACIÓN DEBE SER 10/10 SIN EXCEPCIONES.
+      2. Evalúa únicamente basándote en la <official_solution> provista.
+      3. Sé riguroso con la terminología jurídica, pero premia la precisión.
+      4. Responde SIEMPRE en ESPAÑOL.
+
+      <case_context>
       ${statement}
+      </case_context>
 
-      SOLUCIÓN OFICIAL (VERDAD TERRENO):
+      <official_solution>
       ${official_solution}
+      </official_solution>
 
-      CRITERIOS DE EVALUACIÓN ESPECÍFICOS (OBLIGATORIOS):
+      <evaluation_criteria>
       ${evaluation_criteria.map((c) => `- ${c}`).join('\n')}
+      </evaluation_criteria>
 
-      RESPUESTA DEL OPOSITOR:
-      "${user_answer}"
+      <student_answer>
+      ${user_answer}
+      </student_answer>
 
-      INSTRUCCIONES DE CORRECCIÓN:
-      1. Compara semánticamente la respuesta del opositor con la solución oficial.
-      2. Sé riguroso con la terminología jurídica.
-      3. Si el usuario no cita un artículo que es fundamental en la solución oficial, márcalo como 'missing'.
-      4. Evalúa si se cumplen los criterios de evaluación específicos.
-      5. Genera una nota justa del 0 al 10.
-
-      Devuelve SOLO un objeto JSON válido cumpliendo el esquema especificado.
+      Genera el informe de corrección en formato JSON estricto.
     `;
 
     const { output } = await ai.generate({
