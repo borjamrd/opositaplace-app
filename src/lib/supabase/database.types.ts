@@ -459,6 +459,39 @@ export type Database = {
           },
         ];
       };
+      practical_case_blocks: {
+        Row: {
+          block_id: string;
+          case_id: string;
+          created_at: string | null;
+        };
+        Insert: {
+          block_id: string;
+          case_id: string;
+          created_at?: string | null;
+        };
+        Update: {
+          block_id?: string;
+          case_id?: string;
+          created_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'practical_case_blocks_block_id_fkey';
+            columns: ['block_id'];
+            isOneToOne: false;
+            referencedRelation: 'blocks';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'practical_case_blocks_case_id_fkey';
+            columns: ['case_id'];
+            isOneToOne: false;
+            referencedRelation: 'practical_cases';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       practical_cases: {
         Row: {
           created_at: string | null;
@@ -469,7 +502,6 @@ export type Database = {
           opposition_id: string;
           statement: string;
           title: string;
-          topic_id: string | null;
           updated_at: string | null;
         };
         Insert: {
@@ -481,7 +513,6 @@ export type Database = {
           opposition_id: string;
           statement: string;
           title: string;
-          topic_id?: string | null;
           updated_at?: string | null;
         };
         Update: {
@@ -493,7 +524,6 @@ export type Database = {
           opposition_id?: string;
           statement?: string;
           title?: string;
-          topic_id?: string | null;
           updated_at?: string | null;
         };
         Relationships: [
@@ -502,13 +532,6 @@ export type Database = {
             columns: ['opposition_id'];
             isOneToOne: false;
             referencedRelation: 'oppositions';
-            referencedColumns: ['id'];
-          },
-          {
-            foreignKeyName: 'practical_cases_topic_id_fkey';
-            columns: ['topic_id'];
-            isOneToOne: false;
-            referencedRelation: 'topics';
             referencedColumns: ['id'];
           },
         ];

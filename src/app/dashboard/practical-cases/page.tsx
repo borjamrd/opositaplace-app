@@ -76,7 +76,6 @@ export default async function PracticalCasesListPage() {
       `
       *,
       oppositions ( name ),
-      topics ( name ),
       practical_case_attempts (
         status,
         updated_at,
@@ -173,12 +172,6 @@ export default async function PracticalCasesListPage() {
                   <span className="font-medium text-primary text-xs uppercase tracking-wider">
                     {practicalCase.oppositions?.name}
                   </span>
-                  {practicalCase.topics?.name && (
-                    <>
-                      <span>•</span>
-                      <span className="line-clamp-1">{practicalCase.topics.name}</span>
-                    </>
-                  )}
                 </CardDescription>
               </CardHeader>
 

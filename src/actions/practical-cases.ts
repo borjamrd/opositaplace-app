@@ -10,7 +10,7 @@ export async function getPracticalCases(oppositionId: string) {
 
   const { data, error } = await supabase
     .from('practical_cases')
-    .select('id, title, difficulty, topic_id, topics(name)')
+    .select('id, title, difficulty')
     .eq('opposition_id', oppositionId)
     .order('created_at', { ascending: false });
 
