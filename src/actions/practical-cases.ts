@@ -94,8 +94,6 @@ export async function submitAndCorrectCase(caseId: string, userAnswer: string) {
       evaluation_criteria: criteriaList,
     });
 
-    console.log('Corrección:', correctionResult);
-
     const { error: saveError } = await supabase.from('practical_case_attempts').upsert(
       {
         user_id: user.id,
