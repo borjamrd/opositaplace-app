@@ -35,6 +35,8 @@ export const correctPracticalCaseFlow = aiGemini3.defineFlow(
          - Sé RIGUROSO con: Plazos, tipos de recursos, órganos competentes y sentido del silencio (positivo/negativo). Un error aquí penaliza.
          - Sé FLEXIBLE con: El estilo de redacción y la estructura, siempre que sea coherente.
 
+      5. **RESPUESTA COMPLETA**: El enunciado suele constar de varias preguntas. El usario debe responder a todas.
+
       <case_context>
       ${statement}
       </case_context>
