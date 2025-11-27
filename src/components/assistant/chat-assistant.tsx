@@ -17,20 +17,25 @@ import { useProfileStore } from '@/store/profile-store';
 
 const suggestedQuestions = [
   {
-    icon: <FileText className="h-5 w-5" />,
-    text: '¿Qué es un contrato menor y cuáles son sus umbrales?',
+    category: 'Mi oposición',
+    questions: [
+      '¿Cuántas plazas hay ofertadas este año?',
+      '¿Donde puedo ver el estado oficial del proceso selectivo?',
+    ],
   },
   {
-    icon: <HelpCircle className="h-5 w-5" />,
-    text: 'Explícame el recurso de alzada y cuándo se utiliza.',
+    category: 'Mi estudio',
+    questions: [
+      'Ayúdame a organizar los bloques de estudio esta semana',
+      'Dime en qué temas estoy fallando más tests',
+    ],
   },
   {
-    icon: <FileText className="h-5 w-5" />,
-    text: 'Describe las funciones del Defensor del Pueblo.',
-  },
-  {
-    icon: <HelpCircle className="h-5 w-5" />,
-    text: '¿Cuáles son los valores superiores de la Constitución?',
+    category: 'Normativa',
+    questions: [
+      'Describe las funciones del Defensor del Pueblo',
+      'Explícame el recurso de alzada y cuándo se utiliza',
+    ],
   },
 ];
 
@@ -256,27 +261,36 @@ export function ChatAssistant() {
       <div className="flex flex-col flex-1">
         <ScrollArea className="flex-grow p-4" ref={scrollAreaRef}>
           {chatMessages.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full">
-              <div className="text-center">
-                <h2 className="text-2xl font-bold">
-                  Hola, {profile?.username} ¿en qué puedo ayudarte hoy?
+            <div className="flex flex-col justify-center h-full max-w-5xl mx-auto w-full px-4">
+              <div className="mb-12 space-y-4">
+                <h2 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+                  Hola, {profile?.username}
                 </h2>
-                <p className="text-muted-foreground">
-                  Recuerda que únicamente te daré respuestas basadas en la documentación oficial.
+                <p className="text-muted-foreground text-sm mx-auto">
+                  ¿En qué puedo ayudarte? Puedes preguntarme cualquier cosa que te interese.
                 </p>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8 w-full max-w-2xl">
-                {suggestedQuestions.map((sq, index) => (
-                  <Card
-                    key={index}
-                    className="cursor-pointer hover:bg-muted transition-colors"
-                    onClick={() => handleSubmit(undefined, sq.text)}
-                  >
-                    <CardHeader className="flex flex-row items-center gap-4">
-                      {sq.icon}
-                      <p className="text-sm font-medium">{sq.text}</p>
-                    </CardHeader>
-                  </Card>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
+                {suggestedQuestions.map((section, index) => (
+                  <div key={index} className="space-y-4 border border-muted rounded-lg p-4">
+                    <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wider px-2">
+                      {section.category}
+                    </h3>
+                    <div className="space-y-2">
+                      {section.questions.map((question, qIndex) => (
+                        <button
+                          key={qIndex}
+                          onClick={() => handleSubmit(undefined, question)}
+                          className="w-full text-left p-3 rounded-lg text-sm hover:bg-muted/50 transition-all duration-200 border border-transparent hover:border-border group"
+                        >
+                          <span className="group-hover:text-primary transition-colors">
+                            {question}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 ))}
               </div>
             </div>
