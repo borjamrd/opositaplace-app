@@ -23,6 +23,7 @@ import Link from 'next/link';
 import React, { useMemo } from 'react';
 import { Logo } from '../logo';
 
+import { FloatingAssistantButton } from '@/components/assistant/floating-assistant-button';
 import { useStudySessionStore } from '@/store/study-session-store';
 import OpositionSelector from '../oposition-selector';
 import { NavMain } from './nav-main';
@@ -103,6 +104,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavMain items={navItems} />
       </SidebarContent>
       <SidebarFooter>
+        <FloatingAssistantButton />
         <NavUserSection />
       </SidebarFooter>
     </Sidebar>

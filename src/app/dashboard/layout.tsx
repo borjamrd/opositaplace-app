@@ -1,10 +1,9 @@
 // src/app/dashboard/layout.tsx
-import { Header } from '@/components/layout/header';
 import { AppSidebar } from '@/components/layout/app-sidebar';
+import { Header } from '@/components/layout/header';
 import { StateHydrator } from '@/components/state-hydrator';
-import { getSessionData } from '@/lib/supabase/queries/get-session-data';
-import { FloatingAssistantButton } from '@/components/assistant/floating-assistant-button';
 import { StudyDayNotifications } from '@/components/StudyDayNotifications';
+import { getSessionData } from '@/lib/supabase/queries/get-session-data';
 
 export default async function DashboardLayout({
   children,
@@ -24,7 +23,6 @@ export default async function DashboardLayout({
         </div>
       </div>
       <StudyDayNotifications />
-      <FloatingAssistantButton />
     </>
   );
 }
