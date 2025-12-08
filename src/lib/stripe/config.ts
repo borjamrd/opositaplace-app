@@ -24,7 +24,7 @@ export const STRIPE_PLANS: Plan[] = [
     features: [
       'Sesiones ilimitadas de estudio y planificacion',
       'Creación de ankicards y flashcards',
-      '3 tests diarios',
+      '1 test semanal',
     ],
   },
   {

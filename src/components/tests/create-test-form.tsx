@@ -1,7 +1,8 @@
 // src/components/tests/create-test-form.tsx
 'use client';
 
-import { createTestAttempt } from '@/actions/tests';
+import { checkTestCreationEligibility, createTestAttempt } from '@/actions/tests';
+import { LimitReachedModal } from '@/components/subscription/limit-reached-modal';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -66,7 +67,10 @@ export function CreateTestForm({
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
   const [numQuestions, setNumQuestionsState] = useState(25);
+
   const [mockDuration, setMockDuration] = useState<number | null>(null);
+  const [showLimitModal, setShowLimitModal] = useState(false);
+  const [nextTestDate, setNextTestDate] = useState<Date | null>(null);
 
   const activeStudyCycle = useStudySessionStore((state) => state.activeStudyCycle);
   const mode = watch('mode');
@@ -112,6 +116,24 @@ export function CreateTestForm({
     }
 
     startTransition(async () => {
+      // Verificar elegibilidad antes de crear el test
+      const eligibility = await checkTestCreationEligibility();
+
+      if (!eligibility.allowed) {
+        if (eligibility.reason === 'limit_reached' && eligibility.nextTestDate) {
+          setNextTestDate(new Date(eligibility.nextTestDate));
+          setShowLimitModal(true);
+          return;
+        }
+        // Otros errores
+        toast({
+          variant: 'destructive',
+          title: 'Error',
+          description: eligibility.error || 'No puedes crear un test en este momento.',
+        });
+        return;
+      }
+
       const result = await createTestAttempt({
         ...data,
         numQuestions: data.mode === 'mock' ? numQuestions : data.numQuestions,
@@ -132,6 +154,11 @@ export function CreateTestForm({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
+      <LimitReachedModal
+        isOpen={showLimitModal}
+        onClose={() => setShowLimitModal(false)}
+        nextTestDate={nextTestDate}
+      />
       <Card variant={'borderless'} className="max-w-4xl mx-auto">
         <CardHeader>
           <CardTitle>Configura tu test</CardTitle>

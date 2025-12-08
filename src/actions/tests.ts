@@ -17,6 +17,67 @@ interface CreateTestParams {
   includeNoTopic?: boolean;
 }
 
+export async function checkTestCreationEligibility() {
+  const supabase = await createSupabaseServerClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) return { allowed: false, error: 'User not authenticated' };
+  const userId = user.id;
+
+  // 1. Obtener suscripción del usuario
+  const { data: subscription } = await supabase
+    .from('user_subscriptions')
+    .select('status, price_id')
+    .eq('user_id', userId)
+    .in('status', ['trialing', 'active'])
+    .maybeSingle();
+
+  // Si tiene suscripción activa y NO es el plan gratuito, permitir
+  // NOTA: Asumimos que si hay suscripción activa y no es free, es de pago.
+  // Deberías validar contra tus IDs de precios reales si es necesario.
+  const isFreePlan =
+    !subscription ||
+    subscription.price_id === process.env.NEXT_PUBLIC_STRIPE_FREE_PLAN_ID ||
+    subscription.price_id === 'price_free_placeholder'; // Fallback para dev
+
+  if (!isFreePlan) {
+    return { allowed: true };
+  }
+
+  // 2. Si es plan gratuito (o sin suscripción), verificar último test
+  const { data: lastTest } = await supabase
+    .from('test_attempts')
+    .select('created_at')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (!lastTest) {
+    return { allowed: true };
+  }
+
+  const lastTestDate = new Date(lastTest.created_at);
+  const now = new Date();
+  const diffTime = Math.abs(now.getTime() - lastTestDate.getTime());
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+  if (diffDays < 7) {
+    const nextTestDate = new Date(lastTestDate);
+    nextTestDate.setDate(lastTestDate.getDate() + 7);
+    return {
+      allowed: false,
+      reason: 'limit_reached',
+      nextTestDate: nextTestDate.toISOString(),
+    };
+  }
+
+  return { allowed: true };
+}
+
 export async function createTestAttempt(params: CreateTestParams) {
   const supabase = await createSupabaseServerClient();
 
