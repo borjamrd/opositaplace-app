@@ -31,6 +31,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import ReactMarkdown from 'react-markdown';
 
 export const metadata: Metadata = {
   title: 'Casos Prácticos | Opositaplace',
@@ -168,24 +169,12 @@ export default async function PracticalCasesListPage() {
                   </Link>
                 </CardTitle>
 
-                <CardDescription className="flex items-center gap-2 mt-1">
-                  <span className="font-medium text-primary text-xs uppercase tracking-wider">
-                    {practicalCase.oppositions?.name}
-                  </span>
+                <CardDescription className="flex flex-col items-center gap-2 mt-1">
+                  <ReactMarkdown>{practicalCase.statement.slice(0, 100) + '... '}</ReactMarkdown>
                 </CardDescription>
               </CardHeader>
 
               <CardContent className="flex-1">
-                {/* Indicadores de dificultad y tiempo */}
-                <div className="flex gap-3 text-sm text-muted-foreground mb-4">
-                  <Badge variant="secondary" className="font-normal">
-                    Dificultad {practicalCase.difficulty}
-                  </Badge>
-                  {/* Si quisiéramos mostrar duración estimada */}
-                  {/* <div className="flex items-center gap-1"><Clock className="w-3 h-3" /> 45 min</div> */}
-                </div>
-
-                {/* Si está corregido, mostramos la nota visualmente */}
                 {attempt?.status === 'corrected' && score !== null && (
                   <div className="mt-2 space-y-1">
                     <div className="flex justify-between text-sm font-medium">
@@ -229,16 +218,16 @@ export default async function PracticalCasesListPage() {
                   <Link href={`/dashboard/practical-cases/${practicalCase.id}`}>
                     {attempt?.status === 'corrected' ? (
                       <>
-                        Ver Corrección <CheckCircle2 className="ml-2 w-4 h-4" />
+                        Ver corrección <CheckCircle2 className="ml-2 w-4 h-4" />
                       </>
                     ) : attempt?.status === 'draft' ? (
                       <>
-                        Continuar Borrador{' '}
+                        Continuar borrador{' '}
                         <ChevronRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
                       </>
                     ) : (
                       <>
-                        Comenzar Caso{' '}
+                        Comenzar{' '}
                         <ChevronRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
                       </>
                     )}
