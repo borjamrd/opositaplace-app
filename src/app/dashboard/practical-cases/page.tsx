@@ -7,7 +7,6 @@ import {
   BookOpen,
   CheckCircle2,
   ChevronRight,
-  Clock,
   FileEdit,
   MoreHorizontal,
   Trophy,
@@ -32,6 +31,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import ReactMarkdown from 'react-markdown';
+import { PracticalCaseCardAction } from '@/components/practical/practical-case-card-action';
 
 export const metadata: Metadata = {
   title: 'Casos prácticos | Opositaplace',
@@ -56,6 +56,18 @@ export default async function PracticalCasesListPage() {
 
   const oppositionIds =
     userOpos?.map((uo) => uo.opposition_id).filter((id): id is string => id !== null) || [];
+
+  // 2. Verificar suscripción (Premium Check)
+  const { data: subscription } = await supabase
+    .from('user_subscriptions')
+    .select('status, price_id')
+    .eq('user_id', user.id)
+    .in('status', ['trialing', 'active'])
+    .maybeSingle();
+
+  const isPremium =
+    subscription?.price_id === process.env.NEXT_PUBLIC_STRIPE_PRO_PLAN_ID ||
+    subscription?.price_id === 'price_premium_placeholder';
 
   if (oppositionIds.length === 0) {
     return (
@@ -153,21 +165,28 @@ export default async function PracticalCasesListPage() {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem asChild>
-                        <Link href={`/dashboard/practical-cases/${practicalCase.id}`}>
+                        <PracticalCaseCardAction
+                          caseId={practicalCase.id}
+                          isPremium={isPremium}
+                          variant="ghost"
+                          className="w-full justify-start cursor-default"
+                        >
                           Ir al caso
-                        </Link>
+                        </PracticalCaseCardAction>
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
 
                 <CardTitle className="text-xl line-clamp-2 leading-tight">
-                  <Link
-                    href={`/dashboard/practical-cases/${practicalCase.id}`}
-                    className="hover:underline decoration-primary/50 underline-offset-4"
+                  <PracticalCaseCardAction
+                    caseId={practicalCase.id}
+                    isPremium={isPremium}
+                    variant="link"
+                    className="p-0 h-auto font-semibold text-foreground hover:underline decoration-primary/50 underline-offset-4 text-left whitespace-normal"
                   >
                     {practicalCase.title}
-                  </Link>
+                  </PracticalCaseCardAction>
                 </CardTitle>
 
                 <CardDescription className="flex flex-col items-center gap-2 mt-1">
@@ -211,29 +230,28 @@ export default async function PracticalCasesListPage() {
               </CardContent>
 
               <CardFooter className="pt-0">
-                <Button
+                <PracticalCaseCardAction
+                  caseId={practicalCase.id}
+                  isPremium={isPremium}
                   className="w-full group"
-                  asChild
                   variant={attempt?.status === 'corrected' ? 'outline' : 'default'}
                 >
-                  <Link href={`/dashboard/practical-cases/${practicalCase.id}`}>
-                    {attempt?.status === 'corrected' ? (
-                      <>
-                        Ver corrección <CheckCircle2 className="ml-2 w-4 h-4" />
-                      </>
-                    ) : attempt?.status === 'draft' ? (
-                      <>
-                        Continuar borrador{' '}
-                        <ChevronRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                      </>
-                    ) : (
-                      <>
-                        Comenzar{' '}
-                        <ChevronRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                      </>
-                    )}
-                  </Link>
-                </Button>
+                  {attempt?.status === 'corrected' ? (
+                    <>
+                      Ver corrección <CheckCircle2 className="ml-2 w-4 h-4" />
+                    </>
+                  ) : attempt?.status === 'draft' ? (
+                    <>
+                      Continuar borrador{' '}
+                      <ChevronRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    </>
+                  ) : (
+                    <>
+                      Comenzar{' '}
+                      <ChevronRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    </>
+                  )}
+                </PracticalCaseCardAction>
               </CardFooter>
             </Card>
           );
