@@ -34,8 +34,9 @@ import {
 import ReactMarkdown from 'react-markdown';
 
 export const metadata: Metadata = {
-  title: 'Casos Prácticos | Opositaplace',
-  description: 'Entrena tus habilidades prácticas con corrección por IA.',
+  title: 'Casos prácticos | Opositaplace',
+  description:
+    'Comprueba lo aprendido durante tu estudio realizando estos casos prácticos. Se corrigen en el momento.',
 };
 
 export default async function PracticalCasesListPage() {
