@@ -135,7 +135,7 @@ export function CaseEditor({ caseId, initialContent = '', onCorrectionReceived }
             </>
           ) : (
             <>
-              <Send className="w-4 h-4" /> Corregir con IA
+              <Send className="w-4 h-4" /> Corregir
             </>
           )}
         </Button>

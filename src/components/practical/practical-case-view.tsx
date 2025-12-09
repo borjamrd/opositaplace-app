@@ -30,7 +30,7 @@ export function PracticalCaseView({ caseData, initialAttempt }: Props) {
     <div
       className={cn(
         'flex flex-col',
-        isFullScreen ? 'h-screen absolute inset-0 z-50 bg-background' : 'h-[calc(100vh-4rem)]'
+        isFullScreen ? 'h-screen absolute inset-0 z-50 bg-background' : 'h-[calc(100vh-10rem)]'
       )}
     >
       <div className="flex items-center justify-between px-6 py-3 border-b bg-background shrink-0">
@@ -41,12 +41,7 @@ export function PracticalCaseView({ caseData, initialAttempt }: Props) {
             </Link>
           </Button>
           <div>
-            <h1 className="text-lg font-semibold flex items-center gap-2">
-              {caseData.title}
-              <Badge variant="outline" className="font-normal text-xs">
-                {caseData.difficulty}
-              </Badge>
-            </h1>
+            <h1 className="text-lg font-semibold flex items-center gap-2">{caseData.title}</h1>
           </div>
         </div>
 
