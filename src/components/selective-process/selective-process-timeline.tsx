@@ -124,7 +124,8 @@ export function SelectiveProcessTimeline() {
           <CardTitle>¡Sigue el proceso de tu oposición!</CardTitle>
           <CardDescription>
             Hemos detectado un proceso en marcha para <strong>{activeOpposition?.name}</strong>.
-            ¿Cuál es tu situación?
+            ¿Cuál es tu situación? "Me preparo para el futuro" implica que por ahora quieres
+            estudiar sin estar inscrito en un proceso selectivo
           </CardDescription>
         </CardHeader>
         <CardContent className="flex gap-4">

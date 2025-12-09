@@ -165,7 +165,7 @@ export function TestResults({ questions, userAnswers, attempt, addedCardIds }: T
         <div className="flex justify-between items-center">
           <CardTitle className="text-2xl">Resumen del test</CardTitle>
           <Button asChild variant="outline">
-            <Link href="/dashboard/tests">Volver a Tests</Link>
+            <Link href="/dashboard/tests">Volver a tests</Link>
           </Button>
         </div>
       </CardHeader>
@@ -303,7 +303,7 @@ export function TestResults({ questions, userAnswers, attempt, addedCardIds }: T
                     className="lg:col-span-2 space-y-3"
                     initial={shouldAnimate ? { opacity: 0 } : { opacity: 1 }}
                     animate={{ opacity: 1 }}
-                    transition={{ duration: 0.4, delay: shouldAnimate ? 0.3 : 0 }}
+                    transition={{ duration: 0.5, delay: shouldAnimate ? 0.3 : 0 }}
                   >
                     <h4 className="text-sm font-semibold text-muted-foreground mb-2">Opciones:</h4>
                     <ul className="space-y-2">
@@ -346,7 +346,7 @@ export function TestResults({ questions, userAnswers, attempt, addedCardIds }: T
                     className="lg:col-span-1 flex flex-col gap-4 h-full"
                     initial={shouldAnimate ? { opacity: 0, x: 10 } : { opacity: 1, x: 0 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.4, delay: shouldAnimate ? 0.6 : 0 }}
+                    transition={{ duration: 0.4, delay: shouldAnimate ? 0.8 : 0 }}
                   >
                     <div className="bg-muted/30 rounded-lg p-4 border h-full">
                       <div className="flex items-center gap-2 mb-2 text-sm font-semibold text-primary">
@@ -367,25 +367,32 @@ export function TestResults({ questions, userAnswers, attempt, addedCardIds }: T
                     </div>
 
                     {wasIncorrect && (
-                      <Button
-                        variant={isAlreadyAdded ? 'secondary' : 'default'}
-                        className="w-full"
-                        onClick={() => handleAddToReview(currentQuestion)}
-                        disabled={isAlreadyAdded || isAdding}
+                      <motion.div
+                        className="lg:col-span-1 flex flex-col gap-4 h-full"
+                        initial={shouldAnimate ? { opacity: 0, x: 10 } : { opacity: 1, x: 0 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.4, delay: shouldAnimate ? 1.5 : 0 }}
                       >
-                        {isAdding ? (
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        ) : isAlreadyAdded ? (
-                          <Check className="mr-2 h-4 w-4" />
-                        ) : (
-                          <span className="mr-2 text-lg">+</span>
-                        )}
-                        {isAdding
-                          ? 'Añadiendo...'
-                          : isAlreadyAdded
-                            ? 'Añadido a Repaso'
-                            : 'Añadir a Repaso Espaciado'}
-                      </Button>
+                        <Button
+                          variant={isAlreadyAdded ? 'secondary' : 'default'}
+                          className="w-full"
+                          onClick={() => handleAddToReview(currentQuestion)}
+                          disabled={isAlreadyAdded || isAdding}
+                        >
+                          {isAdding ? (
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          ) : isAlreadyAdded ? (
+                            <Check className="mr-2 h-4 w-4" />
+                          ) : (
+                            <span className="mr-2 text-lg">+</span>
+                          )}
+                          {isAdding
+                            ? 'Añadiendo...'
+                            : isAlreadyAdded
+                              ? 'Añadido a Repaso'
+                              : 'Añadir a Repaso Espaciado'}
+                        </Button>
+                      </motion.div>
                     )}
                   </motion.div>
                 </div>
