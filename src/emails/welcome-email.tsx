@@ -19,13 +19,16 @@ export const WelcomeEmail = ({
       <Heading style={heading}>¡Te damos la bienvenida a Opositaplace!</Heading>
       <Text style={paragraph}>Hola {userName},</Text>
       <Text style={paragraph}>
-        Estamos encantados de tenerte a bordo. Opositaplace es tu centro de mandos para conquistar
-        tu oposición.
+        Estamos encantados de tenerte a bordo. Puedes empezar explorando tu panel de control,
+        configurando tus temas o realizando tu primer test.
       </Text>
+
       <Text style={paragraph}>
-        Puedes empezar explorando tu panel de control, configurando tus temas o realizando tu primer
-        test.
+        Recuerda que tienes 7 días gratis para probar la mejor versión de Opositaplace. No te
+        preocupes, no se te cobrará nada al finalizar y se te pasará a la versión gratuita
+        automáticamente. Puedes cambiarla cuando quieras.
       </Text>
+
       <Section style={btnContainer}>
         <Button style={button} href={`${baseUrl}${dashboardUrl}`}>
           Ir a mi Panel
