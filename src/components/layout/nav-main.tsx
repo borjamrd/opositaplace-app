@@ -39,7 +39,7 @@ export function NavMain({
           <SidebarMenuItem className="flex items-center gap-2">
             <SidebarMenuButton
               variant="outline"
-              tooltip="Quick Create"
+              tooltip="Nuevo test"
               className="inline-flex items-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-input bg-background hover:bg-accent hover:text-accent-foreground"
               onClick={handleNewTestClick}
             >
@@ -52,9 +52,10 @@ export function NavMain({
           {items.map((item) => (
             <SidebarMenuItem key={item.url} className="flex items-center gap-2">
               <SidebarMenuButton
+                tooltip={item.title}
                 asChild
                 className={`w-full justify-start ${
-                  location === item.url ? 'bg-primary text-primary-foreground' : ''
+                  location === item.url ? 'bg-secondary text-secondary-foreground' : ''
                 }`}
               >
                 <Link href={item.url} className="flex items-center gap-2 w-full">

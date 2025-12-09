@@ -6,11 +6,18 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useTimerStore } from '@/store/timer-store';
 import { toast } from '@/hooks/use-toast';
+import { CalendarIcon } from 'lucide-react';
+import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { es } from 'date-fns/locale';
 
 export function TimerManual() {
   const { saveManualSession, setModalOpen } = useTimerStore();
   const [hours, setHours] = useState('');
   const [minutes, setMinutes] = useState('');
+  const [date, setDate] = useState<Date | undefined>(new Date());
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -28,9 +35,18 @@ export function TimerManual() {
       return;
     }
 
+    if (!date) {
+      toast({
+        title: 'Error',
+        description: 'Por favor, selecciona una fecha.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setIsSubmitting(true);
     try {
-      await saveManualSession(totalSeconds);
+      await saveManualSession(totalSeconds, date);
       toast({
         title: 'Éxito',
         description: 'Sesión guardada correctamente',
@@ -38,6 +54,7 @@ export function TimerManual() {
       setModalOpen(false);
       setHours('');
       setMinutes('');
+      setDate(new Date());
     } catch (error) {
       toast({
         title: 'Error',
@@ -83,6 +100,27 @@ export function TimerManual() {
               onChange={(e) => setMinutes(e.target.value)}
             />
           </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="date">Fecha</Label>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant={'outline'}
+                className={cn(
+                  'w-full justify-start text-left font-normal',
+                  !date && 'text-muted-foreground'
+                )}
+              >
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {date ? format(date, 'PPP', { locale: es }) : <span>Selecciona una fecha</span>}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar mode="single" locale={es} selected={date} onSelect={setDate} initialFocus />
+            </PopoverContent>
+          </Popover>
         </div>
 
         <Button type="submit" className="w-full" disabled={isSubmitting}>

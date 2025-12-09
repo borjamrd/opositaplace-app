@@ -15,7 +15,7 @@ import StudyCycleSelector from './study-cycle-selector';
 import { updateUserActiveOpposition } from '@/actions/session';
 import { useToast } from '@/hooks/use-toast';
 
-const OpositionSelector = () => {
+const OpositionSelector = ({ collapsed }: { collapsed?: boolean }) => {
   const { oppositions, activeOpposition, selectOpposition } = useStudySessionStore();
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
@@ -51,35 +51,37 @@ const OpositionSelector = () => {
 
   return (
     <div className="mt-4 px-2 flex flex-col gap-2">
-      <DropdownMenu dir="ltr">
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="outline"
-            className="justify-between w-full h-fit whitespace-pre-line text-left"
-            disabled={isPending}
-          >
-            {isPending
-              ? 'Cambiando...'
-              : activeOpposition
-                ? activeOpposition.name
-                : 'Selecciona una oposición'}
-            {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-[var(--radix-dropdown-menu-trigger-width)]">
-          {oppositions.map((oppo) => (
-            <DropdownMenuItem
-              key={oppo.id}
-              onClick={() => handleSelect(oppo.id)}
-              className="flex justify-between items-center"
+      {!collapsed && (
+        <DropdownMenu dir="ltr">
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="outline"
+              className="justify-between w-full h-fit whitespace-pre-line text-left"
+              disabled={isPending}
             >
-              <span>{oppo.name}</span>
-              {activeOpposition?.id === oppo.id && <Check className="h-4 w-4" />}
-            </DropdownMenuItem>
-          ))}
-        </DropdownMenuContent>
-      </DropdownMenu>
-      {activeOpposition && <StudyCycleSelector />}
+              {isPending
+                ? 'Cambiando...'
+                : activeOpposition
+                  ? activeOpposition.name
+                  : 'Selecciona una oposición'}
+              {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-[var(--radix-dropdown-menu-trigger-width)]">
+            {oppositions.map((oppo) => (
+              <DropdownMenuItem
+                key={oppo.id}
+                onClick={() => handleSelect(oppo.id)}
+                className="flex justify-between items-center"
+              >
+                <span>{oppo.name}</span>
+                {activeOpposition?.id === oppo.id && <Check className="h-4 w-4" />}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )}
+      {!collapsed && activeOpposition && <StudyCycleSelector />}
     </div>
   );
 };

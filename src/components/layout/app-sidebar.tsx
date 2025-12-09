@@ -7,6 +7,7 @@ import {
   SidebarHeader,
   SidebarMenu,
   SidebarMenuItem,
+  useSidebar,
 } from '@/components/ui/sidebar';
 
 import {
@@ -73,6 +74,7 @@ export const baseNavItems = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const activeOpposition = useStudySessionStore((state) => state.activeOpposition);
+  const { state } = useSidebar();
 
   const navItems = useMemo(() => {
     const items = [...baseNavItems.navMain];
@@ -93,19 +95,19 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarMenu>
           <SidebarMenuItem>
             <Link href="/">
-              <Logo className="h-8 w-8 flex" collapsed={props.collapsible === 'icon'} />
+              <Logo className="h-8 w-8 flex" collapsed={state === 'collapsed'} />
             </Link>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
 
       <SidebarContent>
-        <OpositionSelector />
+        <OpositionSelector collapsed={state === 'collapsed'} />
         <NavMain items={navItems} />
       </SidebarContent>
       <SidebarFooter>
-        <FloatingAssistantButton />
-        <NavUserSection />
+        <FloatingAssistantButton collapsed={state === 'collapsed'} />
+        <NavUserSection collapsed={state === 'collapsed'} />
       </SidebarFooter>
     </Sidebar>
   );
