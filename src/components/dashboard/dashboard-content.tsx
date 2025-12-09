@@ -29,7 +29,7 @@ const DashboardContent = ({ failedQuestions, dueCardsCount }: DashboardContentPr
       <div className="row-span-1 lg:col-span-2">
         <SRSWidget dueCardsCount={dueCardsCount} />
       </div>
-      <div className="row-span-1 lg:col-span-4">
+      <div className="row-span-2 lg:col-span-2">
         <FailedQuestionFlashcard questions={failedQuestions} />
       </div>
     </div>
