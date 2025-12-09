@@ -88,12 +88,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     return items;
   }, [activeOpposition]);
   return (
-    <Sidebar className="p-2" variant="floating" collapsible="offcanvas" {...props}>
+    <Sidebar className="p-2" variant="floating" collapsible="icon" {...props}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
             <Link href="/">
-              <Logo className="h-8 w-8 flex" />
+              <Logo className="h-8 w-8 flex" collapsed={props.collapsible === 'icon'} />
             </Link>
           </SidebarMenuItem>
         </SidebarMenu>

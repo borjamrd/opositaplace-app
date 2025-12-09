@@ -4,19 +4,20 @@ import Image from 'next/image';
 
 interface LogoProps {
   className?: string;
+  collapsed?: boolean;
 }
 
-export const Logo: React.FC<LogoProps> = ({ className }) => {
+export const Logo: React.FC<LogoProps> = ({ className, collapsed }) => {
   return (
     <div className="flex items-center justify-center">
       <Image
         src="/opositaplace_logo_v1.png"
-        width={40}
+        width={collapsed ? 40 : 120}
         height={40}
         className={cn('', className)}
         alt="Picture of the author"
       />
-      <span className="text-xl font-bold text-primary">opositaplace</span>
+      {!collapsed && <span className="text-xl font-bold text-primary">opositaplace</span>}
     </div>
   );
 };
