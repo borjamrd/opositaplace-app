@@ -12,7 +12,7 @@ import ReactFlow, {
   ReactFlowInstance,
   ReactFlowProvider,
   useEdgesState,
-  useNodesState
+  useNodesState,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 
@@ -42,7 +42,6 @@ interface RoadmapFlowProps {
   initialStatusMap: StatusMap;
   initialCycle: StudyCycle;
 }
-
 
 const TopicNode = ({ data }: { data: any }) => {
   const { label, status, isRightSide } = data;
@@ -117,7 +116,6 @@ const TopicNode = ({ data }: { data: any }) => {
 };
 
 const BlockNode = ({ data }: { data: any }) => {
-
   return (
     <div className="px-6 py-3 rounded-2xl bg-background border-2 border-primary/20 text-primary font-bold text-sm uppercase tracking-widest shadow-sm text-center min-w-[250px] max-w-[400px]">
       <Handle type="target" position={Position.Top} className="!bg-primary !w-3 !h-3 !-top-1.5" />
@@ -501,7 +499,7 @@ export function RoadmapFlow({
                           ) : (
                             <PlayCircle className="mr-2 h-4 w-4" />
                           )}
-                          Comenzar Test Ahora
+                          Anímate con un test
                         </Button>
                       </div>
                     </CardContent>
