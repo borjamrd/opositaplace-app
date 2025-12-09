@@ -112,7 +112,7 @@ export default async function PracticalCasesListPage() {
         <div>
           <h2 className="text-3xl font-bold tracking-tight">Casos Prácticos</h2>
           <p className="text-muted-foreground mt-1">
-            Resuelve situaciones reales y obtén feedback inmediato con IA.
+            Resuelve casos prácticos haciendo uso de la normativa vigente.
           </p>
         </div>
       </div>

@@ -18,6 +18,7 @@ export interface FeedbackContextData {
     not_started: number;
   };
   userName: string;
+  totalHistoricalHours: number;
 }
 
 export async function getFeedbackContext(): Promise<FeedbackContextData | null> {
@@ -32,6 +33,18 @@ export async function getFeedbackContext(): Promise<FeedbackContextData | null> 
   const oneWeekAgo = new Date();
   oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
   const oneWeekAgoIso = oneWeekAgo.toISOString();
+
+  const totalSessionsRes = await supabase
+    .from('user_study_sessions')
+    .select('duration_seconds')
+    .eq('user_id', user.id);
+
+  // ... Procesamiento de Datos ...
+
+  // F. Total Horas Históricas
+  const totalHistoricalSeconds =
+    totalSessionsRes.data?.reduce((acc, s) => acc + (s.duration_seconds || 0), 0) || 0;
+  const totalHistoricalHours = Number((totalHistoricalSeconds / 3600).toFixed(1));
 
   // Ejecutar todas las consultas en paralelo para minimizar latencia
   const [onboardingRes, sessionsRes, testsRes, topicsRes, profileRes] = await Promise.all([
@@ -109,12 +122,22 @@ export async function getFeedbackContext(): Promise<FeedbackContextData | null> 
     recentTests,
     topicProgress,
     userName,
+    totalHistoricalHours,
   };
 }
 
 export async function generateSmartFeedback(context: FeedbackContextData): Promise<string> {
-  const {completed, in_progress, not_started} = context.topicProgress;
-  const topicsLength = completed + in_progress + not_started
+  if (context.totalHistoricalHours < 2) {
+    // Menos de 1 hora estudiada históricamente
+    const plannedDays = context.plannedDaysCount;
+    if (plannedDays > 0) {
+      return `Este es tu apartado resumen. Como llevas menos de dos horas de estudio no tengo datos suficientes para darte feedback. Has planificado ${plannedDays} días de estudio a la semana. Resgistra sesiones y realiza tests para que pueda valorar tu progreso`;
+    } else {
+      return `Este es tu apartado resumen. Para empezar, te recomiendo que vayas al Panel de Onboarding para configurar tus días y horario de estudio. ¡A por tu plaza!`;
+    }
+  }
+  const { completed, in_progress, not_started } = context.topicProgress;
+  const topicsLength = completed + in_progress + not_started;
   const systemPrompt = `
     Eres el entrenador personal de oposiciones de ${context.userName}.
     Tu tono es: Motivador. Directo. Tu objetivo es animar a seguir estudiando.
@@ -147,7 +170,7 @@ export async function generateSmartFeedback(context: FeedbackContextData): Promi
     const { text } = await ai.generate({
       prompt: systemPrompt,
       config: {
-        temperature: 0.7, 
+        temperature: 0.7,
       },
     });
 
