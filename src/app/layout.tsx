@@ -24,7 +24,7 @@ export default async function RootLayout({
       >
         <Providers>
           <NextTopLoader
-            color="#AD6A9B"
+            color="var(--primary)"
             initialPosition={0.08}
             crawlSpeed={200}
             height={3}
