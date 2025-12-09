@@ -16,16 +16,16 @@ interface DashboardContentProps {
 const DashboardContent = ({ failedQuestions, dueCardsCount }: DashboardContentProps) => {
   return (
     <div className="flex-1 grid container gap-4 md:grid-cols-2 lg:grid-cols-6">
-      <div className="col-span-1 md:col-span-2 lg:col-span-6">
+      <div className="col-span-1 md:col-span-2 lg:col-span-4">
         <StudyFeedback />
       </div>
-
+      <div className="row-span-5 lg:col-span-2">
+        <SelectiveProcessTimeline />
+      </div>
       <div className="row-span-1 lg:col-span-4">
         <StudySessionsChart />
       </div>
-      <div className="row-span-4 lg:col-span-2">
-        <SelectiveProcessTimeline />
-      </div>
+
       <div className="row-span-1 lg:col-span-2">
         <SRSWidget dueCardsCount={dueCardsCount} />
       </div>
