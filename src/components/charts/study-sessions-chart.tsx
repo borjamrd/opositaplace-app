@@ -50,14 +50,12 @@ function formatMinutesToHoursAndMinutes(minutes: number): string {
 }
 
 export function StudySessionsChart() {
-  // Estado para el selector de tiempo. Por defecto '30d'.
   const [timeRange, setTimeRange] = useState('7d');
 
-  // Mapeo de las opciones a días numéricos para la RPC
   const timeRangeDays: Record<string, number> = {
     '7d': 7,
     '30d': 30,
-    all: 365, // Asumimos 1 año para "Todo el tiempo" o un número muy alto
+    all: 365,
   };
 
   const {
