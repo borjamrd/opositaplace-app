@@ -106,7 +106,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavMain items={navItems} />
       </SidebarContent>
       <SidebarFooter>
-        <FloatingAssistantButton collapsed={state === 'collapsed'} />
         <NavUserSection collapsed={state === 'collapsed'} />
       </SidebarFooter>
     </Sidebar>
