@@ -21,11 +21,13 @@ const buttonVariants = cva(
         'destructive-ghost':
           'hover:bg-destructive/10 hover:text-destructive focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40',
         subtle: 'bg-muted text-muted-foreground hover:bg-muted/80 dark:bg-muted/30',
+        'btn-header':
+          'relative m-1 inline-flex items-center justify-center overflow-hidden rounded-lg text-white transition duration-100 ease-in-out shadow-md whitespace-nowrap group border-b-2 border-l-2 border-r-2 border-[var(--color-tropical-teal-700)] bg-gradient-to-tr from-primary to-[var(--color-tropical-teal-900)] active:border-primary active:translate-y-0.5 active:shadow-none after:absolute after:left-1/2 after:top-1/2 after:-translate-x-1/2 after:-translate-y-1/2 after:h-0 after:w-0 after:rounded-full after:bg-white/10 after:transition-all after:duration-300 after:ease-out hover:after:h-[300%] hover:after:w-[300%]',
       },
       size: {
         default: 'h-9 px-4 py-2 has-[>svg]:px-3',
         sm: 'h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5',
-        lg: 'h-10 rounded-md px-6 has-[>svg]:px-4',
+        lg: 'h-10 rounded-md text-lg px-6 has-[>svg]:px-4',
         icon: 'size-9',
         'icon-sm': 'size-8',
         'icon-lg': 'size-10',
