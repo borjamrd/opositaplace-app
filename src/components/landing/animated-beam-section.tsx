@@ -4,7 +4,7 @@ import React, { forwardRef, useRef } from 'react';
 
 import { cn } from '@/lib/utils';
 import { AnimatedBeam } from '@/registry/magicui/animated-beam';
-import { Briefcase, CalendarCheck, CheckSquare, BookOpen, Trophy } from 'lucide-react';
+import { Briefcase, CalendarCheck, CheckSquare, BookOpen, Trophy, LineChart } from 'lucide-react';
 import { Logo } from '@/components/logo';
 
 const Circle = forwardRef<HTMLDivElement, { className?: string; children?: React.ReactNode }>(
@@ -29,39 +29,34 @@ export function AnimatedBeamSection() {
   const containerRef = useRef<HTMLDivElement>(null);
   const centerRef = useRef<HTMLDivElement>(null);
 
-  const div1Ref = useRef<HTMLDivElement>(null); // Tests
-  const div2Ref = useRef<HTMLDivElement>(null); // Planificacion
-  const div3Ref = useRef<HTMLDivElement>(null); // Casos
-  const div4Ref = useRef<HTMLDivElement>(null); // Bloques
-  const div5Ref = useRef<HTMLDivElement>(null); // Proceso
+  const testsRef = useRef<HTMLDivElement>(null);
+  const planificacionRef = useRef<HTMLDivElement>(null);
+  const casosRef = useRef<HTMLDivElement>(null);
+  const bloquesRef = useRef<HTMLDivElement>(null);
+  const procesoRef = useRef<HTMLDivElement>(null);
+  const feedbackRef = useRef<HTMLDivElement>(null);
 
   return (
     <div
       className="relative flex h-[500px] w-full items-center justify-center overflow-hidden p-10"
       ref={containerRef}
     >
-      <div className="flex size-full max-w-lg flex-col items-stretch justify-between gap-10">
-        {/* Top Row */}
-        <div className="flex flex-row items-center justify-between">
+      <div className="flex size-full max-w-lg flex-row items-center justify-between gap-10">
+        <div className="flex flex-col items-center justify-center gap-10">
           <div className="flex flex-col items-center gap-2">
-            <Circle ref={div1Ref}>
+            <Circle ref={testsRef}>
               <CheckSquare className="size-6 text-black dark:text-white" />
             </Circle>
             <span className="text-sm font-semibold text-muted-foreground">Tests</span>
           </div>
-
           <div className="flex flex-col items-center gap-2">
-            <Circle ref={div2Ref}>
+            <Circle ref={planificacionRef}>
               <CalendarCheck className="size-6 text-black dark:text-white" />
             </Circle>
             <span className="text-sm font-semibold text-muted-foreground">Planificación</span>
           </div>
-        </div>
-
-        {/* Middle Row */}
-        <div className="flex flex-row items-center justify-between">
           <div className="flex flex-col items-center gap-2">
-            <Circle ref={div3Ref}>
+            <Circle ref={casosRef}>
               <Briefcase className="size-6 text-black dark:text-white" />
             </Circle>
             <span className="text-sm font-semibold text-muted-foreground text-center">
@@ -70,18 +65,18 @@ export function AnimatedBeamSection() {
               Prácticos
             </span>
           </div>
+        </div>
 
-          <div
-            className="relative z-20 size-24 rounded-full border-2 border-primary/20 bg-primary/10 flex items-center justify-center shadow-lg"
-            ref={centerRef}
-          >
-            <div className="flex flex-col items-center justify-center">
-              <Logo collapsed className="w-[50px] h-[50px]" />
-            </div>
-          </div>
+        <div
+          className="relative z-20 size-24 rounded-full border-2 border-primary/20 bg-primary/10 flex items-center justify-center shadow-lg shrink-0"
+          ref={centerRef}
+        >
+          <Logo collapsed className="w-[50px] h-[50px]" />
+        </div>
 
+        <div className="flex flex-col items-center justify-center gap-10">
           <div className="flex flex-col items-center gap-2">
-            <Circle ref={div4Ref}>
+            <Circle ref={bloquesRef}>
               <BookOpen className="size-6 text-black dark:text-white" />
             </Circle>
             <span className="text-sm font-semibold text-muted-foreground text-center">
@@ -89,43 +84,55 @@ export function AnimatedBeamSection() {
               <br />y Temas
             </span>
           </div>
-        </div>
-
-        {/* Bottom Row */}
-        <div className="flex flex-row items-center justify-center">
           <div className="flex flex-col items-center gap-2">
-            <Circle ref={div5Ref}>
+            <Circle ref={procesoRef}>
               <Trophy className="size-6 text-black dark:text-white" />
             </Circle>
-            <span className="text-sm font-semibold text-muted-foreground">Proceso Selectivo</span>
+            <span className="text-sm font-semibold text-muted-foreground text-center">
+              Proceso
+              <br />
+              Selectivo
+            </span>
+          </div>
+          <div className="flex flex-col items-center gap-2">
+            <Circle ref={feedbackRef}>
+              <LineChart className="size-6 text-black dark:text-white" />
+            </Circle>
+            <span className="text-sm font-semibold text-muted-foreground text-center">
+              Feedback
+              <br />
+              Progreso
+            </span>
           </div>
         </div>
       </div>
 
-      {/* Beams */}
       <AnimatedBeam
         containerRef={containerRef}
-        fromRef={div1Ref}
+        fromRef={testsRef}
         toRef={centerRef}
-        curvature={-50}
-        endYOffset={-10}
+        curvature={-40}
+      />
+      <AnimatedBeam containerRef={containerRef} fromRef={planificacionRef} toRef={centerRef} />
+      <AnimatedBeam
+        containerRef={containerRef}
+        fromRef={casosRef}
+        toRef={centerRef}
+        curvature={40}
       />
       <AnimatedBeam
         containerRef={containerRef}
-        fromRef={div2Ref}
+        fromRef={bloquesRef}
         toRef={centerRef}
-        curvature={-50}
-        endYOffset={-10}
+        curvature={-40}
         reverse
       />
-      <AnimatedBeam containerRef={containerRef} fromRef={div3Ref} toRef={centerRef} />
-      <AnimatedBeam containerRef={containerRef} fromRef={div4Ref} toRef={centerRef} reverse />
+      <AnimatedBeam containerRef={containerRef} fromRef={procesoRef} toRef={centerRef} reverse />
       <AnimatedBeam
         containerRef={containerRef}
-        fromRef={div5Ref}
+        fromRef={feedbackRef}
         toRef={centerRef}
-        curvature={0}
-        endYOffset={10}
+        curvature={40}
         reverse
       />
     </div>
