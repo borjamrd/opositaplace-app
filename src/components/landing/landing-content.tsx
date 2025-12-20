@@ -9,6 +9,8 @@ import { AnimatedBeamSection } from './animated-beam-section';
 import { ProblemsSolution } from './problems-solution';
 import { Hero } from './hero';
 import { HowItWorks } from './how-it-works';
+import { FAQ } from './faq';
+
 export default function LandingContent() {
   const features = [
     {
@@ -72,6 +74,8 @@ export default function LandingContent() {
           <PlanSelector />
         </div>
       </section>
+
+      <FAQ />
       {/* Call to Action Section */}
       <section className="py-20 md:py-28 bg-background">
         <div className="container mx-auto px-4 text-center">
