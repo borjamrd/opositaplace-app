@@ -38,7 +38,7 @@ export function AnimatedBeamSection() {
 
   return (
     <div
-      className="relative flex h-[500px] w-full items-center justify-center overflow-hidden p-10"
+      className="relative flex h-[400px] w-full items-center justify-center overflow-hidden p-4"
       ref={containerRef}
     >
       <div className="flex size-full max-w-lg flex-row items-center justify-between gap-10">

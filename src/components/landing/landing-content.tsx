@@ -6,6 +6,7 @@ import { CalendarCheck, BarChart3, BookOpen, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { PlanSelector } from '../subscription/plan-selector';
 import { AnimatedBeamSection } from './animated-beam-section';
+import { ProblemsSolution } from './problems-solution';
 import { Hero } from './hero';
 import { HowItWorks } from './how-it-works';
 export default function LandingContent() {
@@ -35,14 +36,7 @@ export default function LandingContent() {
       <Hero />
       <HowItWorks />
 
-      {/* Animated Beam Section */}
-      <section className="py-16 bg-background">
-        <div className="container mx-auto px-4">
-          <div className="relative mx-auto max-w-5xl overflow-hidden bg-background">
-            <AnimatedBeamSection />
-          </div>
-        </div>
-      </section>
+      <ProblemsSolution />
 
       {/* Features Section */}
       <section id="features" className="py-20 md:py-28 bg-secondary/30">

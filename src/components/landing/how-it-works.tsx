@@ -16,14 +16,14 @@ export function HowItWorks() {
       number: 2,
       title: 'Registra tu objetivo semanal',
       description:
-        'Según la oposición te recomendaremos un mínimo, pero siempre puedes configuralo según tu situación.',
+        'Te recomendaremos un mínimo de horas, pero siempre puedes configuralo según tu situación.',
       imageColor: 'from-primary/30 to-primary/10',
     },
     {
       number: 3,
       title: 'Practica y reevalúa',
       description:
-        'Registra tu estudio semanal, realiza los ejercicios y obtén feedback sobre tu progreso.',
+        'Registra tus horas de estudio, realiza los ejercicios y obtén feedback sobre tu progreso.',
       imageColor: 'from-primary/20 to-primary/5',
     },
   ];
