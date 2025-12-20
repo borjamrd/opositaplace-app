@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { PlanSelector } from '../subscription/plan-selector';
 import { AnimatedBeamSection } from './animated-beam-section';
 import { Hero } from './hero';
+import { HowItWorks } from './how-it-works';
 export default function LandingContent() {
   const features = [
     {
@@ -32,6 +33,7 @@ export default function LandingContent() {
   return (
     <div className="flex flex-col min-h-screen">
       <Hero />
+      <HowItWorks />
 
       {/* Animated Beam Section */}
       <section className="py-16 bg-background">
