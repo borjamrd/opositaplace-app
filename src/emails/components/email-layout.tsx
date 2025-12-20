@@ -8,9 +8,7 @@ interface EmailLayoutProps {
 
 const isPreview = process.env.NODE_ENV === 'development';
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
-const logoSrc = isPreview
-  ? '/static/opositaplace_logo_v1.png'
-  : `${baseUrl}/opositaplace_logo_v1.png`;
+const logoSrc = isPreview ? '/static/logo.png' : `${baseUrl}/logo.png`;
 
 export const EmailLayout = ({ previewText, children }: EmailLayoutProps) => {
   return (

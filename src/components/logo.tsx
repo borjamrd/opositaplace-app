@@ -11,7 +11,7 @@ export const Logo: React.FC<LogoProps> = ({ className, collapsed }) => {
   return (
     <div className="flex items-center justify-center">
       <Image
-        src="/logo_v3.png"
+        src="/logo.png"
         width={collapsed ? 40 : 30}
         height={40}
         className={cn('', className)}
