@@ -10,6 +10,38 @@ export const metadata: Metadata = {
   title: 'Opositaplace - Por opositores, para opositores',
   description:
     'Organiza tu estudio, realiza tests, sigue tu progreso y consigue tu plaza con Opositaplace.',
+  metadataBase: new URL('https://www.opositaplace.com'),
+  keywords: [
+    'oposiciones',
+    'test',
+    'estudio',
+    'planificador',
+    'opositores',
+    'exámenes',
+    'organización',
+  ],
+  authors: [{ name: 'Opositaplace Team' }],
+  creator: 'Opositaplace',
+  publisher: 'Opositaplace',
+  openGraph: {
+    type: 'website',
+    locale: 'es_ES',
+    url: 'https://www.opositaplace.com',
+    title: 'Opositaplace - Por opositores, para opositores',
+    description:
+      'Organiza tu estudio, realiza tests, sigue tu progreso y consigue tu plaza con Opositaplace.',
+    siteName: 'Opositaplace',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Opositaplace - Por opositores, para opositores',
+    description:
+      'Organiza tu estudio, realiza tests, sigue tu progreso y consigue tu plaza con Opositaplace.',
+    creator: '@opositaplace',
+  },
+  icons: {
+    icon: '/favicon.ico',
+  },
 };
 
 export default async function RootLayout({
