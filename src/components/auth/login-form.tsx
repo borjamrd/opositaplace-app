@@ -20,6 +20,7 @@ import { useToast } from '@/hooks/use-toast';
 import { AlertCircle, LogIn, Eye, EyeOff } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import ProvidersForm from './providers-form';
+import { Separator } from '@/components/ui/separator';
 
 export function LoginForm() {
   const [state, formAction] = useActionState(signIn, null);
@@ -58,6 +59,12 @@ export function LoginForm() {
         <CardTitle className="text-3xl font-bold text-primary">Iniciar sesión</CardTitle>
         <CardDescription>Accede a tu cuenta para continuar tu preparación.</CardDescription>
       </CardHeader>
+      <ProvidersForm prefixMessage="Inicia sesión con" />
+      <div className="flex items-center justify-center max-w-[150px] mx-auto mb-4">
+        <Separator className="mx-2" />
+        <span className="text-center text-muted-foreground text-xs text-nowrap">O bien:</span>
+        <Separator className="mx-2" />
+      </div>
       <form action={formAction}>
         <CardContent className="space-y-6">
           {state?.message &&
@@ -137,7 +144,6 @@ export function LoginForm() {
           </p>
         </CardFooter>
       </form>
-      <ProvidersForm prefixMessage="Inicia sesión con" />
     </Card>
   );
 }

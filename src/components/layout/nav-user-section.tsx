@@ -17,7 +17,7 @@ import { Calendar, LayoutDashboard, User as UserIcon } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 
-export function NavUserSection() {
+export function NavUserSection({ collapsed }: { collapsed: boolean }) {
   const { profile } = useProfileStore();
   const [open, setOpen] = useState(false);
 
@@ -34,18 +34,21 @@ export function NavUserSection() {
         <DropdownMenuTrigger asChild>
           <Button
             variant="ghost"
+            size="lg"
             className="relative h-10 w-full px-2 py-1 flex items-center gap-3"
           >
             <Avatar className="h-8 w-8">
               <AvatarImage src={profile.avatar_url || ''} alt={profile.email || 'User'} />
               <AvatarFallback>{getInitials(profile.email)}</AvatarFallback>
             </Avatar>
-            <div className="flex flex-col items-start min-w-0">
-              <span className="text-sm font-medium truncate">
-                {profile.username || profile.email}
-              </span>
-              <span className="text-xs text-muted-foreground truncate">{profile.email}</span>
-            </div>
+            {!collapsed && (
+              <div className="flex flex-col items-start min-w-0">
+                <span className="text-sm font-medium truncate">
+                  {profile.username || profile.email}
+                </span>
+                <span className="text-xs text-muted-foreground truncate">{profile.email}</span>
+              </div>
+            )}
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-56" align="start" forceMount>

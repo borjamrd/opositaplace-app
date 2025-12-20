@@ -3,9 +3,9 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CalendarCheck, BarChart3, BookOpen, ArrowRight } from 'lucide-react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { PlanSelector } from '../subscription/plan-selector';
+import { AnimatedBeamSection } from './animated-beam-section';
 export default function LandingContent() {
   const features = [
     {
@@ -56,17 +56,11 @@ export default function LandingContent() {
         </div>
       </section>
 
-      {/* Placeholder Image Section */}
+      {/* Animated Beam Section */}
       <section className="py-16 bg-background">
         <div className="container mx-auto px-4">
-          <div className="relative aspect-video max-w-4xl mx-auto rounded-xl shadow-2xl overflow-hidden">
-            <Image
-              src="https://placehold.co/1200x675.png"
-              alt="OpositaPlace platform preview"
-              layout="fill"
-              objectFit="cover"
-              data-ai-hint="dashboard study"
-            />
+          <div className="relative mx-auto max-w-5xl overflow-hidden bg-background">
+            <AnimatedBeamSection />
           </div>
         </div>
       </section>

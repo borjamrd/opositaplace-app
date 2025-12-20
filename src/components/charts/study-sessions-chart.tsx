@@ -44,20 +44,18 @@ function formatMinutesToHoursAndMinutes(minutes: number): string {
   if (minutes === 0) return '0m';
   const h = Math.floor(minutes / 60);
   const m = minutes % 60;
-  const hDisplay = h > 0 ? `${h}h` : '';
-  const mDisplay = m > 0 ? `${m}m` : '';
+  const hDisplay = h > 0 ? `${h} hora${h === 1 ? '' : 's'}` : '';
+  const mDisplay = m > 0 ? `${m} minuto${m === 1 ? '' : 's'}` : '';
   return `${hDisplay} ${mDisplay}`.trim();
 }
 
 export function StudySessionsChart() {
-  // Estado para el selector de tiempo. Por defecto '30d'.
-  const [timeRange, setTimeRange] = useState('30d');
+  const [timeRange, setTimeRange] = useState('7d');
 
-  // Mapeo de las opciones a días numéricos para la RPC
   const timeRangeDays: Record<string, number> = {
     '7d': 7,
     '30d': 30,
-    all: 365, // Asumimos 1 año para "Todo el tiempo" o un número muy alto
+    all: 365,
   };
 
   const {
@@ -195,7 +193,7 @@ export function StudySessionsChart() {
             <div className="flex items-center gap-2 font-medium leading-none">
               {!isLoading && (
                 <>
-                  Total de {formatMinutesToHoursAndMinutes(totalMinutes)} estudiados en este periodo
+                  Total de {formatMinutesToHoursAndMinutes(totalMinutes)} estudiadas en este periodo
                 </>
               )}
               {isLoading && <Skeleton className="h-4 w-48" />}

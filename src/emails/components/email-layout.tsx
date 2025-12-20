@@ -72,7 +72,7 @@ export const btnContainer = {
 };
 
 export const button = {
-  backgroundColor: '#4C6EF5',
+  backgroundColor: '#000',
   borderRadius: '6px',
   color: '#fff',
   fontSize: '16px',

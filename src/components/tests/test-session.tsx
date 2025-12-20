@@ -296,115 +296,152 @@ export function TestSession({ testAttempt, questions }: TestSessionProps) {
         </Button>
       </div>
 
-      {/* CONTENIDO PRINCIPAL (Oculto si está blurred) */}
       <div className={isBlurred ? 'blur-lg pointer-events-none' : ''}>
         <Card
           variant={isFullscreen ? 'default' : 'borderless'}
-          className="max-w-4xl mx-auto w-full flex-1"
+          className="max-w-6xl mx-auto w-full flex-1 overflow-hidden flex flex-col lg:flex-row"
         >
-          {/* ... (Header de la Card: Badges, Progreso) ... */}
-          <CardHeader>
-            <div className="flex justify-between items-start">
-              <CardTitle>Test en curso</CardTitle>
-              {(topicName || blockName || examName) && (
-                <div className="flex flex-col items-end gap-1">
-                  {examName && (
-                    <Badge variant="secondary" className="text-xs font-normal">
-                      <BookOpenCheck className="mr-1 h-3 w-3" /> {examName}
-                    </Badge>
-                  )}
-                  {blockName && (
-                    <Badge variant="secondary" className="text-xs font-normal">
-                      <LibraryBig className="mr-1 h-3 w-3" /> {blockName}
-                    </Badge>
-                  )}
-                  {topicName && (
-                    <Badge variant="outline" className="text-xs font-normal">
-                      <LayoutTemplate className="mr-1 h-3 w-3" /> {topicName}
-                    </Badge>
-                  )}
-                </div>
-              )}
-            </div>
-            <div className="pt-4">
-              <Progress value={progress} className="w-full h-2" />
-              <p className="text-sm text-muted-foreground mt-2 text-center">
-                Pregunta {currentQuestionIndex + 1} de {questions.length}
-              </p>
-            </div>
-          </CardHeader>
+          {/* COLUMNA PRINCIPAL (Pregunta) */}
+          <div className="flex-1 flex flex-col min-w-0">
+            {/* ... (Header de la Card: Badges, Progreso) ... */}
+            <CardHeader>
+              <div className="flex justify-between items-start">
+                <CardTitle>Test en curso</CardTitle>
+                {(topicName || blockName || examName) && (
+                  <div className="flex flex-col items-end gap-1">
+                    {examName && (
+                      <Badge variant="secondary" className="text-xs font-normal">
+                        <BookOpenCheck className="mr-1 h-3 w-3" /> {examName}
+                      </Badge>
+                    )}
+                    {blockName && (
+                      <Badge variant="secondary" className="text-xs font-normal">
+                        <LibraryBig className="mr-1 h-3 w-3" /> {blockName}
+                      </Badge>
+                    )}
+                    {topicName && (
+                      <Badge variant="outline" className="text-xs font-normal">
+                        <LayoutTemplate className="mr-1 h-3 w-3" /> {topicName}
+                      </Badge>
+                    )}
+                  </div>
+                )}
+              </div>
+              <div className="pt-4">
+                <Progress value={progress} className="w-full h-2" />
+                <p className="text-sm text-muted-foreground mt-2 text-center lg:text-left">
+                  Pregunta {currentQuestionIndex + 1} de {questions.length}
+                </p>
+              </div>
+            </CardHeader>
 
-          <CardContent className="min-h-[300px]">
-            {/* AÑADIDO: onCopy preventivo inline */}
-            <h3
-              className="text-lg font-semibold mb-6 leading-relaxed"
-              onCopy={(e) => e.preventDefault()}
-            >
-              {currentQuestion.text}
-            </h3>
+            <CardContent className="flex-1 min-h-[300px] overflow-y-auto">
+              {/* AÑADIDO: onCopy preventivo inline */}
+              <h3
+                className="text-lg font-semibold mb-6 leading-relaxed"
+                onCopy={(e) => e.preventDefault()}
+              >
+                {currentQuestion.text}
+              </h3>
 
-            <RadioGroup
-              onValueChange={(value) => setUserAnswer(currentQuestion.id, value)}
-              value={currentAnswer || ''}
-              className="space-y-3"
-            >
-              {currentQuestion.answers.map((answer, index) => (
-                <Label
-                  key={answer.id}
-                  htmlFor={answer.id}
-                  // AÑADIDO: select-none también aquí por seguridad
-                  className={`flex items-center gap-3 p-4 border rounded-md cursor-pointer transition-all select-none
-                      hover:bg-accent/50 
-                      ${currentAnswer === answer.id ? 'bg-primary/5 border-primary shadow-sm' : ''}
-                    `}
-                >
-                  <RadioGroupItem value={answer.id} id={answer.id} />
-                  <span className="font-semibold text-muted-foreground mr-2 shrink-0">
-                    {String.fromCharCode(65 + index)}.
-                  </span>
-                  <span>{answer.text}</span>
-                </Label>
-              ))}
-            </RadioGroup>
-          </CardContent>
+              <RadioGroup
+                onValueChange={(value) => setUserAnswer(currentQuestion.id, value)}
+                value={currentAnswer || ''}
+                className="space-y-3"
+              >
+                {currentQuestion.answers.map((answer, index) => (
+                  <Label
+                    key={answer.id}
+                    htmlFor={answer.id}
+                    // AÑADIDO: select-none también aquí por seguridad
+                    className={`flex items-center gap-3 p-4 border rounded-md cursor-pointer transition-all select-none
+                        hover:bg-accent/50 
+                        ${currentAnswer === answer.id ? 'bg-primary/5 border-primary shadow-sm' : ''}
+                      `}
+                  >
+                    <RadioGroupItem value={answer.id} id={answer.id} />
+                    <span className="font-semibold text-muted-foreground mr-2 shrink-0">
+                      {String.fromCharCode(65 + index)}.
+                    </span>
+                    <span>{answer.text}</span>
+                  </Label>
+                ))}
+              </RadioGroup>
+            </CardContent>
 
-          {/* ... (Footer: Botones Anterior/Siguiente) ... */}
-          <CardFooter className="flex justify-between pt-6">
-            <Button
-              variant="outline"
-              onClick={() => setCurrentQuestionIndex(currentQuestionIndex - 1)}
-              disabled={currentQuestionIndex === 0}
-            >
-              <ArrowLeft className="mr-2 h-4 w-4" /> Anterior
-            </Button>
-            {currentQuestionIndex < questions.length - 1 ? (
-              <Button onClick={() => setCurrentQuestionIndex(currentQuestionIndex + 1)}>
-                Siguiente <ArrowRight className="ml-2 h-4 w-4" />
+            {/* ... (Footer: Botones Anterior/Siguiente) ... */}
+            <CardFooter className="flex justify-between pt-6 mt-auto border-t">
+              <Button
+                variant="outline"
+                onClick={() => setCurrentQuestionIndex(currentQuestionIndex - 1)}
+                disabled={currentQuestionIndex === 0}
+              >
+                <ArrowLeft className="mr-2 h-4 w-4" /> Anterior
               </Button>
-            ) : (
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button variant="default">
-                    <CheckCircle className="mr-2 h-4 w-4" /> Finalizar Test
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      Una vez finalizado, el test se corregirá.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                    <AlertDialogAction onClick={handleFinishTest} disabled={isPending}>
-                      {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Sí, finalizar
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            )}
-          </CardFooter>
+              {currentQuestionIndex < questions.length - 1 ? (
+                <Button onClick={() => setCurrentQuestionIndex(currentQuestionIndex + 1)}>
+                  Siguiente <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              ) : (
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="default">
+                      <CheckCircle className="mr-2 h-4 w-4" /> Finalizar Test
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Una vez finalizado, el test se corregirá.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleFinishTest} disabled={isPending}>
+                        {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Sí,
+                        finalizar
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              )}
+            </CardFooter>
+          </div>
+
+          {/* COLUMNA LATERAL (Navegación) */}
+          <div className="w-full lg:w-[280px] border-l bg-muted/10 flex flex-col">
+            <div className="p-4 font-semibold text-sm text-muted-foreground border-b flex justify-between items-center">
+              <span>Navegador</span>
+              <span className="text-xs font-normal">
+                {userAnswers.size} / {questions.length} respondidas
+              </span>
+            </div>
+            <div className="p-4 overflow-y-auto max-h-[200px] lg:max-h-[calc(100vh-250px)]">
+              <div className="grid grid-cols-5 gap-2">
+                {questions.map((q, idx) => {
+                  const isAnswered = userAnswers.has(q.id);
+                  const isCurrent = currentQuestionIndex === idx;
+
+                  return (
+                    <Button
+                      key={q.id}
+                      variant={isCurrent ? 'default' : isAnswered ? 'secondary' : 'outline'}
+                      size="sm"
+                      className={`
+                                    h-10 w-full p-0 text-xs font-medium
+                                    ${isCurrent ? 'ring-2 ring-primary ring-offset-2' : ''}
+                                    ${!isCurrent && !isAnswered ? 'text-muted-foreground hover:text-foreground' : ''}
+                                `}
+                      onClick={() => setCurrentQuestionIndex(idx)}
+                    >
+                      {idx + 1}
+                    </Button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
         </Card>
       </div>
 

@@ -19,6 +19,7 @@ import Link from 'next/link';
 import { useActionState, useEffect } from 'react';
 import { useFormStatus } from 'react-dom';
 import ProvidersForm from './providers-form';
+import { Separator } from '@/components/ui/separator';
 
 export function RegisterForm() {
   const [state, formAction] = useActionState(signUp, null);
@@ -56,6 +57,12 @@ export function RegisterForm() {
         <CardTitle className="text-3xl font-bold text-primary">Crear cuenta</CardTitle>
         <CardDescription>Únete a Opositaplace y empieza a prepararte.</CardDescription>
       </CardHeader>
+      <ProvidersForm prefixMessage="Regístrate con" />
+      <div className="flex items-center justify-center max-w-[150px] mx-auto mb-4">
+        <Separator className="mx-2" />
+        <span className="text-center text-muted-foreground text-xs text-nowrap">O bien:</span>
+        <Separator className="mx-2" />
+      </div>
       <form action={formAction}>
         <CardContent className="space-y-6">
           {/* Mostrar Alert para mensajes generales que no sean errores de campo de Zod */}
@@ -136,7 +143,6 @@ export function RegisterForm() {
           </p>
         </CardFooter>
       </form>
-      <ProvidersForm prefixMessage="Regístrate con" />
     </Card>
   );
 }

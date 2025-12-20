@@ -32,7 +32,7 @@ interface TimerState {
 
   reset: () => void;
   saveSessionAndReset: () => Promise<void>;
-  saveManualSession: (durationSeconds: number) => Promise<void>;
+  saveManualSession: (durationSeconds: number, date: Date) => Promise<void>;
 }
 
 const TIMER_STORAGE_KEY = 'op-timer-state';
@@ -193,7 +193,7 @@ export const useTimerStore = create<TimerState>((set, get) => ({
     // Finalmente, reseteamos el estado del temporizador
     get().reset();
   },
-  saveManualSession: async (durationSeconds: number) => {
+  saveManualSession: async (durationSeconds: number, date: Date) => {
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -203,8 +203,8 @@ export const useTimerStore = create<TimerState>((set, get) => ({
       user_id: user?.id,
       opposition_id: activeOpposition?.id,
       study_cycle_id: activeStudyCycle?.id,
-      started_at: new Date(Date.now() - durationSeconds * 1000).toISOString(),
-      ended_at: new Date().toISOString(),
+      started_at: date.toISOString(),
+      ended_at: date.toISOString(),
       duration_seconds: Math.round(durationSeconds),
     };
 

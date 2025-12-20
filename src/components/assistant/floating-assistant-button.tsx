@@ -6,7 +6,7 @@ import { Sparkle } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ChatAssistant } from './chat-assistant';
 
-export function FloatingAssistantButton() {
+export function FloatingAssistantButton({ collapsed }: { collapsed?: boolean }) {
   const triggerRef = useRef<HTMLButtonElement | null>(null);
   const [open, setOpen] = useState(false);
 
@@ -25,17 +25,22 @@ export function FloatingAssistantButton() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button ref={triggerRef} size="lg" className="gap-2">
-          <Sparkle className="h-5 w-5" />
-          Asistente
-          <div className="flex items-center justify-end gap-1">
-            <span className="flex items-center rounded-lg bg-foreground  border px-2 font-mono">
-              Ctrl
-            </span>
-            <span className="flex items-center rounded-lg bg-foreground border px-2 font-mono">
-              K
-            </span>
-          </div>
+        <Button ref={triggerRef} size={collapsed ? 'icon' : 'lg'} className="gap-2">
+          {collapsed ? (
+            <Sparkle className="h-5 w-5" />
+          ) : (
+            <>
+              Asistente
+              <div className="flex items-center justify-end gap-1">
+                <span className="flex items-center rounded-lg bg-foreground  border px-2 font-mono">
+                  Ctrl
+                </span>
+                <span className="flex items-center rounded-lg bg-foreground border px-2 font-mono">
+                  K
+                </span>
+              </div>
+            </>
+          )}
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-7xl h-[80vh] p-0">

@@ -331,7 +331,7 @@ export function CreateTestForm({
         <CardFooter>
           <Button type="submit" className="w-full" disabled={isPending}>
             {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Comenzar test
+            {isPending ? 'Creando test...' : 'Comenzar test'}
           </Button>
         </CardFooter>
       </Card>
