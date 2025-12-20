@@ -1,0 +1,96 @@
+'use client';
+
+import React from 'react';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
+import { motion } from 'framer-motion';
+import { ArrowRight, Sparkles } from 'lucide-react';
+import { Logo } from '@/components/logo';
+
+export function Hero() {
+  return (
+    <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden">
+      {/* Background Glows */}
+      <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-[120px] -z-10 animate-pulse" />
+      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-primary/10 rounded-full blur-[120px] -z-10" />
+
+      <div className="container mx-auto px-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          {/* Left Content */}
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, ease: 'easeOut' }}
+            className="flex flex-col items-start space-y-8"
+          >
+            {/* Badge */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.2, duration: 0.5 }}
+              className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-medium backdrop-blur-sm"
+            >
+              <Sparkles className="w-4 h-4" />
+              <span>Por opositores. Para opositores</span>
+            </motion.div>
+
+            {/* Title */}
+            <div className="space-y-3">
+              <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-tight">
+                No estudies más.
+                <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-primary/80 to-primary/60">
+                  Estudia mejor
+                </span>
+                <br />
+                con opositaplace.
+              </h1>
+              <p className="text-lg md:text-xl text-muted-foreground max-w-lg leading-relaxed">
+                Un solo lugar para registrar tu estudio, realizar ejercicios y estar al tanto de tu
+                proceso selectivo.
+              </p>
+            </div>
+
+            {/* CTA Buttons */}
+            <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+              <Button
+                asChild
+                variant="btn-header"
+                className="h-14 px-10 text-xl rounded-xl shadow-xl hover:shadow-primary/20 transition-all duration-300"
+              >
+                <Link href="/register">Acceder</Link>
+              </Button>
+            </div>
+          </motion.div>
+
+          {/* Right Content - Image Containter */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9, x: 20 }}
+            animate={{ opacity: 1, scale: 1, x: 0 }}
+            transition={{ duration: 0.8, ease: 'easeOut', delay: 0.2 }}
+            className="relative"
+          >
+            <div className="relative z-10 w-full aspect-video lg:aspect-square max-w-[600px] mx-auto group">
+              {/* Glassmorphism Container for Image Placeholder */}
+              <div className="absolute inset-0 bg-gradient-to-tr from-primary/5 to-primary/10 rounded-2xl border border-white/10 backdrop-blur-sm shadow-2xl overflow-hidden">
+                <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
+
+                {/* Placeholder Content */}
+                <div className="flex items-center justify-center h-full">
+                  <Logo
+                    collapsed
+                    className="w-[100px] h-auto opacity-20 group-hover:opacity-30 transition-opacity duration-500"
+                  />
+                </div>
+              </div>
+
+              {/* Decorative Elements */}
+              <div className="absolute -top-6 -right-6 w-32 h-32 bg-primary/20 rounded-full blur-2xl -z-10 group-hover:bg-primary/30 transition-colors duration-500" />
+              <div className="absolute -bottom-6 -left-6 w-32 h-32 bg-primary/10 rounded-full blur-2xl -z-10 group-hover:bg-primary/20 transition-colors duration-500" />
+            </div>
+          </motion.div>
+        </div>
+      </div>
+    </section>
+  );
+}

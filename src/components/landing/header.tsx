@@ -29,10 +29,10 @@ export function LandingHeader({ profile }: LandingHeaderProps) {
     <div className="flex justify-center w-full sticky top-4 z-50 pointer-events-none">
       <header
         className={cn(
-          'flex items-center justify-between  transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] z-50 pointer-events-auto',
+          'flex items-center justify-between rounded-2xl md:-mb-20 -mb-10 transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] z-50 pointer-events-auto',
           isScrolled
-            ? 'mt-4 h-14 w-[90%] px-5 md:px-3 max-w-5xl rounded-2xl border bg-background/60 backdrop-blur-xl shadow-sm'
-            : 'mt-0 h-20 w-full px-10 md:px-6'
+            ? 'mt-4 h-14 w-[90%] px-5 md:px-3 px-2 max-w-5xl border bg-background/60 backdrop-blur-xl shadow-sm'
+            : 'mt-0 h-20 w-full px-10 md:px-6 px-2 bg-transparent'
         )}
       >
         <Link href="/" className="ml-2">

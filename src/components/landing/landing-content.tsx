@@ -6,6 +6,7 @@ import { CalendarCheck, BarChart3, BookOpen, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { PlanSelector } from '../subscription/plan-selector';
 import { AnimatedBeamSection } from './animated-beam-section';
+import { Hero } from './hero';
 export default function LandingContent() {
   const features = [
     {
@@ -30,31 +31,7 @@ export default function LandingContent() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      {/* Hero Section */}
-      <section className="py-20 -mt-20 md:py-32 bg-radial from-amber-400/50 via-background to-secondary/20">
-        <div className="container mx-auto mt-20 px-4 text-center">
-          <h1 className="text-5xl md:text-8xl tracking-tight mb-16">
-            <span className="text-primary font-extrabold ">Organiza tu estudio📖.</span>
-            <br></br> Por{' '}
-            <span className="border-b-4 border-primary">
-              opositores.<br></br>
-            </span>
-            <span className="font-extrabold ">Para opositores.</span>
-          </h1>
-
-          <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
-            <Button
-              size="lg"
-              asChild
-              className="shadow-lg hover:shadow-primary/30 transition-shadow rounded-3xl"
-            >
-              <Link href="/register">
-                Comienza tu estudio <ArrowRight className="ml-2 h-5 w-5" />
-              </Link>
-            </Button>
-          </div>
-        </div>
-      </section>
+      <Hero />
 
       {/* Animated Beam Section */}
       <section className="py-16 bg-background">
