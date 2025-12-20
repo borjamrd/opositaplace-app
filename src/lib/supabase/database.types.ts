@@ -625,6 +625,60 @@ export type Database = {
         };
         Relationships: [];
       };
+      question_extraction_jobs: {
+        Row: {
+          created_at: string;
+          error_message: string | null;
+          exam_id: string | null;
+          id: string;
+          opposition_id: string | null;
+          raw_text: string | null;
+          result: Json | null;
+          status: Database['public']['Enums']['job_status'] | null;
+          updated_at: string;
+          user_id: string | null;
+        };
+        Insert: {
+          created_at?: string;
+          error_message?: string | null;
+          exam_id?: string | null;
+          id?: string;
+          opposition_id?: string | null;
+          raw_text?: string | null;
+          result?: Json | null;
+          status?: Database['public']['Enums']['job_status'] | null;
+          updated_at?: string;
+          user_id?: string | null;
+        };
+        Update: {
+          created_at?: string;
+          error_message?: string | null;
+          exam_id?: string | null;
+          id?: string;
+          opposition_id?: string | null;
+          raw_text?: string | null;
+          result?: Json | null;
+          status?: Database['public']['Enums']['job_status'] | null;
+          updated_at?: string;
+          user_id?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'question_extraction_jobs_exam_id_fkey';
+            columns: ['exam_id'];
+            isOneToOne: false;
+            referencedRelation: 'exams';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'question_extraction_jobs_opposition_id_fkey';
+            columns: ['opposition_id'];
+            isOneToOne: false;
+            referencedRelation: 'oppositions';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       questions: {
         Row: {
           created_at: string | null;
@@ -1285,6 +1339,113 @@ export type Database = {
         };
         Relationships: [];
       };
+      user_content_folders: {
+        Row: {
+          created_at: string;
+          id: string;
+          name: string;
+          opposition_id: string | null;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          id?: string;
+          name: string;
+          opposition_id?: string | null;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          name?: string;
+          opposition_id?: string | null;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'user_content_folders_opposition_id_fkey';
+            columns: ['opposition_id'];
+            isOneToOne: false;
+            referencedRelation: 'oppositions';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'user_content_folders_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      user_documents: {
+        Row: {
+          associated_block_id: string | null;
+          associated_topic_id: string | null;
+          created_at: string;
+          folder_id: string | null;
+          id: string;
+          storage_path: string;
+          summary: Json | null;
+          title: string;
+          updated_at: string | null;
+          user_id: string;
+        };
+        Insert: {
+          associated_block_id?: string | null;
+          associated_topic_id?: string | null;
+          created_at?: string;
+          folder_id?: string | null;
+          id?: string;
+          storage_path: string;
+          summary?: Json | null;
+          title: string;
+          updated_at?: string | null;
+          user_id: string;
+        };
+        Update: {
+          associated_block_id?: string | null;
+          associated_topic_id?: string | null;
+          created_at?: string;
+          folder_id?: string | null;
+          id?: string;
+          storage_path?: string;
+          summary?: Json | null;
+          title?: string;
+          updated_at?: string | null;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'user_documents_associated_block_id_fkey';
+            columns: ['associated_block_id'];
+            isOneToOne: false;
+            referencedRelation: 'blocks';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'user_documents_associated_topic_id_fkey';
+            columns: ['associated_topic_id'];
+            isOneToOne: false;
+            referencedRelation: 'topics';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'user_documents_folder_id_fkey';
+            columns: ['folder_id'];
+            isOneToOne: false;
+            referencedRelation: 'user_content_folders';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'user_documents_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       user_oppositions: {
         Row: {
           active: boolean | null;
@@ -1651,13 +1812,13 @@ export type Database = {
         Returns: number;
       };
       get_questions_by_opposition:
+        | { Args: { opp_id: string }; Returns: string[] }
         | {
             Args: { include_no_topic?: boolean; opp_id: string };
             Returns: {
               id: string;
             }[];
-          }
-        | { Args: { opp_id: string }; Returns: string[] };
+          };
       get_test_history_summary: {
         Args: { limit_count?: number };
         Returns: {
@@ -1732,7 +1893,17 @@ export type Database = {
       app_role: 'admin' | 'user';
       case_attempt_status: 'draft' | 'submitted' | 'corrected';
       difficulty_level: 'Baja' | 'Media' | 'Alta' | 'Muy Alta';
-      opposition_scope_enum: 'estatal' | 'autonomica' | 'local' | 'union-europea';
+      job_status: 'pending' | 'processing' | 'completed' | 'failed';
+      opposition_scope_enum:
+        | 'estatal'
+        | 'autonomica'
+        | 'local'
+        | 'union-europea'
+        | 'universidades'
+        | 'sanidad'
+        | 'legislacion'
+        | 'psicotecnicos'
+        | 'informatica';
       process_status_enum: 'borrador' | 'en_curso' | 'finalizado';
       stage_status_enum: 'pendiente' | 'abierta' | 'completada';
       status_enum: 'not_started' | 'in_progress' | 'completed';
@@ -1867,7 +2038,18 @@ export const Constants = {
       app_role: ['admin', 'user'],
       case_attempt_status: ['draft', 'submitted', 'corrected'],
       difficulty_level: ['Baja', 'Media', 'Alta', 'Muy Alta'],
-      opposition_scope_enum: ['estatal', 'autonomica', 'local', 'union-europea'],
+      job_status: ['pending', 'processing', 'completed', 'failed'],
+      opposition_scope_enum: [
+        'estatal',
+        'autonomica',
+        'local',
+        'union-europea',
+        'universidades',
+        'sanidad',
+        'legislacion',
+        'psicotecnicos',
+        'informatica',
+      ],
       process_status_enum: ['borrador', 'en_curso', 'finalizado'],
       stage_status_enum: ['pendiente', 'abierta', 'completada'],
       status_enum: ['not_started', 'in_progress', 'completed'],
