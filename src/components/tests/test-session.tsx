@@ -266,7 +266,7 @@ export function TestSession({ testAttempt, questions }: TestSessionProps) {
 
       {/* ... (Resto de tu JSX: Header, Botones, Timer, etc.) ... */}
       <div
-        className={`max-w-4xl mx-auto w-full mb-4 flex items-center justify-between ${isBlurred ? 'opacity-0' : 'opacity-100'}`}
+        className={`${isFullscreen ? 'max-w-8xl' : 'max-w-6xl'}  mx-auto w-full mb-4 flex items-center justify-between ${isBlurred ? 'opacity-0' : 'opacity-100'}`}
       >
         {!isFullscreen && (
           <Button
@@ -299,8 +299,8 @@ export function TestSession({ testAttempt, questions }: TestSessionProps) {
 
       <div className={isBlurred ? 'blur-lg pointer-events-none' : ''}>
         <Card
-          variant={isFullscreen ? 'default' : 'borderless'}
-          className="max-w-6xl mx-auto w-full flex-1 overflow-hidden flex flex-col lg:flex-row"
+          variant="borderless"
+          className={`${isFullscreen ? 'max-w-8xl' : 'max-w-6xl'} mx-auto w-full flex-1 overflow-hidden flex flex-col lg:flex-row`}
         >
           {/* COLUMNA PRINCIPAL (Pregunta) */}
           <div className="flex-1 flex flex-col min-w-0">
