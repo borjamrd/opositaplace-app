@@ -2,14 +2,14 @@
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { CalendarCheck, BarChart3, BookOpen, ArrowRight } from 'lucide-react';
+import { ArrowRight, BarChart3, BookOpen, CalendarCheck } from 'lucide-react';
 import Link from 'next/link';
 import { PlanSelector } from '../subscription/plan-selector';
-import { AnimatedBeamSection } from './animated-beam-section';
-import { ProblemsSolution } from './problems-solution';
+import { FAQ } from './faq';
+import { Footer } from './footer';
 import { Hero } from './hero';
 import { HowItWorks } from './how-it-works';
-import { FAQ } from './faq';
+import { ProblemsSolution } from './problems-solution';
 
 export default function LandingContent() {
   const features = [
@@ -92,15 +92,7 @@ export default function LandingContent() {
           </Button>
         </div>
       </section>
-      {/* Footer */}
-      <footer className="py-8 bg-primary/5 border-t border-border/20">
-        <div className="container mx-auto px-4 text-center text-foreground/60">
-          <p>&copy; {new Date().getFullYear()} OpositaPlace. Todos los derechos reservados.</p>
-          <p className="text-sm mt-2">
-            Hecho con <span className="text-red-500">❤️</span> para los futuros funcionarios.
-          </p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }
