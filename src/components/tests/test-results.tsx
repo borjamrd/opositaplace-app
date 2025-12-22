@@ -17,11 +17,13 @@ import {
   Info,
   Lightbulb,
   Loader2,
+  Repeat,
   X,
   XCircle,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
+import MarkdownContent from '../markdown-content';
 
 interface TestResultsProps {
   questions: QuestionWithAnswers[];
@@ -356,7 +358,7 @@ export function TestResults({ questions, userAnswers, attempt, addedCardIds }: T
 
                       {currentQuestion.explanation ? (
                         <div className="text-sm text-muted-foreground leading-relaxed">
-                          {currentQuestion.explanation}
+                          <MarkdownContent>{currentQuestion.explanation}</MarkdownContent>
                         </div>
                       ) : (
                         <div className="flex items-center gap-2 text-sm text-muted-foreground italic">
@@ -381,16 +383,14 @@ export function TestResults({ questions, userAnswers, attempt, addedCardIds }: T
                         >
                           {isAdding ? (
                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          ) : isAlreadyAdded ? (
-                            <Check className="mr-2 h-4 w-4" />
                           ) : (
-                            <span className="mr-2 text-lg">+</span>
+                            <Repeat className="mr-2 h-4 w-4" />
                           )}
                           {isAdding
                             ? 'Añadiendo...'
                             : isAlreadyAdded
-                              ? 'Añadido a Repaso'
-                              : 'Añadir a Repaso Espaciado'}
+                              ? 'Añadida a repetición espaciada'
+                              : 'Añadir a repetición espaciada'}
                         </Button>
                       </motion.div>
                     )}

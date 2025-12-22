@@ -14,6 +14,7 @@ import { Card, CardHeader } from '../ui/card';
 import { ReferencesPanel } from './references-panel';
 import { ConversationSidebar } from './conversation-sidebar';
 import { useProfileStore } from '@/store/profile-store';
+import MarkdownContent from '../markdown-content';
 
 const suggestedQuestions = [
   {
@@ -315,48 +316,7 @@ export function ChatAssistant() {
                       </div>
                     ) : (
                       <div className="prose prose-sm dark:prose-invert max-w-none">
-                        <ReactMarkdown
-                          components={{
-                            h1: ({ node, ...props }) => (
-                              <h1 className="text-lg font-bold my-2" {...props} />
-                            ),
-                            h2: ({ node, ...props }) => (
-                              <h2 className="text-md font-semibold my-2" {...props} />
-                            ),
-                            h3: ({ node, ...props }) => (
-                              <h3 className="text-base font-medium my-1" {...props} />
-                            ),
-                            p: ({ node, ...props }) => <p className="my-1" {...props} />,
-                            ul: ({ node, ...props }) => (
-                              <ul className="list-disc pl-4 my-1" {...props} />
-                            ),
-                            ol: ({ node, ...props }) => (
-                              <ol className="list-decimal pl-4 my-1" {...props} />
-                            ),
-                            li: ({ node, ...props }) => <li className="my-0.5" {...props} />,
-                            a: ({ node, ...props }) => (
-                              <a className="text-blue-500 hover:underline" {...props} />
-                            ),
-                            strong: ({ node, ...props }) => (
-                              <strong className="font-bold" {...props} />
-                            ),
-                            em: ({ node, ...props }) => <em className="italic" {...props} />,
-                            blockquote: ({ node, ...props }) => (
-                              <blockquote
-                                className="border-l-4 border-gray-300 pl-4 my-2 italic"
-                                {...props}
-                              />
-                            ),
-                            code: ({ node, ...props }) => (
-                              <code
-                                className="bg-gray-100 dark:bg-gray-800 rounded px-1"
-                                {...props}
-                              />
-                            ),
-                          }}
-                        >
-                          {msg.content}
-                        </ReactMarkdown>
+                        <MarkdownContent>{msg.content}</MarkdownContent>
                         {msg.role === 'model' && msg.sources && msg.sources.length > 0 && (
                           <div className="mt-4">
                             <Button
