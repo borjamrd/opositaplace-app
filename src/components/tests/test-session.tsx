@@ -39,6 +39,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '../ui/alert-dialog';
+import { TestSessionNavigation } from './test-session-navigation';
 import { TestResults } from './test-results';
 
 interface TestSessionProps {
@@ -389,7 +390,7 @@ export function TestSession({ testAttempt, questions }: TestSessionProps) {
                       <CheckCircle className="mr-2 h-4 w-4" /> Finalizar Test
                     </Button>
                   </AlertDialogTrigger>
-                  <AlertDialogContent>
+                  <AlertDialogContent container={containerRef.current}>
                     <AlertDialogHeader>
                       <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
                       <AlertDialogDescription>
@@ -410,44 +411,18 @@ export function TestSession({ testAttempt, questions }: TestSessionProps) {
           </div>
 
           {/* COLUMNA LATERAL (Navegación) */}
-          <div className="w-full lg:w-[280px] border-l bg-muted/10 flex flex-col">
-            <div className="p-4 font-semibold text-sm text-muted-foreground border-b flex justify-between items-center">
-              <span>Navegador</span>
-              <span className="text-xs font-normal">
-                {userAnswers.size} / {questions.length} respondidas
-              </span>
-            </div>
-            <div className="p-4 overflow-y-auto max-h-[200px] lg:max-h-[calc(100vh-250px)]">
-              <div className="grid grid-cols-5 gap-2">
-                {questions.map((q, idx) => {
-                  const isAnswered = userAnswers.has(q.id);
-                  const isCurrent = currentQuestionIndex === idx;
-
-                  return (
-                    <Button
-                      key={q.id}
-                      variant={isCurrent ? 'default' : isAnswered ? 'secondary' : 'outline'}
-                      size="sm"
-                      className={`
-                                    h-10 w-full p-0 text-xs font-medium
-                                    ${isCurrent ? 'ring-2 ring-primary ring-offset-2' : ''}
-                                    ${!isCurrent && !isAnswered ? 'text-muted-foreground hover:text-foreground' : ''}
-                                `}
-                      onClick={() => setCurrentQuestionIndex(idx)}
-                    >
-                      {idx + 1}
-                    </Button>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
+          <TestSessionNavigation
+            questions={questions}
+            userAnswers={userAnswers}
+            currentQuestionIndex={currentQuestionIndex}
+            onQuestionSelect={setCurrentQuestionIndex}
+          />
         </Card>
       </div>
 
       {/* ... (AlertDialog de Salir existente) ... */}
       <AlertDialog open={showExitDialog} onOpenChange={setShowExitDialog}>
-        <AlertDialogContent>
+        <AlertDialogContent container={containerRef.current}>
           <AlertDialogHeader>
             <AlertDialogTitle>¿Deseas salir del test?</AlertDialogTitle>
             <AlertDialogDescription>Puedes guardarlo o descartarlo.</AlertDialogDescription>

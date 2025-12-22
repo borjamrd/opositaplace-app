@@ -299,7 +299,7 @@ export function TestResults({ questions, userAnswers, attempt, addedCardIds }: T
                   <div className="text-lg font-medium leading-relaxed">{currentQuestion.text}</div>
                 </motion.div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
                   {/* Answers */}
                   <motion.div
                     className="lg:col-span-2 space-y-3"
@@ -345,7 +345,7 @@ export function TestResults({ questions, userAnswers, attempt, addedCardIds }: T
 
                   {/* Explanation */}
                   <motion.div
-                    className="lg:col-span-1 flex flex-col gap-4 h-full"
+                    className="lg:col-span-3 flex flex-col gap-4 h-full"
                     initial={shouldAnimate ? { opacity: 0, x: 10 } : { opacity: 1, x: 0 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.4, delay: shouldAnimate ? 0.8 : 0 }}
