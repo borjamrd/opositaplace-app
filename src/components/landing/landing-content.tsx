@@ -10,6 +10,7 @@ import { Footer } from './footer';
 import { Hero } from './hero';
 import { HowItWorks } from './how-it-works';
 import { ProblemsSolution } from './problems-solution';
+import { CtaOpposition } from './cta-opposition';
 
 export default function LandingContent() {
   const features = [
@@ -75,23 +76,8 @@ export default function LandingContent() {
         </div>
       </section>
 
+      <CtaOpposition />
       <FAQ />
-      {/* Call to Action Section */}
-      <section className="py-20 md:py-28 bg-background">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-6">
-            ¿Listo para transformar tu estudio?
-          </h2>
-          <p className="text-lg text-foreground/80 max-w-xl mx-auto mb-10">
-            Regístrate gratis y da el primer paso hacia tu futuro profesional.
-          </p>
-          <Button size="lg" asChild className="shadow-lg hover:shadow-primary/30 transition-shadow">
-            <Link href="/register">
-              Comienza tu estudio <ArrowRight className="ml-2 h-5 w-5" />
-            </Link>
-          </Button>
-        </div>
-      </section>
       <Footer />
     </div>
   );
