@@ -46,7 +46,7 @@ export function FailedQuestionFlashcard({ questions }: FailedQuestionFlashcardPr
         <CardTitle>Preguntas que has fallado</CardTitle>
       </CardHeader>
       <CardContent className="flex-grow">
-        <p className="font-semibold mb-4">{currentQuestion.text}</p>
+        <p className="font mb-4">{currentQuestion.text}</p>
 
         {isAnswerVisible && (
           <div className="space-y-2 mt-4 animate-in fade-in">

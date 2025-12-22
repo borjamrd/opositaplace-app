@@ -17,11 +17,13 @@ import {
   Info,
   Lightbulb,
   Loader2,
+  Repeat,
   X,
   XCircle,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
+import MarkdownContent from '../markdown-content';
 
 interface TestResultsProps {
   questions: QuestionWithAnswers[];
@@ -297,7 +299,7 @@ export function TestResults({ questions, userAnswers, attempt, addedCardIds }: T
                   <div className="text-lg font-medium leading-relaxed">{currentQuestion.text}</div>
                 </motion.div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
                   {/* Answers */}
                   <motion.div
                     className="lg:col-span-2 space-y-3"
@@ -343,7 +345,7 @@ export function TestResults({ questions, userAnswers, attempt, addedCardIds }: T
 
                   {/* Explanation */}
                   <motion.div
-                    className="lg:col-span-1 flex flex-col gap-4 h-full"
+                    className="lg:col-span-3 flex flex-col gap-4 h-full"
                     initial={shouldAnimate ? { opacity: 0, x: 10 } : { opacity: 1, x: 0 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.4, delay: shouldAnimate ? 0.8 : 0 }}
@@ -356,7 +358,7 @@ export function TestResults({ questions, userAnswers, attempt, addedCardIds }: T
 
                       {currentQuestion.explanation ? (
                         <div className="text-sm text-muted-foreground leading-relaxed">
-                          {currentQuestion.explanation}
+                          <MarkdownContent>{currentQuestion.explanation}</MarkdownContent>
                         </div>
                       ) : (
                         <div className="flex items-center gap-2 text-sm text-muted-foreground italic">
@@ -381,16 +383,14 @@ export function TestResults({ questions, userAnswers, attempt, addedCardIds }: T
                         >
                           {isAdding ? (
                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          ) : isAlreadyAdded ? (
-                            <Check className="mr-2 h-4 w-4" />
                           ) : (
-                            <span className="mr-2 text-lg">+</span>
+                            <Repeat className="mr-2 h-4 w-4" />
                           )}
                           {isAdding
                             ? 'Añadiendo...'
                             : isAlreadyAdded
-                              ? 'Añadido a Repaso'
-                              : 'Añadir a Repaso Espaciado'}
+                              ? 'Añadida a repetición espaciada'
+                              : 'Añadir a repetición espaciada'}
                         </Button>
                       </motion.div>
                     )}

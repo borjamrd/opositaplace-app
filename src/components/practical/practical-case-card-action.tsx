@@ -38,7 +38,7 @@ export function PracticalCaseCardAction({
       <PremiumFeatureModal
         isOpen={showPremiumModal}
         onClose={() => setShowPremiumModal(false)}
-        featureName="Los casos prácticos con corrección por IA"
+        featureName="La resolución de casos prácticos"
       />
       <Button variant={variant} className={cn('w-full', className)} onClick={handleClick}>
         {children}

@@ -72,7 +72,7 @@ const OpositionSelector = ({ collapsed }: { collapsed?: boolean }) => {
               <DropdownMenuItem
                 key={oppo.id}
                 onClick={() => handleSelect(oppo.id)}
-                className="flex justify-between items-center"
+                className="flex justify-betwestuen items-center"
               >
                 <span>{oppo.name}</span>
                 {activeOpposition?.id === oppo.id && <Check className="h-4 w-4" />}
@@ -81,7 +81,7 @@ const OpositionSelector = ({ collapsed }: { collapsed?: boolean }) => {
           </DropdownMenuContent>
         </DropdownMenu>
       )}
-      {!collapsed && activeOpposition && <StudyCycleSelector />}
+      {activeOpposition && <StudyCycleSelector collapsed={collapsed} />}
     </div>
   );
 };

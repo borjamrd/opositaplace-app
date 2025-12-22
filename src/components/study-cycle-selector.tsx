@@ -1,7 +1,6 @@
 // src/components/study-cycle-selector.tsx
 'use client';
 
-import { Badge } from '@/components/ui/badge';
 import {
   Select,
   SelectContent,
@@ -11,8 +10,10 @@ import {
 } from '@/components/ui/select';
 import { useStudySessionStore } from '@/store/study-session-store';
 import { Loader2 } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
+import { Button } from './ui/button';
 
-const StudyCycleSelector = () => {
+const StudyCycleSelector = ({ collapsed }: { collapsed: boolean | undefined }) => {
   const { studyCycles, activeStudyCycle, isLoadingCycles, selectStudyCycle } =
     useStudySessionStore();
 
@@ -28,7 +29,7 @@ const StudyCycleSelector = () => {
     return <div className="text-xs mt-1 text-muted-foreground">No hay ciclos de estudio.</div>;
   }
 
-  return (
+  return !collapsed ? (
     <Select value={activeStudyCycle?.id || ''} onValueChange={selectStudyCycle}>
       <SelectTrigger className="h-9">
         <SelectValue placeholder="Selecciona una vuelta" />
@@ -43,6 +44,16 @@ const StudyCycleSelector = () => {
         ))}
       </SelectContent>
     </Select>
+  ) : (
+    //tooltip from shadcn
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Button variant="outline">{activeStudyCycle?.cycle_number}</Button>
+      </TooltipTrigger>
+      <TooltipContent side="right" sideOffset={5}>
+        <p>Estás en la {activeStudyCycle?.cycle_number} vuelta al temario</p>
+      </TooltipContent>
+    </Tooltip>
   );
 };
 

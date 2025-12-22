@@ -3,6 +3,7 @@
 import { processCardReview } from '@/actions/srs';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { AutoResizingText } from '@/components/ui/auto-resizing-text';
 import { useToast } from '@/hooks/use-toast';
 import { SrsCard } from '@/lib/supabase/types';
 import { cn } from '@/lib/utils';
@@ -14,7 +15,7 @@ import {
   useMotionValue,
   useTransform,
 } from 'framer-motion';
-import { CheckCircle2, Clock, HelpCircle, Info, ThumbsUp } from 'lucide-react';
+import { CheckCircle2, Clock, Eye, HelpCircle, Info, ThumbsUp } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
@@ -183,9 +184,9 @@ export function ReviewSession({ initialCards }: ReviewSessionProps) {
   const backContent = currentCard.back_content as unknown as CardContentJson;
 
   return (
-    <div className="relative w-full max-w-xl mx-auto h-[650px] flex flex-col items-center justify-center overflow-hidden">
+    <div className="relative w-full max-w-xl mx-auto h-[750px] flex flex-col items-center justify-center overflow-hidden">
       {nextCard && (
-        <div className="absolute top-8 w-full max-w-md h-[400px] bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm scale-95 -translate-y-4 opacity-50 z-0" />
+        <div className="absolute top-8 w-full max-w-md h-[550px] bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm scale-95 -translate-y-4 opacity-50 z-0" />
       )}
 
       <motion.div
@@ -200,7 +201,7 @@ export function ReviewSession({ initialCards }: ReviewSessionProps) {
         whileDrag={{ cursor: 'grabbing' }}
         className="absolute top-8 w-full max-w-md cursor-grab active:cursor-grabbing touch-none px-4 sm:px-0"
       >
-        <Card className="h-[400px] shadow-xl rounded-4xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 overflow-hidden relative select-none">
+        <Card className="h-[550px] shadow-xl rounded-4xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 overflow-hidden relative select-none">
           <CardContent className="p-8 h-full flex flex-col relative">
             <div className="absolute top-4 left-0 w-full text-center">
               <span className="text-xs uppercase tracking-widest text-muted-foreground/50 font-semibold">
@@ -208,10 +209,13 @@ export function ReviewSession({ initialCards }: ReviewSessionProps) {
               </span>
             </div>
 
-            <div className="flex-1 flex flex-col justify-center items-center text-center space-y-6">
-              <h3 className="text-2xl font-medium leading-relaxed">
-                {isFlipped ? backContent.text : frontContent.text}
-              </h3>
+            <div className="flex-1 flex flex-col justify-center items-center text-center space-y-6 w-full overflow-hidden">
+              <AutoResizingText
+                text={isFlipped ? backContent.text : frontContent.text}
+                className="font-medium px-2"
+                minFontSize={16}
+                maxFontSize={28}
+              />
 
               {isFlipped && backContent.explanation && (
                 <motion.div
@@ -254,7 +258,8 @@ export function ReviewSession({ initialCards }: ReviewSessionProps) {
             className="w-full h-14 text-lg shadow-lg rounded-xl"
             onClick={() => setIsFlipped(true)}
           >
-            Mostrar Respuesta
+            <Eye className="w-8 h-8 shrink-0" />
+            Mostrar respuesta
           </Button>
         </div>
       )}

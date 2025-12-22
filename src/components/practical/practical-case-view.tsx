@@ -13,6 +13,7 @@ import { Maximize, Minimize } from 'lucide-react';
 import { CaseEditor } from './case-editor';
 import { CorrectionFeedback } from './correction-feedback';
 import ReactMarkdown from 'react-markdown';
+import MarkdownContent from '../markdown-content';
 
 interface Props {
   caseData: PracticalCase;
@@ -78,7 +79,7 @@ export function PracticalCaseView({ caseData, initialAttempt }: Props) {
               <h3 className="flex items-center gap-2 text-foreground/80 mb-4">
                 <LayoutPanelLeft className="w-4 h-4" /> Enunciado
               </h3>
-              <ReactMarkdown>{caseData.statement}</ReactMarkdown>
+              <MarkdownContent>{caseData.statement}</MarkdownContent>
             </div>
           </ScrollArea>
         </div>

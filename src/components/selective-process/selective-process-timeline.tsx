@@ -179,7 +179,7 @@ export function SelectiveProcessTimeline() {
                 <div className="w-full ms-2">
                   <div
                     className={`font-semibold ${isCurrent ? 'text-primary' : ''} ${
-                      isCompleted ? 'text-muted-foreground line-through' : ''
+                      isCompleted ? 'text-muted-foreground' : ''
                     } flex items-center`}
                   >
                     {stage.name}

@@ -11,7 +11,6 @@ import {
   MoreHorizontal,
   Trophy,
 } from 'lucide-react';
-
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import {
   Card,
@@ -32,6 +31,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import ReactMarkdown from 'react-markdown';
 import { PracticalCaseCardAction } from '@/components/practical/practical-case-card-action';
+import MarkdownContent from '@/components/markdown-content';
 
 export const metadata: Metadata = {
   title: 'Casos prácticos | Opositaplace',
@@ -190,7 +190,9 @@ export default async function PracticalCasesListPage() {
                 </CardTitle>
 
                 <CardDescription className="flex flex-col items-center gap-2 mt-1">
-                  <ReactMarkdown>{practicalCase.statement.slice(0, 100) + '... '}</ReactMarkdown>
+                  <MarkdownContent>
+                    {practicalCase.statement.slice(0, 100) + '... '}
+                  </MarkdownContent>
                 </CardDescription>
               </CardHeader>
 

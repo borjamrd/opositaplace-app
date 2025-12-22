@@ -22,9 +22,10 @@ export const STRIPE_PLANS: Plan[] = [
     type: StripePlan.FREE,
     priceId: process.env.NEXT_PUBLIC_STRIPE_FREE_PLAN_ID || 'price_free_placeholder',
     features: [
+      'Roadmap de tu temario de estudio',
       'Sesiones ilimitadas de estudio y planificacion',
-      'Creación de ankicards y flashcards',
-      '1 test semanal',
+      '1 test semanal disponible en modo aleatorio de 25 preguntas',
+      'Analiza tu progreso y obtén feedback sobre fallos',
     ],
   },
   {
@@ -34,8 +35,10 @@ export const STRIPE_PLANS: Plan[] = [
     type: StripePlan.BASIC,
     priceId: process.env.NEXT_PUBLIC_STRIPE_BASIC_PLAN_ID || 'price_basic_placeholder',
     features: [
-      'Todo lo de la capa gratuita',
-      'Tests ilimitados',
+      'Roadmap de tu temario de estudio',
+      'Creación ilimitada de tests',
+      'Tests de mas de 25 preguntas',
+      'Tests de convocatorias oficiales',
       'Notificaciones inmediatas de cambios en el proceso selectivo',
       'Analiza tu progreso y obtén feedback sobre fallos',
     ],
@@ -47,10 +50,14 @@ export const STRIPE_PLANS: Plan[] = [
     type: StripePlan.PRO,
     priceId: process.env.NEXT_PUBLIC_STRIPE_PRO_PLAN_ID || 'price_premium_placeholder',
     features: [
-      'Todo lo del básico',
-      'Genera tests desde el temario',
-      'Últimos modelos de IA',
+      'Roadmap de tu temario de estudio',
+      'Creación ilimitada de tests',
+      'Tests de mas de 25 preguntas',
+      'Tests de convocatorias oficiales',
+      'Creación y corrección de casos prácticos',
       'Resumen semanal de progreso',
+      'Notificaciones inmediatas de cambios en el proceso selectivo',
+      'Analiza tu progreso y obtén feedback sobre fallos',
     ],
   },
 ];
