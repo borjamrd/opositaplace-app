@@ -103,7 +103,7 @@ export async function createTestAttempt(params: CreateTestParams) {
 
     case 'topics':
       if (!params.topicIds || params.topicIds.length === 0) {
-        return { error: 'You must select at least one topic.' };
+        return { error: 'Debes seleccionar al menos un tema.' };
       }
       const { data: topicQuestions, error: topicsError } = await supabase
         .from('questions')
@@ -117,7 +117,7 @@ export async function createTestAttempt(params: CreateTestParams) {
 
     case 'exams':
       if (!params.examIds || params.examIds.length === 0) {
-        return { error: 'You must select at least one exam.' };
+        return { error: 'Debes seleccionar al menos un examen.' };
       }
       const { data: examQuestions, error: examsError } = await supabase
         .from('questions')
@@ -141,14 +141,14 @@ export async function createTestAttempt(params: CreateTestParams) {
       );
 
       if (randomError) {
-        return { error: 'Could not retrieve questions for random mode.' };
+        return { error: 'No se pudieron obtener las preguntas para el modo aleatorio.' };
       }
       candidateQuestionIds = randomQuestionsData?.map((question) => question.id) || [];
       break;
   }
 
   if (error || !candidateQuestionIds || candidateQuestionIds.length === 0) {
-    return { error: 'No questions found for the selected criteria.' };
+    return { error: 'No se encontraron preguntas para el criterio seleccionado.' };
   }
 
   // Step 2: Validate questions in batches to avoid "URI too large" error
@@ -177,14 +177,14 @@ export async function createTestAttempt(params: CreateTestParams) {
   );
 
   if (uniqueValidQuestionIds.length === 0) {
-    return { error: 'No valid questions found for the selected criteria.' };
+    return { error: 'No se encontraron preguntas validas para el criterio seleccionado.' };
   }
 
   // Step 3: Shuffle and select the final questions for the test
   const selectedQuestions = shuffle(uniqueValidQuestionIds).slice(0, params.numQuestions);
 
   if (selectedQuestions.length === 0) {
-    return { error: 'Not enough valid questions available to create the test.' };
+    return { error: 'No hay suficientes preguntas validas disponibles para crear el test.' };
   }
 
   // Step 4: Create the test attempt directly (Logic corrected)
@@ -209,7 +209,7 @@ export async function createTestAttempt(params: CreateTestParams) {
 
   if (createError || !testAttempt) {
     console.error('Error creating test attempt:', createError);
-    return { error: 'Could not create the test attempt.' };
+    return { error: 'No se pudo crear el intento del test.' };
   }
 
   // Step 5: Save the (valid) questions for this attempt
@@ -226,7 +226,7 @@ export async function createTestAttempt(params: CreateTestParams) {
     // Rollback: delete the attempt if questions couldn't be saved
     await supabase.from('test_attempts').delete().eq('id', testAttempt.id);
     console.error('Error inserting test questions:', insertQuestionsError);
-    return { error: 'Could not save the questions for the test.' };
+    return { error: 'No se pudo guardar las preguntas para el test.' };
   }
 
   redirect(`/dashboard/tests/${testAttempt.id}`);
@@ -240,9 +240,10 @@ export async function submitTestAttempt(
 
   const {
     data: { user },
+    error: userError,
   } = await supabase.auth.getUser();
 
-  if (!user) {
+  if (userError || !user) {
     return { error: 'User not authenticated' };
   }
 
