@@ -414,10 +414,10 @@ export function RoadmapFlow({
                   <div className="grid grid-cols-3 gap-3">
                     {[
                       {
-                        key: 'completed',
-                        label: 'Listo',
-                        icon: CheckCircle2,
-                        activeClass: 'bg-green-100 border-green-500 text-green-700',
+                        key: 'not_started',
+                        label: 'Pendiente',
+                        icon: Circle,
+                        activeClass: 'bg-slate-100 border-slate-400 text-slate-700',
                       },
                       {
                         key: 'in_progress',
@@ -425,11 +425,12 @@ export function RoadmapFlow({
                         icon: PlayCircle,
                         activeClass: 'bg-amber-100 border-amber-500 text-amber-700',
                       },
+
                       {
-                        key: 'not_started',
-                        label: 'Pendiente',
-                        icon: Circle,
-                        activeClass: 'bg-slate-100 border-slate-400 text-slate-700',
+                        key: 'completed',
+                        label: 'Listo',
+                        icon: CheckCircle2,
+                        activeClass: 'bg-green-100 border-green-500 text-green-700',
                       },
                     ].map((option) => {
                       const isActive = currentStatus === option.key;

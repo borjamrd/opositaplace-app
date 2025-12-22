@@ -59,7 +59,7 @@ export function PremiumFeatureModal({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold flex items-center gap-2">
+          <DialogTitle className="text-2xl font-bold text-primary flex items-center gap-2">
             <Crown className="h-6 w-6 text-yellow-500" />
             Funcionalidad Premium
           </DialogTitle>
@@ -70,7 +70,9 @@ export function PremiumFeatureModal({
 
         <div className="grid gap-6 py-4">
           <div className="bg-muted/50 p-4 rounded-lg border">
-            <h3 className="font-semibold mb-3">Consigue acceso total con el Plan Avanzado</h3>
+            <h3 className="font-semibold mb-3 text-primary">
+              Consigue acceso total con el Plan Avanzado
+            </h3>
             {proPlan && (
               <div className="space-y-2">
                 <div className="font-medium text-primary">{proPlan.name}</div>
