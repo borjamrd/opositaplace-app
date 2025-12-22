@@ -56,7 +56,6 @@ export async function getStudyTimeStatistics(cycleId: string) {
     return { error: 'Failed to fetch study sessions' };
   }
 
-  console.log('sessions', sessions);
   return { sessions };
 }
 
