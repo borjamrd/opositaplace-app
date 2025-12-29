@@ -76,7 +76,7 @@ export function FeaturedCaseCard({ practicalCase, isPremium, className }: Featur
               >
                 {score}/10
               </span>
-              <span className="text-xs text-muted-foreground font-medium">Nota Obtenida</span>
+              <span className="text-xs text-muted-foreground font-medium">Nota obtenida</span>
             </div>
           )}
         </div>
@@ -98,7 +98,7 @@ export function FeaturedCaseCard({ practicalCase, isPremium, className }: Featur
         {/* Preview del Enunciado */}
         <div>
           <h4 className="text-sm font-semibold uppercase text-muted-foreground mb-2 flex items-center gap-2">
-            <FileEdit className="w-4 h-4" /> Extracto del Enunciado
+            <FileEdit className="w-4 h-4" /> Extracto del enunciado
           </h4>
           <div className="prose prose-sm dark:prose-invert max-w-none text-muted-foreground bg-slate-50 dark:bg-slate-900/50 p-4 rounded-lg border">
             <ReactMarkdown>
@@ -112,7 +112,7 @@ export function FeaturedCaseCard({ practicalCase, isPremium, className }: Featur
         {isCorrected && attempt?.feedback_analysis ? (
           <div>
             <h4 className="text-sm font-semibold uppercase text-muted-foreground mb-2 flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-500" /> Feedback del Tutor
+              <CheckCircle2 className="w-4 h-4 text-emerald-500" /> Feedback
             </h4>
             <div className="prose prose-sm dark:prose-invert max-w-none bg-emerald-50/50 dark:bg-emerald-900/10 p-4 rounded-lg border border-emerald-100 dark:border-emerald-900/50">
               <p className="italic text-foreground/80">
@@ -135,11 +135,11 @@ export function FeaturedCaseCard({ practicalCase, isPremium, className }: Featur
           <Link href={`/dashboard/practical-cases/${practicalCase.id}`}>
             {isCorrected ? (
               <>
-                Ver Corrección Completa <ChevronRight className="ml-2 w-5 h-5" />
+                Ver corrección completa <ChevronRight className="ml-2 w-5 h-5" />
               </>
             ) : (
               <>
-                Continuar Resolviendo <PlayCircle className="ml-2 w-5 h-5" />
+                Continuar resolviendo <PlayCircle className="ml-2 w-5 h-5" />
               </>
             )}
           </Link>

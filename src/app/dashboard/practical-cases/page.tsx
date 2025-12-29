@@ -117,7 +117,7 @@ export default async function PracticalCasesListPage() {
   return (
     <div className="h-[calc(100vh-4rem)] p-4 md:p-6 lg:p-8 flex flex-col gap-6 overflow-hidden">
       <div className="flex-none">
-        <h2 className="text-3xl font-bold tracking-tight">Casos Prácticos</h2>
+        <h2 className="text-3xl font-bold tracking-tight">Casos prácticos</h2>
         <p className="text-muted-foreground mt-1">
           Resuelve casos prácticos haciendo uso de la normativa vigente.
         </p>
