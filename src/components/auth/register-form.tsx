@@ -178,7 +178,7 @@ function SubmitButton() {
       ) : (
         <>
           <UserPlus className="mr-2 h-5 w-5" />
-          Crear Cuenta
+          Crear cuenta
         </>
       )}
     </Button>
