@@ -362,14 +362,10 @@ export async function setupNewUser(user: User) {
     .maybeSingle();
 
   if (existingSubscription) {
-    console.log(`El usuario ya tiene suscripción. Saltando setup de bienvenida.`);
     return;
   }
 
-  console.log(`Nuevo usuario. Creando trial y enviando bienvenida...`);
-
   try {
-    // 2. Crear la suscripción de prueba
     await createTrialSubscription(user);
 
     const userName = user.user_metadata?.full_name?.split(' ')[0] || user.email?.split('@')[0];

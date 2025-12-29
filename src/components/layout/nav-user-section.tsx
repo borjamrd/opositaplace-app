@@ -34,11 +34,14 @@ export function NavUserSection({ collapsed }: { collapsed: boolean }) {
         <DropdownMenuTrigger asChild>
           <Button
             variant="ghost"
-            size="lg"
-            className="relative h-10 w-full px-2 py-1 flex items-center gap-3"
+            className="relative rounded-full h-8 w-8 px-2 py-1 flex items-center gap-3"
           >
-            <Avatar className="h-8 w-8">
-              <AvatarImage src={profile.avatar_url || ''} alt={profile.email || 'User'} />
+            <Avatar className="h-8 w-8 shrink-0">
+              <AvatarImage
+                className="rounded-full aspect-square object-cover object-center"
+                src={profile.avatar_url || ''}
+                alt={profile.email || 'User'}
+              />
               <AvatarFallback>{getInitials(profile.email)}</AvatarFallback>
             </Avatar>
             {!collapsed && (
