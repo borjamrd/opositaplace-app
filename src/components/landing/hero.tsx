@@ -1,11 +1,11 @@
 'use client';
 
-import React from 'react';
-import { Button } from '@/components/ui/button';
-import Link from 'next/link';
-import { motion } from 'framer-motion';
-import { ArrowRight, Sparkles } from 'lucide-react';
 import { Logo } from '@/components/logo';
+import { Button } from '@/components/ui/button';
+import { motion } from 'framer-motion';
+import { Sparkles } from 'lucide-react';
+import Link from 'next/link';
+import { AvailableOppositionsDialog } from './available-oppositions-dialog';
 
 export function Hero() {
   return (
@@ -31,7 +31,7 @@ export function Hero() {
               className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-medium backdrop-blur-sm"
             >
               <Sparkles className="w-4 h-4" />
-              <span>Por opositores. Para opositores</span>
+              <span>Por ahora disponible para GACE</span>
             </motion.div>
 
             {/* Title */}
@@ -52,14 +52,16 @@ export function Hero() {
             </div>
 
             {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+            <div className="flex flex-col items-center sm:items-start gap-4 w-full sm:w-auto">
               <Button
                 asChild
                 variant="btn-header"
-                className="h-14 px-10 text-xl rounded-xl shadow-xl hover:shadow-primary/20 transition-all duration-300"
+                className="h-14 px-10 text-xl rounded-xl shadow-xl hover:shadow-primary/20 transition-all duration-300 w-full sm:w-auto"
               >
                 <Link href="/register">Acceder</Link>
               </Button>
+
+              <AvailableOppositionsDialog />
             </div>
           </motion.div>
 
