@@ -5,14 +5,6 @@ import { useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { signIn } from '@/actions/auth';
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useEffect, useState } from 'react';
@@ -54,97 +46,92 @@ export function LoginForm() {
   }, [state, toast]);
 
   return (
-    <Card className="w-full mt-20 max-w-md shadow-xl">
-      <CardHeader className="text-center">
-        <CardTitle className="text-3xl font-bold text-primary">Iniciar sesión</CardTitle>
-        <CardDescription>Accede a tu cuenta para continuar tu preparación.</CardDescription>
-      </CardHeader>
+    <div className="w-full">
       <ProvidersForm prefixMessage="Inicia sesión con" />
       <div className="flex items-center justify-center max-w-[150px] mx-auto mb-4">
         <Separator className="mx-2" />
         <span className="text-center text-muted-foreground text-xs text-nowrap">O bien:</span>
         <Separator className="mx-2" />
       </div>
-      <form action={formAction}>
-        <CardContent className="space-y-6">
-          {state?.message &&
-            state.message !== 'Credenciales inválidas.' &&
-            state.message !== 'Por favor, corrige los errores.' &&
-            (!state.errors ||
-              (typeof state.errors === 'object' && Object.keys(state.errors).length === 0)) && (
-              <Alert
-                variant={
-                  state.message.toLowerCase().includes('error') ||
-                  state.message.toLowerCase().includes('fallo')
-                    ? 'destructive'
-                    : 'default'
-                }
-              >
-                <AlertCircle className="h-4 w-4" />
-                <AlertTitle>
-                  {state.message.toLowerCase().includes('error') ||
-                  state.message.toLowerCase().includes('fallo')
-                    ? 'Error'
-                    : 'Notificación'}
-                </AlertTitle>
-                <AlertDescription>{state.message}</AlertDescription>
-              </Alert>
-            )}
-          <div className="space-y-2">
+      <form action={formAction} className="space-y-6">
+        {state?.message &&
+          state.message !== 'Credenciales inválidas.' &&
+          state.message !== 'Por favor, corrige los errores.' &&
+          (!state.errors ||
+            (typeof state.errors === 'object' && Object.keys(state.errors).length === 0)) && (
+            <Alert
+              variant={
+                state.message.toLowerCase().includes('error') ||
+                state.message.toLowerCase().includes('fallo')
+                  ? 'destructive'
+                  : 'default'
+              }
+            >
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>
+                {state.message.toLowerCase().includes('error') ||
+                state.message.toLowerCase().includes('fallo')
+                  ? 'Error'
+                  : 'Notificación'}
+              </AlertTitle>
+              <AlertDescription>{state.message}</AlertDescription>
+            </Alert>
+          )}
+        <div className="space-y-2">
+          <Input
+            id="email"
+            name="email"
+            type="email"
+            placeholder="Correo electrónico"
+            required
+            className="bg-background/80"
+          />
+          {state?.errors?.email && (
+            <p className="text-sm text-destructive">{state.errors.email[0]}</p>
+          )}
+        </div>
+        <div className="space-y-2">
+          <div className="relative">
             <Input
-              id="email"
-              name="email"
-              type="email"
-              placeholder="Correo electrónico"
+              id="password"
+              name="password"
+              placeholder="Contraseña"
+              type={showPassword ? 'text' : 'password'}
               required
-              className="bg-background/80"
+              className="bg-background/80 pr-10"
             />
-            {state?.errors?.email && (
-              <p className="text-sm text-destructive">{state.errors.email[0]}</p>
-            )}
+            <button
+              type="button"
+              tabIndex={-1}
+              aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+              onClick={() => setShowPassword((v) => !v)}
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors"
+            >
+              {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+            </button>
           </div>
-          <div className="space-y-2">
-            <div className="relative">
-              <Input
-                id="password"
-                name="password"
-                placeholder="Contraseña"
-                type={showPassword ? 'text' : 'password'}
-                required
-                className="bg-background/80 pr-10"
-              />
-              <button
-                type="button"
-                tabIndex={-1}
-                aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
-                onClick={() => setShowPassword((v) => !v)}
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors"
-              >
-                {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-              </button>
-            </div>
-            {state?.errors?.password && (
-              <p className="text-sm text-destructive">{state.errors.password[0]}</p>
-            )}
-          </div>
-        </CardContent>
-        <CardFooter className="flex flex-col gap-4">
+          {state?.errors?.password && (
+            <p className="text-sm text-destructive">{state.errors.password[0]}</p>
+          )}
+        </div>
+
+        <div className="flex flex-col gap-4">
           <SubmitButton />
 
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-muted-foreground text-center">
             ¿No tienes cuenta?{' '}
             <Button variant="link" asChild className="p-0">
               <Link href="/register">Regístrate aquí</Link>
             </Button>
           </p>
-          <p>
-            <Button variant="link" asChild className="p-0">
+          <p className="text-center">
+            <Button variant="link" asChild className="p-0 h-auto">
               <Link href="/reset-password">¿Has olvidado tu contraseña?</Link>
             </Button>
           </p>
-        </CardFooter>
+        </div>
       </form>
-    </Card>
+    </div>
   );
 }
 

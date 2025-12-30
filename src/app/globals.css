@@ -356,3 +356,12 @@
   @apply text-muted-foreground float-left h-0 pointer-events-none;
   content: attr(data-placeholder);
 }
+@layer utilities {
+  @keyframes scroll-up {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(-50%); }
+  }
+  .animate-scroll-up {
+    animation: scroll-up 60s linear infinite;
+  }
+}

@@ -1,6 +1,5 @@
 'use client';
 
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { ArrowLeft, LayoutPanelLeft } from 'lucide-react';
@@ -10,10 +9,9 @@ import { useState } from 'react';
 import { PracticalCase, PracticalCaseAttemptWithAnalysis } from '@/lib/supabase/types';
 import { cn } from '@/lib/utils';
 import { Maximize, Minimize } from 'lucide-react';
+import MarkdownContent from '../markdown-content';
 import { CaseEditor } from './case-editor';
 import { CorrectionFeedback } from './correction-feedback';
-import ReactMarkdown from 'react-markdown';
-import MarkdownContent from '../markdown-content';
 
 interface Props {
   caseData: PracticalCase;

@@ -3,14 +3,6 @@
 import { signUp } from '@/actions/auth';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
@@ -52,98 +44,93 @@ export function RegisterForm() {
   }, [state, toast]);
 
   return (
-    <Card className="w-full mt-20 max-w-md shadow-xl">
-      <CardHeader className="text-center">
-        <CardTitle className="text-3xl font-bold text-primary">Crear cuenta</CardTitle>
-        <CardDescription>Únete a Opositaplace y empieza a prepararte.</CardDescription>
-      </CardHeader>
+    <div className="w-full">
       <ProvidersForm prefixMessage="Regístrate con" />
       <div className="flex items-center justify-center max-w-[150px] mx-auto mb-4">
         <Separator className="mx-2" />
         <span className="text-center text-muted-foreground text-xs text-nowrap">O bien:</span>
         <Separator className="mx-2" />
       </div>
-      <form action={formAction}>
-        <CardContent className="space-y-6">
-          {/* Mostrar Alert para mensajes generales que no sean errores de campo de Zod */}
-          {state?.message &&
-            state.message !== 'Por favor, corrige los errores.' &&
-            (!state.errors ||
-              (typeof state.errors === 'object' && Object.keys(state.errors).length === 0)) && (
-              <Alert
-                variant={
-                  state.message.toLowerCase().includes('error') ||
-                  state.message.toLowerCase().includes('failure') ||
-                  state.message.toLowerCase().includes('inválid') ||
-                  state.message.toLowerCase().includes('unexpected')
-                    ? 'destructive'
-                    : 'default'
-                }
-              >
-                <AlertCircle className="h-4 w-4" />
-                <AlertTitle>
-                  {state.message.toLowerCase().includes('error') ||
-                  state.message.toLowerCase().includes('failure') ||
-                  state.message.toLowerCase().includes('inválid') ||
-                  state.message.toLowerCase().includes('unexpected')
-                    ? 'Error'
-                    : 'Notificación'}
-                </AlertTitle>
-                <AlertDescription>{state.message}</AlertDescription>
-              </Alert>
-            )}
-          <div className="space-y-2">
-            <Input
-              id="email"
-              name="email"
-              type="email"
-              placeholder="Correo ectrónico"
-              required
-              className="bg-background/80"
-            />
-            {state?.errors?.email && (
-              <p className="text-sm text-destructive">{state.errors.email[0]}</p>
-            )}
-          </div>
-          <div className="space-y-2">
-            <Input
-              id="password"
-              name="password"
-              type="password"
-              placeholder="Contraseña"
-              required
-              className="bg-background/80"
-            />
-            {state?.errors?.password && (
-              <p className="text-sm text-destructive">{state.errors.password[0]}</p>
-            )}
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="confirmPassword">Confirmar contraseña</Label>
-            <Input
-              id="confirmPassword"
-              name="confirmPassword"
-              placeholder="Contraseña"
-              type="password"
-              required
-              className="bg-background/80"
-            />
-            {state?.errors?.confirmPassword && (
-              <p className="text-sm text-destructive">{state.errors.confirmPassword[0]}</p>
-            )}
-          </div>
-        </CardContent>
-        <CardFooter className="flex flex-col gap-4">
+      <form action={formAction} className="space-y-6">
+        {/* Mostrar Alert para mensajes generales que no sean errores de campo de Zod */}
+        {state?.message &&
+          state.message !== 'Por favor, corrige los errores.' &&
+          (!state.errors ||
+            (typeof state.errors === 'object' && Object.keys(state.errors).length === 0)) && (
+            <Alert
+              variant={
+                state.message.toLowerCase().includes('error') ||
+                state.message.toLowerCase().includes('failure') ||
+                state.message.toLowerCase().includes('inválid') ||
+                state.message.toLowerCase().includes('unexpected')
+                  ? 'destructive'
+                  : 'default'
+              }
+            >
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>
+                {state.message.toLowerCase().includes('error') ||
+                state.message.toLowerCase().includes('failure') ||
+                state.message.toLowerCase().includes('inválid') ||
+                state.message.toLowerCase().includes('unexpected')
+                  ? 'Error'
+                  : 'Notificación'}
+              </AlertTitle>
+              <AlertDescription>{state.message}</AlertDescription>
+            </Alert>
+          )}
+        <div className="space-y-2">
+          <Input
+            id="email"
+            name="email"
+            type="email"
+            placeholder="Correo electrónico"
+            required
+            className="bg-background/80"
+          />
+          {state?.errors?.email && (
+            <p className="text-sm text-destructive">{state.errors.email[0]}</p>
+          )}
+        </div>
+        <div className="space-y-2">
+          <Input
+            id="password"
+            name="password"
+            type="password"
+            placeholder="Contraseña"
+            required
+            className="bg-background/80"
+          />
+          {state?.errors?.password && (
+            <p className="text-sm text-destructive">{state.errors.password[0]}</p>
+          )}
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="confirmPassword">Confirmar contraseña</Label>
+          <Input
+            id="confirmPassword"
+            name="confirmPassword"
+            placeholder="Contraseña"
+            type="password"
+            required
+            className="bg-background/80"
+          />
+          {state?.errors?.confirmPassword && (
+            <p className="text-sm text-destructive">{state.errors.confirmPassword[0]}</p>
+          )}
+        </div>
+
+        <div className="flex flex-col gap-4">
           <SubmitButton />
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-muted-foreground text-center">
             ¿Ya tienes cuenta?{' '}
             <Button variant="link" asChild className="p-0">
               <Link href="/login">Inicia sesión aquí</Link>
             </Button>
           </p>
-        </CardFooter>
+        </div>
       </form>
-    </Card>
+    </div>
   );
 }
 
