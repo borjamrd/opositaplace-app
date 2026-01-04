@@ -6,13 +6,7 @@ import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Meteors } from '../ui/meteors';
 
-const roles = [
-  'Policía Local de Madrid',
-  'GACE',
-  'Correos',
-  'Administradores del Estado',
-  'Gestión de Organismos autónomos',
-];
+const roles = ['GACE'];
 
 export function CtaOpposition() {
   const [currentIndex, setCurrentIndex] = useState(0);

@@ -20,7 +20,7 @@ const faqs = [
   },
   {
     id: 'item-2',
-    question: '¿Qué sucede si mi oposición tiene solo tests?',
+    question: '¿Qué sucede si tengo sólo tests o casos prácticos?',
     subtitle: 'Flexibilidad en tu suscripción',
     answer:
       'Puedes cambiar tu suscripción cuando quieras. Por ejemplo: si tu proceso tiene primero tests y después caso práctico, cuando apruebes el primer ejercicio cambias la suscripción para poder realizar los casos prácticos.',

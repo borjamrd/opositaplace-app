@@ -72,18 +72,12 @@ export function Hero() {
             transition={{ duration: 0.8, ease: 'easeOut', delay: 0.2 }}
             className="relative"
           >
-            <div className="relative z-10 w-full aspect-video lg:aspect-square max-w-[600px] mx-auto group">
+            <div className="relative z-10 w-full lg:min-h-[500px] aspect-video max-w-[800px] mx-auto group">
               {/* Glassmorphism Container for Image Placeholder */}
               <div className="absolute inset-0 bg-gradient-to-tr from-primary/5 to-primary/10 rounded-2xl border border-white/10 backdrop-blur-sm shadow-2xl overflow-hidden">
-                <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
-
-                {/* Placeholder Content */}
-                <div className="flex items-center justify-center h-full">
-                  <Logo
-                    collapsed
-                    className="w-[100px] h-auto opacity-20 group-hover:opacity-30 transition-opacity duration-500"
-                  />
-                </div>
+                <video autoPlay loop muted playsInline className="w-full h-full object-cover">
+                  <source src="/landing_video.mp4" type="video/mp4" />
+                </video>
               </div>
 
               {/* Decorative Elements */}

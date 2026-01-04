@@ -2,29 +2,30 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Logo } from '@/components/logo';
+import Image from 'next/image';
 
 export function HowItWorks() {
   const steps = [
     {
       number: 1,
-      title: 'Escoge tu oposicion',
-      description: 'Selecciona entre las opciones disponibles, si no encuentras la tuya nos dices.',
-      imageColor: 'from-primary/20 to-primary/5',
+      title: 'Realiza el onboarding',
+      description:
+        'Planifica tu objetivo de horas semanales, asígnalos a un calendario y define tus preferencias.',
+      image: '/onboarding.png',
     },
     {
       number: 2,
-      title: 'Registra tu objetivo semanal',
+      title: 'Registra tu estudio',
       description:
-        'Te recomendaremos un mínimo de horas, pero siempre puedes configuralo según tu situación.',
-      imageColor: 'from-primary/30 to-primary/10',
+        'Ya sea con pomodoro o de forma libre, registra tus horas de estudio y realiza los tests y casos prácticos.',
+      image: '/sesion.png',
     },
     {
       number: 3,
-      title: 'Practica y reevalúa',
+      title: 'Dale vueltas al temario',
       description:
-        'Registra tus horas de estudio, realiza los ejercicios y obtén feedback sobre tu progreso.',
-      imageColor: 'from-primary/20 to-primary/5',
+        'Recibe feedback sobre tu progreso y registra tu progreso en el roadmap con los bloques y temas.',
+      image: '/roadmap.png',
     },
   ];
 
@@ -34,18 +35,6 @@ export function HowItWorks() {
       opacity: 1,
       transition: {
         staggerChildren: 0.2,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.6,
-        ease: 'easeOut',
       },
     },
   };
@@ -99,29 +88,33 @@ export function HowItWorks() {
           {steps.map((step) => (
             <motion.div
               key={step.number}
-              variants={itemVariants}
+              variants={{
+                hidden: { opacity: 0, y: 20 },
+                visible: {
+                  opacity: 1,
+                  y: 0,
+                  transition: {
+                    duration: 0.6,
+                    ease: 'easeOut',
+                  },
+                },
+              }}
               className="group relative flex flex-col min-h-[400px] h-full bg-card/40 backdrop-blur-md rounded-3xl border border-white/5 hover:border-primary/20 transition-all duration-300 overflow-hidden"
             >
-              {/* Full Background Image Placeholder */}
-              <div
-                className={`absolute inset-0 bg-gradient-to-br ${step.imageColor} z-0 overflow-hidden`}
-              >
-                <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
-                <div className="flex items-center justify-center h-1/2 opacity-20 group-hover:opacity-40 transition-opacity duration-500">
-                  <Logo collapsed className="w-1/4" />
-                </div>
-
-                {/* Decorative glowing dots */}
-                <div className="absolute top-4 right-4 w-2 h-2 bg-primary/40 rounded-full blur-sm" />
-                <div className="absolute bottom-24 left-12 w-3 h-3 bg-primary/20 rounded-full blur-md" />
+              {/* Image Container */}
+              <div className="relative w-full h-64 overflow-hidden rounded-t-3xl bg-secondary/5">
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent to-background/60 z-10 bottom-0 h-12" />
+                <Image
+                  src={step.image}
+                  alt={step.title}
+                  fill
+                  className="object-cover object-top transition-transform duration-500 group-hover:scale-105"
+                />
               </div>
 
-              {/* Gradient Overlay for Text Readability */}
-              <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent z-10" />
-
               {/* Card Content */}
-              <div className="relative z-20 p-8 mt-auto flex flex-col h-full justify-end">
-                <div className="flex items-center gap-4 mb-6">
+              <div className="relative z-20 p-6 flex flex-col flex-grow">
+                <div className="flex items-center gap-4 mb-3">
                   <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-bold">
                     {step.number}
                   </span>
@@ -129,7 +122,7 @@ export function HowItWorks() {
                     {step.title}
                   </h3>
                 </div>
-                <p className="text-muted-foreground leading-relaxed">{step.description}</p>
+                <p className="text-muted-foreground leading-relaxed text-sm">{step.description}</p>
               </div>
             </motion.div>
           ))}
