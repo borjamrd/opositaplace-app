@@ -256,7 +256,7 @@ const features = [
     name: 'Sesiones de estudio',
     description: 'Registra y gestiona tus sesiones de estudio diarias.',
     href: '#',
-    cta: 'Más información',
+    descriptionAsCta: true,
     className: 'col-span-3 lg:col-span-1',
     background: (
       <Marquee
@@ -289,7 +289,7 @@ const features = [
     name: 'Realiza tests',
     description: 'Recibe notificaciones sobre nuevos tests, tus logros y recordatorios de repaso.',
     href: '#',
-    cta: 'Más información',
+    descriptionAsCta: true,
     className: 'col-span-3 lg:col-span-2',
     background: (
       <AnimatedList className="absolute right-2 top-4 h-[300px] w-full scale-75 border-none transition-all duration-300 ease-out group-hover:scale-90 [mask-image:linear-gradient(to_top,transparent_10%,#000_100%)]">
@@ -305,7 +305,7 @@ const features = [
     description:
       'Integra todo tu flujo de estudio en una sola plataforma: temas, tests y planificación.',
     href: '#',
-    cta: 'Más información',
+    descriptionAsCta: true,
     className: 'col-span-3 lg:col-span-2',
     background: (
       <AnimatedBeamMultipleOutputDemo className="absolute right-2 top-4 h-[300px] border-none transition-all duration-300 ease-out group-hover:scale-105 [mask-image:linear-gradient(to_top,transparent_10%,#000_100%)]" />
@@ -318,7 +318,7 @@ const features = [
       'Visualiza tu progreso y planifica tus repasos con nuestro calendario inteligente.',
     className: 'col-span-3 lg:col-span-1',
     href: '#',
-    cta: 'Más información',
+    descriptionAsCta: true,
     background: (
       <Calendar
         mode="single"
@@ -333,7 +333,7 @@ const features = [
     description: 'Accede rápidamente a toda la normativa actualizada de tu oposición.',
     className: 'col-span-3 lg:col-span-3',
     href: '#',
-    cta: 'Más información',
+    descriptionAsCta: true,
     background: (
       <Marquee
         pauseOnHover
@@ -367,7 +367,7 @@ export function Features() {
   return (
     <section className="py-20 md:py-28">
       <div className="container mx-auto px-4">
-        <h2 className="mb-4 text-center text-3xl font-bold md:text-5xl">
+        <h2 className="mb-4 text-center text-3xl font-bold md:text-5xl font-playfair">
           Todo lo que necesitas para tu plaza
         </h2>
         <p className="mx-auto mb-16 max-w-2xl text-center text-lg text-muted-foreground">

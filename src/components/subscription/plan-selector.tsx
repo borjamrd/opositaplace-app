@@ -30,9 +30,9 @@ export function PlanSelector({}: PlanSelectorProps) {
                   <p className="text-3xl font-bold mb-6">{plan.price}</p>
                   <ul className="space-y-2">
                     {plan.features.map((feature) => (
-                      <li key={feature} className="flex items-center text-start text-sm">
+                      <li key={feature.label} className="flex items-center text-start text-sm">
                         <CheckCircle className="w-4 h-4 me-3 text-green-500 mr-2 flex-shrink-0" />
-                        {feature}
+                        {feature.label}
                       </li>
                     ))}
                   </ul>

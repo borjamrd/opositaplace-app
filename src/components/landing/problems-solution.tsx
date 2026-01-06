@@ -84,7 +84,7 @@ export function ProblemsSolution() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.1 }}
-            className="text-4xl md:text-5xl font-black tracking-tight text-foreground max-w-3xl mx-auto"
+            className="text-4xl md:text-5xl font-black tracking-tight text-foreground max-w-3xl mx-auto font-playfair"
           >
             Pierde menos tiempo. Ahorra más dinero.
             <span className="text-primary"> Consigue tu plaza.</span>

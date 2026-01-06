@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import { AvailableOppositionsDialog } from './available-oppositions-dialog';
+import { Highlighter } from '@/components/ui/highlighter';
 
 export function Hero() {
   return (
@@ -36,14 +37,18 @@ export function Hero() {
 
             {/* Title */}
             <div className="space-y-3">
-              <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-tight">
-                No estudies más.
+              <h1 className="text-4xl md:text-6xl lg:text-7xl font-semibold tracking-tight leading-tight font-playfair">
+                No estudies más,
                 <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-primary/80 to-primary/60">
-                  Estudia mejor
-                </span>
+                <Highlighter action="underline" color="var(--primary)">
+                  estudia mejor
+                </Highlighter>
                 <br />
-                con opositaplace.
+                con{' '}
+                <Highlighter action="highlight" color="var(--secondary)">
+                  opositaplace
+                </Highlighter>
+                .
               </h1>
               <p className="text-lg md:text-xl text-muted-foreground max-w-lg leading-relaxed">
                 Un solo lugar para registrar tu estudio, realizar ejercicios y estar al tanto de tu

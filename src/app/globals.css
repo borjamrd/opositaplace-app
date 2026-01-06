@@ -152,6 +152,7 @@
 }
 
 @theme inline {
+  --font-playfair: var(--font-playfair), serif;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);

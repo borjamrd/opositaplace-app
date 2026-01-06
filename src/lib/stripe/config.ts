@@ -11,7 +11,10 @@ export interface Plan {
   description: string;
   price: string;
   priceId: string;
-  features: string[];
+  features: {
+    label: string;
+    isBeta: boolean;
+  }[];
 }
 
 export const STRIPE_PLANS: Plan[] = [
@@ -22,10 +25,22 @@ export const STRIPE_PLANS: Plan[] = [
     type: StripePlan.FREE,
     priceId: process.env.NEXT_PUBLIC_STRIPE_FREE_PLAN_ID || 'price_free_placeholder',
     features: [
-      'Roadmap de tu temario de estudio',
-      'Sesiones ilimitadas de estudio y planificacion',
-      '1 test semanal disponible en modo aleatorio de 25 preguntas',
-      'Analiza tu progreso y obtén feedback sobre fallos',
+      {
+        label: 'Roadmap de tu temario de estudio',
+        isBeta: false,
+      },
+      {
+        label: 'Sesiones ilimitadas de estudio y planificacion',
+        isBeta: false,
+      },
+      {
+        label: '1 test semanal disponible en modo aleatorio de 25 preguntas',
+        isBeta: false,
+      },
+      {
+        label: 'Analiza tu progreso y obtén feedback sobre fallos',
+        isBeta: false,
+      },
     ],
   },
   {
@@ -35,12 +50,34 @@ export const STRIPE_PLANS: Plan[] = [
     type: StripePlan.BASIC,
     priceId: process.env.NEXT_PUBLIC_STRIPE_BASIC_PLAN_ID || 'price_basic_placeholder',
     features: [
-      'Roadmap de tu temario de estudio',
-      'Creación ilimitada de tests',
-      'Tests de mas de 25 preguntas',
-      'Tests de convocatorias oficiales',
-      'Notificaciones inmediatas de cambios en el proceso selectivo',
-      'Analiza tu progreso y obtén feedback sobre fallos',
+      {
+        label: 'Roadmap de tu temario de estudio',
+        isBeta: false,
+      },
+      {
+        label: 'Creación ilimitada de tests',
+        isBeta: false,
+      },
+      {
+        label: 'Tests de mas de 25 preguntas',
+        isBeta: false,
+      },
+      {
+        label: 'Tests de convocatorias oficiales',
+        isBeta: false,
+      },
+      {
+        label: 'Notificaciones inmediatas de cambios en el proceso selectivo',
+        isBeta: false,
+      },
+      {
+        label: 'Analiza tu progreso y obtén feedback sobre fallos',
+        isBeta: false,
+      },
+      {
+        label: 'Gestiona y redacta tu temario de estudio',
+        isBeta: true,
+      },
     ],
   },
   {
@@ -50,14 +87,42 @@ export const STRIPE_PLANS: Plan[] = [
     type: StripePlan.PRO,
     priceId: process.env.NEXT_PUBLIC_STRIPE_PRO_PLAN_ID || 'price_premium_placeholder',
     features: [
-      'Roadmap de tu temario de estudio',
-      'Creación ilimitada de tests',
-      'Tests de mas de 25 preguntas',
-      'Tests de convocatorias oficiales',
-      'Creación y corrección de casos prácticos',
-      'Resumen semanal de progreso',
-      'Notificaciones inmediatas de cambios en el proceso selectivo',
-      'Analiza tu progreso y obtén feedback sobre fallos',
+      {
+        label: 'Roadmap de tu temario de estudio',
+        isBeta: false,
+      },
+      {
+        label: 'Creación ilimitada de tests',
+        isBeta: false,
+      },
+      {
+        label: 'Tests de mas de 25 preguntas',
+        isBeta: false,
+      },
+      {
+        label: 'Tests de convocatorias oficiales',
+        isBeta: false,
+      },
+      {
+        label: 'Creación y corrección de casos prácticos',
+        isBeta: false,
+      },
+      {
+        label: 'Resumen semanal de progreso',
+        isBeta: false,
+      },
+      {
+        label: 'Notificaciones inmediatas de cambios en el proceso selectivo',
+        isBeta: false,
+      },
+      {
+        label: 'Analiza tu progreso y obtén feedback sobre fallos',
+        isBeta: false,
+      },
+      {
+        label: 'Gestiona y redacta tu temario de estudio',
+        isBeta: true,
+      },
     ],
   },
 ];
