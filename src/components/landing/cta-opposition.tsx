@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Meteors } from '../ui/meteors';
+import { AvailableOppositionsDialog } from './available-oppositions-dialog';
 
 const roles = ['GACE'];
 
@@ -58,6 +59,7 @@ export function CtaOpposition() {
               <Link href="/register">Acceder</Link>
             </Button>
           </div>
+          <AvailableOppositionsDialog />
         </div>
       </div>
     </section>

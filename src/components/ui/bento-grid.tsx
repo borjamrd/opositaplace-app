@@ -58,7 +58,7 @@ const BentoCard = ({
         <h3 className="text-xl font-semibold text-neutral-700 dark:text-neutral-300">{name}</h3>
         <p
           className={cn(
-            'max-w-lg text-neutral-400',
+            'max-w-2xl text-neutral-400',
             descriptionAsCta &&
               'lg:relative lg:translate-y-2 lg:opacity-0 lg:transition-all lg:duration-300 lg:group-hover:translate-y-0 lg:group-hover:opacity-100'
           )}

@@ -62,13 +62,13 @@ export function AnimatedBeamSection() {
             <span className="text-sm font-semibold text-muted-foreground text-center">
               Casos
               <br />
-              Prácticos
+              prácticos
             </span>
           </div>
         </div>
 
         <div
-          className="relative z-20 size-24 rounded-full border-2 border-primary/20 bg-primary/10 flex items-center justify-center shadow-lg shrink-0"
+          className="relative z-20 size-24 rounded-full border-2 border-primary/20 border-2 bg-white flex items-center justify-center shadow-lg shrink-0"
           ref={centerRef}
         >
           <Logo collapsed className="w-[50px] h-[50px]" />
@@ -81,7 +81,7 @@ export function AnimatedBeamSection() {
             </Circle>
             <span className="text-sm font-semibold text-muted-foreground text-center">
               Bloques
-              <br />y Temas
+              <br />y temas
             </span>
           </div>
           <div className="flex flex-col items-center gap-2">
@@ -91,7 +91,7 @@ export function AnimatedBeamSection() {
             <span className="text-sm font-semibold text-muted-foreground text-center">
               Proceso
               <br />
-              Selectivo
+              selectivo
             </span>
           </div>
           <div className="flex flex-col items-center gap-2">
@@ -101,7 +101,7 @@ export function AnimatedBeamSection() {
             <span className="text-sm font-semibold text-muted-foreground text-center">
               Feedback
               <br />
-              Progreso
+              progreso
             </span>
           </div>
         </div>

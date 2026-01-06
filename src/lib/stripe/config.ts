@@ -19,7 +19,7 @@ export interface Plan {
 
 export const STRIPE_PLANS: Plan[] = [
   {
-    name: 'Plan Gratuito',
+    name: 'Plan gratuito',
     description: 'Acceso a funciones esenciales. Te encantará.',
     price: 'Gratis',
     type: StripePlan.FREE,
@@ -44,7 +44,7 @@ export const STRIPE_PLANS: Plan[] = [
     ],
   },
   {
-    name: 'Plan Básico',
+    name: 'Plan básico',
     description: 'Acceso a funciones esenciales. Ya no hay excusas.',
     price: '7€/mes',
     type: StripePlan.BASIC,
@@ -52,6 +52,10 @@ export const STRIPE_PLANS: Plan[] = [
     features: [
       {
         label: 'Roadmap de tu temario de estudio',
+        isBeta: false,
+      },
+      {
+        label: 'Analiza tu progreso y obtén feedback sobre fallos',
         isBeta: false,
       },
       {
@@ -70,10 +74,7 @@ export const STRIPE_PLANS: Plan[] = [
         label: 'Notificaciones inmediatas de cambios en el proceso selectivo',
         isBeta: false,
       },
-      {
-        label: 'Analiza tu progreso y obtén feedback sobre fallos',
-        isBeta: false,
-      },
+
       {
         label: 'Gestiona y redacta tu temario de estudio',
         isBeta: true,
@@ -81,7 +82,7 @@ export const STRIPE_PLANS: Plan[] = [
     ],
   },
   {
-    name: 'Plan Avanzado',
+    name: 'Plan avanzado',
     description: 'Profundiza en la materia, vas a por la nota.',
     price: '14€/mes',
     type: StripePlan.PRO,
@@ -103,20 +104,22 @@ export const STRIPE_PLANS: Plan[] = [
         label: 'Tests de convocatorias oficiales',
         isBeta: false,
       },
-      {
-        label: 'Creación y corrección de casos prácticos',
-        isBeta: false,
-      },
-      {
-        label: 'Resumen semanal de progreso',
-        isBeta: false,
-      },
+
       {
         label: 'Notificaciones inmediatas de cambios en el proceso selectivo',
         isBeta: false,
       },
       {
         label: 'Analiza tu progreso y obtén feedback sobre fallos',
+        isBeta: false,
+      },
+
+      {
+        label: 'Creación y corrección de casos prácticos',
+        isBeta: false,
+      },
+      {
+        label: 'Resumen semanal de progreso',
         isBeta: false,
       },
       {

@@ -31,7 +31,7 @@ export function AvailableOppositionsDialog() {
         <div className="flex flex-col gap-6 md:flex-row ">
           <Alert className="bg-primary/5 border-primary/20 p-6 md:w-1/2">
             <AlertTitle className="text-lg font-semibold text-primary mb-2">
-              Contenido de calidad
+              Priorizamos el contenido
             </AlertTitle>
             <AlertDescription className="text-base text-muted-foreground leading-relaxed">
               En opositaplace estamos trabajando para ofrecerte contenido de calidad, y por eso
@@ -63,7 +63,7 @@ export function AvailableOppositionsDialog() {
               </Label> */}
               <Input
                 id="opposition"
-                placeholder="Opositicion"
+                placeholder="Oposición"
                 className="h-12 text-lg px-4 bg-muted/30 border-muted-foreground/20 focus:border-primary focus:ring-primary/20 transition-all"
               />
             </div>

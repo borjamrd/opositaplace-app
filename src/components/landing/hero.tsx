@@ -40,12 +40,14 @@ export function Hero() {
               <h1 className="text-4xl md:text-6xl lg:text-7xl font-semibold tracking-tight leading-tight font-playfair">
                 No estudies más,
                 <br />
-                <Highlighter action="underline" color="var(--primary)">
-                  estudia mejor
-                </Highlighter>
+                <span className="italic">
+                  <Highlighter action="highlight" color="var(--secondary)" delay={1000}>
+                    estudia mejor
+                  </Highlighter>
+                </span>
                 <br />
                 con{' '}
-                <Highlighter action="highlight" color="var(--secondary)">
+                <Highlighter action="underline" color="var(--primary)" delay={1000}>
                   opositaplace
                 </Highlighter>
                 .
