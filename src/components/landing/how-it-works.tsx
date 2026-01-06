@@ -27,6 +27,27 @@ export function HowItWorks() {
         'Recibe feedback sobre tu progreso y registra tu progreso en el roadmap con los bloques y temas.',
       image: '/roadmap.png',
     },
+    {
+      number: 4,
+      title: 'Realiza tests',
+      description:
+        'Configura y realiza tests basados en preguntas oficiales de convocatorias anteriores.',
+      image: '/tests.png',
+    },
+    {
+      number: 5,
+      title: 'Repetición espaciada',
+      description:
+        '¿Has fallado preguntas? Añadelas al módulo de Repetición Espaciada para estudiarlas recurrentemente.',
+      image: '/repeticion-espaciada.png',
+    },
+    {
+      number: 6,
+      title: 'Casos prácticos',
+      description:
+        'Opcionalmente, puedes realizar casos prácticos para evaluar tu nivel de conocimiento.',
+      image: '/caso_practico.png',
+    },
   ];
 
   const containerVariants = {
@@ -103,13 +124,14 @@ export function HowItWorks() {
             >
               {/* Image Container */}
               <div className="relative w-full h-64 overflow-hidden rounded-t-3xl bg-secondary/5">
-                <div className="absolute inset-0 bg-gradient-to-b from-transparent to-background/60 z-10 bottom-0 h-12" />
-                <Image
-                  src={step.image}
-                  alt={step.title}
-                  fill
-                  className="object-cover object-top transition-transform duration-500 group-hover:scale-105"
-                />
+                <div className="absolute h-[100%] inset-0 bg-gradient-to-b from-transparent to-background/20 z-10 bottom-0 h-12  [mask-image:linear-gradient(to_top,transparent_10%,#000_100%)] ">
+                  <Image
+                    src={step.image}
+                    alt={step.title}
+                    fill
+                    className="object-cover object-top transition-transform duration-500 group-hover:scale-105"
+                  />
+                </div>
               </div>
 
               {/* Card Content */}
