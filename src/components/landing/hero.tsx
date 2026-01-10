@@ -41,13 +41,13 @@ export function Hero() {
                 No estudies más,
                 <br />
                 <span className="italic">
-                  <Highlighter action="highlight" color="var(--secondary)" delay={1000}>
+                  <Highlighter action="highlight" color="var(--secondary)" delay={1500}>
                     estudia mejor
                   </Highlighter>
                 </span>
                 <br />
                 con{' '}
-                <Highlighter action="underline" color="var(--primary)" delay={1000}>
+                <Highlighter action="underline" color="var(--primary)" delay={1500}>
                   opositaplace
                 </Highlighter>
                 .
