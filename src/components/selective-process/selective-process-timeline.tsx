@@ -206,17 +206,17 @@ export function SelectiveProcessTimeline() {
               <div key={stage.id} className="relative flex items-start group">
                 <div className="absolute -left-8 z-10 mt-1 flex h-8 w-8 items-center justify-center rounded-full bg-background">
                   {isCompleted ? (
-                    <CheckCircle className="h-5 w-5 text-green-500" />
+                    <CheckCircle className="h-5 w-5 text-primary" />
                   ) : isCurrent ? (
                     <Milestone className="h-5 w-5 text-primary animate-pulse" />
                   ) : (
                     <Circle className="h-4 w-4 text-muted-foreground" />
                   )}
                 </div>
-                <div className="w-full ms-2">
+                <div className="w-full ms-2 mt-2">
                   <div
-                    className={`font-semibold ${isCurrent ? 'text-primary' : ''} ${
-                      isCompleted ? 'text-muted-foreground' : ''
+                    className={` ${isCurrent ? 'text-primary font-semibold' : ''} ${
+                      isCompleted ? 'text-muted-foreground' : 'text-muted-foreground'
                     } flex items-center`}
                   >
                     {stage.name}
