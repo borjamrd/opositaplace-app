@@ -8,7 +8,7 @@ import { Highlighter } from '../ui/highlighter';
 
 export function LegislacionVigente() {
   return (
-    <section className="py-20 relative container overflow-hidden bg-background">
+    <section className="py-20 relative max-w-sm md:container overflow-hidden bg-background">
       <div className="container px-4 md:px-6 mb-12 text-center">
         <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl font-playfair">
           Legislación{' '}
@@ -23,7 +23,7 @@ export function LegislacionVigente() {
           para tu preparación
         </p>
       </div>
-      <ScrollVelocityContainer className="text-2xl font-bold tracking-tight md:text-4xl">
+      <ScrollVelocityContainer className="text-xl font-bold tracking-tight md:text-4xl">
         <ScrollVelocityRow
           baseVelocity={-1}
           direction={1}

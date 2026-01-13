@@ -37,7 +37,7 @@ export function Hero() {
             {/* Title */}
             <div className="space-y-3">
               <h1 className="text-4xl md:text-6xl lg:text-7xl font-semibold tracking-tight leading-tight font-playfair">
-                No estudies más,
+                En tu oposición,
                 <br />
                 <span className="italic">
                   <Highlighter action="highlight" color="var(--secondary)" delay={1200}>

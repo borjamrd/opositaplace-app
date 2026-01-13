@@ -21,7 +21,7 @@ export function OfficialQuestions() {
           {/* Left Side - Text */}
           <div className="space-y-6 md:col-span-1">
             <h2 className="text-3xl md:text-5xl font-bold font-playfair leading-tight">
-              Practica con{' '}
+              Repasa con{' '}
               <span className="italic">
                 <Highlighter action="highlight" color="var(--secondary)" delay={200}>
                   preguntas reales
