@@ -5,14 +5,16 @@ import { useSelectiveProcess } from '@/lib/supabase/queries/useSelectiveProcess'
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useToast } from '@/hooks/use-toast';
-import { useStudySessionStore } from '@/store/study-session-store';
-import { CheckCircle, Circle, Milestone, Info } from 'lucide-react';
-import { useMemo } from 'react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { useToast } from '@/hooks/use-toast';
+import { ProcessStage } from '@/lib/supabase/types';
+import { useStudySessionStore } from '@/store/study-session-store';
+import { CheckCircle, Circle, Info, Milestone } from 'lucide-react';
+import { useMemo } from 'react';
 
 export function SelectiveProcessTimeline() {
   const { toast } = useToast();
@@ -93,6 +95,14 @@ export function SelectiveProcessTimeline() {
     }
   };
 
+  const pendingDays = (stage: ProcessStage) => {
+    if (!stage.key_date) return 'Pendiente';
+    const days = Math.ceil(
+      (new Date(stage.key_date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
+    );
+    return days > 0 ? `Faltan ${days} días` : 'Hoy';
+  };
+
   if (isLoading) {
     return <Skeleton className="h-48 w-full" />;
   }
@@ -166,7 +176,7 @@ export function SelectiveProcessTimeline() {
             const nextStage = stages[index + 1];
 
             return (
-              <div key={stage.id} className="relative flex items-start">
+              <div key={stage.id} className="relative flex items-start group">
                 <div className="absolute -left-8 z-10 mt-1 flex h-8 w-8 items-center justify-center rounded-full bg-background">
                   {isCompleted ? (
                     <CheckCircle className="h-5 w-5 text-green-500" />
@@ -199,22 +209,40 @@ export function SelectiveProcessTimeline() {
                       </Tooltip>
                     )}
                   </div>
+
                   {stage.key_date && (
-                    <p className="text-sm text-muted-foreground">
-                      Fecha clave: {new Date(stage.key_date).toLocaleDateString()}
-                    </p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <Badge variant="secondary" className="text-xs font-normal">
+                        {new Date(stage.key_date!).toLocaleDateString()}
+                      </Badge>
+                      {stage.status === 'pendiente' && (
+                        <Badge variant="default" className="text-xs font-normal">
+                          {pendingDays(stage)}
+                        </Badge>
+                      )}
+                      {stage.status === 'completada' && (
+                        <Badge
+                          variant="secondary"
+                          className="text-xs font-normal bg-green-100 text-green-800 hover:bg-green-200"
+                        >
+                          Finalizado
+                        </Badge>
+                      )}
+                    </div>
                   )}
 
                   {/* ✅ Botón para avanzar de etapa */}
                   {isTracking && isCurrent && nextStage && (
-                    <Button
-                      size="sm"
-                      className="mt-2"
-                      onClick={() => handleStageAdvance(nextStage.id)}
-                      disabled={isUpdatingStage}
-                    >
-                      {isUpdatingStage ? 'Avanzando...' : `Marcar como completado y avanzar`}
-                    </Button>
+                    <div className="max-h-0 overflow-hidden opacity-0 transition-all duration-300 ease-in-out group-hover:max-h-14 group-hover:opacity-100">
+                      <Button
+                        size="sm"
+                        className="mt-2 translate-y-4 transition-transform duration-300 group-hover:translate-y-0"
+                        onClick={() => handleStageAdvance(nextStage.id)}
+                        disabled={isUpdatingStage}
+                      >
+                        {isUpdatingStage ? 'Avanzando...' : `Marcar como completado y avanzar`}
+                      </Button>
+                    </div>
                   )}
                 </div>
               </div>
