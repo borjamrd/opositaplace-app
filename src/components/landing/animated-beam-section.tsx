@@ -68,10 +68,10 @@ export function AnimatedBeamSection() {
         </div>
 
         <div
-          className="relative z-20 size-24 rounded-full border-2 border-primary/20 border-2 bg-white flex items-center justify-center shadow-lg shrink-0"
+          className="relative z-20 size-14 md:size-24 rounded-full border-2 border-primary/20 border-2 bg-white flex items-center justify-center shadow-lg shrink-0"
           ref={centerRef}
         >
-          <Logo collapsed className="w-[50px] h-[50px]" />
+          <Logo collapsed className="w-[30px] md:w-[50px] h-[30px] md:h-[50px]" />
         </div>
 
         <div className="flex flex-col items-center justify-center gap-10">

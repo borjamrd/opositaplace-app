@@ -17,7 +17,9 @@ export const Logo: React.FC<LogoProps> = ({ className, collapsed }) => {
         className={cn('', className)}
         alt="Picture of the author"
       />
-      {!collapsed && <span className="text-3xl font-bold text-primary">opositaplace</span>}
+      {!collapsed && (
+        <span className="ml-2 text-xl hidden md:block font-bold text-primary">opositaplace</span>
+      )}
     </div>
   );
 };

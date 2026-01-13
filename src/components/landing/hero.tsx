@@ -72,26 +72,47 @@ export function Hero() {
             </div>
           </motion.div>
 
-          {/* Right Content - Image Containter */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9, x: 20 }}
-            animate={{ opacity: 1, scale: 1, x: 0 }}
-            transition={{ duration: 0.8, ease: 'easeOut', delay: 0.2 }}
-            className="relative"
-          >
-            <div className="relative z-10 w-full lg:min-h-[500px] aspect-video max-w-[800px] mx-auto group">
-              {/* Glassmorphism Container for Image Placeholder */}
-              <div className="absolute inset-0 bg-gradient-to-tr from-primary/5 to-primary/10 rounded-2xl border border-white/10 backdrop-blur-sm shadow-2xl overflow-hidden">
-                <video autoPlay loop muted playsInline className="w-full h-full object-cover">
-                  <source src="/landing_video.mp4" type="video/mp4" />
-                </video>
-              </div>
+          {/* Right Content - 3D Image Composition */}
+          <div className="relative perspective-[2000px] h-[400px] md:h-[500px] w-full flex items-center justify-center">
+            {/* Main Dashboard (Base) */}
+            <motion.div
+              initial={{ opacity: 0, rotateX: 20, rotateY: -20, scale: 0.8 }}
+              animate={{ opacity: 1, rotateX: 5, rotateY: -5, scale: 1.35 }}
+              transition={{ duration: 1, ease: 'easeOut' }}
+              className="relative z-10 w-full"
+              style={{
+                transformStyle: 'preserve-3d',
+              }}
+            >
+              <img
+                src="/roadmap_hero.png"
+                alt="Roadmap Dashboard"
+                className="w-full h-auto object-contain drop-shadow-2xl"
+              />
+            </motion.div>
 
-              {/* Decorative Elements */}
-              <div className="absolute -top-6 -right-6 w-32 h-32 bg-primary/20 rounded-full blur-2xl -z-10 group-hover:bg-primary/30 transition-colors duration-500" />
-              <div className="absolute -bottom-6 -left-6 w-32 h-32 bg-primary/10 rounded-full blur-2xl -z-10 group-hover:bg-primary/20 transition-colors duration-500" />
-            </div>
-          </motion.div>
+            {/* Floating Card 2 (Caso Práctico) - Bottom Left */}
+            <motion.div
+              initial={{ opacity: 0, y: 50, x: 20 }}
+              animate={{ opacity: 1, y: 0, x: 0, scale: 1.15 }}
+              transition={{ delay: 0.5, duration: 0.8 }}
+              className="absolute -left-10 -top-5 md:-left-25 md:top-40  md:w-full z-30"
+            >
+              <motion.div
+                animate={{ y: [0, -15, 0] }}
+                transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
+              >
+                <img
+                  src="/caso_practico_hero.png"
+                  alt="Caso Práctico"
+                  className="w-full h-auto object-contain drop-shadow-xl"
+                />
+              </motion.div>
+            </motion.div>
+
+            {/* Decorative Glows */}
+            <div className="absolute inset-0 z-0 bg-gradient-to-tr from-primary/20 via-transparent to-primary/10 blur-3xl opacity-50 pointer-events-none" />
+          </div>
         </div>
       </div>
     </section>

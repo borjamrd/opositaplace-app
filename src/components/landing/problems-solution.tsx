@@ -142,7 +142,7 @@ export function ProblemsSolution() {
             transition={{ duration: 0.8, ease: 'easeOut' }}
             className="relative"
           >
-            <div className="rounded-3xl border border-primary/20 bg-primary/5 p-4 md:p-8 relative overflow-hidden shadow-[0_0_50px_-12px_rgba(var(--primary),0.3)]">
+            <div className="rounded-3xl border border-primary/20 bg-primary/5 p-1 md:p-8 relative overflow-hidden shadow-[0_0_50px_-12px_rgba(var(--primary),0.3)]">
               <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-transparent opacity-50" />
 
               {/* Logo header inside the box */}

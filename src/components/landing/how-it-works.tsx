@@ -11,7 +11,7 @@ export function HowItWorks() {
       title: 'Realiza el onboarding',
       description:
         'Planifica tu objetivo de horas semanales, asígnalos a un calendario y define tus preferencias.',
-      image: '/onboarding.png',
+      image: '/proceso.png',
     },
     {
       number: 2,
