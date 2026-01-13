@@ -3,22 +3,40 @@
 import { generateSmartFeedback } from '@/actions/study-feedback';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/button';
 import { useStudyFeedbackData } from '@/hooks/use-study-feedback';
-import { useQuery } from '@tanstack/react-query';
-import { Sparkles } from 'lucide-react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { RefreshCw, Sparkles } from 'lucide-react';
 
 export function StudyFeedback() {
+  const queryClient = useQueryClient();
+
   // 1. Obtener los datos "crudos" (Rápido)
-  const { data: contextData, isLoading: isLoadingContext } = useStudyFeedbackData();
+  const {
+    data: contextData,
+    isLoading: isLoadingContext,
+    isRefetching: isRefetchingContext,
+  } = useStudyFeedbackData();
 
   // 2. Generar el feedback con IA (Lento - depende de los datos anteriores)
-  const { data: feedbackText, isLoading: isLoadingFeedback } = useQuery({
+  const {
+    data: feedbackText,
+    isLoading: isLoadingFeedback,
+    isRefetching: isRefetchingFeedback,
+  } = useQuery({
     queryKey: ['ai-feedback', contextData],
     queryFn: () => generateSmartFeedback(contextData!),
     enabled: !!contextData,
     staleTime: 1000 * 60 * 60,
     refetchOnWindowFocus: false,
   });
+
+  const handleReload = () => {
+    queryClient.invalidateQueries({ queryKey: ['study-feedback-context'] });
+    queryClient.invalidateQueries({ queryKey: ['ai-feedback'] });
+  };
+
+  const isUpdating = isRefetchingContext || isRefetchingFeedback;
 
   if (isLoadingContext || isLoadingFeedback) {
     return <FeedbackSkeleton />;
@@ -33,6 +51,16 @@ export function StudyFeedback() {
           <Sparkles className="h-4 w-4 text-indigo-500" />
           Análisis de tu progreso
         </CardTitle>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8 text-indigo-400 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-300"
+          onClick={handleReload}
+          disabled={isUpdating}
+        >
+          <RefreshCw className={`h-4 w-4 ${isUpdating ? 'animate-spin' : ''}`} />
+          <span className="sr-only">Actualizar feedback</span>
+        </Button>
       </CardHeader>
       <CardContent>
         <p className="text-sm leading-relaxed text-slate-700 dark:text-slate-300">{feedbackText}</p>

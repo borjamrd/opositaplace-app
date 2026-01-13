@@ -1,7 +1,8 @@
 'use server';
 
 import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { ai } from '@/ai/genkit'; //
+import { ai } from '@/ai/genkit';
+import crypto from 'crypto';
 import { z } from 'zod';
 
 export interface FeedbackContextData {
@@ -20,6 +21,7 @@ export interface FeedbackContextData {
   userName: string;
   weeklyStudyGoalHours: number;
   totalHistoricalHours: number;
+  userId: string;
 }
 
 export async function getFeedbackContext(): Promise<FeedbackContextData | null> {
@@ -117,12 +119,37 @@ export async function getFeedbackContext(): Promise<FeedbackContextData | null> 
     recentTests,
     topicProgress,
     userName,
-    weeklyStudyGoalHours, // <--- ¡Ahora definida correctamente!
+    weeklyStudyGoalHours,
     totalHistoricalHours,
+    userId: user.id,
   };
 }
 
 export async function generateSmartFeedback(context: FeedbackContextData): Promise<string> {
+  const supabase = await createSupabaseServerClient();
+
+  // 0. Calcular Hash del Contexto (para detectar cambios)
+  const contextForHash = {
+    ...context,
+    userName: undefined,
+  };
+  const currentHash = crypto
+    .createHash('sha256')
+    .update(JSON.stringify(contextForHash))
+    .digest('hex');
+
+  // 1. Verificar si ya existe feedback para este hash
+  const { data: existingFeedback } = await supabase
+    .from('ai_progress_feedback')
+    .select('feedback_text, context_hash')
+    .eq('user_id', context.userId)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .single();
+
+  if (existingFeedback && existingFeedback.context_hash === currentHash) {
+    return existingFeedback.feedback_text;
+  }
   if (context.totalHistoricalHours < 2) {
     // Menos de 1 hora estudiada históricamente
     const plannedDays = context.plannedDaysCount;
@@ -192,6 +219,13 @@ Tu tono es: **Neutral, profesional, directo/a y motivador/a**. Tu objetivo es pr
       config: {
         temperature: 0.7,
       },
+    });
+
+    // 3. Guardar en DB el nuevo feedback generado
+    await supabase.from('ai_progress_feedback').insert({
+      user_id: context.userId,
+      feedback_text: text,
+      context_hash: currentHash,
     });
 
     return text;
