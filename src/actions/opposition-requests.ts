@@ -2,6 +2,8 @@
 
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { z } from 'zod';
+import { sendEmail } from '@/lib/email/email';
+import { OppositionRequestEmail } from '@/emails/opposition-request-email';
 
 const CreateOppositionRequestSchema = z.object({
   email: z.string().email(),
@@ -44,6 +46,17 @@ export async function createOppositionRequest(
         success: false,
         error: 'Error al enviar la solicitud. Inténtalo de nuevo más tarde.',
       };
+    }
+
+    try {
+      await sendEmail({
+        to: email,
+        subject: `Petición recibida: ${oppositionName}`,
+        emailComponent: OppositionRequestEmail({ oppositionName }),
+      });
+    } catch (emailError) {
+      console.error('Error sending confirmation email:', emailError);
+      // We don't want to fail the request if the email fails, but we should log it.
     }
 
     return {
