@@ -49,7 +49,7 @@ export function StudyFeedback() {
       <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
         <CardTitle className="text-md font-semibold text-indigo-900 dark:text-indigo-100 flex items-center gap-2">
           <Sparkles className="h-4 w-4 text-indigo-500" />
-          Análisis de tu progreso
+          Análisis de tu progreso semanal
         </CardTitle>
         <Button
           variant="ghost"
