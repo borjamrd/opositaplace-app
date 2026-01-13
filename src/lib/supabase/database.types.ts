@@ -211,36 +211,6 @@ export type Database = {
         };
         Relationships: [];
       };
-      infografias: {
-        Row: {
-          contenido_html: string | null;
-          created_at: string;
-          id: string;
-          published: boolean;
-          title: string;
-          updated_at: string;
-          user_id: string | null;
-        };
-        Insert: {
-          contenido_html?: string | null;
-          created_at?: string;
-          id: string;
-          published?: boolean;
-          title: string;
-          updated_at?: string;
-          user_id?: string | null;
-        };
-        Update: {
-          contenido_html?: string | null;
-          created_at?: string;
-          id?: string;
-          published?: boolean;
-          title?: string;
-          updated_at?: string;
-          user_id?: string | null;
-        };
-        Relationships: [];
-      };
       leads: {
         Row: {
           created_at: string;
@@ -347,6 +317,30 @@ export type Database = {
             referencedColumns: ['id'];
           },
         ];
+      };
+      opposition_requests: {
+        Row: {
+          created_at: string;
+          email: string;
+          id: string;
+          opposition_name: string;
+          status: string | null;
+        };
+        Insert: {
+          created_at?: string;
+          email: string;
+          id?: string;
+          opposition_name: string;
+          status?: string | null;
+        };
+        Update: {
+          created_at?: string;
+          email?: string;
+          id?: string;
+          opposition_name?: string;
+          status?: string | null;
+        };
+        Relationships: [];
       };
       opposition_resources: {
         Row: {
@@ -675,6 +669,45 @@ export type Database = {
             columns: ['opposition_id'];
             isOneToOne: false;
             referencedRelation: 'oppositions';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      question_reports: {
+        Row: {
+          created_at: string;
+          id: string;
+          question_id: string;
+          status: Database['public']['Enums']['report_status_enum'];
+          user_id: string | null;
+        };
+        Insert: {
+          created_at?: string;
+          id?: string;
+          question_id: string;
+          status?: Database['public']['Enums']['report_status_enum'];
+          user_id?: string | null;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          question_id?: string;
+          status?: Database['public']['Enums']['report_status_enum'];
+          user_id?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'question_reports_question_id_fkey';
+            columns: ['question_id'];
+            isOneToOne: false;
+            referencedRelation: 'questions';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'question_reports_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
             referencedColumns: ['id'];
           },
         ];
@@ -1234,45 +1267,6 @@ export type Database = {
             referencedColumns: ['id'];
           },
         ];
-      };
-      testimonials: {
-        Row: {
-          created_at: string;
-          description: string;
-          id: string;
-          instagram: string | null;
-          linkedin: string | null;
-          name: string;
-          position: string | null;
-          reviewed: boolean;
-          surname: string | null;
-          website: string | null;
-        };
-        Insert: {
-          created_at?: string;
-          description: string;
-          id: string;
-          instagram?: string | null;
-          linkedin?: string | null;
-          name: string;
-          position?: string | null;
-          reviewed?: boolean;
-          surname?: string | null;
-          website?: string | null;
-        };
-        Update: {
-          created_at?: string;
-          description?: string;
-          id?: string;
-          instagram?: string | null;
-          linkedin?: string | null;
-          name?: string;
-          position?: string | null;
-          reviewed?: boolean;
-          surname?: string | null;
-          website?: string | null;
-        };
-        Relationships: [];
       };
       topics: {
         Row: {
@@ -1851,13 +1845,21 @@ export type Database = {
           question_id: string;
         }[];
       };
-      has_role: {
-        Args: {
-          _role: Database['public']['Enums']['app_role'];
-          user_id: string;
-        };
-        Returns: boolean;
-      };
+      has_role:
+        | {
+            Args: {
+              _role: Database['public']['Enums']['app_role'];
+              user_id: string;
+            };
+            Returns: boolean;
+          }
+        | {
+            Args: {
+              _role: Database['public']['Enums']['app_role'];
+              user_id: string;
+            };
+            Returns: boolean;
+          };
       list_oppositions_with_user_count: {
         Args: never;
         Returns: {
@@ -1905,6 +1907,7 @@ export type Database = {
         | 'psicotecnicos'
         | 'informatica';
       process_status_enum: 'borrador' | 'en_curso' | 'finalizado';
+      report_status_enum: 'pending' | 'resolved' | 'dismissed';
       stage_status_enum: 'pendiente' | 'abierta' | 'completada';
       status_enum: 'not_started' | 'in_progress' | 'completed';
       syllabus_status: 'not_started' | 'in_progress' | 'completed';
@@ -2051,6 +2054,7 @@ export const Constants = {
         'informatica',
       ],
       process_status_enum: ['borrador', 'en_curso', 'finalizado'],
+      report_status_enum: ['pending', 'resolved', 'dismissed'],
       stage_status_enum: ['pendiente', 'abierta', 'completada'],
       status_enum: ['not_started', 'in_progress', 'completed'],
       syllabus_status: ['not_started', 'in_progress', 'completed'],
