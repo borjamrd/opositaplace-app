@@ -46,7 +46,12 @@ export function TimerManual() {
 
     setIsSubmitting(true);
     try {
-      await saveManualSession(totalSeconds, date);
+      // Create a new date object to avoid mutating the original state
+      const dateToSave = new Date(date);
+      // Set to noon to avoid timezone issues when converting to UTC (00:00 might become previous day)
+      dateToSave.setHours(12, 0, 0, 0);
+
+      await saveManualSession(totalSeconds, dateToSave);
       toast({
         title: 'Éxito',
         description: 'Sesión guardada correctamente',
