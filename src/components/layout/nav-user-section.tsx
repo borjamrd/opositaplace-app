@@ -29,7 +29,7 @@ export function NavUserSection({ collapsed }: { collapsed: boolean }) {
   if (!profile) return null;
 
   return (
-    <div className="flex flex-col items-center gap-2 p-2">
+    <div>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button

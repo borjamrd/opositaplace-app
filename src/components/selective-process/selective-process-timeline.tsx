@@ -11,7 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useToast } from '@/hooks/use-toast';
-import { ProcessStage } from '@/lib/supabase/types';
+import { FullUserProcess, ProcessStage } from '@/lib/supabase/types';
 import { useStudySessionStore } from '@/store/study-session-store';
 import { CheckCircle, Circle, Info, Milestone } from 'lucide-react';
 import { useMemo } from 'react';
@@ -61,16 +61,43 @@ export function SelectiveProcessTimeline() {
       if (result.error) throw new Error(result.error);
       return result.data;
     },
+    onMutate: async ({ nextStageId }) => {
+      await queryClient.cancelQueries({ queryKey: ['selectiveProcess', activeOpposition?.id] });
+      const previousProcessData = queryClient.getQueryData<FullUserProcess>([
+        'selectiveProcess',
+        activeOpposition?.id,
+      ]);
+
+      if (previousProcessData && previousProcessData.userStatus) {
+        queryClient.setQueryData<FullUserProcess>(['selectiveProcess', activeOpposition?.id], {
+          ...previousProcessData,
+          userStatus: {
+            ...previousProcessData.userStatus,
+            current_stage_id: nextStageId,
+          },
+        });
+      }
+
+      return { previousProcessData };
+    },
     onSuccess: () => {
       toast({ title: '¡Progreso guardado!' });
-      queryClient.invalidateQueries({ queryKey: ['selectiveProcess', activeOpposition?.id] });
     },
-    onError: (err) => {
+    onError: (err, _variables, context) => {
+      if (context?.previousProcessData) {
+        queryClient.setQueryData(
+          ['selectiveProcess', activeOpposition?.id],
+          context.previousProcessData
+        );
+      }
       toast({
         variant: 'destructive',
         title: 'Error al avanzar',
         description: err.message,
       });
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['selectiveProcess', activeOpposition?.id] });
     },
   });
 
@@ -160,7 +187,7 @@ export function SelectiveProcessTimeline() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-lg font-bold">
+        <CardTitle>
           {isTracking ? 'Mi proceso selectivo' : 'Así funciona el proceso selectivo'}
         </CardTitle>
         <CardDescription>{process.name}</CardDescription>
