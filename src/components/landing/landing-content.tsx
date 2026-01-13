@@ -7,6 +7,8 @@ import { Features } from './features';
 import { Footer } from './footer';
 import { Hero } from './hero';
 import { HowItWorks } from './how-it-works';
+import { LegislacionVigente } from './legislacion-vigente';
+import { OfficialQuestions } from './official-questions';
 import { ProblemsSolution } from './problems-solution';
 
 export default function LandingContent() {
@@ -16,6 +18,8 @@ export default function LandingContent() {
       <HowItWorks />
       <ProblemsSolution />
       <Features />
+      <OfficialQuestions />
+      <LegislacionVigente />
       <PlanSelector />
       <FAQ />
       <CtaOpposition />

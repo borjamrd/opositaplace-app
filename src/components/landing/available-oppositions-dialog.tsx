@@ -43,9 +43,6 @@ export function AvailableOppositionsDialog() {
               Si estás estudiando otra oposición, dínoslo para que podamos priorizarla.
             </p>
             <div className="space-y-3">
-              {/* <Label htmlFor="email" className="text-base font-medium">
-                Correo electrónico
-              </Label> */}
               <Input
                 id="email"
                 placeholder="Correo electrónico"
@@ -54,9 +51,6 @@ export function AvailableOppositionsDialog() {
               />
             </div>
             <div className="space-y-3">
-              {/* <Label htmlFor="opposition" className="text-base font-medium">
-                ¿Qué oposición te interesa?
-              </Label> */}
               <Input
                 id="opposition"
                 placeholder="Oposición"

@@ -1,12 +1,11 @@
 'use client';
 
-import { Logo } from '@/components/logo';
 import { Button } from '@/components/ui/button';
+import { Highlighter } from '@/components/ui/highlighter';
 import { motion } from 'framer-motion';
 import { Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import { AvailableOppositionsDialog } from './available-oppositions-dialog';
-import { Highlighter } from '@/components/ui/highlighter';
 
 export function Hero() {
   return (
@@ -41,13 +40,13 @@ export function Hero() {
                 No estudies más,
                 <br />
                 <span className="italic">
-                  <Highlighter action="highlight" color="var(--secondary)" delay={1500}>
+                  <Highlighter action="highlight" color="var(--secondary)" delay={1200}>
                     estudia mejor
                   </Highlighter>
                 </span>
                 <br />
                 con{' '}
-                <Highlighter action="underline" color="var(--primary)" delay={1500}>
+                <Highlighter action="underline" color="var(--primary)" delay={2000}>
                   opositaplace
                 </Highlighter>
                 .
