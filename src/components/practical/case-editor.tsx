@@ -133,7 +133,7 @@ export function CaseEditor({ caseId, initialContent = '', onCorrectionReceived }
         toast({
           title: 'Corrección iniciada',
           description:
-            'Estamos revisando tu respuesta, esto tomará unos momentos, puedes cambiar de página.',
+            'Estoy revisando tu respuesta, te llegará un correo electrónico cuando termine, puedes cambiar de página.',
         });
       }
     });
