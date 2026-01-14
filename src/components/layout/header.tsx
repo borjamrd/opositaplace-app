@@ -12,8 +12,9 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 flex h-16 items-center justify-between w-full border-b border-border/40 bg-background px-4  md:px-6">
       <div className="flex items-center gap-4">
-        <div className="hidden md:flex">
-          <SidebarTrigger className="m-4" />
+        <SidebarTrigger className="md:hidden" />
+        <div className="hidden md:flex items-center">
+          <SidebarTrigger className="mr-4" />
           <AppBreadcrumbs />
         </div>
       </div>

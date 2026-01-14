@@ -25,7 +25,6 @@ import Link from 'next/link';
 import React, { useMemo } from 'react';
 import { Logo } from '../logo';
 
-import { FloatingAssistantButton } from '@/components/assistant/floating-assistant-button';
 import { useStudySessionStore } from '@/store/study-session-store';
 import OpositionSelector from '../oposition-selector';
 import { NavMain } from './nav-main';
@@ -80,7 +79,7 @@ export const baseNavItems = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const activeOpposition = useStudySessionStore((state) => state.activeOpposition);
-  const { state } = useSidebar();
+  const { state, isMobile } = useSidebar();
 
   const navItems = useMemo(() => {
     const items = [...baseNavItems.navMain];
@@ -101,18 +100,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarMenu>
           <SidebarMenuItem>
             <Link href="/">
-              <Logo className="h-8 w-8 flex" collapsed={state === 'collapsed'} />
+              <Logo className="h-8 w-8 flex" collapsed={state === 'collapsed' && !isMobile} />
             </Link>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
 
       <SidebarContent>
-        <OpositionSelector collapsed={state === 'collapsed'} />
+        <OpositionSelector collapsed={state === 'collapsed' && !isMobile} />
         <NavMain items={navItems} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUserSection collapsed={state === 'collapsed'} />
+        <NavUserSection collapsed={state === 'collapsed' && !isMobile} />
       </SidebarFooter>
     </Sidebar>
   );
