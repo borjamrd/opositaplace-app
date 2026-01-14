@@ -66,7 +66,7 @@ export async function getFeedbackContext(): Promise<FeedbackContextData | null> 
       .select('score, created_at, title')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
-      .limit(10), // 4. Progreso del Temario (Solo estados)
+      .gte('finished_at', oneWeekAgoIso),
 
     supabase.from('user_topic_status').select('status').eq('user_id', user.id), // 5. Nombre del usuario
 

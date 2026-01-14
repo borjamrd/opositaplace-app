@@ -9,7 +9,8 @@ export async function sendWeeklySummaries() {
 
   const { data: profiles, error: profilesError } = await supabase
     .from('profiles')
-    .select('*')
+    .select('*, user_subscriptions!inner(status)')
+    .in('user_subscriptions.status', ['active', 'trialing'])
     .neq('email', '');
 
   if (profilesError) {
@@ -81,8 +82,7 @@ async function getSummaryForUser(userId: string) {
       .from('test_attempts')
       .select('score')
       .eq('user_id', userId)
-      .gte('completed_at', oneWeekAgoIso)
-      .not('completed_at', 'is', null), // Solo tests terminados
+      .gte('finished_at', oneWeekAgoIso),
 
     // C. Tarjetas repasadas (Aproximación: tarjetas cuyo último repaso fue esta semana)
     // Nota: Esto cuenta tarjetas únicas repasadas, no el total de repasos si una misma se vio 2 veces.
