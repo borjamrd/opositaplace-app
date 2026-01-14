@@ -9,7 +9,11 @@ import { Loader2, Send, Save } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { saveCaseDraft, submitAndCorrectCase } from '@/actions/practical-cases';
+import {
+  saveCaseDraft,
+  submitAndCorrectCase,
+  getCorrectionJobStatus,
+} from '@/actions/practical-cases';
 import { EditorToolbar } from './editor-toolbar';
 import { AICorrectionAnalysis } from '@/lib/supabase/types';
 
@@ -23,6 +27,48 @@ export function CaseEditor({ caseId, initialContent = '', onCorrectionReceived }
   const { toast } = useToast();
   const [isSaving, setIsSaving] = useState(false);
   const [isSubmitting, startTransition] = useTransition();
+  const [pollingJobId, setPollingJobId] = useState<string | null>(null);
+
+  // Polling del estado del job
+  useEffect(() => {
+    if (!pollingJobId) return;
+
+    const interval = setInterval(async () => {
+      const statusResult = await getCorrectionJobStatus(pollingJobId);
+
+      if (statusResult.error) {
+        clearInterval(interval);
+        setPollingJobId(null);
+        toast({
+          variant: 'destructive',
+          title: 'Error verificando estado',
+          description: statusResult.error,
+        });
+        return;
+      }
+
+      if (statusResult.status === 'completed' && statusResult.result) {
+        clearInterval(interval);
+        setPollingJobId(null);
+        toast({
+          title: '¡Corrección completada!',
+          description: 'Tu caso ha sido evaluado por la IA.',
+        });
+        onCorrectionReceived(statusResult.result as unknown as AICorrectionAnalysis);
+      } else if (statusResult.status === 'failed') {
+        clearInterval(interval);
+        setPollingJobId(null);
+        toast({
+          variant: 'destructive',
+          title: 'Error en la corrección',
+          description: statusResult.errorMessage || 'Ha ocurrido un error desconocido',
+        });
+      }
+      // Si está pending o processing, seguimos esperando
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, [pollingJobId, toast, onCorrectionReceived]);
 
   // Configuración del editor Tiptap
   const editor = useEditor({
@@ -73,22 +119,21 @@ export function CaseEditor({ caseId, initialContent = '', onCorrectionReceived }
       // 1. Guardamos forzosamente la última versión
       await saveCaseDraft(caseId, content);
 
-      // 2. Llamamos a la IA
+      // 2. Llamamos a la IA (que ahora inicia un job)
       const result = await submitAndCorrectCase(caseId, content);
 
-      if (result.error || !result.feedback) {
+      if (result.error) {
         toast({
           variant: 'destructive',
-          title: 'Error en la corrección',
-          description: result.error || 'Ha ocurrido un error desconocido',
+          title: 'Error al iniciar corrección',
+          description: result.error,
         });
-      } else {
+      } else if (result.jobId) {
+        setPollingJobId(result.jobId);
         toast({
-          title: '¡Corrección completada!',
-          description: 'Tu caso ha sido evaluado por la IA.',
+          title: 'Corrección iniciada',
+          description: 'La IA está evaluando tu respuesta, esto tomará unos momentos...',
         });
-        // Pasamos el resultado al componente padre para mostrar el feedback
-        onCorrectionReceived(result.feedback);
       }
     });
   };
@@ -126,12 +171,13 @@ export function CaseEditor({ caseId, initialContent = '', onCorrectionReceived }
 
         <Button
           onClick={handleSubmit}
-          disabled={isSubmitting || !editor || editor.isEmpty}
+          disabled={isSubmitting || !!pollingJobId || !editor || editor.isEmpty}
           className="gap-2"
         >
-          {isSubmitting ? (
+          {isSubmitting || pollingJobId ? (
             <>
-              <Loader2 className="w-4 h-4 animate-spin" /> Corrigiendo...
+              <Loader2 className="w-4 h-4 animate-spin" />{' '}
+              {pollingJobId ? 'Procesando...' : 'Enviando...'}
             </>
           ) : (
             <>

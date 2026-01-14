@@ -1,9 +1,8 @@
 // src/actions/practical-cases.ts
 'use server';
 
+import { inngest } from '@/inngest/client';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { correctPracticalCaseFlow } from '@/ai/flows/correction-flow';
-import { revalidatePath } from 'next/cache';
 
 export async function getPracticalCases(oppositionId: string) {
   const supabase = await createSupabaseServerClient();
@@ -74,44 +73,48 @@ export async function submitAndCorrectCase(caseId: string, userAnswer: string) {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { error: 'Unauthorized' };
-  const { data: caseData } = await supabase
-    .from('practical_cases')
-    .select('statement, official_solution, evaluation_criteria')
-    .eq('id', caseId)
-    .single();
-
-  if (!caseData) return { error: 'Datos del caso no encontrados.' };
 
   try {
-    const criteriaList = Array.isArray(caseData.evaluation_criteria)
-      ? caseData.evaluation_criteria.map(String)
-      : [];
-
-    const correctionResult = await correctPracticalCaseFlow({
-      statement: caseData.statement,
-      official_solution: caseData.official_solution,
-      user_answer: userAnswer,
-      evaluation_criteria: criteriaList,
-    });
-
-    const { error: saveError } = await supabase.from('practical_case_attempts').upsert(
-      {
+    // 1. Crear el job en base de datos
+    const { data: job, error: jobError } = await supabase
+      .from('practical_case_correction_jobs')
+      .insert({
         user_id: user.id,
         case_id: caseId,
         user_answer: userAnswer,
-        feedback_analysis: correctionResult,
-        status: 'corrected',
-        submitted_at: new Date().toISOString(),
+        status: 'pending',
+      })
+      .select()
+      .single();
+
+    if (jobError) throw new Error(jobError.message);
+
+    // 2. Enviar evento a Inngest
+    await inngest.send({
+      name: 'practical-case/correct',
+      data: {
+        caseId,
+        userId: user.id,
+        userAnswer,
+        jobId: job.id,
       },
-      { onConflict: 'user_id, case_id' }
-    );
+    });
 
-    if (saveError) throw new Error(saveError.message);
-
-    revalidatePath(`/dashboard/practical-cases/${caseId}`);
-    return { success: true, feedback: correctionResult };
+    return { success: true, jobId: job.id, status: 'pending' };
   } catch (error: any) {
-    console.error('Error en corrección IA:', error);
-    return { error: 'Hubo un problema al generar la corrección. Inténtalo de nuevo.' };
+    console.error('Error iniciando corrección:', error);
+    return { error: 'Hubo un problema al iniciar la corrección. Inténtalo de nuevo.' };
   }
+}
+
+export async function getCorrectionJobStatus(jobId: string) {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from('practical_case_correction_jobs')
+    .select('status, result, error_message')
+    .eq('id', jobId)
+    .single();
+
+  if (error) return { error: error.message };
+  return { status: data.status, result: data.result, errorMessage: data.error_message };
 }

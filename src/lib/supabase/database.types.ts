@@ -518,6 +518,57 @@ export type Database = {
           },
         ];
       };
+      practical_case_correction_jobs: {
+        Row: {
+          case_id: string;
+          created_at: string;
+          error_message: string | null;
+          id: string;
+          result: Json | null;
+          status: Database['public']['Enums']['job_status'] | null;
+          updated_at: string;
+          user_answer: string | null;
+          user_id: string;
+        };
+        Insert: {
+          case_id: string;
+          created_at?: string;
+          error_message?: string | null;
+          id?: string;
+          result?: Json | null;
+          status?: Database['public']['Enums']['job_status'] | null;
+          updated_at?: string;
+          user_answer?: string | null;
+          user_id: string;
+        };
+        Update: {
+          case_id?: string;
+          created_at?: string;
+          error_message?: string | null;
+          id?: string;
+          result?: Json | null;
+          status?: Database['public']['Enums']['job_status'] | null;
+          updated_at?: string;
+          user_answer?: string | null;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'practical_case_correction_jobs_case_id_fkey';
+            columns: ['case_id'];
+            isOneToOne: false;
+            referencedRelation: 'practical_cases';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'practical_case_correction_jobs_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       practical_cases: {
         Row: {
           created_at: string | null;
