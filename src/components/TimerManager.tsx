@@ -115,7 +115,11 @@ export default function TimerManager() {
             </Button>
           </div>
         ) : (
-          <Button variant={'ghost'} size="lg" className="gap-2" onClick={() => setModalOpen(true)}>
+          <Button
+            variant={'ghost'}
+            className="gap-2 text-muted-foreground"
+            onClick={() => setModalOpen(true)}
+          >
             <PlayCircle className="h-4 w-4" />
             Sesión de estudio
             <span className="hidden md:flex items-center justify-end gap-1">

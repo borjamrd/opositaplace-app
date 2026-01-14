@@ -52,7 +52,7 @@ export function CaseEditor({ caseId, initialContent = '', onCorrectionReceived }
         setPollingJobId(null);
         toast({
           title: '¡Corrección completada!',
-          description: 'Tu caso ha sido evaluado por la IA.',
+          description: 'Tu caso ha sido evaluado.',
         });
         onCorrectionReceived(statusResult.result as unknown as AICorrectionAnalysis);
       } else if (statusResult.status === 'failed') {
@@ -132,7 +132,8 @@ export function CaseEditor({ caseId, initialContent = '', onCorrectionReceived }
         setPollingJobId(result.jobId);
         toast({
           title: 'Corrección iniciada',
-          description: 'La IA está evaluando tu respuesta, esto tomará unos momentos...',
+          description:
+            'Estamos revisando tu respuesta, esto tomará unos momentos, puedes cambiar de página.',
         });
       }
     });

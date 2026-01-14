@@ -14,12 +14,14 @@ import {
 
 // El mapa de traducción
 const BREADCRUMB_NAMES: Record<string, string> = {
-  dashboard: 'Panel',
+  dashboard: 'Dashboard',
   review: 'Repetición Espaciada',
   tests: 'Tests',
   profile: 'Perfil',
-  'urls-change-history': 'Historial de Cambios',
+  'urls-change-history': 'Historial de cambios',
   'practical-cases': 'Casos prácticos',
+  roadmap: 'Roadmap',
+  statistics: 'Estadísticas',
 };
 
 // Función simple para poner en mayúscula la primera letra

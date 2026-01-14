@@ -36,20 +36,12 @@ export function FeedbackButton() {
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
-        <Button
-          variant="ghost"
-          className="justify-start gap-2 text-muted-foreground hover:text-primary"
-        >
+        <Button variant="ghost" className="justify-start gap-2 text-muted-foreground">
           <MessageSquarePlus className="h-4 w-4" />
           <span>Feedback</span>
         </Button>
       </PopoverTrigger>
-      <PopoverContent
-        side="bottom"
-        align="end"
-        sideOffset={20}
-        className="p-4 flex flex-col gap-3"
-      >
+      <PopoverContent side="bottom" align="end" sideOffset={20} className="p-4 flex flex-col gap-3">
         <div className="space-y-2">
           <h4 className="font-medium leading-none">¿Tienes alguna idea?</h4>
           <p className="text-xs text-muted-foreground">Compártela para mejorar Opositaplace.</p>

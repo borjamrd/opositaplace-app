@@ -53,7 +53,7 @@ export function PracticalCaseView({ caseData, initialAttempt }: Props) {
                 onClick={() => setViewMode('edit')}
                 className="h-7 text-xs"
               >
-                Mi Respuesta
+                Mi respuesta
               </Button>
               <Button
                 variant={viewMode === 'feedback' ? 'default' : 'ghost'}

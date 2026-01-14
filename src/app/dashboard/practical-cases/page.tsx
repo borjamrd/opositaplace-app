@@ -141,7 +141,7 @@ export default async function PracticalCasesListPage() {
           <div className="flex items-center justify-between mb-4 px-1">
             <h3 className="font-semibold text-lg flex items-center gap-2">
               <BookOpen className="w-5 h-5 text-primary" />
-              Otros Casos Disponibles
+              Más casos disponibles
             </h3>
             <Badge variant="secondary">{otherCases.length}</Badge>
           </div>

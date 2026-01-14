@@ -23,7 +23,8 @@
       "@/lib/*": ["./src/lib/*"],
       "@/components/*": ["./src/components/*"],
       "@/actions/*": ["./src/actions/*"],
-      "@/types": ["./src/types/*"]
+      "@/types/*": ["./src/types/*"],
+      "@/emails/*": ["./src/emails/*"]
     },
     "types": ["vitest/globals", "@testing-library/jest-dom"]
   },

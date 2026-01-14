@@ -1,7 +1,9 @@
-import { inngest } from './client';
 import { correctPracticalCaseFlow } from '@/ai/flows/correction-flow';
-import { createClient } from '@supabase/supabase-js';
+import CorrectionCompletedEmail from '@/emails/correction-completed-email';
+import { sendEmail } from '@/lib/email/email';
 import { Database } from '@/lib/supabase/database.types';
+import { createClient } from '@supabase/supabase-js';
+import { inngest } from './client';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -24,7 +26,7 @@ export const correctPracticalCase = inngest.createFunction(
 
       const { data, error } = await supabase
         .from('practical_cases')
-        .select('statement, official_solution, evaluation_criteria')
+        .select('statement, official_solution, evaluation_criteria, title')
         .eq('id', caseId)
         .single();
 
@@ -73,6 +75,25 @@ export const correctPracticalCase = inngest.createFunction(
         .eq('id', jobId);
 
       if (jobError) throw new Error(`Error updating job: ${jobError.message}`);
+    });
+
+    // 4. Notify User
+    await step.run('notify-user', async () => {
+      const {
+        data: { user },
+        error: userError,
+      } = await supabase.auth.admin.getUserById(userId);
+
+      if (userError || !user || !user.email) {
+        console.error('Could not fetch user email for notification', userError);
+        return;
+      }
+
+      await sendEmail({
+        to: user.email,
+        subject: 'Tu caso práctico ha sido corregido',
+        emailComponent: CorrectionCompletedEmail({ caseId, caseTitle: caseData.title }),
+      });
     });
 
     return correctionResult;
