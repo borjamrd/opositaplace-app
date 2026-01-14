@@ -1,4 +1,5 @@
 'use client';
+import { reportQuestion } from '@/actions/questions';
 import { discardTestAttempt, submitTestAttempt } from '@/actions/tests';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -25,6 +26,7 @@ import {
   Trash2,
   X,
   EyeOff, // Nuevo icono
+  Flag,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState, useTransition } from 'react';
@@ -54,6 +56,7 @@ export function TestSession({ testAttempt, questions }: TestSessionProps) {
 
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showExitDialog, setShowExitDialog] = useState(false);
+  const [showReportDialog, setShowReportDialog] = useState(false);
   // Estado para el sistema anti-trampas
   const [isBlurred, setIsBlurred] = useState(false);
 
@@ -221,6 +224,28 @@ export function TestSession({ testAttempt, questions }: TestSessionProps) {
     router.push('/dashboard/tests');
   };
 
+  const handleReportQuestion = () => {
+    startTransition(async () => {
+      if (!currentQuestion) return;
+
+      const result = await reportQuestion(currentQuestion.id);
+
+      if (result.success) {
+        toast({
+          title: 'Pregunta reportada',
+          description: 'Gracias por tu reporte. Revisaremos la pregunta.',
+        });
+        setShowReportDialog(false);
+      } else {
+        toast({
+          variant: 'destructive',
+          title: 'Error',
+          description: result.error || 'No se pudo reportar la pregunta.',
+        });
+      }
+    });
+  };
+
   const formatTime = (seconds: number) => {
     const m = Math.floor(seconds / 60);
     const s = seconds % 60;
@@ -307,7 +332,18 @@ export function TestSession({ testAttempt, questions }: TestSessionProps) {
             {/* ... (Header de la Card: Badges, Progreso) ... */}
             <CardHeader>
               <div className="flex justify-between items-start">
-                <CardTitle>Test en curso</CardTitle>
+                <div className="flex items-center gap-2">
+                  <CardTitle>Test en curso</CardTitle>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-muted-foreground hover:text-destructive"
+                    onClick={() => setShowReportDialog(true)}
+                    title="Reportar pregunta"
+                  >
+                    <Flag className="h-4 w-4" /> Reportar
+                  </Button>
+                </div>
                 {(topicName || blockName || examName) && (
                   <div className="flex flex-col items-end gap-1">
                     {examName && (
@@ -442,6 +478,23 @@ export function TestSession({ testAttempt, questions }: TestSessionProps) {
                 <Save className="h-4 w-4 mr-2" /> Guardar y Salir
               </Button>
             </div>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={showReportDialog} onOpenChange={setShowReportDialog}>
+        <AlertDialogContent container={containerRef.current}>
+          <AlertDialogHeader>
+            <AlertDialogTitle>¿Reportar esta pregunta?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Si encuentras un error en esta pregunta, puedes reportarla para que la revisemos.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleReportQuestion} disabled={isPending}>
+              {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Reportar
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
