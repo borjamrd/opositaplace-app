@@ -74,6 +74,10 @@ export const STRIPE_PLANS: Plan[] = [
         label: 'Notificaciones inmediatas de cambios en el proceso selectivo',
         isBeta: false,
       },
+      {
+        label: 'Resumen básico semanal de progreso',
+        isBeta: false,
+      },
 
       {
         label: 'Gestiona y redacta tu temario de estudio',
@@ -113,13 +117,12 @@ export const STRIPE_PLANS: Plan[] = [
         label: 'Analiza tu progreso y obtén feedback sobre fallos',
         isBeta: false,
       },
-
       {
         label: 'Creación y corrección de casos prácticos',
         isBeta: false,
       },
       {
-        label: 'Resumen semanal de progreso',
+        label: 'Resumen avanzado semanal de progreso',
         isBeta: false,
       },
       {
