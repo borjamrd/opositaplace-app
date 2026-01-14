@@ -16,7 +16,7 @@
     "prettier": "prettier --write .",
     "test:ui": "vitest --ui",
     "email": "email dev -p 3002 --dir src/emails",
-    "inngest:dev": "pnpm dlx inngest-cli@latest dev",
+    "inngest": "pnpm dlx inngest-cli@latest dev",
     "prepare": "husky"
   },
   "dependencies": {
