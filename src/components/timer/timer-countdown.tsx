@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useTimerStore } from '@/store/timer-store';
+import { cn } from '@/lib/utils';
 import { ConfirmationAdvices } from './confirmation-advices';
 
 export function TimerCountdown() {
@@ -53,7 +54,14 @@ export function TimerCountdown() {
     // Estado: Corriendo o Pausado
     return (
       <div className="space-y-4 py-4">
-        <div className="text-center text-5xl font-mono">{formatTime(remainingTime)}</div>
+        <div
+          className={cn(
+            'text-center font-mono transition-all duration-500 ease-in-out',
+            isActive || startTime !== null ? 'text-8xl md:text-[8rem]' : 'text-5xl'
+          )}
+        >
+          {formatTime(remainingTime)}
+        </div>
         <div className="flex justify-center gap-2">
           {isActive ? (
             <Button onClick={stopTimer} variant="outline" size="lg">

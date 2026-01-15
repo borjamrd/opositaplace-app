@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { useTimerStore } from '@/store/timer-store';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Settings, SkipForward } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { PomodoroSettingsDialog } from './pomodoro-settings';
 import { PomodoroSessionType } from '@/store/timer-store';
 import { ConfirmationAdvices } from './confirmation-advices';
@@ -93,7 +94,14 @@ export function TimerPomodoro() {
       </div>
 
       {/* Display del tiempo */}
-      <div className="text-center text-6xl font-mono py-6">{formatTime(displayTime)}</div>
+      <div
+        className={cn(
+          'text-center font-mono py-6 transition-all duration-500 ease-in-out',
+          isActive || startTime !== null ? 'text-8xl md:text-[8rem]' : 'text-6xl'
+        )}
+      >
+        {formatTime(displayTime)}
+      </div>
 
       {!isActive && startTime === null && (
         <ConfirmationAdvices onAllCheckedChange={setAdvicesConfirmed} />
@@ -109,7 +117,7 @@ export function TimerPomodoro() {
               size="lg"
               disabled={startTime === null && !advicesConfirmed}
             >
-              {startTime === null ? 'COMENZAR' : 'REANUDAR'}
+              {startTime === null ? 'Comenzar' : 'Reanudar'}
             </Button>
           ) : (
             <Button onClick={stopTimer} variant="outline" size="lg" className="w-32">
