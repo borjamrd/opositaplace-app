@@ -145,14 +145,14 @@ export function TestHistoryChart() {
             Mostrando el rendimiento de tus últimos {sanitizedData.length} tests
           </CardDescription>
         </div>
-        <div className="flex">
+        <div className="grid grid-cols-3 sm:flex w-full sm:w-auto border-t sm:border-t-0">
           {(['correct', 'incorrect', 'blank'] as ActiveChartKey[]).map((key) => {
             const chart = key as ActiveChartKey;
             return (
               <button
                 key={chart}
                 data-active={activeChart === chart}
-                className="data-[active=true]:bg-muted/50 flex flex-1 flex-col justify-center gap-1 border-t px-6 py-4 text-left even:border-l sm:border-t-0 sm:border-l sm:px-8 sm:py-6"
+                className="data-[active=true]:bg-muted/50 flex flex-1 flex-col justify-center gap-1 border-r last:border-r-0 sm:border-r-0 sm:border-l px-2 py-3 sm:px-8 sm:py-6 text-center sm:text-left transition-colors hover:bg-muted/30"
                 onClick={() => {
                   if (activeChart === chart) {
                     setActiveChart(null);
@@ -161,8 +161,8 @@ export function TestHistoryChart() {
                   }
                 }}
               >
-                <span className="text-muted-foreground text-xs">
-                  {chartConfig[chart].label} (Promedio)
+                <span className="text-muted-foreground text-xs truncate w-full">
+                  {chartConfig[chart].label}
                 </span>
                 <span className="text-lg leading-none font-bold sm:text-3xl">
                   {averages[key].toFixed(1)}
