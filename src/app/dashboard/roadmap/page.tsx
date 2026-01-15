@@ -35,10 +35,7 @@ export default async function RoadmapPage() {
   }
 
   return (
-    <div
-      className="h-[calc(100vh-(--spacing(20)))] w-full relative"
-      style={{ height: 'calc(100vh - 5rem)' }}
-    >
+    <div>
       <RoadmapFlow
         initialBlocks={data.blocks}
         initialTopics={data.topics}

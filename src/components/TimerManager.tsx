@@ -1,23 +1,84 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import { Button } from '@/components/ui/button';
 import { TimerDialog } from '@/components/timer/timer-dialog';
-import { useTimerStore } from '@/store/timer-store';
-import { Keyboard, PlayCircle } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { cn, formatDurationForToast } from '@/lib/utils';
+import { TimerMode, useTimerStore } from '@/store/timer-store';
+import {
+  Brain,
+  Hourglass,
+  Pause,
+  PlayCircle,
+  SkipForward,
+  Timer as TimerIcon,
+  Watch,
+} from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { toast } from '@/hooks/use-toast';
 
-function formatTime(mode: string, seconds: number) {
-  if (mode === 'pomodoro' || mode === 'countdown') {
-    const m = Math.floor(seconds / 60);
-    const s = seconds % 60;
-    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-  }
-  // stopwatch
+function formatTimerValue(seconds: number, includeHours: boolean = false) {
   const h = Math.floor(seconds / 3600);
   const m = Math.floor((seconds % 3600) / 60);
   const s = seconds % 60;
-  return `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+
+  if (includeHours || h > 0) {
+    return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s
+      .toString()
+      .padStart(2, '0')}`;
+  }
+  return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
 }
+
+const CountdownDisplay = ({ time }: { time: number }) => {
+  return (
+    <div className="flex items-center gap-2 font-mono text-lg font-medium text-primary">
+      {formatTimerValue(time, true)}
+    </div>
+  );
+};
+
+const StopwatchDisplay = ({ time }: { time: number }) => {
+  return (
+    <div className="flex items-center gap-2 font-mono text-lg font-medium text-primary">
+      {formatTimerValue(time, true)}
+    </div>
+  );
+};
+
+const PomodoroDisplay = ({ time }: { time: number }) => {
+  const { activePomodoroSession } = useTimerStore();
+
+  const getSessionLabel = () => {
+    switch (activePomodoroSession) {
+      case 'pomodoro':
+        return 'Estudio';
+      case 'shortBreak':
+        return 'Descanso corto';
+      case 'longBreak':
+        return 'Descanso largo';
+      default:
+        return '';
+    }
+  };
+
+  const getSessionColor = () => {
+    switch (activePomodoroSession) {
+      case 'pomodoro':
+        return 'text-primary';
+      case 'shortBreak':
+      case 'longBreak':
+        return 'text-green-600';
+    }
+  };
+
+  return (
+    <div className="flex items-center gap-3">
+      <span className={cn('text-sm font-medium', getSessionColor())}>{getSessionLabel()}</span>
+      <span className="font-mono text-lg font-medium text-primary">{formatTimerValue(time)}</span>
+    </div>
+  );
+};
 
 export default function TimerManager() {
   const {
@@ -60,7 +121,17 @@ export default function TimerManager() {
 
         if (newTime === 0 && useTimerStore.getState().isActive) {
           if (intervalRef.current) clearInterval(intervalRef.current);
-          useTimerStore.getState().saveSessionAndReset();
+          useTimerStore
+            .getState()
+            .saveSessionAndReset()
+            .then((result) => {
+              if (result) {
+                toast({
+                  title: '¡Sesión guardada!',
+                  description: `Has estudiado durante ${formatDurationForToast(result.durationSeconds)}`,
+                });
+              }
+            });
         }
       } else {
         newTime = Math.floor((now - (startTime ?? now)) / 1000);
@@ -80,39 +151,108 @@ export default function TimerManager() {
     if (!isActive) setDisplayTime(remainingTime);
   }, [remainingTime, isActive]);
 
+  const getTimerIcon = (currentMode: TimerMode) => {
+    switch (currentMode) {
+      case 'countdown':
+        return <Hourglass className="h-4 w-4" />;
+      case 'stopwatch':
+        return <Watch className="h-4 w-4" />;
+      case 'pomodoro':
+        return <Brain className="h-4 w-4" />;
+      default:
+        return <TimerIcon className="h-4 w-4" />;
+    }
+  };
+
+  const renderTimerDisplay = () => {
+    switch (mode) {
+      case 'countdown':
+        return <CountdownDisplay time={displayTime} />;
+      case 'stopwatch':
+        return <StopwatchDisplay time={displayTime} />;
+      case 'pomodoro':
+        return <PomodoroDisplay time={displayTime} />;
+      default:
+        return null;
+    }
+  };
+
+  const showActiveTimer =
+    isActive || (!isActive && startTime && (remainingTime > 0 || mode === 'stopwatch'));
+
   return (
     <>
       <div className="flex items-center gap-2">
-        {isActive || (!isActive && startTime && (remainingTime > 0 || mode === 'stopwatch')) ? (
-          <div className="flex items-center gap-4 text-primary">
-            <span>Tiempo en curso:</span>
-            <span>{formatTime(mode, displayTime)}</span>
-            {isActive ? (
+        {showActiveTimer ? (
+          <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 bg-background/80 backdrop-blur px-3 py-1.5 rounded-full border shadow-sm">
+            <div className="flex items-center gap-2">
+              <Badge variant="secondary" className="gap-1.5 h-7">
+                {getTimerIcon(mode)}
+                <span>
+                  {mode === 'stopwatch'
+                    ? 'Cronómetro'
+                    : mode === 'countdown'
+                      ? 'Cuenta atrás'
+                      : 'Pomodoro'}
+                </span>
+              </Badge>
+              {renderTimerDisplay()}
+            </div>
+
+            <div className="flex items-center gap-1">
+              {mode === 'pomodoro' && (
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="h-7 w-7"
+                  onClick={() => useTimerStore.getState().skipToNextPomodoroStage()}
+                  title="Pasar a la siguiente etapa"
+                >
+                  <SkipForward className="h-4 w-4" />
+                </Button>
+              )}
+              {isActive ? (
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="h-7 w-7"
+                  onClick={() => useTimerStore.getState().stopTimer()}
+                  title="Pausar"
+                >
+                  <Pause className="h-4 w-4" />
+                </Button>
+              ) : (
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="h-7 w-7"
+                  onClick={() => useTimerStore.getState().resumeTimer()}
+                  title="Reanudar"
+                >
+                  <PlayCircle className="h-4 w-4" />
+                </Button>
+              )}
               <Button
                 size="sm"
-                variant="outline"
-                onClick={() => useTimerStore.getState().stopTimer()}
+                variant="ghost"
+                className="h-7 px-2 text-xs text-muted-foreground hover:text-destructive"
+                onClick={() => {
+                  useTimerStore
+                    .getState()
+                    .saveSessionAndReset()
+                    .then((result) => {
+                      if (result) {
+                        toast({
+                          title: '¡Sesión guardada!',
+                          description: `Has estudiado durante ${formatDurationForToast(result.durationSeconds)}`,
+                        });
+                      }
+                    });
+                }}
               >
-                Pausar
+                Finalizar estudio
               </Button>
-            ) : (
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => useTimerStore.getState().resumeTimer()}
-              >
-                Reanudar
-              </Button>
-            )}
-            <Button
-              size="sm"
-              variant="destructive"
-              onClick={() => {
-                useTimerStore.getState().saveSessionAndReset();
-              }}
-            >
-              Finalizar
-            </Button>
+            </div>
           </div>
         ) : (
           <Button
@@ -123,8 +263,10 @@ export default function TimerManager() {
             <PlayCircle className="h-4 w-4" />
             Sesión de estudio
             <span className="hidden md:flex items-center justify-end gap-1">
-              <span className="flex items-center rounded-lg border px-2 font-mono">Ctrl</span>
-              <span className="flex items-center rounded-lg border px-2 font-mono">S</span>
+              <span className="flex items-center rounded-lg border px-2 font-mono text-xs">
+                Ctrl
+              </span>
+              <span className="flex items-center rounded-lg border px-2 font-mono text-xs">S</span>
             </span>
           </Button>
         )}

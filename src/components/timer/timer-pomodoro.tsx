@@ -4,7 +4,8 @@ import { useState, useMemo, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { useTimerStore } from '@/store/timer-store';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Settings } from 'lucide-react';
+import { Settings, SkipForward } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { PomodoroSettingsDialog } from './pomodoro-settings';
 import { PomodoroSessionType } from '@/store/timer-store';
 import { ConfirmationAdvices } from './confirmation-advices';
@@ -30,6 +31,7 @@ export function TimerPomodoro() {
     resumeTimer,
     setActivePomodoroSession,
     updateRemainingTime,
+    skipToNextPomodoroStage,
   } = useTimerStore();
 
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -79,9 +81,9 @@ export function TimerPomodoro() {
           className="w-full"
         >
           <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="pomodoro">Pomodoro</TabsTrigger>
-            <TabsTrigger value="shortBreak">Descanso Corto</TabsTrigger>
-            <TabsTrigger value="longBreak">Descanso Largo</TabsTrigger>
+            <TabsTrigger value="pomodoro">Estudio</TabsTrigger>
+            <TabsTrigger value="shortBreak">Descanso corto</TabsTrigger>
+            <TabsTrigger value="longBreak">Descanso largo</TabsTrigger>
           </TabsList>
         </Tabs>
         <div className="flex justify-end">
@@ -92,32 +94,60 @@ export function TimerPomodoro() {
       </div>
 
       {/* Display del tiempo */}
-      <div className="text-center text-6xl font-mono py-6">{formatTime(displayTime)}</div>
+      <div
+        className={cn(
+          'text-center font-mono py-6 transition-all duration-500 ease-in-out',
+          isActive || startTime !== null ? 'text-8xl md:text-[8rem]' : 'text-6xl'
+        )}
+      >
+        {formatTime(displayTime)}
+      </div>
 
       {!isActive && startTime === null && (
         <ConfirmationAdvices onAllCheckedChange={setAdvicesConfirmed} />
       )}
 
       {/* Botones de control */}
-      <div className="flex flex-col items-center justify-center gap-2">
-        {!isActive ? (
-          <Button
-            onClick={startTime === null ? handleStart : resumeTimer}
-            className="w-48"
-            size="lg"
-            disabled={startTime === null && !advicesConfirmed}
-          >
-            {startTime === null ? 'COMENZAR' : 'REANUDAR'}
-          </Button>
-        ) : (
-          <div className="flex gap-2">
-            <Button onClick={stopTimer} variant="outline" size="lg">
+      <div className="flex flex-col items-center justify-center gap-4">
+        <div className="flex items-center gap-2">
+          {!isActive ? (
+            <Button
+              onClick={startTime === null ? handleStart : resumeTimer}
+              className="w-32"
+              size="lg"
+              disabled={startTime === null && !advicesConfirmed}
+            >
+              {startTime === null ? 'Comenzar' : 'Reanudar'}
+            </Button>
+          ) : (
+            <Button onClick={stopTimer} variant="outline" size="lg" className="w-32">
               Pausar
             </Button>
-            <Button onClick={reset} variant="destructive" size="lg">
-              Reiniciar
+          )}
+
+          {/* Mostrar botón de saltar si la sesión ha comenzado (activa o pausada) */}
+          {(isActive || startTime !== null) && (
+            <Button
+              onClick={() => skipToNextPomodoroStage()}
+              size="lg"
+              variant="ghost"
+              className="p-3"
+              title="Pasar a siguiente etapa"
+            >
+              <SkipForward className="h-6 w-6" />
             </Button>
-          </div>
+          )}
+        </div>
+
+        {(isActive || startTime !== null) && (
+          <Button
+            onClick={reset}
+            variant="ghost"
+            size="sm"
+            className="text-muted-foreground hover:text-destructive"
+          >
+            Reiniciar temporizador
+          </Button>
         )}
       </div>
       {/* Diálogo de configuración */}

@@ -26,12 +26,12 @@ export function TestSessionNavigation({
   return (
     <div
       className={`
-        relative flex flex-col border-l bg-muted/10 transition-all duration-300 ease-in-out
+        relative flex flex-col md:border-l bg-muted/10 transition-all duration-300 ease-in-out
         ${isOpen ? 'w-full lg:w-[280px]' : 'w-0 lg:w-0'}
       `}
     >
       {/* Toggle Button */}
-      <div className="absolute top-4 -left-3 z-20">
+      <div className="hidden md:block absolute top-4 -left-3 z-20">
         <Button
           size="icon"
           variant="outline"

@@ -29,9 +29,10 @@ interface TimerState {
   hydrate: () => void;
   setPomodoroDurations: (durations: { pomodoro: number; short: number; long: number }) => void;
   setActivePomodoroSession: (sessionType: PomodoroSessionType) => void;
+  skipToNextPomodoroStage: () => void;
 
   reset: () => void;
-  saveSessionAndReset: () => Promise<void>;
+  saveSessionAndReset: () => Promise<{ durationSeconds: number } | null>;
   saveManualSession: (durationSeconds: number, date: Date) => Promise<void>;
 }
 
@@ -127,6 +128,29 @@ export const useTimerStore = create<TimerState>((set, get) => ({
   setActivePomodoroSession: (sessionType) => {
     set({ activePomodoroSession: sessionType });
   },
+  skipToNextPomodoroStage: () => {
+    const { activePomodoroSession, pomodoroDuration, shortBreakDuration } = get();
+    // Logic: If in Pomodoro -> Short Break. If in Break (Short or Long) -> Pomodoro.
+    const nextSession = activePomodoroSession === 'pomodoro' ? 'shortBreak' : 'pomodoro';
+    const nextDuration = nextSession === 'pomodoro' ? pomodoroDuration : shortBreakDuration;
+
+    set({
+      activePomodoroSession: nextSession,
+      isActive: false,
+      startTime: null,
+      duration: nextDuration,
+      remainingTime: nextDuration,
+      sessionStartedAt: null, // Reset session start tracking
+    });
+    saveStateToStorage({
+      ...get(),
+      activePomodoroSession: nextSession,
+      isActive: false,
+      startTime: null,
+      duration: nextDuration,
+      remainingTime: nextDuration,
+    });
+  },
   setPomodoroDurations: (durations) => {
     const newDurations = {
       pomodoroDuration: durations.pomodoro * 60,
@@ -148,7 +172,7 @@ export const useTimerStore = create<TimerState>((set, get) => ({
     // Si no había una sesión activa, no hacemos nada
     if (!sessionStartedAt) {
       get().reset(); // Llama al reset simple si no hay nada que guardar
-      return;
+      return null;
     }
 
     // --- Recopilar datos para la BBDD ---
@@ -168,7 +192,7 @@ export const useTimerStore = create<TimerState>((set, get) => ({
     // No guardar sesiones demasiado cortas (p. ej., menos de 5 segundos)
     if (actualDurationSeconds < 5) {
       get().reset(); // Simplemente resetea sin guardar
-      return;
+      return null;
     }
 
     const sessionData = {
@@ -192,6 +216,8 @@ export const useTimerStore = create<TimerState>((set, get) => ({
 
     // Finalmente, reseteamos el estado del temporizador
     get().reset();
+
+    return { durationSeconds: Math.round(actualDurationSeconds) };
   },
   saveManualSession: async (durationSeconds: number, date: Date) => {
     const {

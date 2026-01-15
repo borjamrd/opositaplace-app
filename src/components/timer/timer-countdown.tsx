@@ -4,7 +4,9 @@ import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useTimerStore } from '@/store/timer-store';
+import { cn, formatDurationForToast } from '@/lib/utils';
 import { ConfirmationAdvices } from './confirmation-advices';
+import { toast } from '@/hooks/use-toast';
 
 export function TimerCountdown() {
   const {
@@ -16,6 +18,7 @@ export function TimerCountdown() {
     reset,
     resumeTimer,
     updateRemainingTime,
+    saveSessionAndReset,
   } = useTimerStore();
   const [hours, setHours] = useState('0');
   const [minutes, setMinutes] = useState('45');
@@ -52,7 +55,14 @@ export function TimerCountdown() {
     // Estado: Corriendo o Pausado
     return (
       <div className="space-y-4 py-4">
-        <div className="text-center text-5xl font-mono">{formatTime(remainingTime)}</div>
+        <div
+          className={cn(
+            'text-center font-mono transition-all duration-500 ease-in-out',
+            isActive || startTime !== null ? 'text-8xl md:text-[8rem]' : 'text-5xl'
+          )}
+        >
+          {formatTime(remainingTime)}
+        </div>
         <div className="flex justify-center gap-2">
           {isActive ? (
             <Button onClick={stopTimer} variant="outline" size="lg">
@@ -63,7 +73,23 @@ export function TimerCountdown() {
               Reanudar
             </Button>
           )}
-          <Button onClick={reset} variant="destructive" size="lg">
+          <Button
+            onClick={async () => {
+              const result = await saveSessionAndReset();
+              if (result) {
+                toast({
+                  title: '¡Sesión guardada!',
+                  description: `Has estudiado durante ${formatDurationForToast(result.durationSeconds)}`,
+                });
+              }
+            }}
+            variant="ghost"
+            size="lg"
+            className="text-muted-foreground hover:text-destructive"
+          >
+            Terminar estudio
+          </Button>
+          <Button onClick={reset} variant="ghost" size="lg" className="text-muted-foreground ">
             Reiniciar
           </Button>
         </div>

@@ -331,8 +331,8 @@ export function TestSession({ testAttempt, questions }: TestSessionProps) {
           <div className="flex-1 flex flex-col min-w-0">
             {/* ... (Header de la Card: Badges, Progreso) ... */}
             <CardHeader>
-              <div className="flex justify-between items-start">
-                <div className="flex items-center gap-2">
+              <div className="flex flex-col md:flex-row justify-between md:items-start items-center">
+                <div className="flex flex-col items-center md:items-start gap-2 mb-4">
                   <CardTitle>Test en curso</CardTitle>
                   <Button
                     variant="ghost"
@@ -345,7 +345,7 @@ export function TestSession({ testAttempt, questions }: TestSessionProps) {
                   </Button>
                 </div>
                 {(topicName || blockName || examName) && (
-                  <div className="flex flex-col items-end gap-1">
+                  <div className="flex flex-col items-center md:items-end gap-1">
                     {examName && (
                       <Badge variant="secondary" className="text-xs font-normal">
                         <BookOpenCheck className="mr-1 h-3 w-3" /> {examName}
@@ -372,7 +372,7 @@ export function TestSession({ testAttempt, questions }: TestSessionProps) {
               </div>
             </CardHeader>
 
-            <CardContent className="flex-1 min-h-[300px] overflow-y-auto">
+            <CardContent className="p-3 md:p-6 flex-1 min-h-[300px] overflow-y-auto">
               {/* AÑADIDO: onCopy preventivo inline */}
               <h3
                 className="text-lg font-semibold mb-6 leading-relaxed"
@@ -463,7 +463,7 @@ export function TestSession({ testAttempt, questions }: TestSessionProps) {
             <AlertDialogTitle>¿Deseas salir del test?</AlertDialogTitle>
             <AlertDialogDescription>Puedes guardarlo o descartarlo.</AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter className="sm:justify-between gap-2">
+          <AlertDialogFooter className="flex-col-reverse sm:flex-row sm:justify-between gap-2">
             <Button
               variant="destructive"
               onClick={handleDiscard}
@@ -472,10 +472,10 @@ export function TestSession({ testAttempt, questions }: TestSessionProps) {
             >
               <Trash2 className="h-4 w-4 mr-2" /> Descartar intento
             </Button>
-            <div className="flex gap-2 justify-end w-full sm:w-auto">
-              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <div className="flex gap-2 justify-between md:justify-end w-full">
+              <AlertDialogCancel className="mt-0">Cancelar</AlertDialogCancel>
               <Button onClick={handleSaveAndExit}>
-                <Save className="h-4 w-4 mr-2" /> Guardar y Salir
+                <Save className="h-4 w-4" /> Guardar y Salir
               </Button>
             </div>
           </AlertDialogFooter>

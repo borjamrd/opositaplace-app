@@ -4,6 +4,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useTimerStore } from '@/store/timer-store';
+import { cn } from '@/lib/utils';
 import { TimerCountdown } from './timer-countdown';
 import { TimerPomodoro } from './timer-pomodoro';
 import { TimerStopwatch } from './timer-stopwatch';
@@ -23,7 +24,12 @@ export function TimerDialog({ open, onOpenChange }: TimerDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[30rem]">
+      <DialogContent
+        className={cn(
+          'transition-all duration-500 ease-in-out',
+          isTimerSessionActive ? 'sm:max-w-[50rem]' : 'sm:max-w-[30rem]'
+        )}
+      >
         <DialogHeader>
           <DialogTitle>Sesión de estudio</DialogTitle>
         </DialogHeader>
