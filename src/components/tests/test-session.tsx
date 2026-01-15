@@ -463,7 +463,7 @@ export function TestSession({ testAttempt, questions }: TestSessionProps) {
             <AlertDialogTitle>¿Deseas salir del test?</AlertDialogTitle>
             <AlertDialogDescription>Puedes guardarlo o descartarlo.</AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter className="sm:justify-between gap-2">
+          <AlertDialogFooter className="flex-col-reverse sm:flex-row sm:justify-between gap-2">
             <Button
               variant="destructive"
               onClick={handleDiscard}
@@ -472,10 +472,10 @@ export function TestSession({ testAttempt, questions }: TestSessionProps) {
             >
               <Trash2 className="h-4 w-4 mr-2" /> Descartar intento
             </Button>
-            <div className="flex gap-2 justify-end w-full sm:w-auto">
-              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <div className="flex gap-2 justify-between md:justify-end w-full">
+              <AlertDialogCancel className="mt-0">Cancelar</AlertDialogCancel>
               <Button onClick={handleSaveAndExit}>
-                <Save className="h-4 w-4 mr-2" /> Guardar y Salir
+                <Save className="h-4 w-4" /> Guardar y Salir
               </Button>
             </div>
           </AlertDialogFooter>
