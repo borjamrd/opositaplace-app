@@ -5,7 +5,15 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { TimerMode, useTimerStore } from '@/store/timer-store';
-import { Brain, Hourglass, Pause, PlayCircle, Timer as TimerIcon, Watch } from 'lucide-react';
+import {
+  Brain,
+  Hourglass,
+  Pause,
+  PlayCircle,
+  SkipForward,
+  Timer as TimerIcon,
+  Watch,
+} from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
 function formatTimerValue(seconds: number, includeHours: boolean = false) {
@@ -43,7 +51,7 @@ const PomodoroDisplay = ({ time }: { time: number }) => {
   const getSessionLabel = () => {
     switch (activePomodoroSession) {
       case 'pomodoro':
-        return 'Trabajo';
+        return 'Estudio';
       case 'shortBreak':
         return 'Descanso corto';
       case 'longBreak':
@@ -169,7 +177,7 @@ export default function TimerManager() {
             <div className="flex items-center gap-2">
               <Badge variant="secondary" className="gap-1.5 h-7">
                 {getTimerIcon(mode)}
-                <span className="capitalize">
+                <span>
                   {mode === 'stopwatch'
                     ? 'Cronómetro'
                     : mode === 'countdown'
@@ -181,6 +189,17 @@ export default function TimerManager() {
             </div>
 
             <div className="flex items-center gap-1">
+              {mode === 'pomodoro' && (
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="h-7 w-7"
+                  onClick={() => useTimerStore.getState().skipToNextPomodoroStage()}
+                  title="Pasar a la siguiente etapa"
+                >
+                  <SkipForward className="h-4 w-4" />
+                </Button>
+              )}
               {isActive ? (
                 <Button
                   size="icon"

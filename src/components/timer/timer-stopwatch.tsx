@@ -16,6 +16,7 @@ export function TimerStopwatch() {
     resumeTimer, // <-- Importante tenerlo disponible
     startTime,
     updateRemainingTime,
+    saveSessionAndReset,
   } = useTimerStore();
 
   const [advicesConfirmed, setAdvicesConfirmed] = useState(false);
@@ -66,7 +67,21 @@ export function TimerStopwatch() {
             <Button onClick={stopTimer} variant="outline" size="lg">
               Pausar
             </Button>
-            <Button onClick={reset} variant="destructive" size="lg">
+          </div>
+        )}
+
+        {/* Helper buttons for Reset/Finalize if session is active or paused (meaning session started) */}
+        {(isActive || startTime !== null) && (
+          <div className="flex gap-2">
+            <Button
+              onClick={saveSessionAndReset}
+              variant="ghost"
+              size="sm"
+              className="text-muted-foreground hover:text-destructive"
+            >
+              Finalizar
+            </Button>
+            <Button onClick={reset} variant="ghost" size="sm" className="text-muted-foreground ">
               Reiniciar
             </Button>
           </div>

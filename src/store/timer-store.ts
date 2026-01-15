@@ -29,6 +29,7 @@ interface TimerState {
   hydrate: () => void;
   setPomodoroDurations: (durations: { pomodoro: number; short: number; long: number }) => void;
   setActivePomodoroSession: (sessionType: PomodoroSessionType) => void;
+  skipToNextPomodoroStage: () => void;
 
   reset: () => void;
   saveSessionAndReset: () => Promise<void>;
@@ -126,6 +127,29 @@ export const useTimerStore = create<TimerState>((set, get) => ({
 
   setActivePomodoroSession: (sessionType) => {
     set({ activePomodoroSession: sessionType });
+  },
+  skipToNextPomodoroStage: () => {
+    const { activePomodoroSession, pomodoroDuration, shortBreakDuration } = get();
+    // Logic: If in Pomodoro -> Short Break. If in Break (Short or Long) -> Pomodoro.
+    const nextSession = activePomodoroSession === 'pomodoro' ? 'shortBreak' : 'pomodoro';
+    const nextDuration = nextSession === 'pomodoro' ? pomodoroDuration : shortBreakDuration;
+
+    set({
+      activePomodoroSession: nextSession,
+      isActive: false,
+      startTime: null,
+      duration: nextDuration,
+      remainingTime: nextDuration,
+      sessionStartedAt: null, // Reset session start tracking
+    });
+    saveStateToStorage({
+      ...get(),
+      activePomodoroSession: nextSession,
+      isActive: false,
+      startTime: null,
+      duration: nextDuration,
+      remainingTime: nextDuration,
+    });
   },
   setPomodoroDurations: (durations) => {
     const newDurations = {

@@ -16,6 +16,7 @@ export function TimerCountdown() {
     reset,
     resumeTimer,
     updateRemainingTime,
+    saveSessionAndReset,
   } = useTimerStore();
   const [hours, setHours] = useState('0');
   const [minutes, setMinutes] = useState('45');
@@ -63,7 +64,15 @@ export function TimerCountdown() {
               Reanudar
             </Button>
           )}
-          <Button onClick={reset} variant="destructive" size="lg">
+          <Button
+            onClick={saveSessionAndReset}
+            variant="ghost"
+            size="lg"
+            className="text-muted-foreground hover:text-destructive"
+          >
+            Finalizar
+          </Button>
+          <Button onClick={reset} variant="ghost" size="lg" className="text-muted-foreground ">
             Reiniciar
           </Button>
         </div>
