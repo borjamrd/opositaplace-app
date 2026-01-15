@@ -17,7 +17,7 @@ export const EmailLayout = ({ previewText, children }: EmailLayoutProps) => {
       <Preview>{previewText}</Preview>
       <Body style={main}>
         <Container style={container}>
-          <Img src={logoSrc} width="120" height="auto" alt="Opositaplace Logo" style={logo} />
+          <Img src={logoSrc} width="40" height="auto" alt="Opositaplace Logo" style={logo} />
           {children}
           <Text style={footer}>
             © {new Date().getFullYear()} Opositaplace. Todos los derechos reservados.
