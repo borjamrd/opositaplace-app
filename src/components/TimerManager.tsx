@@ -3,7 +3,7 @@
 import { TimerDialog } from '@/components/timer/timer-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
+import { cn, formatDurationForToast } from '@/lib/utils';
 import { TimerMode, useTimerStore } from '@/store/timer-store';
 import {
   Brain,
@@ -15,6 +15,7 @@ import {
   Watch,
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
+import { toast } from '@/hooks/use-toast';
 
 function formatTimerValue(seconds: number, includeHours: boolean = false) {
   const h = Math.floor(seconds / 3600);
@@ -120,7 +121,17 @@ export default function TimerManager() {
 
         if (newTime === 0 && useTimerStore.getState().isActive) {
           if (intervalRef.current) clearInterval(intervalRef.current);
-          useTimerStore.getState().saveSessionAndReset();
+          useTimerStore
+            .getState()
+            .saveSessionAndReset()
+            .then((result) => {
+              if (result) {
+                toast({
+                  title: '¡Sesión guardada!',
+                  description: `Has estudiado durante ${formatDurationForToast(result.durationSeconds)}`,
+                });
+              }
+            });
         }
       } else {
         newTime = Math.floor((now - (startTime ?? now)) / 1000);
@@ -226,7 +237,17 @@ export default function TimerManager() {
                 variant="ghost"
                 className="h-7 px-2 text-xs text-muted-foreground hover:text-destructive"
                 onClick={() => {
-                  useTimerStore.getState().saveSessionAndReset();
+                  useTimerStore
+                    .getState()
+                    .saveSessionAndReset()
+                    .then((result) => {
+                      if (result) {
+                        toast({
+                          title: '¡Sesión guardada!',
+                          description: `Has estudiado durante ${formatDurationForToast(result.durationSeconds)}`,
+                        });
+                      }
+                    });
                 }}
               >
                 Finalizar estudio

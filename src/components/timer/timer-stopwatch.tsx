@@ -4,8 +4,9 @@
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useTimerStore } from '@/store/timer-store';
-import { cn } from '@/lib/utils';
+import { cn, formatDurationForToast } from '@/lib/utils';
 import { ConfirmationAdvices } from './confirmation-advices';
+import { toast } from '@/hooks/use-toast';
 
 export function TimerStopwatch() {
   const {
@@ -85,7 +86,15 @@ export function TimerStopwatch() {
               Reiniciar
             </Button>
             <Button
-              onClick={saveSessionAndReset}
+              onClick={async () => {
+                const result = await saveSessionAndReset();
+                if (result) {
+                  toast({
+                    title: '¡Sesión guardada!',
+                    description: `Has estudiado durante ${formatDurationForToast(result.durationSeconds)}`,
+                  });
+                }
+              }}
               variant="ghost"
               size="sm"
               className="text-muted-foreground hover:text-destructive"
