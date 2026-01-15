@@ -70,7 +70,7 @@ export interface Item {
 
 let notificationsData = [
   {
-    name: 'Nuevo Test Disponible',
+    name: 'Nuevo test disponible',
     description: 'Constitución Española - Título I',
     time: '15m ago',
 
@@ -78,7 +78,7 @@ let notificationsData = [
     color: '#00C9A7',
   },
   {
-    name: 'Objetivo Cumplido',
+    name: 'Objetivo cumplido',
     description: 'Has completado 3 horas de estudio',
     time: '2h ago',
     icon: '🎯',
@@ -92,7 +92,7 @@ let notificationsData = [
     color: '#FF3D71',
   },
   {
-    name: 'Nueva Funcionalidad',
+    name: 'Nueva funcionalidad',
     description: 'Analiza tu progreso con gráficas detalladas',
     time: '1d ago',
     icon: '📊',

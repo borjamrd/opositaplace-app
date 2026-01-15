@@ -29,7 +29,7 @@ export function NewTestModal({ blocksWithTopics, oppositionId, exams }: NewTestM
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button variant="default" className="mb-6">
-          <Plus className="mr-2 h-4 w-4" /> Nuevo Test
+          <Plus className="mr-2 h-4 w-4" /> Nuevo test
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-2xl p-0">

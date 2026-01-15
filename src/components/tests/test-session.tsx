@@ -331,8 +331,8 @@ export function TestSession({ testAttempt, questions }: TestSessionProps) {
           <div className="flex-1 flex flex-col min-w-0">
             {/* ... (Header de la Card: Badges, Progreso) ... */}
             <CardHeader>
-              <div className="flex justify-between items-start">
-                <div className="flex items-center gap-2">
+              <div className="flex flex-col md:flex-row justify-between md:items-start items-center">
+                <div className="flex flex-col items-center md:items-start gap-2 mb-4">
                   <CardTitle>Test en curso</CardTitle>
                   <Button
                     variant="ghost"
@@ -345,7 +345,7 @@ export function TestSession({ testAttempt, questions }: TestSessionProps) {
                   </Button>
                 </div>
                 {(topicName || blockName || examName) && (
-                  <div className="flex flex-col items-end gap-1">
+                  <div className="flex flex-col items-center md:items-end gap-1">
                     {examName && (
                       <Badge variant="secondary" className="text-xs font-normal">
                         <BookOpenCheck className="mr-1 h-3 w-3" /> {examName}
@@ -372,7 +372,7 @@ export function TestSession({ testAttempt, questions }: TestSessionProps) {
               </div>
             </CardHeader>
 
-            <CardContent className="flex-1 min-h-[300px] overflow-y-auto">
+            <CardContent className="p-3 md:p-6 flex-1 min-h-[300px] overflow-y-auto">
               {/* AÑADIDO: onCopy preventivo inline */}
               <h3
                 className="text-lg font-semibold mb-6 leading-relaxed"
