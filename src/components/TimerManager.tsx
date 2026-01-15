@@ -229,7 +229,7 @@ export default function TimerManager() {
                   useTimerStore.getState().saveSessionAndReset();
                 }}
               >
-                Finalizar
+                Finalizar estudio
               </Button>
             </div>
           </div>

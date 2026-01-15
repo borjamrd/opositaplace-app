@@ -117,7 +117,7 @@ const TopicNode = ({ data }: { data: any }) => {
 
 const BlockNode = ({ data }: { data: any }) => {
   return (
-    <div className="px-6 py-3 rounded-2xl bg-background border-2 border-primary/20 text-primary font-bold text-sm uppercase tracking-widest shadow-sm text-center min-w-[250px] max-w-[400px]">
+    <div className="px-6 py-3 rounded-2xl bg-background border-2 border-primary/20 text-primary font-bold text-sm uppercase tracking-widest shadow-sm text-center w-[300px]">
       <Handle type="target" position={Position.Top} className="!bg-primary !w-3 !h-3 !-top-1.5" />
       {data.label}
       <Handle
@@ -200,6 +200,7 @@ export function RoadmapFlow({
     nodes.push({
       id: rootId,
       type: 'cycle', // Usamos el nuevo estilo
+      draggable: false,
       data: { label: `Vuelta ${initialCycle.cycle_number}` },
       // Ajustamos X para que quede centrado visualmente (el nodo mide aprox 100px, no 400)
       position: { x: CENTER_X - 40, y: currentY },
@@ -224,9 +225,10 @@ export function RoadmapFlow({
       nodes.push({
         id: blockNodeId,
         type: 'block', // Nuevo estilo
+        draggable: false,
         data: { label: block.name, isRightSide },
-        // Ajuste fino de X para centrar el nuevo nodo de bloque (~250px ancho)
-        position: { x: CENTER_X - 125, y: currentY },
+        // Ajuste fino de X para centrar el nuevo nodo de bloque (300px ancho -> mitad es 150)
+        position: { x: CENTER_X - 150, y: currentY },
       });
 
       // Conexión Secuencial (Ciclo -> Bloque 1 -> Bloque 2...)
@@ -234,7 +236,7 @@ export function RoadmapFlow({
         id: `e-${prevNodeId}-${blockNodeId}`,
         source: prevNodeId,
         target: blockNodeId,
-        type: 'smoothstep', // Tu tipo de conexión original
+        type: 'default', // Curva Bezier
         sourceHandle: 'bottom',
         targetHandle: 'top',
         animated: false,
@@ -252,6 +254,7 @@ export function RoadmapFlow({
         nodes.push({
           id: topicNodeId,
           type: 'topic', // Nuevo estilo
+          draggable: false,
           data: { label: topic.name, status, isRightSide },
           position: { x: topicX, y: topicY },
         });
@@ -261,7 +264,7 @@ export function RoadmapFlow({
           id: `e-${blockNodeId}-${topicNodeId}`,
           source: blockNodeId,
           target: topicNodeId,
-          type: 'smoothstep', // Mantengo smoothstep para la estructura rígida que te gustaba
+          type: 'default', // Curva Bezier
           animated: status === 'in_progress',
           sourceHandle: isRightSide ? 'right' : 'left', // Usamos los handles laterales del bloque
           targetHandle: isRightSide ? 'left' : 'right',
@@ -428,7 +431,7 @@ export function RoadmapFlow({
 
                       {
                         key: 'completed',
-                        label: 'Listo',
+                        label: 'Terminado',
                         icon: CheckCircle2,
                         activeClass: 'bg-green-100 border-green-500 text-green-700',
                       },
@@ -517,7 +520,7 @@ export function RoadmapFlow({
 
 function Legend() {
   return (
-    <Card className="absolute top-4 left-4 z-10 w-auto bg-white/90 backdrop-blur border-slate-200 shadow-sm">
+    <Card className="absolute top-4 left-4 z-1 w-auto bg-white/90 backdrop-blur border-slate-200 shadow-sm">
       <CardContent className="p-3 flex gap-4">
         {[
           { label: 'Completado', color: 'text-green-600', icon: CheckCircle2 },

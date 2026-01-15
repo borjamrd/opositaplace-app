@@ -78,7 +78,7 @@ export function TimerCountdown() {
             size="lg"
             className="text-muted-foreground hover:text-destructive"
           >
-            Finalizar
+            Terminar estudio
           </Button>
           <Button onClick={reset} variant="ghost" size="lg" className="text-muted-foreground ">
             Reiniciar

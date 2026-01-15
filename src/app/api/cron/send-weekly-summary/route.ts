@@ -8,9 +8,7 @@ export async function GET(request: Request) {
   }
 
   try {
-    console.log('Starting weekly summary job...');
     const result = await sendWeeklySummaries();
-    console.log('Weekly summary job finished.');
 
     return NextResponse.json({
       message: 'Job completed successfully.',

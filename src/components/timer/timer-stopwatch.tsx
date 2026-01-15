@@ -81,16 +81,16 @@ export function TimerStopwatch() {
         {/* Helper buttons for Reset/Finalize if session is active or paused (meaning session started) */}
         {(isActive || startTime !== null) && (
           <div className="flex gap-2">
+            <Button onClick={reset} variant="ghost" size="sm" className="text-muted-foreground ">
+              Reiniciar
+            </Button>
             <Button
               onClick={saveSessionAndReset}
               variant="ghost"
               size="sm"
               className="text-muted-foreground hover:text-destructive"
             >
-              Finalizar
-            </Button>
-            <Button onClick={reset} variant="ghost" size="sm" className="text-muted-foreground ">
-              Reiniciar
+              Finalizar estudio
             </Button>
           </div>
         )}
