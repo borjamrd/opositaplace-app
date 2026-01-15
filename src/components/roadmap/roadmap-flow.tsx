@@ -431,7 +431,7 @@ export function RoadmapFlow({
 
                       {
                         key: 'completed',
-                        label: 'Terminado',
+                        label: 'Completado',
                         icon: CheckCircle2,
                         activeClass: 'bg-green-100 border-green-500 text-green-700',
                       },
