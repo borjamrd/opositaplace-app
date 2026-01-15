@@ -3,7 +3,7 @@ import { sendWeeklySummaries } from '@/lib/cron/actions';
 
 export const sendWeeklyDigest = inngest.createFunction(
   { id: 'send-weekly-digest-email', retries: 3 },
-  { cron: '*/3 * * * *' },
+  { cron: '0 9 * * MON' },
   async ({ step }) => {
     const result = await step.run('process-summaries', async () => {
       return await sendWeeklySummaries();
