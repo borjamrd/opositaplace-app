@@ -22,7 +22,7 @@ import {
   XCircle,
 } from 'lucide-react';
 import Link from 'next/link';
-import { useMemo, useState } from 'react';
+import { useRef, useMemo, useState } from 'react';
 import MarkdownContent from '../markdown-content';
 
 interface TestResultsProps {
@@ -34,6 +34,7 @@ interface TestResultsProps {
 
 export function TestResults({ questions, userAnswers, attempt, addedCardIds }: TestResultsProps) {
   const { toast } = useToast();
+  const questionHeaderRef = useRef<HTMLDivElement>(null);
   const [addedIds, setAddedIds] = useState(new Set(addedCardIds));
   const [isAddingId, setIsAddingId] = useState<string | null>(null);
 
@@ -123,6 +124,7 @@ export function TestResults({ questions, userAnswers, attempt, addedCardIds }: T
     if (currentQuestionIndex < questions.length - 1) {
       setVisitedIndices((prev) => new Set(prev).add(currentQuestionIndex));
       setCurrentQuestionIndex((prev) => prev + 1);
+      questionHeaderRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
   };
 
@@ -131,6 +133,7 @@ export function TestResults({ questions, userAnswers, attempt, addedCardIds }: T
       // We mark current as visited too, though likely already visited if we are here
       setVisitedIndices((prev) => new Set(prev).add(currentQuestionIndex));
       setCurrentQuestionIndex((prev) => prev - 1);
+      questionHeaderRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
   };
 
@@ -171,21 +174,21 @@ export function TestResults({ questions, userAnswers, attempt, addedCardIds }: T
           </Button>
         </div>
       </CardHeader>
-      <CardContent className="space-y-8">
+      <CardContent className="p-2 md:p-6 space-y-8">
         {/* HEADER: Puntuación y Badges (Animado de izq a derecha) */}
         <motion.div
-          className="flex flex-col lg:flex-row gap-4 w-full"
+          className="flex lg:flex-row gap-4 w-full"
           variants={containerVariants}
           initial="hidden"
           animate="visible"
         >
           {/* Izquierda: Puntuación */}
           <motion.div
-            className="w-full lg:w-1/4 flex flex-col justify-center items-center p-6 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800"
+            className="w-1/2 lg:w-1/4 flex flex-col justify-center items-center p-6 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800"
             variants={itemVariants}
           >
             <div className="flex items-center gap-2 mb-2">
-              <p className="text-lg font-medium text-muted-foreground">Nota Final</p>
+              <p className="text-lg font-medium text-muted-foreground">Nota final</p>
               <TooltipProvider>
                 <Tooltip delayDuration={300}>
                   <TooltipTrigger asChild>
@@ -219,7 +222,7 @@ export function TestResults({ questions, userAnswers, attempt, addedCardIds }: T
           </motion.div>
 
           {/* Derecha: Badges */}
-          <div className="w-full lg:w-3/4 grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="w-1/2 lg:w-3/4 grid grid-cols-1 md:grid-cols-3 gap-4">
             <motion.div
               className="flex flex-col justify-center items-center p-4 bg-green-100/50 dark:bg-green-900/20 border border-green-200 dark:border-green-900 rounded-xl"
               variants={itemVariants}
@@ -263,7 +266,10 @@ export function TestResults({ questions, userAnswers, attempt, addedCardIds }: T
 
         {/* CAROUSEL SECTION */}
         <div className="space-y-4">
-          <div className="flex justify-between items-center">
+          <div
+            ref={questionHeaderRef}
+            className="flex justify-between items-center" // scroll-mt-24 da un margen superior extra si tienes navbar fija
+          >
             <h3 className="text-xl font-semibold">Revisión detallada</h3>
             <span className="text-sm text-muted-foreground font-medium">
               Pregunta {currentQuestionIndex + 1} de {questions.length}
@@ -278,7 +284,7 @@ export function TestResults({ questions, userAnswers, attempt, addedCardIds }: T
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
                 transition={{ duration: 0.3 }}
-                className="border rounded-lg p-6 bg-card"
+                className="md:border md:rounded-lg pt-4 md:p-6 bg-card"
               >
                 {/* Header Question */}
                 <motion.div
@@ -350,7 +356,7 @@ export function TestResults({ questions, userAnswers, attempt, addedCardIds }: T
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.4, delay: shouldAnimate ? 0.8 : 0 }}
                   >
-                    <div className="bg-muted/30 rounded-lg p-4 border h-full">
+                    <div className="bg-muted/30 rounded-lg p-4 h-full">
                       <div className="flex items-center gap-2 mb-2 text-sm font-semibold text-primary">
                         <Lightbulb className="h-4 w-4" />
                         Explicación
