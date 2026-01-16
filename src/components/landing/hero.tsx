@@ -9,7 +9,7 @@ import { AvailableOppositionsDialog } from './available-oppositions-dialog';
 
 export function Hero() {
   return (
-    <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden">
+    <section className="relative -mt-10 pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden">
       {/* Background Glows */}
       <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-[120px] -z-10 animate-pulse" />
       <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-primary/10 rounded-full blur-[120px] -z-10" />
