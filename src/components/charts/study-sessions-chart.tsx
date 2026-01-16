@@ -77,7 +77,7 @@ export function StudySessionsChart() {
   const chartConfig = {
     minutes: {
       label: 'Minutos',
-      color: 'hsl(var(--chart-1))',
+      color: 'var(--primary)',
       icon: Activity,
     },
   } satisfies ChartConfig;
@@ -105,7 +105,7 @@ export function StudySessionsChart() {
 
   return (
     <Card className="w-full h-fit">
-      <CardHeader className="flex items-center gap-2 space-y-0 border-b py-5 sm:flex-row">
+      <CardHeader className="flex items-center gap-2 space-y-0 py-5 sm:flex-row">
         <div className="grid flex-1 gap-1 text-center sm:text-left">
           <CardTitle>Actividad de estudio</CardTitle>
           <CardDescription>Resumen de {rangeLabels[timeRange]}.</CardDescription>
@@ -143,22 +143,11 @@ export function StudySessionsChart() {
                 dataKey="study_date"
                 tickLine={false}
                 axisLine={false}
+                tick={false}
                 tickMargin={8}
                 minTickGap={32}
-                tickFormatter={(value) => {
-                  const date = new Date(value);
-                  return date.toLocaleDateString('es-ES', {
-                    month: 'short',
-                    day: 'numeric',
-                  });
-                }}
               />
-              <YAxis
-                tickLine={false}
-                axisLine={false}
-                tickMargin={8}
-                tickFormatter={(value) => `${Math.round(value / 60)}h`}
-              />
+              <YAxis tickLine={false} axisLine={false} tick={false} width={0} />
               <ChartTooltip
                 cursor={false}
                 content={
