@@ -16,6 +16,7 @@ import UserSubscription from '../subscription/user-suscription';
 import DeleteProfile from './delete-profile';
 import { NotificationSettingsTab } from './notification-settings-tab';
 import { SecuritySettingsTab } from './security-settings-tab';
+import { InterfaceSettingsTab } from './interface-settings-tab';
 
 export default function ProfileContent() {
   const { data: profile, isLoading, error, refetch } = useProfile();
@@ -71,12 +72,13 @@ export default function ProfileContent() {
 
   return (
     <Tabs defaultValue="personal" className="space-y-6">
-      <TabsList className="grid w-full grid-cols-5">
+      <TabsList className="grid w-full grid-cols-6">
         <TabsTrigger value="personal">Personal</TabsTrigger>
         <TabsTrigger value="account">Cuenta</TabsTrigger>
         <TabsTrigger value="study">Onboarding</TabsTrigger>
         <TabsTrigger value="security">Seguridad</TabsTrigger>
         <TabsTrigger value="notifications">Notificaciones</TabsTrigger>
+        <TabsTrigger value="interface">Interfaz</TabsTrigger>
       </TabsList>
       <TabsContent value="personal" className="space-y-6">
         <Card>
@@ -130,6 +132,7 @@ export default function ProfileContent() {
       <TabsContent value="study" className="space-y-6">
         <UserOnboarding />
       </TabsContent>
+      <InterfaceSettingsTab />
       <SecuritySettingsTab />
       <NotificationSettingsTab />
     </Tabs>
