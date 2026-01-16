@@ -1,6 +1,7 @@
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { sendEmail } from '@/lib/email/email';
 import WeeklySummaryEmail from '@/emails/weekly-summary-email';
+import SelectiveProcessStepReminderEmail from '@/emails/selective-process-step-reminder-email';
 
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -52,6 +53,74 @@ export async function sendWeeklySummaries() {
 
     if (i + BATCH_SIZE < profiles.length) {
       await wait(DELAY_BETWEEN_BATCHES);
+    }
+  }
+
+  return { processed, failed };
+}
+
+export async function sendSelectiveProcessReminders() {
+  const supabase = await createSupabaseServerClient();
+  const today = new Date().toISOString().split('T')[0];
+
+  // 1. Obtener etapas que finalizan hoy
+  const { data: stages, error: stagesError } = await supabase
+    .from('process_stages')
+    .select('*, selective_processes(name)')
+    .eq('key_date', today);
+
+  if (stagesError) {
+    throw new Error(`Failed to fetch stages ending today: ${stagesError.message}`);
+  }
+
+  if (!stages || stages.length === 0) {
+    return { processed: 0, failed: 0 };
+  }
+
+  let processed = 0;
+  let failed = 0;
+
+  for (const stage of stages) {
+    // 2. Obtener usuarios que siguen este proceso
+    if (!stage.process_id) continue;
+    const { data: userStatuses, error: statusError } = await supabase
+      .from('user_process_status')
+      .select('user_id, profiles(email, username)')
+      .eq('process_id', stage.process_id)
+      .eq('tracking_status', 'TRACKING');
+
+    if (statusError) {
+      console.error(`Error fetching users for process ${stage.process_id}:`, statusError);
+      continue;
+    }
+
+    if (!userStatuses || userStatuses.length === 0) continue;
+
+    const processName = stage.selective_processes
+      ? (stage.selective_processes as any).name
+      : 'Tu proceso selectivo';
+
+    // 3. Enviar correos
+    for (const status of userStatuses) {
+      try {
+        const profile = status.profiles as any;
+        if (!profile?.email) continue;
+
+        await sendEmail({
+          to: profile.email,
+          subject: `📢 Hoy finaliza: ${stage.name}`,
+          emailComponent: SelectiveProcessStepReminderEmail({
+            userName: profile.username || 'Opositor',
+            processName: processName,
+            stageName: stage.name,
+          }),
+        });
+
+        processed++;
+      } catch (err: any) {
+        console.error(`Failed to send reminder to user ${status.user_id}:`, err.message);
+        failed++;
+      }
     }
   }
 
