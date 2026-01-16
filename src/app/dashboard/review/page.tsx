@@ -3,7 +3,7 @@ import { ReviewSession } from '@/components/review/review-session';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { InfoSidebar } from '@/components/info-sidebar';
+import { PageContainer } from '@/components/page-container';
 import { Info } from 'lucide-react';
 
 export function ReviewExplanation() {
@@ -36,31 +36,29 @@ export default async function ReviewPage() {
 
   if (initialCards.length === 0) {
     return (
-      <div className="w-full max-w-5xl mx-auto flex items-center flex-col relative min-h-screen w-full">
-        <InfoSidebar>
-          <ReviewExplanation />
-        </InfoSidebar>
-        <Card className="w-full max-w-md text-center">
-          <CardHeader>
-            <CardTitle>¡Todo listo! 🥳</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="text-lg text-muted-foreground">No tienes tarjetas pendientes por hoy.</p>
-            <Button asChild>
-              <Link href="/dashboard">Volver al Dashboard</Link>
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
+      <PageContainer infoContent={<ReviewExplanation />}>
+        <div className="w-full max-w-5xl mx-auto flex items-center flex-col pt-10">
+          <Card className="w-full max-w-md text-center">
+            <CardHeader>
+              <CardTitle>¡Todo listo! 🥳</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-lg text-muted-foreground">
+                No tienes tarjetas pendientes por hoy.
+              </p>
+              <Button asChild>
+                <Link href="/dashboard">Volver al Dashboard</Link>
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </PageContainer>
     );
   }
 
   return (
-    <div className="relative min-h-screen w-full">
-      <InfoSidebar>
-        <ReviewExplanation />
-      </InfoSidebar>
+    <PageContainer infoContent={<ReviewExplanation />}>
       <ReviewSession initialCards={initialCards} />
-    </div>
+    </PageContainer>
   );
 }

@@ -49,16 +49,16 @@ const TopicNode = ({ data }: { data: any }) => {
   const statusConfig = {
     completed: {
       icon: CheckCircle2,
-      color: 'text-green-600',
-      bg: 'bg-green-50',
-      border: 'border-green-500',
+      color: 'text-green-600 dark:text-green-400',
+      bg: 'bg-green-50 dark:bg-green-950/30',
+      border: 'border-green-500 dark:border-green-500/50',
       shadow: 'shadow-md shadow-green-500/10',
     },
     in_progress: {
       icon: PlayCircle,
-      color: 'text-amber-600',
-      bg: 'bg-amber-50',
-      border: 'border-amber-500',
+      color: 'text-amber-600 dark:text-amber-400',
+      bg: 'bg-amber-50 dark:bg-amber-950/30',
+      border: 'border-amber-500 dark:border-amber-500/50',
       shadow: 'shadow-md shadow-amber-500/10',
     },
     not_started: {
@@ -89,7 +89,12 @@ const TopicNode = ({ data }: { data: any }) => {
       />
 
       <div className="flex items-center gap-3">
-        <div className={cn('p-2 rounded-full bg-white/80 shrink-0 border', config.color)}>
+        <div
+          className={cn(
+            'p-2 rounded-full bg-white/80 dark:bg-white/20 shrink-0 border',
+            config.color
+          )}
+        >
           <Icon className="w-5 h-5" />
         </div>
         <div className="flex flex-col">
@@ -166,8 +171,7 @@ const nodeTypes = {
 // --- 2. COMPONENTE PRINCIPAL ---
 
 // Constantes ORIGINALES (ligeramente ajustadas para los nuevos tamaños de nodo)
-const BLOCK_WIDTH = 400; // Mantengo tu ancho original para cálculos
-const TOPIC_WIDTH = 350;
+
 const NODE_HEIGHT = 80; // Ajustado un poco porque las cards nuevas son más altas
 const V_SPACING_BLOCK = 140; // Un poco más de aire vertical
 const V_SPACING_TOPIC = 100;
@@ -372,7 +376,7 @@ export function RoadmapFlow({
 
   return (
     // Aquí está el cambio de tamaño que pedías: h-[calc(100vh-X)]
-    <div className="h-[calc(100vh-120px)] w-full bg-slate-50/50 relative border rounded-xl overflow-hidden">
+    <div className="h-[calc(100vh-120px)] w-full bg-slate-50/50 dark:bg-slate-900/50 relative border rounded-xl overflow-hidden">
       <ReactFlowProvider>
         <Legend />
         <ReactFlow
@@ -464,7 +468,7 @@ export function RoadmapFlow({
 
                   <Separator />
 
-                  <Card className="border-dashed border-2 shadow-none bg-slate-50">
+                  <Card className="border-dashed border-2 shadow-none bg-slate-50 dark:bg-slate-900/50">
                     <CardContent className="pt-6 space-y-6">
                       <div className="flex items-center gap-3">
                         <div className="p-2.5 bg-primary text-primary-foreground rounded-lg shadow-sm">

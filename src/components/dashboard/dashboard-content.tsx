@@ -8,6 +8,7 @@ import { FailedQuestionFlashcard } from './failed-question-flashcard';
 import { StudyFeedback } from '@/app/dashboard/study-feedback';
 import { SRSWidget } from './srs-widget';
 import { useUiStore } from '@/store/ui-store';
+import { PageContainer } from '../page-container';
 
 interface DashboardContentProps {
   failedQuestions: QuestionWithAnswers[];
@@ -45,16 +46,18 @@ const DashboardContent = ({ failedQuestions, dueCardsCount }: DashboardContentPr
   ] as const;
 
   return (
-    <div className="flex-1 grid container gap-4 md:grid-cols-2 lg:grid-cols-6">
-      {sections.map(
-        ({ id, className, component }) =>
-          dashboardSections[id as keyof typeof dashboardSections] && (
-            <div key={id} className={className}>
-              {component}
-            </div>
-          )
-      )}
-    </div>
+    <PageContainer>
+      <div className="flex-1 grid container gap-4 md:grid-cols-2 lg:grid-cols-6">
+        {sections.map(
+          ({ id, className, component }) =>
+            dashboardSections[id as keyof typeof dashboardSections] && (
+              <div key={id} className={className}>
+                {component}
+              </div>
+            )
+        )}
+      </div>
+    </PageContainer>
   );
 };
 

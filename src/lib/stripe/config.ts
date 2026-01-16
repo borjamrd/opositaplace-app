@@ -9,7 +9,8 @@ export interface Plan {
   name: string;
   type: StripePlan;
   description: string;
-  price: string;
+  monthlyPrice: string;
+  yearlyPrice: string;
   priceId: string;
   features: {
     label: string;
@@ -20,8 +21,9 @@ export interface Plan {
 export const STRIPE_PLANS: Plan[] = [
   {
     name: 'Plan gratuito',
-    description: 'Acceso a funciones esenciales. Te encantará.',
-    price: 'Gratis',
+    description: 'Tests gratis limitados y planificación de estudio',
+    monthlyPrice: 'Gratis',
+    yearlyPrice: 'Gratis',
     type: StripePlan.FREE,
     priceId: process.env.NEXT_PUBLIC_STRIPE_FREE_PLAN_ID || 'price_free_placeholder',
     features: [
@@ -45,8 +47,9 @@ export const STRIPE_PLANS: Plan[] = [
   },
   {
     name: 'Plan básico',
-    description: 'Acceso a funciones esenciales. Ya no hay excusas.',
-    price: '7€/mes',
+    description: 'Tests ilimitados, planificacion y feedback',
+    monthlyPrice: '84€/mes',
+    yearlyPrice: '65€/año',
     type: StripePlan.BASIC,
     priceId: process.env.NEXT_PUBLIC_STRIPE_BASIC_PLAN_ID || 'price_basic_placeholder',
     features: [
@@ -87,8 +90,9 @@ export const STRIPE_PLANS: Plan[] = [
   },
   {
     name: 'Plan avanzado',
-    description: 'Profundiza en la materia, vas a por la nota.',
-    price: '14€/mes',
+    description: 'Tests, casos prácticos y feedback avanzado',
+    monthlyPrice: '25€/mes',
+    yearlyPrice: '300€/año',
     type: StripePlan.PRO,
     priceId: process.env.NEXT_PUBLIC_STRIPE_PRO_PLAN_ID || 'price_premium_placeholder',
     features: [
@@ -133,8 +137,16 @@ export const STRIPE_PLANS: Plan[] = [
   },
 ];
 
+export const STRIPE_PLANS_MAP = {
+  [StripePlan.FREE]: STRIPE_PLANS[0],
+  [StripePlan.BASIC]: STRIPE_PLANS[1],
+  [StripePlan.PRO]: STRIPE_PLANS[2],
+};
+
+export function getPlanByPriceId(priceId: string) {
+  return STRIPE_PLANS.find((plan) => plan.priceId === priceId);
+}
+
 export function getPlanNameByPriceId(priceId: string | null | undefined): string {
-  if (!priceId) return 'Plan no especificado';
-  const plan = STRIPE_PLANS.find((p) => p.priceId === priceId);
-  return plan ? plan.name : 'Plan Personalizado';
+  return STRIPE_PLANS.find((plan) => plan.priceId === priceId)?.name || 'Plan no especificado';
 }

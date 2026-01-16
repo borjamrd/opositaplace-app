@@ -27,7 +27,7 @@ export function PlanSelector({}: PlanSelectorProps) {
                   <CardDescription>{plan.description}</CardDescription>
                 </CardHeader>
                 <CardContent className="flex-grow">
-                  <p className="text-3xl font-bold mb-6">{plan.price}</p>
+                  <p className="text-3xl font-bold mb-6">{plan.monthlyPrice}</p>
                   <ul className="space-y-4 text-left">
                     {plan.features.map((feature) => {
                       const isExisting = STRIPE_PLANS.slice(0, index).some((p) =>

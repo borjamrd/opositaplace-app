@@ -163,6 +163,12 @@ export function ReviewSession({ initialCards }: ReviewSessionProps) {
     }
   };
 
+  const totalCards = initialCards.length;
+  const completedCards = totalCards - cardsQueue.length;
+
+  // We only render up to 3 cards for performance and visual clarity
+  const visibleCards = cardsQueue.slice(0, 3);
+
   if (cardsQueue.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] animate-in fade-in zoom-in duration-500">
@@ -180,76 +186,116 @@ export function ReviewSession({ initialCards }: ReviewSessionProps) {
     );
   }
 
-  const frontContent = currentCard.front_content as unknown as CardContentJson;
-  const backContent = currentCard.back_content as unknown as CardContentJson;
-
   return (
-    <div className="relative w-full max-w-xl mx-auto h-[750px] flex flex-col items-center justify-center overflow-hidden">
-      {nextCard && (
-        <div className="absolute top-8 w-full max-w-md h-[550px] bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm scale-95 -translate-y-4 opacity-50 z-0" />
-      )}
-
-      <motion.div
-        animate={controls}
-        style={{ x, y, rotate, scale, zIndex: 50 }}
-        drag={isFlipped ? true : false}
-        dragConstraints={{ top: 0, left: -200, right: 200, bottom: 300 }}
-        dragElastic={0.1}
-        onDragStart={() => setIsDragging(true)}
-        onDrag={handleDrag}
-        onDragEnd={handleDragEnd}
-        whileDrag={{ cursor: 'grabbing' }}
-        className="absolute top-8 w-full max-w-md cursor-grab active:cursor-grabbing touch-none px-4 sm:px-0"
-      >
-        <Card className="h-[550px] shadow-xl rounded-4xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 overflow-hidden relative select-none">
-          <CardContent className="p-8 h-full flex flex-col relative">
-            <div className="absolute top-4 left-0 w-full text-center">
-              <span className="text-xs uppercase tracking-widest text-muted-foreground/50 font-semibold">
-                {isFlipped ? 'Respuesta' : 'Pregunta'}
-              </span>
-            </div>
-
-            <div className="flex-1 flex flex-col justify-center items-center text-center space-y-6 w-full overflow-hidden">
-              <AutoResizingText
-                text={isFlipped ? backContent.text : frontContent.text}
-                className="font-medium px-2"
-                minFontSize={16}
-                maxFontSize={28}
-              />
-
-              {isFlipped && backContent.explanation && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="flex items-start gap-3 text-left bg-indigo-50 dark:bg-indigo-950/30 p-3 rounded-lg border border-indigo-100 dark:border-indigo-900/50"
-                >
-                  <Info className="w-5 h-5 text-indigo-500 shrink-0 mt-0.5" />
-                  <p className="text-sm text-indigo-900 dark:text-indigo-200 leading-snug">
-                    {backContent.explanation}
-                  </p>
-                </motion.div>
+    <div className="relative w-full max-w-xl mx-auto h-[650px] flex flex-col items-center justify-center overflow-hidden">
+      {/* Progress Badges - Now using "Ejercicios" style pills */}
+      <div className="absolute top-0 w-full px-8 z-10">
+        <div className="flex justify-between items-center mb-2">
+          <span className="text-sm font-medium text-muted-foreground">Progreso de sesión</span>
+          <span className="text-sm font-medium text-muted-foreground">
+            {completedCards}/{totalCards}
+          </span>
+        </div>
+        <div className="flex gap-1 w-full h-1.5">
+          {Array.from({ length: totalCards }).map((_, i) => (
+            <div
+              key={i}
+              className={cn(
+                'h-full rounded-full flex-1 transition-all duration-300',
+                i < completedCards ? 'bg-primary' : 'bg-slate-200 dark:bg-slate-700'
               )}
-            </div>
+            />
+          ))}
+        </div>
+      </div>
 
-            {/* Feedback Overlay */}
-            {activeZone && (
-              <div className="absolute inset-0 flex items-end justify-center pb-4 bg-white/80 dark:bg-slate-900/80 backdrop-blur-[2px] rounded-xl transition-all duration-200 z-10">
-                <p
-                  className={cn(
-                    'text-lg font-bold animate-bounce',
-                    activeZone === 'again' && 'text-red-600',
-                    activeZone === 'hard' && 'text-orange-600',
-                    activeZone === 'good' && 'text-blue-600',
-                    activeZone === 'easy' && 'text-green-600'
+      {visibleCards
+        .map((card, index) => {
+          // Index 0 is the top card (active)
+          const isTop = index === 0;
+          const frontContent = card.front_content as unknown as CardContentJson;
+          const backContent = card.back_content as unknown as CardContentJson;
+
+          return (
+            <motion.div
+              key={card.id}
+              initial={isTop ? false : { scale: 1 - index * 0.05, y: index * 15, opacity: 0 }}
+              animate={
+                isTop
+                  ? controls
+                  : {
+                      scale: 1 - index * 0.05,
+                      y: index * 15,
+                      zIndex: 50 - index,
+                      opacity: 1 - index * 0.1,
+                    }
+              }
+              style={isTop ? { x, y, rotate, scale, zIndex: 50 } : { zIndex: 50 - index }}
+              transition={{ duration: 0.3 }}
+              drag={isTop && (isFlipped ? true : false)}
+              dragConstraints={{ top: 0, left: -200, right: 200, bottom: 300 }}
+              dragElastic={0.1}
+              onDragStart={() => isTop && setIsDragging(true)}
+              onDrag={isTop ? handleDrag : undefined}
+              onDragEnd={isTop ? handleDragEnd : undefined}
+              whileDrag={isTop ? { cursor: 'grabbing' } : undefined}
+              className={cn(
+                'absolute top-16 w-full max-w-md touch-none px-4 sm:px-0',
+                isTop ? 'cursor-grab active:cursor-grabbing' : 'pointer-events-none'
+              )}
+            >
+              <Card className="h-[350px] shadow-xl rounded-4xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 overflow-hidden relative select-none">
+                <CardContent className="p-8 h-full flex flex-col relative">
+                  <div className="absolute top-4 left-0 w-full text-center">
+                    <span className="text-xs uppercase tracking-widest text-muted-foreground/50 font-semibold">
+                      {isTop && isFlipped ? 'Respuesta' : 'Pregunta'}
+                    </span>
+                  </div>
+
+                  <div className="flex-1 flex flex-col justify-center items-center text-center space-y-6 w-full overflow-hidden">
+                    <AutoResizingText
+                      text={isTop && isFlipped ? backContent.text : frontContent.text}
+                      className="font-medium px-2"
+                      minFontSize={14}
+                      maxFontSize={24}
+                    />
+
+                    {isTop && isFlipped && backContent.explanation && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="flex items-start gap-3 text-left bg-indigo-50 dark:bg-indigo-950/30 p-3 rounded-lg border border-indigo-100 dark:border-indigo-900/50"
+                      >
+                        <Info className="w-5 h-5 text-indigo-500 shrink-0 mt-0.5" />
+                        <p className="text-sm text-indigo-900 dark:text-indigo-200 leading-snug">
+                          {backContent.explanation}
+                        </p>
+                      </motion.div>
+                    )}
+                  </div>
+
+                  {/* Feedback Overlay - Only on top card */}
+                  {isTop && activeZone && (
+                    <div className="absolute inset-0 flex items-end justify-center pb-4 bg-white/80 dark:bg-slate-900/80 backdrop-blur-[2px] rounded-xl transition-all duration-200 z-10">
+                      <p
+                        className={cn(
+                          'text-lg font-bold animate-bounce',
+                          activeZone === 'again' && 'text-red-600',
+                          activeZone === 'hard' && 'text-orange-600',
+                          activeZone === 'good' && 'text-blue-600',
+                          activeZone === 'easy' && 'text-green-600'
+                        )}
+                      >
+                        {REVIEW_OPTIONS.find((o) => o.id === activeZone)?.label}
+                      </p>
+                    </div>
                   )}
-                >
-                  {REVIEW_OPTIONS.find((o) => o.id === activeZone)?.label}
-                </p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </motion.div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          );
+        })
+        .reverse()}
 
       {!isFlipped && (
         <div className="absolute bottom-20 z-30 w-full max-w-md px-4">
@@ -271,7 +317,7 @@ export function ReviewSession({ initialCards }: ReviewSessionProps) {
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 200, opacity: 0 }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="absolute bottom-0 z-40 w-full bg-white/90 dark:bg-slate-950/90 backdrop-blur-md border-t p-6 pb-8"
+            className="absolute bottom-0 z-40 w-full bg-white/90 dark:bg-slate-950/90 backdrop-blur-md border rounded-4xl p-6 pb-8"
           >
             <div className="max-w-2xl mx-auto">
               <p className="text-center text-xs text-muted-foreground mb-4 uppercase tracking-wider font-semibold h-4">
@@ -309,10 +355,6 @@ export function ReviewSession({ initialCards }: ReviewSessionProps) {
           </motion.div>
         )}
       </AnimatePresence>
-
-      <div className="absolute top-0 text-sm text-muted-foreground font-mono z-10">
-        {cardsQueue.length} preguntas pendientes
-      </div>
     </div>
   );
 }
