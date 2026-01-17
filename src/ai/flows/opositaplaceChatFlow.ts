@@ -84,18 +84,25 @@ export const opositaplaceChatFlow = ai.defineFlow(
     const activeStudyCycle = sessionData?.activeStudyCycle;
     const onboardingInfo = sessionData?.profile?.onboarding;
 
-    // Lógica de parseo de objetivos
+    // Lógica de parseo de objetivos mejorada
     let objectiveString = 'aprobar su oposición';
-    if (profile?.onboarding?.objectives) {
+    const rawObjectives = profile?.onboarding?.objectives;
+
+    if (rawObjectives && rawObjectives !== 'undefined') {
+      // Check de seguridad
       try {
-        // Asumimos que 'objective' puede ser un string JSON de un array
-        const objectivesArray = JSON.parse(profile.onboarding.objectives as string);
-        if (Array.isArray(objectivesArray) && objectivesArray.length > 0) {
-          objectiveString = objectivesArray.join(', ');
+        if (typeof rawObjectives === 'string') {
+          const objectivesArray = JSON.parse(rawObjectives);
+          if (Array.isArray(objectivesArray) && objectivesArray.length > 0) {
+            objectiveString = objectivesArray.join(', ');
+          } else {
+            objectiveString = rawObjectives;
+          }
         }
       } catch (e) {
-        if (typeof profile.onboarding.objectives === 'string') {
-          objectiveString = profile.onboarding.objectives;
+        // Si no es JSON válido, lo tratamos como string normal
+        if (typeof rawObjectives === 'string') {
+          objectiveString = rawObjectives;
         }
       }
     }

@@ -39,7 +39,7 @@ export function InfoSidebar({ children }: InfoSidebarProps) {
   return (
     <SidebarProvider
       style={{ '--sidebar-width': '24rem' } as React.CSSProperties}
-      className="absolute top-2 right-2 pointer-events-none z-50 flex-row-reverse h-[calc(100%-1rem)]"
+      className="absolute top-2 right-2 z-50 flex-row-reverse h-[calc(100%-1rem)] !min-h-0 !w-fit pointer-events-none"
     >
       <SidebarOverlay />
       <div className="absolute top-4 right-4 z-50 pointer-events-auto">
@@ -50,11 +50,9 @@ export function InfoSidebar({ children }: InfoSidebarProps) {
         side="right"
         collapsible="offcanvas"
         variant="sidebar"
-        className="pointer-events-auto !absolute h-full"
+        className="pointer-events-auto h-full border-l shadow-xl rounded-l-xl"
       >
-        <SidebarContent className="h-full bg-background border-l shadow-xl rounded-l-xl">
-          {children}
-        </SidebarContent>
+        <SidebarContent className="h-full bg-background">{children}</SidebarContent>
       </Sidebar>
     </SidebarProvider>
   );
