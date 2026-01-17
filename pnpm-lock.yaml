@@ -13,7 +13,7 @@ importers:
         version: 1.22.0(genkit@1.22.0(@google-cloud/firestore@7.11.6)(firebase-admin@13.5.0)(firebase@11.10.0))
       '@genkit-ai/next':
         specifier: ^1.8.0
-        version: 1.22.0(genkit@1.22.0(@google-cloud/firestore@7.11.6)(firebase-admin@13.5.0)(firebase@11.10.0))(next@15.2.6(@babel/core@7.28.5)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(zod@3.25.76)
+        version: 1.22.0(genkit@1.22.0(@google-cloud/firestore@7.11.6)(firebase-admin@13.5.0)(firebase@11.10.0))(next@15.2.6(@babel/core@7.26.10)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(zod@3.25.76)
       '@google-cloud/discoveryengine':
         specifier: ^2.2.0
         version: 2.5.2
@@ -116,6 +116,9 @@ importers:
       '@tiptap/starter-kit':
         specifier: ^3.11.0
         version: 3.11.0
+      '@vercel/analytics':
+        specifier: ^1.6.1
+        version: 1.6.1(next@15.2.6(@babel/core@7.26.10)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -136,13 +139,13 @@ importers:
         version: 12.23.24(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       geist:
         specifier: ^1.3.0
-        version: 1.5.1(next@15.2.6(@babel/core@7.28.5)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
+        version: 1.5.1(next@15.2.6(@babel/core@7.26.10)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
       genkit:
         specifier: ^1.8.0
         version: 1.22.0(@google-cloud/firestore@7.11.6)(firebase-admin@13.5.0)(firebase@11.10.0)
       inngest:
         specifier: ^3.49.1
-        version: 3.49.1(@opentelemetry/core@2.3.0(@opentelemetry/api@1.9.0))(express@5.1.0)(next@15.2.6(@babel/core@7.28.5)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(typescript@5.9.3)(zod@3.25.76)
+        version: 3.49.1(@opentelemetry/core@2.3.0(@opentelemetry/api@1.9.0))(express@5.1.0)(next@15.2.6(@babel/core@7.26.10)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(typescript@5.9.3)(zod@3.25.76)
       lucide-react:
         specifier: ^0.475.0
         version: 0.475.0(react@18.3.1)
@@ -151,10 +154,10 @@ importers:
         version: 12.23.26(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       next:
         specifier: 15.2.6
-        version: 15.2.6(@babel/core@7.28.5)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 15.2.6(@babel/core@7.26.10)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       nextjs-toploader:
         specifier: ^3.9.17
-        version: 3.9.17(next@15.2.6(@babel/core@7.28.5)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 3.9.17(next@15.2.6(@babel/core@7.26.10)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       patch-package:
         specifier: ^8.0.0
         version: 8.0.1
@@ -4480,6 +4483,32 @@ packages:
     resolution: {integrity: sha512-lrW200hZdbfRtztbygyaq/6jP6AKE8qQN2KvPcJ+x7wiD038YtnYtZ82IMNJ69GJibV7bwL3y9FgK+5w/pYt6g==}
     cpu: [x64]
     os: [win32]
+
+  '@vercel/analytics@1.6.1':
+    resolution: {integrity: sha512-oH9He/bEM+6oKlv3chWuOOcp8Y6fo6/PSro8hEkgCW3pu9/OiCXiUpRUogDh3Fs3LH2sosDrx8CxeOLBEE+afg==}
+    peerDependencies:
+      '@remix-run/react': ^2
+      '@sveltejs/kit': ^1 || ^2
+      next: '>= 13'
+      react: ^18 || ^19 || ^19.0.0-rc
+      svelte: '>= 4'
+      vue: ^3
+      vue-router: ^4
+    peerDependenciesMeta:
+      '@remix-run/react':
+        optional: true
+      '@sveltejs/kit':
+        optional: true
+      next:
+        optional: true
+      react:
+        optional: true
+      svelte:
+        optional: true
+      vue:
+        optional: true
+      vue-router:
+        optional: true
 
   '@vitejs/plugin-react@4.7.0':
     resolution: {integrity: sha512-gUu9hwfWvvEDBBmgtAowQCojwZmJ5mcLn3aufeCsitijs3+f2NsrPtlAWIR6OPiqljl96GVCUbLe0HyqIpVaoA==}
@@ -9909,10 +9938,10 @@ snapshots:
       - encoding
       - supports-color
 
-  '@genkit-ai/next@1.22.0(genkit@1.22.0(@google-cloud/firestore@7.11.6)(firebase-admin@13.5.0)(firebase@11.10.0))(next@15.2.6(@babel/core@7.28.5)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(zod@3.25.76)':
+  '@genkit-ai/next@1.22.0(genkit@1.22.0(@google-cloud/firestore@7.11.6)(firebase-admin@13.5.0)(firebase@11.10.0))(next@15.2.6(@babel/core@7.26.10)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(zod@3.25.76)':
     dependencies:
       genkit: 1.22.0(@google-cloud/firestore@7.11.6)(firebase-admin@13.5.0)(firebase@11.10.0)
-      next: 15.2.6(@babel/core@7.28.5)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      next: 15.2.6(@babel/core@7.26.10)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       zod: 3.25.76
 
   '@genkit-ai/telemetry-server@1.22.0(@types/node@20.19.24)':
@@ -14289,6 +14318,11 @@ snapshots:
   '@unrs/resolver-binding-win32-x64-msvc@1.11.1':
     optional: true
 
+  '@vercel/analytics@1.6.1(next@15.2.6(@babel/core@7.26.10)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)':
+    optionalDependencies:
+      next: 15.2.6(@babel/core@7.26.10)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react: 18.3.1
+
   '@vitejs/plugin-react@4.7.0(vite@7.2.0(@types/node@20.19.24)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.0)(tsx@4.20.6)(yaml@2.8.1))':
     dependencies:
       '@babel/core': 7.28.5
@@ -16096,9 +16130,9 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  geist@1.5.1(next@15.2.6(@babel/core@7.28.5)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)):
+  geist@1.5.1(next@15.2.6(@babel/core@7.26.10)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)):
     dependencies:
-      next: 15.2.6(@babel/core@7.28.5)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      next: 15.2.6(@babel/core@7.26.10)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
 
   generator-function@2.0.1: {}
 
@@ -16504,7 +16538,7 @@ snapshots:
 
   inline-style-parser@0.2.6: {}
 
-  inngest@3.49.1(@opentelemetry/core@2.3.0(@opentelemetry/api@1.9.0))(express@5.1.0)(next@15.2.6(@babel/core@7.28.5)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(typescript@5.9.3)(zod@3.25.76):
+  inngest@3.49.1(@opentelemetry/core@2.3.0(@opentelemetry/api@1.9.0))(express@5.1.0)(next@15.2.6(@babel/core@7.26.10)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(typescript@5.9.3)(zod@3.25.76):
     dependencies:
       '@bufbuild/protobuf': 2.10.2
       '@inngest/ai': 0.1.7
@@ -16533,7 +16567,7 @@ snapshots:
       zod: 3.25.76
     optionalDependencies:
       express: 5.1.0
-      next: 15.2.6(@babel/core@7.28.5)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      next: 15.2.6(@babel/core@7.26.10)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       typescript: 5.9.3
     transitivePeerDependencies:
       - '@opentelemetry/core'
@@ -17470,7 +17504,7 @@ snapshots:
 
   neo-async@2.6.2: {}
 
-  next@15.2.6(@babel/core@7.28.5)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+  next@15.2.6(@babel/core@7.26.10)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
       '@next/env': 15.2.6
       '@swc/counter': 0.1.3
@@ -17480,7 +17514,7 @@ snapshots:
       postcss: 8.4.31
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
-      styled-jsx: 5.1.6(@babel/core@7.28.5)(react@18.3.1)
+      styled-jsx: 5.1.6(@babel/core@7.26.10)(react@18.3.1)
     optionalDependencies:
       '@next/swc-darwin-arm64': 15.2.5
       '@next/swc-darwin-x64': 15.2.5
@@ -17520,9 +17554,9 @@ snapshots:
       - '@babel/core'
       - babel-plugin-macros
 
-  nextjs-toploader@3.9.17(next@15.2.6(@babel/core@7.28.5)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+  nextjs-toploader@3.9.17(next@15.2.6(@babel/core@7.26.10)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
-      next: 15.2.6(@babel/core@7.28.5)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      next: 15.2.6(@babel/core@7.26.10)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       nprogress: 0.2.0
       prop-types: 15.8.1
       react: 18.3.1
@@ -18942,19 +18976,19 @@ snapshots:
     dependencies:
       inline-style-parser: 0.2.6
 
+  styled-jsx@5.1.6(@babel/core@7.26.10)(react@18.3.1):
+    dependencies:
+      client-only: 0.0.1
+      react: 18.3.1
+    optionalDependencies:
+      '@babel/core': 7.26.10
+
   styled-jsx@5.1.6(@babel/core@7.26.10)(react@19.0.0):
     dependencies:
       client-only: 0.0.1
       react: 19.0.0
     optionalDependencies:
       '@babel/core': 7.26.10
-
-  styled-jsx@5.1.6(@babel/core@7.28.5)(react@18.3.1):
-    dependencies:
-      client-only: 0.0.1
-      react: 18.3.1
-    optionalDependencies:
-      '@babel/core': 7.28.5
 
   sucrase@3.35.0:
     dependencies:

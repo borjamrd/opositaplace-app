@@ -6,7 +6,7 @@ import { Playfair_Display } from 'next/font/google';
 import type { Metadata } from 'next';
 import './globals.css';
 import NextTopLoader from 'nextjs-toploader';
-
+import { Analytics } from '@vercel/analytics/next';
 const playfair = Playfair_Display({ subsets: ['latin'], variable: '--font-playfair' });
 const isProduction = process.env.VERCEL_ENV === 'production';
 export const metadata: Metadata = {
@@ -83,6 +83,7 @@ export default async function RootLayout({
           <Toaster />
         </Providers>
       </body>
+      <Analytics />
     </html>
   );
 }
