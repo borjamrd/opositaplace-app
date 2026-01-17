@@ -8,12 +8,12 @@ import './globals.css';
 import NextTopLoader from 'nextjs-toploader';
 
 const playfair = Playfair_Display({ subsets: ['latin'], variable: '--font-playfair' });
-
+const isProduction = process.env.VERCEL_ENV === 'production';
 export const metadata: Metadata = {
   title: 'Opositaplace - Por opositores, para opositores',
   description:
     'Organiza tu estudio, realiza tests, sigue tu progreso y consigue tu plaza con Opositaplace.',
-  metadataBase: new URL('https://www.opositaplace.com'),
+  metadataBase: new URL('https://www.opositaplace.es'),
   keywords: [
     'oposiciones',
     'test',
@@ -26,14 +26,25 @@ export const metadata: Metadata = {
   authors: [{ name: 'Opositaplace Team' }],
   creator: 'Opositaplace',
   publisher: 'Opositaplace',
+  alternates: {
+    canonical: '/',
+  },
   openGraph: {
     type: 'website',
     locale: 'es_ES',
-    url: 'https://www.opositaplace.com',
+    url: 'https://www.opositaplace.es',
     title: 'Opositaplace - Por opositores, para opositores',
     description:
       'Organiza tu estudio, realiza tests, sigue tu progreso y consigue tu plaza con Opositaplace.',
     siteName: 'Opositaplace',
+  },
+  robots: {
+    index: isProduction,
+    follow: isProduction,
+    googleBot: {
+      index: isProduction,
+      follow: isProduction,
+    },
   },
   twitter: {
     card: 'summary_large_image',
