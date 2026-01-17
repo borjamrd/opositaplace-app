@@ -127,7 +127,11 @@ export function SelectiveProcessTimeline() {
     const days = Math.ceil(
       (new Date(stage.key_date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
     );
-    return days > 0 ? `Faltan ${days} días` : 'Hoy es el último día';
+    return days > 0
+      ? `Faltan ${days} días`
+      : days < 0
+        ? 'Plazo finalizado'
+        : 'Hoy es el último día';
   };
 
   if (isLoading) {
@@ -243,7 +247,16 @@ export function SelectiveProcessTimeline() {
                         {new Date(stage.key_date!).toLocaleDateString()}
                       </Badge>
                       {stage.status === 'pendiente' && (
-                        <Badge variant="default" className="text-xs font-normal">
+                        <Badge
+                          variant={
+                            ['Plazo finalizado', 'Hoy es el último día'].includes(
+                              pendingDays(stage)
+                            )
+                              ? 'destructive'
+                              : 'default'
+                          }
+                          className="text-xs font-normal"
+                        >
                           {pendingDays(stage)}
                         </Badge>
                       )}
