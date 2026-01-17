@@ -1,12 +1,12 @@
-import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { sendEmail } from '@/lib/email/email';
-import WeeklySummaryEmail from '@/emails/weekly-summary-email';
 import SelectiveProcessStepReminderEmail from '@/emails/selective-process-step-reminder-email';
+import WeeklySummaryEmail from '@/emails/weekly-summary-email';
+import { sendEmail } from '@/lib/email/email';
+import { createSupabaseAdminClient } from '../supabase/admin';
 
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export async function sendWeeklySummaries() {
-  const supabase = await createSupabaseServerClient();
+  const supabase = createSupabaseAdminClient();
 
   const { data: profiles, error: profilesError } = await supabase
     .from('profiles')
@@ -60,7 +60,8 @@ export async function sendWeeklySummaries() {
 }
 
 export async function sendSelectiveProcessReminders() {
-  const supabase = await createSupabaseServerClient();
+  console.log('Starting sendSelectiveProcessReminders');
+  const supabase = await createSupabaseAdminClient();
   const today = new Date().toISOString().split('T')[0];
 
   // 1. Obtener etapas que finalizan hoy
@@ -69,6 +70,7 @@ export async function sendSelectiveProcessReminders() {
     .select('*, selective_processes(name)')
     .eq('key_date', today);
 
+  console.log({ stages });
   if (stagesError) {
     throw new Error(`Failed to fetch stages ending today: ${stagesError.message}`);
   }
@@ -83,12 +85,15 @@ export async function sendSelectiveProcessReminders() {
   for (const stage of stages) {
     // 2. Obtener usuarios que siguen este proceso
     if (!stage.process_id) continue;
+
+    // Primero obtenemos los IDs de usuario
     const { data: userStatuses, error: statusError } = await supabase
       .from('user_process_status')
-      .select('user_id, profiles(email, username)')
+      .select('user_id')
       .eq('process_id', stage.process_id)
       .eq('tracking_status', 'TRACKING');
 
+    console.log({ userStatuses });
     if (statusError) {
       console.error(`Error fetching users for process ${stage.process_id}:`, statusError);
       continue;
@@ -96,14 +101,29 @@ export async function sendSelectiveProcessReminders() {
 
     if (!userStatuses || userStatuses.length === 0) continue;
 
+    const userIds = userStatuses.map((us) => us.user_id).filter((id): id is string => !!id);
+
+    if (userIds.length === 0) continue;
+
+    // Luego obtenemos los perfiles de esos usuarios
+    const { data: profiles, error: profilesError } = await supabase
+      .from('profiles')
+      .select('id, email, username')
+      .in('id', userIds)
+      .neq('email', null); // Asegurarnos de que tengan email
+
+    if (profilesError) {
+      console.error(`Error fetching profiles for process ${stage.process_id}:`, profilesError);
+      continue;
+    }
+
     const processName = stage.selective_processes
       ? (stage.selective_processes as any).name
       : 'Tu proceso selectivo';
 
     // 3. Enviar correos
-    for (const status of userStatuses) {
+    for (const profile of profiles) {
       try {
-        const profile = status.profiles as any;
         if (!profile?.email) continue;
 
         await sendEmail({
@@ -118,7 +138,7 @@ export async function sendSelectiveProcessReminders() {
 
         processed++;
       } catch (err: any) {
-        console.error(`Failed to send reminder to user ${status.user_id}:`, err.message);
+        console.error(`Failed to send reminder to user ${profile.id}:`, err.message);
         failed++;
       }
     }
@@ -131,7 +151,7 @@ export async function sendSelectiveProcessReminders() {
  * Obtiene el resumen semanal real de un usuario consultando Supabase.
  */
 async function getSummaryForUser(userId: string) {
-  const supabase = await createSupabaseServerClient();
+  const supabase = createSupabaseAdminClient();
 
   const now = new Date();
   const oneWeekAgo = new Date();
