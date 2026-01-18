@@ -2,12 +2,12 @@ import Providers from '@/components/providers/providers';
 import { Toaster } from '@/components/ui/toaster';
 import { GeistMono } from 'geist/font/mono';
 import { GeistSans } from 'geist/font/sans';
-import { Playfair_Display } from 'next/font/google';
+import { Newsreader } from 'next/font/google';
 import type { Metadata } from 'next';
 import './globals.css';
 import NextTopLoader from 'nextjs-toploader';
 import { Analytics } from '@vercel/analytics/next';
-const playfair = Playfair_Display({ subsets: ['latin'], variable: '--font-playfair' });
+const newsreader = Newsreader({ subsets: ['latin'], variable: '--font-newsreader' });
 const isProduction = process.env.VERCEL_ENV === 'production';
 export const metadata: Metadata = {
   title: 'Opositaplace - Por opositores, para opositores',
@@ -66,7 +66,7 @@ export default async function RootLayout({
   return (
     <html lang="es" suppressHydrationWarning>
       <body
-        className={`${GeistSans.variable} ${GeistMono.variable} ${playfair.variable} antialiased min-h-screen bg-background font-sans text-foreground`}
+        className={`${GeistSans.variable} ${GeistMono.variable} ${newsreader.variable} antialiased min-h-screen bg-background font-sans text-foreground`}
       >
         <Providers>
           <NextTopLoader

@@ -13,7 +13,7 @@ export function CtaOpposition() {
         <Meteors number={30} />
         <div className="max-w-3xl mx-auto space-y-8">
           {/* Main Title */}
-          <h2 className="text-3xl md:text-5xl font-bold tracking-tight font-playfair">
+          <h2 className="text-3xl md:text-5xl font-bold tracking-tight font-newsreader">
             Cuanto antes comiences,
             <Highlighter action="highlight" color="var(--primary)" delay={2000}>
               <span className="text-primary-foreground">mejor.</span>

@@ -20,7 +20,7 @@ export function OfficialQuestions() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 items-center">
           {/* Left Side - Text */}
           <div className="space-y-6 md:col-span-1">
-            <h2 className="text-3xl md:text-5xl font-bold font-playfair leading-tight">
+            <h2 className="text-3xl md:text-5xl font-bold font-newsreader leading-tight">
               Repasa con{' '}
               <span className="italic">
                 <Highlighter action="highlight" color="var(--secondary)" delay={200}>

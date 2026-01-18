@@ -101,27 +101,27 @@ const steps = [
   {
     id: 'step-1-opposition',
     name: 'Oposición',
-    description: 'Escoge una oposición entre las opciones disponibles',
+    description: 'Escoge entre las opciones disponibles',
     icon: Flag,
     fields: ['opposition_scope', 'opposition_id'] as const,
   },
   {
     id: 'step-2-baseline',
     name: 'Autoevaluación',
-    description: 'Conócete a ti mismo',
+    description: 'Conoce tus necesadades',
     icon: Target,
     fields: ['baseline_assessment', 'help_with'] as const,
   },
   {
     id: 'step-3-goal',
-    name: 'Objetivo Semanal',
+    name: 'Objetivo semanal',
     description: 'Define tu meta',
     icon: Calendar,
     fields: ['weekly_study_goal_hours'] as const,
   },
   {
     id: 'step-4-planner',
-    name: 'Plan de Estudio',
+    name: 'Plan de estudio',
     description: 'Crea tu horario',
     icon: Rocket,
     fields: ['study_days', 'slot_duration_minutes'] as const,
@@ -342,28 +342,31 @@ export default function OnboardingForm() {
   const progressPercentage = weeklyGoalHours > 0 ? (totalSelectedHours / weeklyGoalHours) * 100 : 0;
 
   return (
-    <div className="flex min-h-[calc(100vh-10rem)]">
-      <div className="flex w-full max-w-6xl mt-10 mx-auto p-4 md:p-8 bg-background/80 backdrop-blur-sm rounded-xl shadow-xl border">
-        {/* --- Sidebar de Pasos (sin cambios) --- */}
-        <nav className="hidden md:flex md:w-1/3 lg:w-1/4 p-6 bg-linear-to-b from-secondary/20 to-background rounded-l-lg">
-          <ol className="relative space-y-8">
+    <div className="flex min-h-[calc(100vh-10rem)] p-4">
+      <div className="flex flex-col w-full max-w-6xl mt-10 mx-auto p-4 md:p-8 bg-background/80 backdrop-blur-sm rounded-xl shadow-xl border">
+        {/* --- Pasos Superiores --- */}
+        <nav className="w-full mb-8">
+          <ol className="flex items-center justify-between w-full">
             {steps.map((step, index) => {
               const isActive = index === currentStep;
               const isCompleted = index < currentStep;
               const StepIcon = step.icon;
 
               return (
-                <li key={step.id} className="flex items-start space-x-4">
-                  <div className="shrink-0">
+                <li
+                  key={step.id}
+                  className="flex flex-col md:flex-row items-center md:items-center md:space-x-4"
+                >
+                  <div className="shrink-0 mb-2 md:mb-0">
                     {isCompleted ? (
-                      <span className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                      <span className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground transition-all duration-300">
                         <CheckCircle className="h-6 w-6" />
                       </span>
                     ) : (
                       <span
-                        className={`flex h-10 w-10 items-center justify-center rounded-full ${
+                        className={`flex h-10 w-10 items-center justify-center rounded-full transition-all duration-300 ${
                           isActive
-                            ? 'bg-primary border-2 border-primary text-primary-foreground'
+                            ? 'bg-primary border-2 border-primary text-primary-foreground scale-110'
                             : 'bg-secondary border-2'
                         }`}
                       >
@@ -373,9 +376,9 @@ export default function OnboardingForm() {
                       </span>
                     )}
                   </div>
-                  <div>
+                  <div className="hidden md:block text-center md:text-left">
                     <h4
-                      className={`text-lg font-semibold ${
+                      className={`text-lg font-semibold transition-colors duration-300 ${
                         isActive ? 'text-primary' : isCompleted ? '' : 'text-muted-foreground'
                       }`}
                     >
@@ -389,7 +392,7 @@ export default function OnboardingForm() {
           </ol>
         </nav>
 
-        <main className="w-full md:w-2/3 lg:w-3/4 md:pl-10 lg:pl-16">
+        <main className="w-full">
           <Form {...form}>
             <form
               onSubmit={(e) => {

@@ -71,7 +71,7 @@ export function FAQ() {
               Preguntas frecuentes
             </div>
 
-            <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-foreground font-playfair">
+            <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-foreground font-newsreader">
               Tendrás dudas, <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-primary/60">
                 es normal

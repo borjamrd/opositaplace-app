@@ -36,7 +36,7 @@ export function Hero() {
 
             {/* Title */}
             <div className="space-y-3">
-              <h1 className="text-4xl md:text-6xl lg:text-7xl font-semibold tracking-tight leading-tight font-playfair">
+              <h1 className="text-4xl md:text-6xl lg:text-7xl font-semibold tracking-tight leading-tight font-newsreader">
                 En tu oposición,
                 <br />
                 <span className="italic">

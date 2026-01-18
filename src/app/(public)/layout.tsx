@@ -1,6 +1,6 @@
-import { Playfair_Display } from 'next/font/google';
+import { Newsreader } from 'next/font/google';
 
-const playfair = Playfair_Display({ subsets: ['latin'], variable: '--font-playfair' });
+const newsreader = Newsreader({ subsets: ['latin'], variable: '--font-newsreader' });
 
 export default async function PublicLayout({
   children,
@@ -9,7 +9,7 @@ export default async function PublicLayout({
 }>) {
   return (
     <>
-      <main className={playfair.variable}>{children}</main>
+      <main className={newsreader.variable}>{children}</main>
     </>
   );
 }

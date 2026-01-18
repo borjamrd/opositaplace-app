@@ -6,11 +6,20 @@ interface TimeSlotCellProps {
   timeSlot: string;
   isSelected: boolean;
   onToggle: (day: Day, timeSlot: string) => void;
+  compact?: boolean;
 }
 
-const TimeSlotCell: React.FC<TimeSlotCellProps> = ({ day, timeSlot, isSelected, onToggle }) => {
-  const baseClasses =
-    'border-b border-r border-slate-300 cursor-pointer min-h-[20px] sm:min-h-[30px] flex items-center justify-center text-xs transition-all duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:z-5';
+const TimeSlotCell: React.FC<TimeSlotCellProps> = ({
+  day,
+  timeSlot,
+  isSelected,
+  onToggle,
+  compact = false,
+}) => {
+  const minHeight = compact ? 'min-h-[15px]' : 'min-h-[20px] sm:min-h-[30px]';
+  const iconSize = compact ? 'w-3 h-3' : 'w-4 h-4 sm:w-5 sm:h-5';
+
+  const baseClasses = `border-b border-r border-slate-300 cursor-pointer ${minHeight} flex items-center justify-center text-xs transition-all duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:z-5`;
   const selectedClasses = 'bg-background hover:bg-secondary dark:text-white text-primary';
   const unselectedClasses = 'bg-background hover:bg-secondary text-slate-700';
 
@@ -33,7 +42,7 @@ const TimeSlotCell: React.FC<TimeSlotCellProps> = ({ day, timeSlot, isSelected, 
           viewBox="0 0 24 24"
           strokeWidth={2.5}
           stroke="currentColor"
-          className="w-4 h-4 sm:w-5 sm:h-5"
+          className={iconSize}
         >
           <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
         </svg>

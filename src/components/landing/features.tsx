@@ -209,7 +209,7 @@ export function Features() {
   return (
     <section className="py-20 md:py-28">
       <div className="container mx-auto px-4">
-        <h2 className="mb-4 text-center text-3xl font-bold md:text-5xl font-playfair">
+        <h2 className="mb-4 text-center text-3xl font-bold md:text-5xl font-newsreader">
           <Highlighter action="underline" color="var(--primary)" delay={1000}>
             Todo
           </Highlighter>{' '}

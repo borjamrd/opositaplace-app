@@ -152,7 +152,7 @@
 }
 
 @theme inline {
-  --font-playfair: var(--font-playfair), serif;
+  --font-newsreader: var(--font-newsreader), serif;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -191,17 +191,20 @@
   --animate-meteor: meteor 5s linear infinite;
   --animate-marquee: marquee var(--duration) linear infinite;
   --animate-marquee-vertical: marquee-vertical var(--duration) linear infinite;
+
   @keyframes meteor {
-  0% {
-    transform: rotate(var(--angle)) translateX(0);
-    opacity: 1;
+    0% {
+      transform: rotate(var(--angle)) translateX(0);
+      opacity: 1;
     }
-  70% {
-    opacity: 1;
+
+    70% {
+      opacity: 1;
     }
-  100% {
-    transform: rotate(var(--angle)) translateX(-500px);
-    opacity: 0;
+
+    100% {
+      transform: rotate(var(--angle)) translateX(-500px);
+      opacity: 0;
     }
   }
 }
@@ -373,11 +376,18 @@
   @apply text-muted-foreground float-left h-0 pointer-events-none;
   content: attr(data-placeholder);
 }
+
 @layer utilities {
   @keyframes scroll-up {
-    0% { transform: translateY(0); }
-    100% { transform: translateY(-50%); }
+    0% {
+      transform: translateY(0);
+    }
+
+    100% {
+      transform: translateY(-50%);
+    }
   }
+
   .animate-scroll-up {
     animation: scroll-up 60s linear infinite;
   }

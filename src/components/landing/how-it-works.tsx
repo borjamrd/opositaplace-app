@@ -79,7 +79,7 @@ export function HowItWorks() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.1 }}
-              className="text-4xl md:text-5xl font-bold mb-6 tracking-tight font-playfair"
+              className="text-4xl md:text-5xl font-bold mb-6 tracking-tight font-newsreader"
             >
               Cómo será tu proceso.
             </motion.h2>
