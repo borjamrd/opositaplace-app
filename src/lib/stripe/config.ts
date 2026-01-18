@@ -48,8 +48,8 @@ export const STRIPE_PLANS: Plan[] = [
   {
     name: 'Plan básico',
     description: 'Tests ilimitados, planificacion y feedback',
-    monthlyPrice: '84€/mes',
-    yearlyPrice: '65€/año',
+    monthlyPrice: '7€/mes',
+    yearlyPrice: '84€/año',
     type: StripePlan.BASIC,
     priceId: process.env.NEXT_PUBLIC_STRIPE_BASIC_PLAN_ID || 'price_basic_placeholder',
     features: [
