@@ -2,6 +2,12 @@
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -9,18 +15,20 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { createClient } from '@/lib/supabase/client';
 import { useProfile } from '@/lib/supabase/queries/useProfile';
+import { MoreHorizontal } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import UserOnboarding from '../onboarding/user-onboarding';
 import UserSubscription from '../subscription/user-suscription';
 import DeleteProfile from './delete-profile';
+import { InterfaceSettingsTab } from './interface-settings-tab';
 import { NotificationSettingsTab } from './notification-settings-tab';
 import { SecuritySettingsTab } from './security-settings-tab';
-import { InterfaceSettingsTab } from './interface-settings-tab';
 
 export default function ProfileContent() {
   const { data: profile, isLoading, error, refetch } = useProfile();
   const [username, setUsername] = useState(profile?.username || '');
+  const [activeTab, setActiveTab] = useState('personal');
   const { toast } = useToast();
   const supabase = createClient();
   useEffect(() => {
@@ -70,15 +78,51 @@ export default function ProfileContent() {
     );
   }
 
+  const isDropdownActive = ['security', 'notifications', 'interface'].includes(activeTab);
+
   return (
-    <Tabs defaultValue="personal" className="space-y-6">
-      <TabsList className="grid w-full grid-cols-6">
+    <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+      <TabsList className="grid w-full grid-cols-4 md:grid-cols-6">
         <TabsTrigger value="personal">Personal</TabsTrigger>
         <TabsTrigger value="account">Cuenta</TabsTrigger>
         <TabsTrigger value="study">Onboarding</TabsTrigger>
-        <TabsTrigger value="security">Seguridad</TabsTrigger>
-        <TabsTrigger value="notifications">Notificaciones</TabsTrigger>
-        <TabsTrigger value="interface">Interfaz</TabsTrigger>
+
+        {/* Desktop triggers */}
+        <TabsTrigger value="security" className="hidden md:inline-flex">
+          Seguridad
+        </TabsTrigger>
+        <TabsTrigger value="notifications" className="hidden md:inline-flex">
+          Notificaciones
+        </TabsTrigger>
+        <TabsTrigger value="interface" className="hidden md:inline-flex">
+          Interfaz
+        </TabsTrigger>
+
+        {/* Mobile dropdown trigger */}
+        <div className="flex items-center justify-center md:hidden">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className={`h-7 w-7 ${isDropdownActive ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground'}`}
+              >
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => setActiveTab('security')}>
+                Seguridad
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setActiveTab('notifications')}>
+                Notificaciones
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setActiveTab('interface')}>
+                Interfaz
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </TabsList>
       <TabsContent value="personal" className="space-y-6">
         <Card>

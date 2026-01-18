@@ -279,7 +279,7 @@ export default function UserOnboarding() {
         {profile.onboarding.help_with && (profile.onboarding.help_with as string[]).length > 0 && (
           <div>
             <p className="text-sm font-medium text-muted-foreground">Áreas de ayuda</p>
-            <div className="flex flex-wrap gap-2 mt-1">
+            <div className="flex flex-col md:flex-row flex-wrap gap-2 mt-1">
               {(profile.onboarding.help_with as string[]).map((area) => (
                 <Badge key={area} className="text-base px-3 py-1 rounded-lg" variant={'outline'}>
                   {area}
