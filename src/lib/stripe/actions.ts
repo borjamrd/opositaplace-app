@@ -7,6 +7,7 @@ import Stripe from 'stripe';
 import { sendEmail } from '../email/email';
 import { STRIPE_PLANS, StripePlan } from './config';
 import WelcomeEmail from '@/emails/welcome-email';
+import { TRIAL_DAYS } from '../constants';
 export async function getOrCreateStripeCustomerId(
   user: User,
   params?: Stripe.CustomerCreateParams
@@ -65,7 +66,7 @@ export async function createTrialSubscription(user: User): Promise<void> {
   const stripeSubscription = await stripe.subscriptions.create({
     customer: customerId,
     items: [{ price: proPlan.priceId }],
-    trial_period_days: 7,
+    trial_period_days: TRIAL_DAYS,
     payment_settings: {
       save_default_payment_method: 'on_subscription',
     },

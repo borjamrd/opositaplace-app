@@ -7,3 +7,5 @@ export const BREADCRUMB_NAMES: Record<string, string> = {
   settings: 'Configuración',
   roadmap: 'Hoja de Ruta',
 };
+
+export const TRIAL_DAYS = 3;

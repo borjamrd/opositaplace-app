@@ -1,5 +1,6 @@
 import { Button, Heading, Section, Text } from '@react-email/components';
 import { EmailLayout, btnContainer, button, heading, paragraph } from './components/email-layout';
+import { TRIAL_DAYS } from '@/lib/constants';
 
 interface WelcomeEmailProps {
   userName?: string;
@@ -24,8 +25,8 @@ export const WelcomeEmail = ({
       </Text>
 
       <Text style={paragraph}>
-        Recuerda que tienes 7 días gratis para probar la mejor versión de Opositaplace. No te
-        preocupes, no se te cobrará nada al finalizar y se te pasará a la versión gratuita
+        Recuerda que tienes {TRIAL_DAYS} días gratis para probar la mejor versión de Opositaplace.
+        No te preocupes, no se te cobrará nada al finalizar y se te pasará a la versión gratuita
         automáticamente. Puedes cambiarla cuando quieras.
       </Text>
 
