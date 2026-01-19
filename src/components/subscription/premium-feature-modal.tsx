@@ -13,6 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 import { STRIPE_PLANS, StripePlan } from '@/lib/stripe/config';
 import { Check, Crown, Loader2 } from 'lucide-react';
 import { useState } from 'react';
+import { handleManageSubscription as manageSubscription } from '@/lib/stripe/client';
 
 interface PremiumFeatureModalProps {
   isOpen: boolean;
@@ -29,28 +30,7 @@ export function PremiumFeatureModal({
   const { toast } = useToast();
 
   const handleManageSubscription = async () => {
-    setIsLoading(true);
-    try {
-      const response = await fetch('/api/stripe/create-portal-link', {
-        method: 'POST',
-        body: JSON.stringify({ return_url: window.location.href }),
-      });
-      const data = await response.json();
-      if (data.url) {
-        window.location.href = data.url;
-      } else {
-        throw new Error(data.error || 'No se pudo obtener el enlace al portal.');
-      }
-    } catch (error: any) {
-      console.error('Error managing subscription:', error);
-      toast({
-        title: 'Error',
-        description: error.message,
-        variant: 'destructive',
-      });
-    } finally {
-      setIsLoading(false);
-    }
+    await manageSubscription(setIsLoading, toast);
   };
 
   const proPlan = STRIPE_PLANS.find((p) => p.type === StripePlan.PRO);
@@ -80,7 +60,7 @@ export function PremiumFeatureModal({
                   {proPlan.features.map((feature, i) => (
                     <li key={i} className="flex items-start gap-2">
                       <Check className="h-4 w-4 text-green-500 mt-0.5 shrink-0" />
-                      <span className="text-muted-foreground">{feature}</span>
+                      <span className="text-muted-foreground">{feature.label}</span>
                     </li>
                   ))}
                 </ul>

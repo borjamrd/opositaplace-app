@@ -12,14 +12,22 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { useToast } from '@/hooks/use-toast';
+import { getPlanNameByPriceId } from '@/lib/stripe/config';
+import { handleManageSubscription } from '@/lib/stripe/client';
+import { useUserSubscription } from '@/lib/supabase/queries/useUserSubscription';
 import { useProfileStore } from '@/store/profile-store';
-import { Calendar, LayoutDashboard, User as UserIcon } from 'lucide-react';
+import { Calendar, CreditCard, LayoutDashboard, User as UserIcon } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
+import { Badge } from '@/components/ui/badge';
 
 export function NavUserSection({ collapsed }: { collapsed: boolean }) {
   const { profile } = useProfileStore();
   const [open, setOpen] = useState(false);
+  const { data: subscription } = useUserSubscription();
+  const { toast } = useToast();
+  const [loadingStripe, setLoadingStripe] = useState(false);
 
   const getInitials = (email?: string | null) => {
     if (!email) return 'OP';
@@ -55,6 +63,18 @@ export function NavUserSection({ collapsed }: { collapsed: boolean }) {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-56" align="start" forceMount>
+          <div className="bg-muted/50 p-2 text-xs text-muted-foreground">
+            {subscription ? (
+              <div className="flex items-center justify-between">
+                <span>{getPlanNameByPriceId(subscription.price_id)}</span>
+                <Badge variant="secondary" className="h-5 text-[10px] px-1.5">
+                  {subscription.status === 'trialing' ? 'Prueba' : 'Activo'}
+                </Badge>
+              </div>
+            ) : (
+              <span>Plan Gratuito</span>
+            )}
+          </div>
           <DropdownMenuSeparator />
           <DropdownMenuItem asChild>
             <Link href="/dashboard">
@@ -67,6 +87,13 @@ export function NavUserSection({ collapsed }: { collapsed: boolean }) {
               <UserIcon className="mr-2 h-4 w-4" />
               Perfil
             </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onSelect={() => handleManageSubscription(setLoadingStripe, toast)}
+            disabled={loadingStripe}
+          >
+            <CreditCard className="mr-2 h-4 w-4" />
+            {loadingStripe ? 'Cargando...' : 'Suscripción'}
           </DropdownMenuItem>
           <DropdownMenuItem onSelect={() => setOpen(true)}>
             <Calendar className="mr-2 h-4 w-4" />

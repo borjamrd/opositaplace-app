@@ -13,6 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 import { STRIPE_PLANS, StripePlan } from '@/lib/stripe/config';
 import { Check, Loader2, Sparkles } from 'lucide-react';
 import { useState } from 'react';
+import { handleManageSubscription as manageSubscription } from '@/lib/stripe/client';
 
 interface LimitReachedModalProps {
   isOpen: boolean;
@@ -31,28 +32,7 @@ export function LimitReachedModal({
   const { toast } = useToast();
 
   const handleManageSubscription = async () => {
-    setIsLoading(true);
-    try {
-      const response = await fetch('/api/stripe/create-portal-link', {
-        method: 'POST',
-        body: JSON.stringify({ return_url: window.location.href }),
-      });
-      const data = await response.json();
-      if (data.url) {
-        window.location.href = data.url;
-      } else {
-        throw new Error(data.error || 'No se pudo obtener el enlace al portal.');
-      }
-    } catch (error: any) {
-      console.error('Error managing subscription:', error);
-      toast({
-        title: 'Error',
-        description: error.message,
-        variant: 'destructive',
-      });
-    } finally {
-      setIsLoading(false);
-    }
+    await manageSubscription(setIsLoading, toast);
   };
 
   const paidPlans = STRIPE_PLANS.filter((p) => p.type !== StripePlan.FREE);

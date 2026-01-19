@@ -16,6 +16,7 @@ import { createClient } from '@/lib/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useUserSubscription } from '@/lib/supabase/queries/useUserSubscription';
 import { useRouter } from 'next/navigation';
+import { handleManageSubscription as manageSubscription } from '@/lib/stripe/client';
 
 export default function UserSubscription() {
   const [authUser, setAuthUser] = useState<SupabaseUser | null>(null);
@@ -25,6 +26,7 @@ export default function UserSubscription() {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const router = useRouter();
+
   const handleManageSubscription = async () => {
     if (!authUser) {
       toast({
@@ -35,28 +37,7 @@ export default function UserSubscription() {
       router.push('/login?redirect=/dashboard/profile');
       return;
     }
-    setIsLoading(true);
-    try {
-      const response = await fetch('/api/stripe/create-portal-link', {
-        method: 'POST',
-        body: JSON.stringify({ return_url: window.location.href }),
-      });
-      const data = await response.json();
-      if (data.url) {
-        window.location.href = data.url;
-      } else {
-        throw new Error(data.error || 'No se pudo obtener el enlace al portal.');
-      }
-    } catch (error: any) {
-      console.error('Error managing subscription:', error);
-      toast({
-        title: 'Error',
-        description: error.message,
-        variant: 'destructive',
-      });
-    } finally {
-      setIsLoading(false);
-    }
+    await manageSubscription(setIsLoading, toast);
   };
 
   const {
@@ -140,7 +121,7 @@ export default function UserSubscription() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Mi Suscripción</CardTitle>
+        <CardTitle>Mi suscripción</CardTitle>
       </CardHeader>
       <CardContent>
         <div>{renderSubscriptionDetails()}</div>
