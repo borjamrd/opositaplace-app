@@ -368,36 +368,38 @@ export async function downgradeToFreePlan(subscriptionId: string, customerId: st
 
 /**
  * Configura un nuevo usuario:
- * 1. Comprueba si ya tiene suscripción.
- * 2. Si no, crea una suscripción de prueba (trial).
- * 3. Envía el email de bienvenida.
- * Esta función es idempotente (segura de llamar múltiples veces).
+ * 1. Comprueba si existe usuario en Stripe
+ * 2. Si no existe, crea uno
+ * 3. Envía el email de bienvenida
  */
+
 export async function setupNewUser(user: User) {
   const supabase = await createSupabaseServerClient();
 
-  // 1. Comprobar si el setup ya se hizo (si ya tiene suscripción)
-  const { data: existingSubscription } = await supabase
-    .from('user_subscriptions')
-    .select('id')
-    .eq('user_id', user.id)
-    .maybeSingle();
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('stripe_customer_id')
+    .eq('id', user.id)
+    .single();
 
-  if (existingSubscription) {
+  if (profile?.stripe_customer_id) {
     return;
   }
 
   try {
-    await createTrialSubscription(user);
+    await getOrCreateStripeCustomerId(user);
+  } catch (err) {
+    console.error('Error creando customer ID:', err);
+  }
 
+  try {
     const userName = user.user_metadata?.full_name?.split(' ')[0] || user.email?.split('@')[0];
     await sendEmail({
       to: user.email!,
       subject: '¡Bienvenido/a a Opositaplace!',
       emailComponent: WelcomeEmail({ userName: userName || 'Opositor' }),
     });
-  } catch (setupError: any) {
-    console.error('Error durante el setup (trial/email) del nuevo usuario');
-    throw new Error(`Error en la configuración del nuevo usuario`);
+  } catch (error) {
+    console.error('Error enviando email de bienvenida:', error);
   }
 }

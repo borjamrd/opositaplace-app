@@ -1,6 +1,7 @@
 import { Check, Star } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
+import { STRIPE_PLANS, StripePlan } from '@/lib/stripe/config';
 
 interface OnboardingSubscriptionStepProps {
   selectedPlan: 'free' | 'trial';
@@ -11,6 +12,9 @@ export default function OnboardingSubscriptionStep({
   selectedPlan,
   onSelectPlan,
 }: OnboardingSubscriptionStepProps) {
+  const freePlan = STRIPE_PLANS.find((p) => p.type === StripePlan.FREE);
+  const proPlan = STRIPE_PLANS.find((p) => p.type === StripePlan.PRO);
+
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="text-center space-y-2">
@@ -31,21 +35,17 @@ export default function OnboardingSubscriptionStep({
         >
           <CardHeader>
             <CardTitle className="flex justify-between items-center">
-              <span>Básico</span>
+              <span>Gratis</span>
               <span className="text-xl font-bold">0€</span>
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li className="flex items-center gap-2">
-                <Check className="w-4 h-4 text-primary" /> Acceso a tests limitados
-              </li>
-              <li className="flex items-center gap-2">
-                <Check className="w-4 h-4 text-primary" /> Planificador básico
-              </li>
-              <li className="flex items-center gap-2">
-                <Check className="w-4 h-4 text-primary" /> Legislación (Lectura)
-              </li>
+              {freePlan?.features.map((feature, index) => (
+                <li key={index} className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-primary" /> {feature.label}
+                </li>
+              ))}
             </ul>
           </CardContent>
         </Card>
@@ -64,31 +64,28 @@ export default function OnboardingSubscriptionStep({
             </span>
           </div>
           <CardHeader>
-            <CardTitle className="flex justify-between items-center">
-              <span>Pro (Prueba 3 días)</span>
-              <span className="text-xl font-bold">Gratis 3 días</span>
+            <CardTitle className="flex flex-col">
+              <div className=" flex justify-between items-center">
+                <span>Pro (Prueba 3 días)</span>
+                <span className="text-xl font-bold">Gratis 3 días</span>
+              </div>
+              <p className="text-xs text-muted-foreground font-normal italic font-sans">
+                Sin tarjeta de crédito. Al finalizar pasas al plan gratuito.
+              </p>
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li className="flex items-center gap-2">
-                <Check className="w-4 h-4 text-primary font-bold" />{' '}
-                <strong>Todo lo del plan Básico</strong>
-              </li>
-              <li className="flex items-center gap-2">
-                <Check className="w-4 h-4 text-primary" /> Tests ilimitados
-              </li>
-              <li className="flex items-center gap-2">
-                <Check className="w-4 h-4 text-primary" /> Casos prácticos con IA
-              </li>
-              <li className="flex items-center gap-2">
-                <Check className="w-4 h-4 text-primary" /> Repaso Inteligente (SRS)
-              </li>
+              {proPlan?.features.map((feature, index) => (
+                <li key={index} className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-primary" />{' '}
+                  {index === 0 ? <strong>{feature.label}</strong> : feature.label}
+                </li>
+              ))}
             </ul>
-            <p className="text-xs text-muted-foreground mt-4 italic">
-              * Sin tarjeta de crédito. Al finalizar se pasará automáticamente a la versión
-              gratuita.
-            </p>
+            <div className="bg-primary/10 p-2 rounded-md text-xs text-muted-foreground font-normal italic font-sans">
+              Al finalizar los 3 días recibirás un correo para suscribirte de nuevo si lo deseas.
+            </div>
           </CardContent>
         </Card>
       </div>

@@ -186,23 +186,26 @@ export async function submitOnboarding(
 
   try {
     // Comprobar si el usuario ya tiene una suscripción antes de crear una de prueba
-    const { data: existingSubscription, error: subError } = await supabase
+    const { data: existingSubscription } = await supabase
       .from('user_subscriptions')
       .select('id, status')
       .in('status', ['trialing', 'active'])
-      .single();
-
-    if (subError && subError.code !== 'PGRST116') {
-      // PGRST116 = no rows found
-      throw new Error(`Error al verificar suscripción: ${subError.message}`);
-    }
+      .maybeSingle();
 
     if (!existingSubscription) {
-      if (selected_plan === 'free') {
-        await createFreeSubscription(user);
-      } else {
-        await createTrialSubscription(user);
+      console.log('Creando suscripción de tipo:', selected_plan);
+
+      try {
+        if (selected_plan === 'free') {
+          await createFreeSubscription(user);
+        } else {
+          await createTrialSubscription(user);
+        }
+      } catch (error) {
+        console.error('Error al crear la suscripción inicial:', error);
       }
+    } else {
+      console.log('El usuario ya tiene suscripción, omitiendo creación.');
     }
   } catch (subError: any) {
     console.error('Error creando la suscripción:', subError);
