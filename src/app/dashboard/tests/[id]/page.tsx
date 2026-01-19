@@ -1,3 +1,4 @@
+import { PageContainer } from '@/components/page-container';
 import { TestResults } from '@/components/tests/test-results';
 import { TestSession } from '@/components/tests/test-session';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -131,14 +132,20 @@ export default async function TestPage({ params }: { params: { id: string } }) {
         .filter((id): id is string => id !== null) || [];
 
     return (
-      <TestResults
-        questions={allQuestions}
-        userAnswers={userAnswers}
-        attempt={testAttempt}
-        addedCardIds={addedCardIds}
-      />
+      <PageContainer title="Resumen del test">
+        <TestResults
+          questions={allQuestions}
+          userAnswers={userAnswers}
+          attempt={testAttempt}
+          addedCardIds={addedCardIds}
+        />
+      </PageContainer>
     );
   }
 
-  return <TestSession testAttempt={testAttempt} questions={validQuestions} />;
+  return (
+    <PageContainer>
+      <TestSession testAttempt={testAttempt} questions={validQuestions} />
+    </PageContainer>
+  );
 }
