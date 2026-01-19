@@ -17,7 +17,10 @@ interface CreateTestParams {
   includeNoTopic?: boolean;
 }
 
-export async function checkTestCreationEligibility() {
+export async function checkTestCreationEligibility(params?: {
+  mode: TestMode;
+  numQuestions: number;
+}) {
   const supabase = await createSupabaseServerClient();
 
   const {
@@ -37,17 +40,35 @@ export async function checkTestCreationEligibility() {
 
   // Si tiene suscripción activa y NO es el plan gratuito, permitir
   // NOTA: Asumimos que si hay suscripción activa y no es free, es de pago.
-  // Deberías validar contra tus IDs de precios reales si es necesario.
   const isFreePlan =
     !subscription ||
     subscription.price_id === process.env.NEXT_PUBLIC_STRIPE_FREE_PLAN_ID ||
-    subscription.price_id === 'price_free_placeholder'; // Fallback para dev
+    subscription.price_id === 'price_free_placeholder';
 
   if (!isFreePlan) {
     return { allowed: true };
   }
 
-  // 2. Si es plan gratuito (o sin suscripción), verificar último test
+  // 2. Si es plan gratuito, verificar restricciones de tipo de test
+  if (params) {
+    if (params.mode !== 'random') {
+      return {
+        allowed: false,
+        error: 'Con el plan gratuito solo puedes realizar tests aleatorios.',
+        reason: 'premium_feature',
+      };
+    }
+
+    if (params.numQuestions > 25) {
+      return {
+        allowed: false,
+        error: 'Con el plan gratuito solo puedes realizar tests de hasta 25 preguntas.',
+        reason: 'premium_feature',
+      };
+    }
+  }
+
+  // 3. Verificar límite de tiempo (1 test cada 7 días)
   const { data: lastTest } = await supabase
     .from('test_attempts')
     .select('created_at')
