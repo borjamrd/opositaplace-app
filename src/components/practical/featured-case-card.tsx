@@ -10,6 +10,13 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import {
+  Empty,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+  EmptyDescription,
+} from '@/components/ui/empty';
 import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -25,6 +32,7 @@ interface FeaturedCaseCardProps {
 
 export function FeaturedCaseCard({ practicalCase, isPremium, className }: FeaturedCaseCardProps) {
   // Empty State
+  // Empty State
   if (!practicalCase) {
     return (
       <Card
@@ -33,14 +41,18 @@ export function FeaturedCaseCard({ practicalCase, isPremium, className }: Featur
           className
         )}
       >
-        <div className="bg-slate-200 dark:bg-slate-700 p-6 rounded-full mb-6 animate-pulse">
-          <BookOpen className="w-12 h-12 text-muted-foreground" />
-        </div>
-        <h3 className="text-2xl font-bold mb-2">No has realizado ningún caso práctico aún</h3>
-        <p className="text-muted-foreground max-w-md mb-8">
-          Selecciona un caso de la lista para comenzar a practicar. Tus casos en curso se mostrarán
-          aquí.
-        </p>
+        <Empty>
+          <EmptyHeader>
+            <EmptyMedia variant="icon">
+              <BookOpen className="w-12 h-12 text-muted-foreground" />
+            </EmptyMedia>
+            <EmptyTitle>No has realizado ningún caso práctico aún</EmptyTitle>
+            <EmptyDescription>
+              Selecciona un caso de la lista para comenzar a practicar. Tus casos en curso se
+              mostrarán aquí.
+            </EmptyDescription>
+          </EmptyHeader>
+        </Empty>
       </Card>
     );
   }

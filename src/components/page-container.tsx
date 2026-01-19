@@ -13,7 +13,7 @@ interface PageContainerProps {
 
 export function PageContainer({ title, children, infoContent }: PageContainerProps) {
   return (
-    <div className="flex-1">
+    <div className="flex-1 ">
       <div className="flex gap-7 mb-4 items-baseline">
         <Button onClick={() => history.back()} size="sm" variant="outline">
           <ArrowLeft className="mr-2 h-4 w-4" />
