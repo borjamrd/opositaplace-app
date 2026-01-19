@@ -180,7 +180,7 @@ export function ReviewSession({ initialCards }: ReviewSessionProps) {
           Has repasado todas tus tarjetas pendientes por hoy.
         </p>
         <Button asChild size="lg" className="rounded-full px-8">
-          <Link href="/dashboard">Volver al Dashboard</Link>
+          <Link href="/dashboard/tests">Realizar otro test</Link>
         </Button>
       </div>
     );

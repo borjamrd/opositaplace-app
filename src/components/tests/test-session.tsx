@@ -375,7 +375,7 @@ export function TestSession({ testAttempt, questions }: TestSessionProps) {
             <CardContent className="p-3 md:p-6 flex-1 min-h-[300px] overflow-y-auto">
               {/* AÑADIDO: onCopy preventivo inline */}
               <h3
-                className="text-lg font-semibold mb-6 leading-relaxed"
+                className="text-lg font-semibold text-muted-foreground mb-6 leading-relaxed"
                 onCopy={(e) => e.preventDefault()}
               >
                 {currentQuestion.text}
@@ -390,8 +390,7 @@ export function TestSession({ testAttempt, questions }: TestSessionProps) {
                   <Label
                     key={answer.id}
                     htmlFor={answer.id}
-                    // AÑADIDO: select-none también aquí por seguridad
-                    className={`flex items-center gap-3 p-4 border rounded-md cursor-pointer transition-all select-none
+                    className={`flex items-center gap-3 p-4 border rounded-md leading-snug cursor-pointer transition-all select-none
                         hover:bg-accent/50 
                         ${currentAnswer === answer.id ? 'bg-primary/5 border-primary shadow-sm' : ''}
                       `}
