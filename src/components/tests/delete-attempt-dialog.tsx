@@ -15,8 +15,9 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Loader2, Trash2 } from 'lucide-react';
-import { deleteTestAttempt } from '@/actions/tests';
+import { LimitReachedModal } from '@/components/subscription/limit-reached-modal';
 import { useToast } from '@/hooks/use-toast';
+import { deleteTestAttempt } from '@/actions/tests';
 
 interface DeleteAttemptDialogProps {
   attemptId: string;
@@ -26,17 +27,32 @@ interface DeleteAttemptDialogProps {
 export function DeleteAttemptDialog({ attemptId, onDeleted }: DeleteAttemptDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const [limitModalState, setLimitModalState] = useState<{
+    isOpen: boolean;
+    reason?: string;
+  }>({
+    isOpen: false,
+    reason: undefined,
+  });
   const { toast } = useToast();
 
   const handleDelete = () => {
     startTransition(async () => {
       const result = await deleteTestAttempt(attemptId);
       if (result.error) {
-        toast({
-          title: 'Error al eliminar',
-          description: result.error,
-          variant: 'destructive',
-        });
+        if (result.error.toLowerCase().includes('gratuito')) {
+          setLimitModalState({
+            isOpen: true,
+            reason: result.error,
+          });
+          setIsOpen(false);
+        } else {
+          toast({
+            title: 'Error al eliminar',
+            description: result.error,
+            variant: 'destructive',
+          });
+        }
       } else {
         toast({
           title: 'Test eliminado',
@@ -49,37 +65,45 @@ export function DeleteAttemptDialog({ attemptId, onDeleted }: DeleteAttemptDialo
   };
 
   return (
-    <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
-      <AlertDialogTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="text-destructive hover:text-destructive hover:bg-destructive/10"
-        >
-          <Trash2 className="h-4 w-4" />
-          <span className="sr-only">Eliminar intento</span>
-        </Button>
-      </AlertDialogTrigger>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
-          <AlertDialogDescription>
-            Esta acción no se puede deshacer. Se eliminará permanentemente este intento de test y
-            todos sus datos asociados.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel disabled={isPending}>Cancelar</AlertDialogCancel>
-          <AlertDialogAction
-            onClick={handleDelete}
-            disabled={isPending}
-            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+    <>
+      <LimitReachedModal
+        isOpen={limitModalState.isOpen}
+        onClose={() => setLimitModalState({ ...limitModalState, isOpen: false })}
+        nextTestDate={null}
+        reason={limitModalState.reason}
+      />
+      <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
+        <AlertDialogTrigger asChild>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="text-destructive hover:text-destructive hover:bg-destructive/10"
           >
-            {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Sí, eliminar
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+            <Trash2 className="h-4 w-4" />
+            <span className="sr-only">Eliminar intento</span>
+          </Button>
+        </AlertDialogTrigger>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta acción no se puede deshacer. Se eliminará permanentemente este intento de test y
+              todos sus datos asociados.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isPending}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              disabled={isPending}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Sí, eliminar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }

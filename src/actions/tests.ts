@@ -382,6 +382,27 @@ export async function deleteTestAttempt(testAttemptId: string) {
     if (fetchError || !attempt) {
       return { error: 'Test attempt not found or not authorized to delete.' };
     }
+
+    // Check subscription status to prevent free users from deleting tests to bypass limits
+    const { data: subscription } = await supabase
+      .from('user_subscriptions')
+      .select('status, price_id')
+      .eq('user_id', user.id)
+      .in('status', ['trialing', 'active'])
+      .maybeSingle();
+
+    const isFreePlan =
+      !subscription ||
+      subscription.price_id === process.env.NEXT_PUBLIC_STRIPE_FREE_PLAN_ID ||
+      subscription.price_id === 'price_free_placeholder';
+
+    if (isFreePlan) {
+      return {
+        error:
+          'No puedes eliminar tests con el plan gratuito. Actualiza tu plan para gestionar tu historial.',
+      };
+    }
+
     const { error: deleteError } = await supabase
       .from('test_attempts')
       .delete()
