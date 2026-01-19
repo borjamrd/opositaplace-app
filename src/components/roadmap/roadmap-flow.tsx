@@ -375,8 +375,7 @@ export function RoadmapFlow({
     : 'not_started';
 
   return (
-    // Aquí está el cambio de tamaño que pedías: h-[calc(100vh-X)]
-    <div className="h-[calc(100vh-120px)] w-full bg-slate-50/50 dark:bg-slate-900/50 relative border rounded-xl overflow-hidden">
+    <div className="h-[calc(100vh-170px)] w-full bg-slate-50/50 dark:bg-slate-900/50 relative border rounded-xl overflow-hidden">
       <ReactFlowProvider>
         <Legend />
         <ReactFlow

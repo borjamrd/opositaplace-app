@@ -12,47 +12,30 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { STRIPE_PLANS, StripePlan } from '@/lib/stripe/config';
 import { Check, Loader2, Sparkles } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { handleManageSubscription as manageSubscription } from '@/lib/stripe/client';
 
 interface LimitReachedModalProps {
   isOpen: boolean;
   onClose: () => void;
   nextTestDate: Date | null;
+  reason?: string;
 }
 
-export function LimitReachedModal({ isOpen, onClose, nextTestDate }: LimitReachedModalProps) {
+export function LimitReachedModal({
+  isOpen,
+  onClose,
+  nextTestDate,
+  reason,
+}: LimitReachedModalProps) {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
-  const router = useRouter();
 
   const handleManageSubscription = async () => {
-    setIsLoading(true);
-    try {
-      const response = await fetch('/api/stripe/create-portal-link', {
-        method: 'POST',
-        body: JSON.stringify({ return_url: window.location.href }),
-      });
-      const data = await response.json();
-      if (data.url) {
-        window.location.href = data.url;
-      } else {
-        throw new Error(data.error || 'No se pudo obtener el enlace al portal.');
-      }
-    } catch (error: any) {
-      console.error('Error managing subscription:', error);
-      toast({
-        title: 'Error',
-        description: error.message,
-        variant: 'destructive',
-      });
-    } finally {
-      setIsLoading(false);
-    }
+    await manageSubscription(setIsLoading, toast);
   };
 
-  const basicPlan = STRIPE_PLANS.find((p) => p.type === StripePlan.BASIC);
-  const proPlan = STRIPE_PLANS.find((p) => p.type === StripePlan.PRO);
+  const paidPlans = STRIPE_PLANS.filter((p) => p.type !== StripePlan.FREE);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -60,21 +43,27 @@ export function LimitReachedModal({ isOpen, onClose, nextTestDate }: LimitReache
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold flex items-center gap-2">
             <Sparkles className="h-6 w-6 text-yellow-500" />
-            Límite semanal alcanzado
+            {reason ? 'Funcionalidad Premium' : 'Límite semanal alcanzado'}
           </DialogTitle>
           <DialogDescription className="text-base pt-2">
-            Has alcanzado el límite de 1 test semanal de tu plan gratuito.
-            {nextTestDate && (
-              <span className="block mt-1 font-medium text-foreground">
-                Podrás realizar tu próximo test el{' '}
-                {nextTestDate.toLocaleDateString('es-ES', {
-                  weekday: 'long',
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
-                })}
-                .
-              </span>
+            {reason ? (
+              <span className="block mb-2 text-foreground/90">{reason}</span>
+            ) : (
+              <>
+                Has alcanzado el límite de 1 test semanal de tu plan gratuito.
+                {nextTestDate && (
+                  <span className="block mt-1 font-medium text-foreground">
+                    Podrás realizar tu próximo test el{' '}
+                    {nextTestDate.toLocaleDateString('es-ES', {
+                      weekday: 'long',
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                    })}
+                    .
+                  </span>
+                )}
+              </>
             )}
           </DialogDescription>
         </DialogHeader>
@@ -82,33 +71,20 @@ export function LimitReachedModal({ isOpen, onClose, nextTestDate }: LimitReache
         <div className="grid gap-6 py-4">
           <div className="bg-muted/50 p-4 rounded-lg border">
             <h3 className="font-semibold mb-3">Mejora tu plan para eliminar los límites</h3>
-            <div className="grid sm:grid-cols-2 gap-4">
-              {basicPlan && (
-                <div className="space-y-2">
-                  <div className="font-medium text-primary">{basicPlan.name}</div>
+            <div className={`grid sm:grid-cols-${paidPlans.length} gap-4`}>
+              {paidPlans.map((plan) => (
+                <div key={plan.type} className="space-y-2">
+                  <div className="font-medium text-primary">{plan.name}</div>
                   <ul className="text-sm space-y-1">
-                    {basicPlan.features.slice(0, 3).map((feature, i) => (
+                    {plan.features.map((feature, i) => (
                       <li key={i} className="flex items-start gap-2">
                         <Check className="h-4 w-4 text-green-500 mt-0.5 shrink-0" />
-                        <span className="text-muted-foreground">{feature}</span>
+                        <span className="text-muted-foreground">{feature.label}</span>
                       </li>
                     ))}
                   </ul>
                 </div>
-              )}
-              {proPlan && (
-                <div className="space-y-2">
-                  <div className="font-medium text-primary">{proPlan.name}</div>
-                  <ul className="text-sm space-y-1">
-                    {proPlan.features.slice(0, 3).map((feature, i) => (
-                      <li key={i} className="flex items-start gap-2">
-                        <Check className="h-4 w-4 text-green-500 mt-0.5 shrink-0" />
-                        <span className="text-muted-foreground">{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
+              ))}
             </div>
           </div>
         </div>

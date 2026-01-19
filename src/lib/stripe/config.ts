@@ -54,15 +54,12 @@ export const STRIPE_PLANS: Plan[] = [
     priceId: process.env.NEXT_PUBLIC_STRIPE_BASIC_PLAN_ID || 'price_basic_placeholder',
     features: [
       {
-        label: 'Roadmap de tu temario de estudio',
+        label: 'Todo lo del plan gratuito',
         isBeta: false,
       },
+
       {
-        label: 'Analiza tu progreso y obtén feedback sobre fallos',
-        isBeta: false,
-      },
-      {
-        label: 'Creación ilimitada de tests',
+        label: 'Tests ilimitados',
         isBeta: false,
       },
       {
@@ -97,28 +94,7 @@ export const STRIPE_PLANS: Plan[] = [
     priceId: process.env.NEXT_PUBLIC_STRIPE_PRO_PLAN_ID || 'price_premium_placeholder',
     features: [
       {
-        label: 'Roadmap de tu temario de estudio',
-        isBeta: false,
-      },
-      {
-        label: 'Creación ilimitada de tests',
-        isBeta: false,
-      },
-      {
-        label: 'Tests de mas de 25 preguntas',
-        isBeta: false,
-      },
-      {
-        label: 'Tests de convocatorias oficiales',
-        isBeta: false,
-      },
-
-      {
-        label: 'Notificaciones inmediatas de cambios en el proceso selectivo',
-        isBeta: false,
-      },
-      {
-        label: 'Analiza tu progreso y obtén feedback sobre fallos',
+        label: 'Todo lo del plan básico',
         isBeta: false,
       },
       {

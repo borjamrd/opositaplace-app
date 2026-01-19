@@ -17,7 +17,8 @@
     "test:ui": "vitest --ui",
     "email": "email dev -p 3002 --dir src/emails",
     "inngest": "pnpm dlx inngest-cli@latest dev",
-    "prepare": "husky"
+    "prepare": "husky",
+    "stripe:listen": "stripe listen --forward-to localhost:3000/api/webhooks"
   },
   "dependencies": {
     "@genkit-ai/googleai": "^1.8.0",
@@ -86,6 +87,7 @@
     "tailwindcss-animate": "^1.0.7",
     "use-debounce": "^10.0.6",
     "uuid": "^11.1.0",
+    "vaul": "^1.1.2",
     "zod": "^3.24.2",
     "zustand": "^5.0.5"
   },

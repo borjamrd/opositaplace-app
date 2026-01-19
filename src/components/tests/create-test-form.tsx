@@ -69,7 +69,13 @@ export function CreateTestForm({
   const [numQuestions, setNumQuestionsState] = useState(25);
 
   const [mockDuration, setMockDuration] = useState<number | null>(null);
-  const [showLimitModal, setShowLimitModal] = useState(false);
+  const [limitModalState, setLimitModalState] = useState<{
+    isOpen: boolean;
+    reason?: string;
+  }>({
+    isOpen: false,
+    reason: undefined,
+  });
   const [nextTestDate, setNextTestDate] = useState<Date | null>(null);
 
   const activeStudyCycle = useStudySessionStore((state) => state.activeStudyCycle);
@@ -116,19 +122,28 @@ export function CreateTestForm({
     }
 
     startTransition(async () => {
+      const effectiveNumQuestions = data.mode === 'mock' ? numQuestions : data.numQuestions;
+
       // Verificar elegibilidad antes de crear el test
-      const eligibility = await checkTestCreationEligibility();
+      const eligibility = await checkTestCreationEligibility({
+        mode: data.mode,
+        numQuestions: effectiveNumQuestions,
+      });
+      console.log({ eligibility });
 
       if (!eligibility.allowed) {
         if (eligibility.reason === 'limit_reached' && eligibility.nextTestDate) {
           setNextTestDate(new Date(eligibility.nextTestDate));
-          setShowLimitModal(true);
+          setLimitModalState({ isOpen: true, reason: undefined });
+          return;
+        } else if (eligibility.reason === 'premium_feature') {
+          setLimitModalState({ isOpen: true, reason: eligibility.error });
           return;
         }
-        // Otros errores
+        // Otros errores (no gestionados por el modal)
         toast({
           variant: 'destructive',
-          title: 'Error',
+          title: 'Acceso restringido',
           description: eligibility.error || 'No puedes crear un test en este momento.',
         });
         return;
@@ -136,7 +151,7 @@ export function CreateTestForm({
 
       const result = await createTestAttempt({
         ...data,
-        numQuestions: data.mode === 'mock' ? numQuestions : data.numQuestions,
+        numQuestions: effectiveNumQuestions,
         oppositionId,
         studyCycleId: activeStudyCycle.id,
       });
@@ -155,9 +170,10 @@ export function CreateTestForm({
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <LimitReachedModal
-        isOpen={showLimitModal}
-        onClose={() => setShowLimitModal(false)}
+        isOpen={limitModalState.isOpen}
+        onClose={() => setLimitModalState({ ...limitModalState, isOpen: false })}
         nextTestDate={nextTestDate}
+        reason={limitModalState.reason}
       />
       <Card variant={'borderless'} className="max-w-4xl mx-auto">
         <CardHeader>

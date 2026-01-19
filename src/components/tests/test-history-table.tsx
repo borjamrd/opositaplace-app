@@ -96,7 +96,7 @@ export function TestHistoryTable({ attempts }: TestHistoryTableProps) {
                   <span className="font-bold text-red-600">{attempt.incorrect_answers ?? '-'}</span>
                 </div>
                 <div className="flex flex-col items-center gap-1">
-                  <span className="text-xs text-muted-foreground">Blancas</span>
+                  <span className="text-xs text-muted-foreground">En blanco</span>
                   <span className="font-bold text-gray-500">
                     {attempt.unanswered_questions ?? '-'}
                   </span>

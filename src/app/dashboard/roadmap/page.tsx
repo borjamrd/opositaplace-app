@@ -1,4 +1,5 @@
 import { getRoadmapData } from '@/actions/roadmap';
+import { PageContainer } from '@/components/page-container';
 import { RoadmapFlow } from '@/components/roadmap/roadmap-flow';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Block, StudyCycle, SyllabusStatus, Topic } from '@/lib/supabase/types';
@@ -22,7 +23,7 @@ export default async function RoadmapPage() {
   }
   if (error || !data) {
     return (
-      <div className="container mx-auto mt-8 max-w-lg">
+      <PageContainer title="Roadmap">
         <Alert variant="destructive">
           <Terminal className="h-4 w-4" />
           <AlertTitle>Error al Cargar el Roadmap</AlertTitle>
@@ -30,18 +31,18 @@ export default async function RoadmapPage() {
             {error || 'No se pudieron cargar los datos. Asegúrate de tener una oposición activa.'}
           </AlertDescription>
         </Alert>
-      </div>
+      </PageContainer>
     );
   }
 
   return (
-    <div>
+    <PageContainer title="Roadmap">
       <RoadmapFlow
         initialBlocks={data.blocks}
         initialTopics={data.topics}
         initialStatusMap={data.topicStatusMap}
         initialCycle={data.activeCycle}
       />
-    </div>
+    </PageContainer>
   );
 }

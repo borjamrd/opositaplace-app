@@ -47,7 +47,7 @@ export default async function ReviewPage() {
                 No tienes tarjetas pendientes por hoy.
               </p>
               <Button asChild>
-                <Link href="/dashboard">Volver al Dashboard</Link>
+                <Link href="/dashboard/tests">Realizar un test</Link>
               </Button>
             </CardContent>
           </Card>

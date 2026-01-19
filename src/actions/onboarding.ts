@@ -1,6 +1,6 @@
 'use server';
 
-import { createTrialSubscription } from '@/lib/stripe/actions';
+import { createFreeSubscription, createTrialSubscription } from '@/lib/stripe/actions';
 import type { Json, TablesInsert } from '@/lib/supabase/database.types';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { z } from 'zod';
@@ -26,6 +26,8 @@ const onboardingActionSchema = z.object({
   help_with: z.string().optional().default('[]'),
 
   slot_duration_minutes: z.string().default('60'),
+
+  selected_plan: z.enum(['free', 'trial']).default('trial'),
 });
 
 type InitialState = {
@@ -73,6 +75,7 @@ export async function submitOnboarding(
     study_days: formData.get('study_days'),
     help_with: formData.get('help_with') || '[]',
     slot_duration_minutes: formData.get('slot_duration_minutes') || '60',
+    selected_plan: formData.get('selected_plan') || 'trial',
   };
 
   const validationResult = onboardingActionSchema.safeParse(rawFormData);
@@ -94,6 +97,7 @@ export async function submitOnboarding(
     study_days: studyDaysString,
     help_with: helpWithString,
     slot_duration_minutes,
+    selected_plan,
   } = validationResult.data;
 
   const { error: userOppositionsError } = await supabase.from('user_oppositions').insert({
@@ -182,26 +186,33 @@ export async function submitOnboarding(
 
   try {
     // Comprobar si el usuario ya tiene una suscripción antes de crear una de prueba
-    const { data: existingSubscription, error: subError } = await supabase
+    const { data: existingSubscription } = await supabase
       .from('user_subscriptions')
       .select('id, status')
       .in('status', ['trialing', 'active'])
-      .single();
-
-    if (subError && subError.code !== 'PGRST116') {
-      // PGRST116 = no rows found
-      throw new Error(`Error al verificar suscripción: ${subError.message}`);
-    }
+      .maybeSingle();
 
     if (!existingSubscription) {
-      await createTrialSubscription(user);
+      console.log('Creando suscripción de tipo:', selected_plan);
+
+      try {
+        if (selected_plan === 'free') {
+          await createFreeSubscription(user);
+        } else {
+          await createTrialSubscription(user);
+        }
+      } catch (error) {
+        console.error('Error al crear la suscripción inicial:', error);
+      }
+    } else {
+      console.log('El usuario ya tiene suscripción, omitiendo creación.');
     }
-  } catch (trialError: any) {
-    console.error('Error creando la suscripción de prueba:', trialError);
+  } catch (subError: any) {
+    console.error('Error creando la suscripción:', subError);
     return {
-      message: `Tu onboarding se ha guardado, pero hubo un problema al iniciar tu prueba gratuita`,
+      message: 'Onboarding guardado, pero hubo un error configurando el plan.',
       errors: null,
-      success: false,
+      success: true, // Dejamos pasar al usuario aunque falle Stripe
     };
   }
   return {

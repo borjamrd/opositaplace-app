@@ -12,6 +12,7 @@ import { Progress } from '@/components/ui/progress';
 import { FeaturedCaseCard } from '@/components/practical/featured-case-card';
 import { cn } from '@/lib/utils';
 import ReactMarkdown from 'react-markdown';
+import { PageContainer } from '@/components/page-container';
 
 export const metadata: Metadata = {
   title: 'Casos prácticos | Opositaplace',
@@ -115,133 +116,128 @@ export default async function PracticalCasesListPage() {
   const otherCases = cases?.filter((c) => c.id !== featuredCase?.id) || [];
 
   return (
-    <div className="h-[calc(100vh-4rem)] p-4 md:p-6 lg:p-8 flex flex-col gap-6 overflow-hidden">
-      <div className="flex-none">
-        <h2 className="text-3xl font-bold tracking-tight">Casos prácticos</h2>
-        <p className="text-muted-foreground mt-1">
-          Resuelve casos prácticos haciendo uso de la normativa vigente.
-        </p>
-      </div>
-
-      <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-6 min-h-0">
-        {/* Contenedor Izquierdo: Caso Destacado */}
-        <div className="flex flex-col h-full overflow-hidden">
-          {/* Limitamos la altura en mobile/tablet, pero en desktop dejamos que ocupe el grid */}
-          <div className="h-full flex flex-col">
-            <FeaturedCaseCard
-              practicalCase={featuredCase}
-              isPremium={isPremium}
-              className="flex-1"
-            />
-          </div>
-        </div>
-
-        {/* Contenedor Derecho: Resto de casos */}
-        <div className="flex flex-col h-full overflow-hidden bg-slate-50/50 dark:bg-slate-900/20 rounded-xl border p-4 shadow-sm">
-          <div className="flex items-center justify-between mb-4 px-1">
-            <h3 className="font-semibold text-lg flex items-center gap-2">
-              <BookOpen className="w-5 h-5 text-primary" />
-              Más casos disponibles
-            </h3>
-            <Badge variant="secondary">{otherCases.length}</Badge>
+    <PageContainer title="Casos prácticos">
+      <div className="h-[calc(100vh-11rem)] flex flex-col gap-6 overflow-hidden">
+        <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-6 min-h-0">
+          {/* Contenedor Izquierdo: Caso Destacado */}
+          <div className="flex flex-col h-full overflow-hidden">
+            {/* Limitamos la altura en mobile/tablet, pero en desktop dejamos que ocupe el grid */}
+            <div className="h-full flex flex-col">
+              <FeaturedCaseCard
+                practicalCase={featuredCase}
+                isPremium={isPremium}
+                className="flex-1"
+              />
+            </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto pr-2 space-y-3 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800 pb-2">
-            {otherCases.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
-                <Trophy className="w-12 h-12 mb-2 text-slate-300" />
-                <p>No hay más casos disponibles por ahora.</p>
-              </div>
-            ) : (
-              otherCases.map((practicalCase) => {
-                const attempt = practicalCase.practical_case_attempts?.[0];
-                const statusStyle = getCaseStatus(practicalCase);
-                const score =
-                  attempt?.feedback_analysis &&
-                  typeof attempt.feedback_analysis === 'object' &&
-                  'score' in attempt.feedback_analysis
-                    ? (attempt.feedback_analysis as any).score
-                    : null;
+          {/* Contenedor Derecho: Resto de casos */}
+          <div className="flex flex-col h-full overflow-hidden bg-slate-50/50 dark:bg-slate-900/20 rounded-xl border p-4 shadow-sm">
+            <div className="flex items-center justify-between mb-4 px-1">
+              <h3 className="font-semibold text-lg flex items-center gap-2">
+                <BookOpen className="w-5 h-5 text-primary" />
+                Más casos disponibles
+              </h3>
+              <Badge variant="secondary">{otherCases.length}</Badge>
+            </div>
 
-                return (
-                  <Card
-                    key={practicalCase.id}
-                    className="flex flex-col hover:shadow-md transition-all hover:border-primary/40 group border-slate-200/60 dark:border-slate-800"
-                  >
-                    <CardHeader className="p-4 pb-2">
-                      <div className="flex justify-between items-start gap-2">
-                        <Badge
-                          variant="outline"
-                          className={`text-[10px] px-2 py-0.5 ${statusStyle.color} border-0 font-medium uppercase tracking-wider`}
-                        >
-                          {statusStyle.label}
-                        </Badge>
-                        {attempt?.status === 'draft' && attempt.updated_at && (
-                          <span className="text-[10px] text-amber-600 font-medium flex items-center gap-1">
-                            <FileEdit className="w-3 h-3" />{' '}
-                            {formatDistanceToNow(new Date(attempt.updated_at), { locale: es })}
-                          </span>
-                        )}
-                      </div>
+            <div className="flex-1 overflow-y-auto pr-2 space-y-3 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800 pb-2">
+              {otherCases.length === 0 ? (
+                <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
+                  <Trophy className="w-12 h-12 mb-2 text-slate-300" />
+                  <p>No hay más casos disponibles por ahora.</p>
+                </div>
+              ) : (
+                otherCases.map((practicalCase) => {
+                  const attempt = practicalCase.practical_case_attempts?.[0];
+                  const statusStyle = getCaseStatus(practicalCase);
+                  const score =
+                    attempt?.feedback_analysis &&
+                    typeof attempt.feedback_analysis === 'object' &&
+                    'score' in attempt.feedback_analysis
+                      ? (attempt.feedback_analysis as any).score
+                      : null;
 
-                      <CardTitle className="text-base line-clamp-1 mt-1 font-semibold leading-tight">
-                        <Link
-                          href={`/dashboard/practical-cases/${practicalCase.id}`}
-                          className="hover:text-primary transition-colors"
-                        >
-                          {practicalCase.title}
-                        </Link>
-                      </CardTitle>
-                    </CardHeader>
-
-                    <CardContent className="p-4 pt-1 flex-1 min-h-[60px]">
-                      <div className="text-xs text-muted-foreground line-clamp-2">
-                        <ReactMarkdown allowedElements={['p', 'strong', 'em', 'text']}>
-                          {practicalCase.statement}
-                        </ReactMarkdown>
-                      </div>
-                    </CardContent>
-
-                    <CardFooter className="p-3 bg-muted/30 flex justify-between items-center border-t border-slate-100 dark:border-slate-800">
-                      {attempt?.status === 'corrected' && score !== null ? (
-                        <div className="flex items-center gap-2 flex-1 mr-4">
-                          <span
-                            className={cn(
-                              'text-xs font-bold',
-                              score >= 5 ? 'text-emerald-600' : 'text-red-600'
-                            )}
+                  return (
+                    <Card
+                      key={practicalCase.id}
+                      className="flex flex-col hover:shadow-md transition-all hover:border-primary/40 group border-slate-200/60 dark:border-slate-800"
+                    >
+                      <CardHeader className="p-4 pb-2">
+                        <div className="flex justify-between items-start gap-2">
+                          <Badge
+                            variant="outline"
+                            className={`text-[10px] px-2 py-0.5 ${statusStyle.color} border-0 font-medium uppercase tracking-wider`}
                           >
-                            {score}/10
-                          </span>
-                          <Progress value={score * 10} className="h-1.5 flex-1" />
+                            {statusStyle.label}
+                          </Badge>
+                          {attempt?.status === 'draft' && attempt.updated_at && (
+                            <span className="text-[10px] text-amber-600 font-medium flex items-center gap-1">
+                              <FileEdit className="w-3 h-3" />{' '}
+                              {formatDistanceToNow(new Date(attempt.updated_at), { locale: es })}
+                            </span>
+                          )}
                         </div>
-                      ) : (
-                        <div className="flex-1"></div>
-                      )}
 
-                      <Button
-                        asChild
-                        variant="ghost"
-                        size="sm"
-                        className="h-7 text-xs hover:bg-white hover:shadow-sm dark:hover:bg-slate-800"
-                      >
-                        <Link href={`/dashboard/practical-cases/${practicalCase.id}`}>
-                          {attempt?.status === 'corrected'
-                            ? 'Ver corrección'
-                            : attempt?.status === 'draft'
-                              ? 'Continuar'
-                              : 'Comenzar'}
-                          <ChevronRight className="w-3 h-3 ml-1 opacity-50 group-hover:opacity-100 transition-opacity" />
-                        </Link>
-                      </Button>
-                    </CardFooter>
-                  </Card>
-                );
-              })
-            )}
+                        <CardTitle className="text-base line-clamp-1 mt-1 font-semibold leading-tight">
+                          <Link
+                            href={`/dashboard/practical-cases/${practicalCase.id}`}
+                            className="hover:text-primary transition-colors"
+                          >
+                            {practicalCase.title}
+                          </Link>
+                        </CardTitle>
+                      </CardHeader>
+
+                      <CardContent className="p-4 pt-1 flex-1 min-h-[60px]">
+                        <div className="text-xs text-muted-foreground line-clamp-2">
+                          <ReactMarkdown allowedElements={['p', 'strong', 'em', 'text']}>
+                            {practicalCase.statement}
+                          </ReactMarkdown>
+                        </div>
+                      </CardContent>
+
+                      <CardFooter className="p-3 bg-muted/30 flex justify-between items-center border-t border-slate-100 dark:border-slate-800">
+                        {attempt?.status === 'corrected' && score !== null ? (
+                          <div className="flex items-center gap-2 flex-1 mr-4">
+                            <span
+                              className={cn(
+                                'text-xs font-bold',
+                                score >= 5 ? 'text-emerald-600' : 'text-red-600'
+                              )}
+                            >
+                              {score}/10
+                            </span>
+                            <Progress value={score * 10} className="h-1.5 flex-1" />
+                          </div>
+                        ) : (
+                          <div className="flex-1"></div>
+                        )}
+
+                        <Button
+                          asChild
+                          variant="ghost"
+                          size="sm"
+                          className="h-7 text-xs hover:bg-white hover:shadow-sm dark:hover:bg-slate-800"
+                        >
+                          <Link href={`/dashboard/practical-cases/${practicalCase.id}`}>
+                            {attempt?.status === 'corrected'
+                              ? 'Ver corrección'
+                              : attempt?.status === 'draft'
+                                ? 'Continuar'
+                                : 'Comenzar'}
+                            <ChevronRight className="w-3 h-3 ml-1 opacity-50 group-hover:opacity-100 transition-opacity" />
+                          </Link>
+                        </Button>
+                      </CardFooter>
+                    </Card>
+                  );
+                })
+              )}
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </PageContainer>
   );
 }
