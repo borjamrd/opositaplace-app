@@ -46,18 +46,16 @@ const DashboardContent = ({ failedQuestions, dueCardsCount }: DashboardContentPr
   ] as const;
 
   return (
-    <PageContainer>
-      <div className="flex-1 grid container gap-4 md:grid-cols-2 lg:grid-cols-6">
-        {sections.map(
-          ({ id, className, component }) =>
-            dashboardSections[id as keyof typeof dashboardSections] && (
-              <div key={id} className={className}>
-                {component}
-              </div>
-            )
-        )}
-      </div>
-    </PageContainer>
+    <div className="flex-1 grid container gap-4 md:grid-cols-2 lg:grid-cols-6">
+      {sections.map(
+        ({ id, className, component }) =>
+          dashboardSections[id as keyof typeof dashboardSections] && (
+            <div key={id} className={className}>
+              {component}
+            </div>
+          )
+      )}
+    </div>
   );
 };
 

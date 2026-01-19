@@ -1,18 +1,30 @@
 'use client';
 
 import * as React from 'react';
-import { InfoSidebar } from '@/components/info-sidebar';
+import { DrawerInfo } from '@/components/drawer-info';
+import { Button } from './ui/button';
+import { ArrowLeft } from 'lucide-react';
 
 interface PageContainerProps {
+  title?: string;
   children: React.ReactNode;
   infoContent?: React.ReactNode;
 }
 
-export function PageContainer({ children, infoContent }: PageContainerProps) {
+export function PageContainer({ title, children, infoContent }: PageContainerProps) {
   return (
-    <div className="flex-1 p-3 md:p-10 relative min-h-screen">
-      {infoContent && <InfoSidebar>{infoContent}</InfoSidebar>}
-      {children}
+    <div className="flex-1">
+      <div className="flex gap-7 mb-4 items-baseline">
+        <Button onClick={() => history.back()} size="sm" variant="outline">
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Volver
+        </Button>
+        {title && <h1 className="text-2xl text-primary font-bold font-newsreader">{title}</h1>}
+        <div className="ms-auto flex-1 relative">
+          {infoContent && <DrawerInfo>{infoContent}</DrawerInfo>}
+        </div>
+      </div>
+      <div className="flex-1 relative">{children}</div>
     </div>
   );
 }
