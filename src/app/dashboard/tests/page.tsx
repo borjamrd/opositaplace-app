@@ -47,9 +47,10 @@ export default async function CreateTestPage() {
 
   const { data: blocksWithTopics, error } = await supabase
     .from('blocks')
-    .select('id, name, topics(id, name)')
+    .select('id, name, topics(id, name, position)')
     .eq('opposition_id', activeUserOpposition.opposition_id)
-    .order('position', { ascending: true });
+    .order('position', { ascending: true })
+    .order('position', { referencedTable: 'topics', ascending: true });
 
   if (error) return <p>Error al cargar el temario.</p>;
 
