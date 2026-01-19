@@ -75,6 +75,27 @@ export async function createTrialSubscription(user: User): Promise<void> {
 
   await manageSubscriptionStatusChange(stripeSubscription.id, customerId, user.id);
 }
+
+export async function createFreeSubscription(user: User): Promise<void> {
+  const customerId = await getOrCreateStripeCustomerId(user);
+  const freePlan = STRIPE_PLANS.find((p) => p.type === StripePlan.FREE);
+
+  if (!freePlan || !freePlan.priceId) {
+    throw new Error('El Price ID del plan FREE no está configurado correctamente.');
+  }
+
+  // Creamos una suscripción directa al plan gratuito (sin trial, activa inmediatamente)
+  const stripeSubscription = await stripe.subscriptions.create({
+    customer: customerId,
+    items: [{ price: freePlan.priceId }],
+    payment_settings: {
+      save_default_payment_method: 'on_subscription',
+    },
+    expand: ['latest_invoice.payment_intent'],
+  });
+
+  await manageSubscriptionStatusChange(stripeSubscription.id, customerId, user.id);
+}
 export async function manageSubscriptionStatusChange(
   subscriptionId: string,
   customerId: string,

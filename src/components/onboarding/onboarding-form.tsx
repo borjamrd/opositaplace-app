@@ -27,6 +27,7 @@ import {
   Rocket,
   Save,
   Target,
+  Star,
 } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
 import { useActionState, useCallback, useEffect, useState, useTransition } from 'react';
@@ -46,6 +47,7 @@ import OnboardingEvaluationStep from './onboarding-evaluation-step';
 import OnboardingObjectivesStep from './onboarding-objectives-step';
 import OnboardingOppositionStep from './onboarding-opposition-step';
 import OnboardingPlanStep from './onboarding-plan-step';
+import OnboardingSubscriptionStep from './onboarding-subscription-step';
 
 // El esquema Zod y el estado de la acción permanecen en el padre
 const onboardingFormSchema = z.object({
@@ -87,6 +89,7 @@ const onboardingFormSchema = z.object({
     .refine((val) => SLOT_DURATION_OPTIONS.includes(val), {
       message: 'La duración del slot no es una opción válida.',
     }),
+  selected_plan: z.enum(['free', 'trial']).default('trial'),
 });
 
 type OnboardingFormValues = z.infer<typeof onboardingFormSchema>;
@@ -125,6 +128,13 @@ const steps = [
     description: 'Crea tu horario',
     icon: Rocket,
     fields: ['study_days', 'slot_duration_minutes'] as const,
+  },
+  {
+    id: 'step-5-plan',
+    name: 'Tu plan',
+    description: 'Elige tu suscripción',
+    icon: Star, // Need to import Star from lucide-react
+    fields: ['selected_plan'] as const,
   },
 ];
 
@@ -169,6 +179,7 @@ export default function OnboardingForm() {
       weekly_study_goal_hours: 20,
       study_days: {},
       slot_duration_minutes: defaultDuration,
+      selected_plan: 'trial',
     },
   });
 
@@ -323,6 +334,7 @@ export default function OnboardingForm() {
       formData.append('help_with', JSON.stringify(data.help_with || []));
       formData.append('study_days', JSON.stringify(selectedSlots));
       formData.append('slot_duration_minutes', data.slot_duration_minutes.toString());
+      formData.append('selected_plan', data.selected_plan);
 
       formAction(formData);
     });
@@ -367,7 +379,7 @@ export default function OnboardingForm() {
                         className={`flex h-10 w-10 items-center justify-center rounded-full transition-all duration-300 ${
                           isActive
                             ? 'bg-primary border-2 border-primary text-primary-foreground scale-110'
-                            : 'bg-secondary border-2'
+                            : 'bg-primary/10 border-2'
                         }`}
                       >
                         <StepIcon
@@ -376,10 +388,14 @@ export default function OnboardingForm() {
                       </span>
                     )}
                   </div>
-                  <div className="hidden md:block text-center md:text-left">
+                  <div className="hidden md:block text-center md:text-left max-w-[10rem]">
                     <h4
-                      className={`text-lg font-semibold transition-colors duration-300 ${
-                        isActive ? 'text-primary' : isCompleted ? '' : 'text-muted-foreground'
+                      className={`text-sm font-semibold transition-colors duration-300 ${
+                        isActive
+                          ? 'text-primary'
+                          : isCompleted
+                            ? 'text-muted-foreground'
+                            : 'text-muted-foreground'
                       }`}
                     >
                       {step.name}
@@ -437,6 +453,12 @@ export default function OnboardingForm() {
                       handleDurationChange={handleDurationChange}
                       currentTimeSlots={currentTimeSlots}
                       handleToggleSlot={handleToggleSlot}
+                    />
+                  )}
+                  {currentStep === 4 && (
+                    <OnboardingSubscriptionStep
+                      selectedPlan={form.watch('selected_plan')}
+                      onSelectPlan={(plan) => form.setValue('selected_plan', plan)}
                     />
                   )}
                 </CardContent>
