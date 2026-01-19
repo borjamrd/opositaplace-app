@@ -132,7 +132,7 @@ export default async function TestPage({ params }: { params: { id: string } }) {
         .filter((id): id is string => id !== null) || [];
 
     return (
-      <PageContainer title="Resumen del test">
+      <PageContainer title="Resumen del test" showBackButton={false}>
         <TestResults
           questions={allQuestions}
           userAnswers={userAnswers}
@@ -144,7 +144,7 @@ export default async function TestPage({ params }: { params: { id: string } }) {
   }
 
   return (
-    <PageContainer>
+    <PageContainer showBackButton={false}>
       <TestSession testAttempt={testAttempt} questions={validQuestions} />
     </PageContainer>
   );

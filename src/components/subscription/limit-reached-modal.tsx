@@ -12,7 +12,6 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { STRIPE_PLANS, StripePlan } from '@/lib/stripe/config';
 import { Check, Loader2, Sparkles } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 interface LimitReachedModalProps {
@@ -24,7 +23,6 @@ interface LimitReachedModalProps {
 export function LimitReachedModal({ isOpen, onClose, nextTestDate }: LimitReachedModalProps) {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
-  const router = useRouter();
 
   const handleManageSubscription = async () => {
     setIsLoading(true);
@@ -90,7 +88,7 @@ export function LimitReachedModal({ isOpen, onClose, nextTestDate }: LimitReache
                     {basicPlan.features.slice(0, 3).map((feature, i) => (
                       <li key={i} className="flex items-start gap-2">
                         <Check className="h-4 w-4 text-green-500 mt-0.5 shrink-0" />
-                        <span className="text-muted-foreground">{feature}</span>
+                        <span className="text-muted-foreground">{feature.label}</span>
                       </li>
                     ))}
                   </ul>
@@ -103,7 +101,7 @@ export function LimitReachedModal({ isOpen, onClose, nextTestDate }: LimitReache
                     {proPlan.features.slice(0, 3).map((feature, i) => (
                       <li key={i} className="flex items-start gap-2">
                         <Check className="h-4 w-4 text-green-500 mt-0.5 shrink-0" />
-                        <span className="text-muted-foreground">{feature}</span>
+                        <span className="text-muted-foreground">{feature.label}</span>
                       </li>
                     ))}
                   </ul>

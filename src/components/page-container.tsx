@@ -9,16 +9,24 @@ interface PageContainerProps {
   title?: string;
   children: React.ReactNode;
   infoContent?: React.ReactNode;
+  showBackButton?: boolean;
 }
 
-export function PageContainer({ title, children, infoContent }: PageContainerProps) {
+export function PageContainer({
+  title,
+  children,
+  infoContent,
+  showBackButton,
+}: PageContainerProps) {
   return (
     <div className="flex-1 ">
       <div className="flex gap-7 mb-4 items-baseline">
-        <Button onClick={() => history.back()} size="sm" variant="outline">
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Volver
-        </Button>
+        {showBackButton && (
+          <Button onClick={() => history.back()} size="sm" variant="outline">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Volver
+          </Button>
+        )}
         {title && <h1 className="text-2xl text-primary font-bold font-newsreader">{title}</h1>}
         <div className="ms-auto flex-1 relative">
           {infoContent && <DrawerInfo>{infoContent}</DrawerInfo>}

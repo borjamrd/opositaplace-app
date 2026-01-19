@@ -17,7 +17,8 @@
     "test:ui": "vitest --ui",
     "email": "email dev -p 3002 --dir src/emails",
     "inngest": "pnpm dlx inngest-cli@latest dev",
-    "prepare": "husky"
+    "prepare": "husky",
+    "stripe:listen": "stripe listen --forward-to localhost:3000/api/webhooks"
   },
   "dependencies": {
     "@genkit-ai/googleai": "^1.8.0",

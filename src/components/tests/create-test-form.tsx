@@ -118,6 +118,7 @@ export function CreateTestForm({
     startTransition(async () => {
       // Verificar elegibilidad antes de crear el test
       const eligibility = await checkTestCreationEligibility();
+      console.log({ eligibility });
 
       if (!eligibility.allowed) {
         if (eligibility.reason === 'limit_reached' && eligibility.nextTestDate) {
