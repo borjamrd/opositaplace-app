@@ -12,17 +12,17 @@ import {
 } from '@/components/ui/card';
 import {
   Empty,
+  EmptyDescription,
   EmptyHeader,
   EmptyMedia,
   EmptyTitle,
-  EmptyDescription,
 } from '@/components/ui/empty';
 import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { BookOpen, CheckCircle2, ChevronRight, Clock, FileEdit, PlayCircle } from 'lucide-react';
-import Link from 'next/link';
 import ReactMarkdown from 'react-markdown';
+import { PracticalCaseLink } from './practical-case-link';
 
 interface FeaturedCaseCardProps {
   practicalCase: any | null;
@@ -31,8 +31,6 @@ interface FeaturedCaseCardProps {
 }
 
 export function FeaturedCaseCard({ practicalCase, isPremium, className }: FeaturedCaseCardProps) {
-  // Empty State
-  // Empty State
   if (!practicalCase) {
     return (
       <Card
@@ -144,7 +142,10 @@ export function FeaturedCaseCard({ practicalCase, isPremium, className }: Featur
           className="w-full text-lg h-12 shadow-md hover:shadow-lg transition-all"
           variant={isCorrected ? 'outline' : 'default'}
         >
-          <Link href={`/dashboard/practical-cases/${practicalCase.id}`}>
+          <PracticalCaseLink
+            href={`/dashboard/practical-cases/${practicalCase.id}`}
+            isPremium={isPremium}
+          >
             {isCorrected ? (
               <>
                 Ver corrección completa <ChevronRight className="ml-2 w-5 h-5" />
@@ -154,7 +155,7 @@ export function FeaturedCaseCard({ practicalCase, isPremium, className }: Featur
                 Continuar resolviendo <PlayCircle className="ml-2 w-5 h-5" />
               </>
             )}
-          </Link>
+          </PracticalCaseLink>
         </Button>
       </CardFooter>
     </Card>

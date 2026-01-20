@@ -24,6 +24,10 @@ export default async function PracticalCasePage({ params }: PageProps) {
   // Usamos el action que creamos antes para centralizar la lógica
   const { caseData, attemptData, error } = await getPracticalCaseWithAttempt(id);
 
+  if (error === 'Requires Premium Subscription') {
+    redirect('/dashboard/practical-cases');
+  }
+
   if (error || !caseData) {
     console.error('Error cargando caso:', error);
     return notFound();

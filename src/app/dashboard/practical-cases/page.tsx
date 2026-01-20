@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { FeaturedCaseCard } from '@/components/practical/featured-case-card';
 import { cn } from '@/lib/utils';
+import { PracticalCaseLink } from '@/components/practical/practical-case-link';
 import ReactMarkdown from 'react-markdown';
 import { PageContainer } from '@/components/page-container';
 
@@ -105,8 +106,8 @@ export default async function PracticalCasesListPage() {
   const casesWithAttempts = cases?.filter((c) => c.practical_case_attempts?.length > 0) || [];
 
   const sortedActiveCases = [...casesWithAttempts].sort((a, b) => {
-    const dateA = new Date(a.practical_case_attempts[0].updated_at).getTime();
-    const dateB = new Date(b.practical_case_attempts[0].updated_at).getTime();
+    const dateA = new Date(a.practical_case_attempts[0].updated_at ?? 0).getTime();
+    const dateB = new Date(b.practical_case_attempts[0].updated_at ?? 0).getTime();
     return dateB - dateA;
   });
 
@@ -180,12 +181,13 @@ export default async function PracticalCasesListPage() {
                         </div>
 
                         <CardTitle className="text-base line-clamp-1 mt-1 font-semibold leading-tight">
-                          <Link
+                          <PracticalCaseLink
                             href={`/dashboard/practical-cases/${practicalCase.id}`}
                             className="hover:text-primary transition-colors"
+                            isPremium={isPremium!}
                           >
                             {practicalCase.title}
-                          </Link>
+                          </PracticalCaseLink>
                         </CardTitle>
                       </CardHeader>
 
@@ -220,14 +222,17 @@ export default async function PracticalCasesListPage() {
                           size="sm"
                           className="h-7 text-xs hover:bg-white hover:shadow-sm dark:hover:bg-slate-800"
                         >
-                          <Link href={`/dashboard/practical-cases/${practicalCase.id}`}>
+                          <PracticalCaseLink
+                            href={`/dashboard/practical-cases/${practicalCase.id}`}
+                            isPremium={isPremium!}
+                          >
                             {attempt?.status === 'corrected'
                               ? 'Ver corrección'
                               : attempt?.status === 'draft'
                                 ? 'Continuar'
                                 : 'Comenzar'}
                             <ChevronRight className="w-3 h-3 ml-1 opacity-50 group-hover:opacity-100 transition-opacity" />
-                          </Link>
+                          </PracticalCaseLink>
                         </Button>
                       </CardFooter>
                     </Card>
