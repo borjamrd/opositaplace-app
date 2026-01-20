@@ -26,7 +26,7 @@ const DashboardContent = ({ failedQuestions, dueCardsCount }: DashboardContentPr
     {
       id: 'selectiveProcessTimeline',
       className: 'row-span-5 lg:col-span-2',
-      component: <SelectiveProcessTimeline />,
+      component: <SelectiveProcessTimeline href="/dashboard/selective-process" />,
     },
     {
       id: 'studySessionsChart',
