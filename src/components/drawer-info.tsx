@@ -25,7 +25,7 @@ export function DrawerInfo({ children }: DrawerInfoProps) {
         <Button
           variant="ghost"
           size="icon"
-          className="absolute -top-6 right-15 z-50 text-muted-foreground border-none hover:bg-transparent"
+          className="absolute  md:-top-6 right-15 z-50 text-muted-foreground border-none hover:bg-transparent"
         >
           <Info className="h-5 w-5" /> ¿Cómo funciona?
         </Button>

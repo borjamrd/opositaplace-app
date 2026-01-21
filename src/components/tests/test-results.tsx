@@ -2,7 +2,7 @@
 
 import { createReviewCard } from '@/actions/srs';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useToast } from '@/hooks/use-toast';
 import { Json, QuestionWithAnswers, TestAttempt } from '@/lib/supabase/types';
@@ -21,8 +21,7 @@ import {
   X,
   XCircle,
 } from 'lucide-react';
-import Link from 'next/link';
-import { useRef, useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import MarkdownContent from '../markdown-content';
 import { TestSessionNavigation } from './test-session-navigation';
 
@@ -377,8 +376,8 @@ export function TestResults({ questions, userAnswers, attempt, addedCardIds }: T
                         transition={{ duration: 0.4, delay: shouldAnimate ? 1.5 : 0 }}
                       >
                         <Button
-                          variant={isAlreadyAdded ? 'secondary' : 'default'}
-                          className="w-full"
+                          variant={isAlreadyAdded ? 'subtle' : 'secondary'}
+                          className="w-full min-h-12 mt-auto"
                           onClick={() => handleAddToReview(currentQuestion)}
                           disabled={isAlreadyAdded || isAdding}
                         >
