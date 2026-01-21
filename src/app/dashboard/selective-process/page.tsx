@@ -6,8 +6,14 @@ export default async function SelectiveProcessPage() {
   const sessionData = await getSessionData();
   const { activeOpposition } = sessionData;
 
+  const infoContent = (
+    <div>
+      <p>En esta sección puedes ver el proceso selectivo activo para la oposición seleccionada.</p>
+    </div>
+  );
+
   return (
-    <PageContainer title="Procesos Selectivos">
+    <PageContainer title="Proceso selectivo" infoContent={infoContent}>
       <SelectiveProcessClient oppositionId={activeOpposition?.id} />
     </PageContainer>
   );

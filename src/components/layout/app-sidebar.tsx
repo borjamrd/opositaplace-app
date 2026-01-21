@@ -58,7 +58,7 @@ export const baseNavItems = {
       icon: Repeat,
     },
     {
-      title: 'Procesos selectivos',
+      title: 'Proceso selectivo',
       url: '/dashboard/selective-process',
       icon: Milestone,
     },

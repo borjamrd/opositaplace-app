@@ -81,7 +81,7 @@ export default async function CreateTestPage({
   const hasPrevPage = offset > 0;
 
   return (
-    <PageContainer>
+    <PageContainer showBackButton={false}>
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <NewTestModal

@@ -135,7 +135,7 @@ export default async function PracticalCasesListPage() {
           {/* Contenedor Derecho: Resto de casos */}
           <div className="flex flex-col h-full overflow-hidden bg-slate-50/50 dark:bg-slate-900/20 rounded-xl border p-4 shadow-sm">
             <div className="flex items-center justify-between mb-4 px-1">
-              <h3 className="font-semibold text-lg flex items-center gap-2">
+              <h3 className="font-semibold text-primary text-lg flex items-center gap-2">
                 <BookOpen className="w-5 h-5 text-primary" />
                 Más casos disponibles
               </h3>
