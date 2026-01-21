@@ -1,3 +1,4 @@
+import { Link } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 
 export default function MarkdownContent({ children }: { children: string }) {
@@ -11,7 +12,12 @@ export default function MarkdownContent({ children }: { children: string }) {
         ul: ({ node, ...props }) => <ul className="list-disc pl-4 my-1" {...props} />,
         ol: ({ node, ...props }) => <ol className="list-decimal pl-4 my-1" {...props} />,
         li: ({ node, ...props }) => <li className="my-0.5" {...props} />,
-        a: ({ node, ...props }) => <a className="text-blue-500 hover:underline" {...props} />,
+        a: ({ node, ...props }) => (
+          <div className="flex items-center">
+            <a className="hover:underline" {...props} />
+            <Link className="ml-1 h-3 w-3" />
+          </div>
+        ),
         strong: ({ node, ...props }) => <strong className="font-bold" {...props} />,
         em: ({ node, ...props }) => <em className="italic" {...props} />,
         hr: ({ node, ...props }) => <hr className="my-4" {...props} />,

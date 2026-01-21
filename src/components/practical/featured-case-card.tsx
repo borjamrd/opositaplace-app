@@ -12,17 +12,17 @@ import {
 } from '@/components/ui/card';
 import {
   Empty,
+  EmptyDescription,
   EmptyHeader,
   EmptyMedia,
   EmptyTitle,
-  EmptyDescription,
 } from '@/components/ui/empty';
 import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { BookOpen, CheckCircle2, ChevronRight, Clock, FileEdit, PlayCircle } from 'lucide-react';
-import Link from 'next/link';
 import ReactMarkdown from 'react-markdown';
+import { PracticalCaseLink } from './practical-case-link';
 
 interface FeaturedCaseCardProps {
   practicalCase: any | null;
@@ -31,8 +31,6 @@ interface FeaturedCaseCardProps {
 }
 
 export function FeaturedCaseCard({ practicalCase, isPremium, className }: FeaturedCaseCardProps) {
-  // Empty State
-  // Empty State
   if (!practicalCase) {
     return (
       <Card
@@ -73,13 +71,13 @@ export function FeaturedCaseCard({ practicalCase, isPremium, className }: Featur
       {/* Background Decor */}
       <div className="absolute top-0 right-0 p-32 bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
 
-      <CardHeader className="pb-4 z-10">
+      <CardHeader className="md:pb-10 z-10">
         <div className="flex justify-between items-start">
           <Badge variant={isCorrected ? 'default' : 'secondary'} className="mb-4 text-sm px-3 py-1">
             {isCorrected ? 'Finalizado' : isDraft ? 'En curso (Borrador)' : 'Enviado'}
           </Badge>
           {isCorrected && score !== null && (
-            <div className="flex flex-col items-end">
+            <div className="flex flex-col items-end md:mb-10">
               <span
                 className={cn(
                   'text-2xl font-bold',
@@ -106,9 +104,9 @@ export function FeaturedCaseCard({ practicalCase, isPremium, className }: Featur
         </CardDescription>
       </CardHeader>
 
-      <CardContent className="flex-1 overflow-y-auto space-y-6 z-10 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-700">
+      <CardContent className="hidden flex-1 md:flex flex-col overflow-y-auto space-y-6 z-10 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-700">
         {/* Preview del Enunciado */}
-        <div>
+        <div className="hidden md:block">
           <h4 className="text-sm font-semibold uppercase text-muted-foreground mb-2 flex items-center gap-2">
             <FileEdit className="w-4 h-4" /> Extracto del enunciado
           </h4>
@@ -122,7 +120,7 @@ export function FeaturedCaseCard({ practicalCase, isPremium, className }: Featur
 
         {/* Preview de Correcciones (solo si corregido) */}
         {isCorrected && attempt?.feedback_analysis ? (
-          <div>
+          <div className="mt-auto hidden md:block">
             <h4 className="text-sm font-semibold uppercase text-muted-foreground mb-2 flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4 text-emerald-500" /> Feedback
             </h4>
@@ -140,11 +138,14 @@ export function FeaturedCaseCard({ practicalCase, isPremium, className }: Featur
       <CardFooter className="pt-4 pb-6 z-10 bg-slate-50/50 dark:bg-slate-900/20 backdrop-blur-sm border-t">
         <Button
           asChild
-          size="lg"
-          className="w-full text-lg h-12 shadow-md hover:shadow-lg transition-all"
+          size="default"
+          className="w-full shadow-md hover:shadow-lg transition-all"
           variant={isCorrected ? 'outline' : 'default'}
         >
-          <Link href={`/dashboard/practical-cases/${practicalCase.id}`}>
+          <PracticalCaseLink
+            href={`/dashboard/practical-cases/${practicalCase.id}`}
+            isPremium={isPremium}
+          >
             {isCorrected ? (
               <>
                 Ver corrección completa <ChevronRight className="ml-2 w-5 h-5" />
@@ -154,7 +155,7 @@ export function FeaturedCaseCard({ practicalCase, isPremium, className }: Featur
                 Continuar resolviendo <PlayCircle className="ml-2 w-5 h-5" />
               </>
             )}
-          </Link>
+          </PracticalCaseLink>
         </Button>
       </CardFooter>
     </Card>

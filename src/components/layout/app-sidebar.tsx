@@ -19,6 +19,7 @@ import {
   LayoutDashboard,
   Map,
   Repeat,
+  Milestone,
 } from 'lucide-react';
 import Link from 'next/link';
 import React, { useMemo } from 'react';
@@ -55,6 +56,11 @@ export const baseNavItems = {
       title: 'Repetición espaciada',
       url: '/dashboard/review',
       icon: Repeat,
+    },
+    {
+      title: 'Proceso selectivo',
+      url: '/dashboard/selective-process',
+      icon: Milestone,
     },
   ],
   general: [

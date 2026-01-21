@@ -147,3 +147,23 @@ export async function updateUserCurrentStage(
 
   return { data };
 }
+
+/**
+ * Obtiene todos los procesos selectivos disponibles.
+ * @returns Lista de todos los procesos selectivos ordenados por año descendente.
+ */
+export async function getAllSelectiveProcesses() {
+  const supabase = await createSupabaseServerClient();
+
+  const { data, error } = await supabase
+    .from('selective_processes')
+    .select('*')
+    .order('year', { ascending: false });
+
+  if (error) {
+    console.error('Error al obtener los procesos selectivos:', error.message);
+    return [];
+  }
+
+  return data;
+}

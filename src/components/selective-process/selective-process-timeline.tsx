@@ -13,10 +13,11 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { useToast } from '@/hooks/use-toast';
 import { FullUserProcess, ProcessStage } from '@/lib/supabase/types';
 import { useStudySessionStore } from '@/store/study-session-store';
-import { CheckCircle, Circle, Info, Milestone } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, CheckCircle, Circle, Info, Milestone } from 'lucide-react';
 import { useMemo } from 'react';
+import Link from 'next/link';
 
-export function SelectiveProcessTimeline() {
+export function SelectiveProcessTimeline({ href }: { href?: string }) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { activeOpposition } = useStudySessionStore();
@@ -128,7 +129,7 @@ export function SelectiveProcessTimeline() {
       (new Date(stage.key_date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
     );
     return days > 0
-      ? `Faltan ${days} días`
+      ? `Faltan ${days === 1 ? '1 día' : `${days} días`}`
       : days < 0
         ? 'Plazo finalizado'
         : 'Hoy es el último día';
@@ -160,9 +161,21 @@ export function SelectiveProcessTimeline() {
 
   if (!processData.userStatus) {
     return (
-      <Card>
+      <Card className="relative">
         <CardHeader>
           <CardTitle>¡Sigue el proceso de tu oposición!</CardTitle>
+          {href && (
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-8 w-8 absolute top-4 right-4 rounded-full border border-primary text-primary hover:bg-primary/20 hover:text-primary"
+              asChild
+            >
+              <Link href={href}>
+                <ArrowUpRight className="h-4 w-4" />
+              </Link>
+            </Button>
+          )}
           <CardDescription>
             Hemos detectado un proceso en marcha para <strong>{activeOpposition?.name}</strong>.
             ¿Cuál es tu situación? "Me preparo para el futuro" implica que por ahora quieres
@@ -243,7 +256,7 @@ export function SelectiveProcessTimeline() {
 
                   {stage.key_date && (
                     <div className="flex items-center gap-2 mt-1">
-                      <Badge variant="secondary" className="text-xs font-normal">
+                      <Badge variant="outline" className="text-xs font-normal">
                         {new Date(stage.key_date!).toLocaleDateString()}
                       </Badge>
                       {stage.status === 'pendiente' && (
@@ -273,14 +286,16 @@ export function SelectiveProcessTimeline() {
 
                   {/* ✅ Botón para avanzar de etapa */}
                   {isTracking && isCurrent && nextStage && (
-                    <div className="max-h-0 overflow-hidden opacity-0 transition-all duration-300 ease-in-out group-hover:max-h-14 group-hover:opacity-100">
+                    <div>
                       <Button
                         size="sm"
-                        className="mt-2 translate-y-4 transition-transform duration-300 group-hover:translate-y-0"
+                        variant="outline"
+                        className="mt-2 translate-y-4 transition-transform duration-300"
                         onClick={() => handleStageAdvance(nextStage.id)}
                         disabled={isUpdatingStage}
                       >
-                        {isUpdatingStage ? 'Avanzando...' : `Marcar como completado y avanzar`}
+                        <ArrowRight className="mr-2 h-4 w-4" />
+                        {isUpdatingStage ? 'Avanzando...' : `Completada`}
                       </Button>
                     </div>
                   )}

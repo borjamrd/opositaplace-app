@@ -16,11 +16,11 @@ export function PageContainer({
   title,
   children,
   infoContent,
-  showBackButton,
+  showBackButton = true,
 }: PageContainerProps) {
   return (
-    <div className="flex-1 ">
-      <div className="flex gap-7 mb-4 items-baseline">
+    <div className="flex-1 container mx-auto mt-5 md:mt-10 relative">
+      <div className={'flex gap-7 mb-4 items-baseline'}>
         {showBackButton && (
           <Button onClick={() => history.back()} size="sm" variant="outline">
             <ArrowLeft className="mr-2 h-4 w-4" />
@@ -28,7 +28,7 @@ export function PageContainer({
           </Button>
         )}
         {title && <h1 className="text-2xl text-primary font-bold font-newsreader">{title}</h1>}
-        <div className="ms-auto flex-1 relative">
+        <div className="ms-auto flex-1">
           {infoContent && <DrawerInfo>{infoContent}</DrawerInfo>}
         </div>
       </div>

@@ -21,6 +21,7 @@ const BREADCRUMB_NAMES: Record<string, string> = {
   'practical-cases': 'Casos prácticos',
   roadmap: 'Roadmap',
   statistics: 'Estadísticas',
+  'selective-process': 'Proceso Selectivo',
 };
 
 function capitalize(s: string) {

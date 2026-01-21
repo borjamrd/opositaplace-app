@@ -1,5 +1,6 @@
 // app/dashboard/tests/page.tsx
 import { TestHistoryChart } from '@/components/charts/test-history-chart';
+import { PageContainer } from '@/components/page-container';
 import { NewTestModal } from '@/components/tests/new-test-modal';
 import { TestHistoryTable } from '@/components/tests/test-history-table';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
@@ -80,7 +81,7 @@ export default async function CreateTestPage({
   const hasPrevPage = offset > 0;
 
   return (
-    <div className="container mx-auto pb-10">
+    <PageContainer showBackButton={false}>
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <NewTestModal
@@ -133,6 +134,6 @@ export default async function CreateTestPage({
           </div>
         </div>
       </div>
-    </div>
+    </PageContainer>
   );
 }

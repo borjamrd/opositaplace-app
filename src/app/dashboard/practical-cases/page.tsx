@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { FeaturedCaseCard } from '@/components/practical/featured-case-card';
 import { cn } from '@/lib/utils';
+import { PracticalCaseLink } from '@/components/practical/practical-case-link';
 import ReactMarkdown from 'react-markdown';
 import { PageContainer } from '@/components/page-container';
 
@@ -105,8 +106,8 @@ export default async function PracticalCasesListPage() {
   const casesWithAttempts = cases?.filter((c) => c.practical_case_attempts?.length > 0) || [];
 
   const sortedActiveCases = [...casesWithAttempts].sort((a, b) => {
-    const dateA = new Date(a.practical_case_attempts[0].updated_at).getTime();
-    const dateB = new Date(b.practical_case_attempts[0].updated_at).getTime();
+    const dateA = new Date(a.practical_case_attempts[0].updated_at ?? 0).getTime();
+    const dateB = new Date(b.practical_case_attempts[0].updated_at ?? 0).getTime();
     return dateB - dateA;
   });
 
@@ -134,7 +135,7 @@ export default async function PracticalCasesListPage() {
           {/* Contenedor Derecho: Resto de casos */}
           <div className="flex flex-col h-full overflow-hidden bg-slate-50/50 dark:bg-slate-900/20 rounded-xl border p-4 shadow-sm">
             <div className="flex items-center justify-between mb-4 px-1">
-              <h3 className="font-semibold text-lg flex items-center gap-2">
+              <h3 className="font-semibold text-primary text-lg flex items-center gap-2">
                 <BookOpen className="w-5 h-5 text-primary" />
                 Más casos disponibles
               </h3>
@@ -180,12 +181,13 @@ export default async function PracticalCasesListPage() {
                         </div>
 
                         <CardTitle className="text-base line-clamp-1 mt-1 font-semibold leading-tight">
-                          <Link
+                          <PracticalCaseLink
                             href={`/dashboard/practical-cases/${practicalCase.id}`}
                             className="hover:text-primary transition-colors"
+                            isPremium={isPremium!}
                           >
                             {practicalCase.title}
-                          </Link>
+                          </PracticalCaseLink>
                         </CardTitle>
                       </CardHeader>
 
@@ -220,14 +222,17 @@ export default async function PracticalCasesListPage() {
                           size="sm"
                           className="h-7 text-xs hover:bg-white hover:shadow-sm dark:hover:bg-slate-800"
                         >
-                          <Link href={`/dashboard/practical-cases/${practicalCase.id}`}>
+                          <PracticalCaseLink
+                            href={`/dashboard/practical-cases/${practicalCase.id}`}
+                            isPremium={isPremium!}
+                          >
                             {attempt?.status === 'corrected'
                               ? 'Ver corrección'
                               : attempt?.status === 'draft'
                                 ? 'Continuar'
                                 : 'Comenzar'}
                             <ChevronRight className="w-3 h-3 ml-1 opacity-50 group-hover:opacity-100 transition-opacity" />
-                          </Link>
+                          </PracticalCaseLink>
                         </Button>
                       </CardFooter>
                     </Card>

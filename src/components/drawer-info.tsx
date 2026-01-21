@@ -25,9 +25,11 @@ export function DrawerInfo({ children }: DrawerInfoProps) {
         <Button
           variant="ghost"
           size="icon"
-          className="absolute -top-6 right-15 z-50 text-muted-foreground border-none hover:bg-transparent"
+          className="absolute top-0 right-0 md:-top-6 md:right-15 z-50 text-muted-foreground border-none hover:bg-transparent"
         >
-          <Info className="h-5 w-5" /> ¿Cómo funciona?
+          <Info className="h-5 w-5" />
+
+          <span className="hidden md:block">¿Cómo funciona?</span>
         </Button>
       </DrawerTrigger>
       <DrawerContent>

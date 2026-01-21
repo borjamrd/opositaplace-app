@@ -1,7 +1,7 @@
-import { Brain, ArrowUpRight } from 'lucide-react';
+import { ArrowUpRight } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '../ui/button';
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '../ui/card';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../ui/card';
 
 interface SRSWidgetProps {
   dueCardsCount: number;
@@ -10,7 +10,7 @@ interface SRSWidgetProps {
 
 export function SRSWidget({ dueCardsCount, href }: SRSWidgetProps) {
   return (
-    <Card className="h-full flex flex-col">
+    <Card className="h-full flex flex-col relative">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <div className="flex items-center gap-2">
           <CardTitle className="text-lg font-bold">Repaso espaciado</CardTitle>
@@ -19,7 +19,7 @@ export function SRSWidget({ dueCardsCount, href }: SRSWidgetProps) {
           <Button
             variant="outline"
             size="icon"
-            className="h-8 w-8 rounded-full border border-primary text-primary hover:bg-primary/20 hover:text-primary"
+            className="absolute top-4 right-4 h-8 w-8 rounded-full border border-primary text-primary hover:bg-primary/20 hover:text-primary"
             asChild
           >
             <Link href={href}>

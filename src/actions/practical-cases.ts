@@ -20,12 +20,34 @@ export async function getPracticalCases(oppositionId: string) {
   return data;
 }
 
+export async function checkPracticalCaseAccess(userId: string) {
+  const supabase = await createSupabaseServerClient();
+  const { data: subscription } = await supabase
+    .from('user_subscriptions')
+    .select('status, price_id')
+    .eq('user_id', userId)
+    .in('status', ['trialing', 'active'])
+    .maybeSingle();
+
+  const isPro =
+    subscription?.price_id === process.env.NEXT_PUBLIC_STRIPE_PRO_PLAN_ID ||
+    subscription?.price_id === 'price_premium_placeholder';
+
+  return isPro;
+}
+
 export async function getPracticalCaseWithAttempt(caseId: string) {
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { error: 'Unauthorized' };
+
+  // Check premium access
+  const isAllowed = await checkPracticalCaseAccess(user.id);
+  if (!isAllowed) {
+    return { error: 'Requires Premium Subscription' };
+  }
 
   const { data: caseData, error: caseError } = await supabase
     .from('practical_cases')
