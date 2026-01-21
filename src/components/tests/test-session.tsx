@@ -436,8 +436,11 @@ export function TestSession({ testAttempt, questions }: TestSessionProps) {
       <AlertDialog open={showExitDialog} onOpenChange={setShowExitDialog}>
         <AlertDialogContent container={containerRef.current}>
           <AlertDialogHeader>
-            <AlertDialogTitle>¿Deseas salir del test?</AlertDialogTitle>
-            <AlertDialogDescription>Puedes guardarlo o descartarlo.</AlertDialogDescription>
+            <AlertDialogTitle>¿Quieres guardar el intento o lo descartamos?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Has comenzado un test. Puedes guardarlo para continuar más tarde o descartarlo si no
+              deseas guardarlo.
+            </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="flex-col-reverse sm:flex-row sm:justify-between gap-2">
             <Button

@@ -8,7 +8,10 @@ import './globals.css';
 import NextTopLoader from 'nextjs-toploader';
 import { Analytics } from '@vercel/analytics/next';
 const newsreader = Newsreader({ subsets: ['latin'], variable: '--font-newsreader' });
-const isProduction = process.env.VERCEL_ENV === 'production';
+const isProduction =
+  process.env.VERCEL_ENV === 'production' &&
+  process.env.NEXT_PUBLIC_SITE_URL !== 'https://opositaplace-staging.vercel.app';
+
 export const metadata: Metadata = {
   title: 'Opositaplace - Por opositores, para opositores',
   description:
