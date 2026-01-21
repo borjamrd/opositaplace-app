@@ -19,7 +19,7 @@ export function PageContainer({
   showBackButton = true,
 }: PageContainerProps) {
   return (
-    <div className="flex-1 container mx-auto mt-5 md:mt-10 relative">
+    <div className="flex-1 container mx-auto mt-5 md:mt-7 relative">
       <div className={'flex gap-7 mb-4 items-baseline'}>
         {showBackButton && (
           <Button onClick={() => history.back()} size="sm" variant="outline">

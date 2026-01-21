@@ -126,7 +126,7 @@ export default async function PracticalCasesListPage() {
 
   return (
     <PageContainer title="Casos prácticos">
-      <div className="h-[calc(100vh-11rem)] flex flex-col gap-6 overflow-hidden">
+      <div className="h-full md:h-[calc(100vh-13.5rem)] flex flex-col gap-6 overflow-hidden">
         <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-6 min-h-0">
           {/* Contenedor Izquierdo: Caso Destacado */}
           <div className="flex flex-col h-full overflow-hidden">

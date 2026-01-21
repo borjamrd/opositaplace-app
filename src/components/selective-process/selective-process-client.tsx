@@ -14,6 +14,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
+import { StageStatusBadge } from './selective-process-stage-status';
 
 export function SelectiveProcessClient({ oppositionId }: { oppositionId?: string }) {
   const {
@@ -142,11 +143,7 @@ export function SelectiveProcessClient({ oppositionId }: { oppositionId?: string
             <div key={stage.id} className="rounded-md border p-4 space-y-3">
               <div className="flex items-start justify-between gap-2">
                 <h3 className="font-semibold">{stage.name}</h3>
-                {stage.status && (
-                  <Badge variant={stage.status === 'completada' ? 'default' : 'outline'}>
-                    {stage.status.substring(0, 1).toUpperCase() + stage.status.substring(1)}
-                  </Badge>
-                )}
+                {stage.status && <StageStatusBadge stage={stage} />}
               </div>
 
               {stage.description && (
