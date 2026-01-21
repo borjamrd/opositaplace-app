@@ -19,8 +19,8 @@ export function PageContainer({
   showBackButton,
 }: PageContainerProps) {
   return (
-    <div className="flex-1 ">
-      <div className="flex gap-7 mb-4 items-baseline">
+    <div className="flex-1 container mx-auto">
+      <div className={'flex gap-7 mb-4 items-baseline ' + (infoContent ? 'pb-10' : '')}>
         {showBackButton && (
           <Button onClick={() => history.back()} size="sm" variant="outline">
             <ArrowLeft className="mr-2 h-4 w-4" />
