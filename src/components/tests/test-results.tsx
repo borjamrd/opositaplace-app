@@ -13,6 +13,7 @@ import {
   ArrowRight,
   Check,
   CheckCircle,
+  Flag,
   HelpCircle,
   Info,
   Lightbulb,
@@ -23,6 +24,7 @@ import {
 } from 'lucide-react';
 import { useMemo, useRef, useState } from 'react';
 import MarkdownContent from '../markdown-content';
+import { ReportQuestionDialog } from './report-question-dialog';
 import { TestSessionNavigation } from './test-session-navigation';
 
 interface TestResultsProps {
@@ -37,6 +39,7 @@ export function TestResults({ questions, userAnswers, attempt, addedCardIds }: T
   const questionHeaderRef = useRef<HTMLDivElement>(null);
   const [addedIds, setAddedIds] = useState(new Set(addedCardIds));
   const [isAddingId, setIsAddingId] = useState<string | null>(null);
+  const [showReportDialog, setShowReportDialog] = useState(false);
 
   // Convert Record to Map for Navigation compatibility
   const userAnswersMap = useMemo(() => {
@@ -264,7 +267,18 @@ export function TestResults({ questions, userAnswers, attempt, addedCardIds }: T
       <Card className="flex flex-col lg:flex-row overflow-hidden border-none shadow-none bg-transparent">
         <div className="flex-1 min-w-0 space-y-4 lg:pr-10">
           <div ref={questionHeaderRef} className="flex justify-between items-center">
-            <h3 className="text-xl font-semibold">Revisión detallada</h3>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-muted-foreground hover:text-destructive"
+                onClick={() => setShowReportDialog(true)}
+                title="Reportar pregunta"
+              >
+                <Flag className="h-4 w-4 mr-2" />
+                <span>Reportar</span>
+              </Button>
+            </div>
             <span className="text-sm text-muted-foreground font-medium">
               Pregunta {currentQuestionIndex + 1} de {questions.length}
             </span>
@@ -428,6 +442,12 @@ export function TestResults({ questions, userAnswers, attempt, addedCardIds }: T
           onQuestionSelect={setCurrentQuestionIndex}
         />
       </Card>
+
+      <ReportQuestionDialog
+        questionId={currentQuestion.id}
+        open={showReportDialog}
+        onOpenChange={setShowReportDialog}
+      />
     </div>
   );
 }

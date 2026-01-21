@@ -1,5 +1,4 @@
 'use client';
-import { reportQuestion } from '@/actions/questions';
 import { discardTestAttempt, submitTestAttempt } from '@/actions/tests';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -41,6 +40,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '../ui/alert-dialog';
+import { ReportQuestionDialog } from './report-question-dialog';
 import { TestSessionNavigation } from './test-session-navigation';
 import { TestResults } from './test-results';
 
@@ -222,28 +222,6 @@ export function TestSession({ testAttempt, questions }: TestSessionProps) {
     if (document.fullscreenElement) document.exitFullscreen();
     toast({ title: 'Test pausado', description: 'Puedes retomarlo desde el historial.' });
     router.push('/dashboard/tests');
-  };
-
-  const handleReportQuestion = () => {
-    startTransition(async () => {
-      if (!currentQuestion) return;
-
-      const result = await reportQuestion(currentQuestion.id);
-
-      if (result.success) {
-        toast({
-          title: 'Pregunta reportada',
-          description: 'Gracias por tu reporte. Revisaremos la pregunta.',
-        });
-        setShowReportDialog(false);
-      } else {
-        toast({
-          variant: 'destructive',
-          title: 'Error',
-          description: result.error || 'No se pudo reportar la pregunta.',
-        });
-      }
-    });
   };
 
   const formatTime = (seconds: number) => {
@@ -480,22 +458,12 @@ export function TestSession({ testAttempt, questions }: TestSessionProps) {
         </AlertDialogContent>
       </AlertDialog>
 
-      <AlertDialog open={showReportDialog} onOpenChange={setShowReportDialog}>
-        <AlertDialogContent container={containerRef.current}>
-          <AlertDialogHeader>
-            <AlertDialogTitle>¿Reportar esta pregunta?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Si encuentras un error en esta pregunta, puedes reportarla para que la revisemos.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={handleReportQuestion} disabled={isPending}>
-              {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Reportar
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ReportQuestionDialog
+        questionId={currentQuestion.id}
+        open={showReportDialog}
+        onOpenChange={setShowReportDialog}
+        container={containerRef.current}
+      />
     </div>
   );
 }
