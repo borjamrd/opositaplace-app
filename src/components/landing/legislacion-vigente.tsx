@@ -9,7 +9,7 @@ import { Highlighter } from '../ui/highlighter';
 export function LegislacionVigente() {
   return (
     <section className="py-20 w-full">
-      <div className="relative mx-auto max-w-sm md:container overflow-hidden bg-background">
+      <div className="relative mx-auto max-w-xs md:container overflow-hidden bg-background">
         <div className="container px-4 md:px-6 mb-12 text-center">
           <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl font-newsreader">
             <Highlighter action="highlight" color="var(--secondary)" delay={1000}>
