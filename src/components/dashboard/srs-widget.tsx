@@ -1,7 +1,7 @@
-import { Brain, ArrowUpRight } from 'lucide-react';
+import { ArrowUpRight } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '../ui/button';
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '../ui/card';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../ui/card';
 
 interface SRSWidgetProps {
   dueCardsCount: number;
