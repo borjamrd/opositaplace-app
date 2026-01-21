@@ -114,7 +114,15 @@ export default async function PracticalCasesListPage() {
   const featuredCase = sortedActiveCases.length > 0 ? sortedActiveCases[0] : null;
 
   // El resto de casos son todos los que no son el featuredCase
-  const otherCases = cases?.filter((c) => c.id !== featuredCase?.id) || [];
+  const otherCases =
+    cases
+      ?.filter((c) => c.id !== featuredCase?.id)
+      .map((c) => {
+        return {
+          ...c,
+          statement: c.statement.slice(0, 200) + '...',
+        };
+      }) || [];
 
   return (
     <PageContainer title="Casos prácticos">
@@ -192,7 +200,7 @@ export default async function PracticalCasesListPage() {
                       </CardHeader>
 
                       <CardContent className="p-4 pt-1 flex-1 min-h-[60px]">
-                        <div className="text-xs text-muted-foreground line-clamp-2">
+                        <div className={`text-xs text-muted-foreground line-clamp-2 blur-[2px]`}>
                           <ReactMarkdown allowedElements={['p', 'strong', 'em', 'text']}>
                             {practicalCase.statement}
                           </ReactMarkdown>
