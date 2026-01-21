@@ -4,7 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import type { Tables } from '@/lib/supabase/database.types';
 import { cn } from '@/lib/utils';
-import { Eye, RefreshCw } from 'lucide-react';
+import { ArrowUpRight, Eye, RefreshCw } from 'lucide-react';
+import Link from 'next/link';
 import { useState } from 'react';
 
 type QuestionWithAnswers = Tables<'questions'> & {
@@ -13,9 +14,10 @@ type QuestionWithAnswers = Tables<'questions'> & {
 
 interface FailedQuestionFlashcardProps {
   questions: QuestionWithAnswers[];
+  href?: string;
 }
 
-export function FailedQuestionFlashcard({ questions }: FailedQuestionFlashcardProps) {
+export function FailedQuestionFlashcard({ questions, href }: FailedQuestionFlashcardProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAnswerVisible, setIsAnswerVisible] = useState(false);
 
@@ -28,8 +30,22 @@ export function FailedQuestionFlashcard({ questions }: FailedQuestionFlashcardPr
   if (questions.length === 0) {
     return (
       <Card>
-        <CardHeader>
-          <CardTitle>Preguntas que has fallado</CardTitle>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <div className="flex items-center gap-2">
+            <CardTitle className="text-lg font-bold">Preguntas que has fallado</CardTitle>
+          </div>
+          {href && (
+            <Button
+              variant="outline"
+              size="icon"
+              className="absolute top-4 right-4 h-8 w-8 rounded-full border border-primary text-primary hover:bg-primary/20 hover:text-primary"
+              asChild
+            >
+              <Link href={href}>
+                <ArrowUpRight className="h-4 w-4" />
+              </Link>
+            </Button>
+          )}
         </CardHeader>
         <CardContent>
           <div className="text-center text-muted-foreground h-full flex items-center justify-center">
@@ -42,8 +58,22 @@ export function FailedQuestionFlashcard({ questions }: FailedQuestionFlashcardPr
 
   return (
     <Card className="w-full h-full flex flex-col">
-      <CardHeader>
-        <CardTitle>Preguntas que has fallado</CardTitle>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <div className="flex items-center gap-2">
+          <CardTitle className="text-lg font-bold">Preguntas que has fallado</CardTitle>
+        </div>
+        {href && (
+          <Button
+            variant="outline"
+            size="icon"
+            className="absolute top-4 right-4 h-8 w-8 rounded-full border border-primary text-primary hover:bg-primary/20 hover:text-primary"
+            asChild
+          >
+            <Link href={href}>
+              <ArrowUpRight className="h-4 w-4" />
+            </Link>
+          </Button>
+        )}
       </CardHeader>
       <CardContent className="flex-grow">
         <p className="font mb-4">{currentQuestion.text}</p>
