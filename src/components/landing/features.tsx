@@ -211,9 +211,8 @@ export function Features() {
       <div className="container mx-auto px-4">
         <h2 className="mb-4 text-center text-3xl font-bold md:text-5xl font-newsreader">
           <Highlighter action="underline" color="var(--primary)" delay={1000}>
-            Todo
+            Todo lo que necesitas{' '}
           </Highlighter>{' '}
-          lo que necesitas{' '}
           <span className="text-primary-foreground">
             <Highlighter action="highlight" color="var(--primary)" delay={1000}>
               para estudiar
