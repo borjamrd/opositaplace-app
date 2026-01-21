@@ -329,7 +329,6 @@ export function TestSession({ testAttempt, questions }: TestSessionProps) {
         >
           {/* COLUMNA PRINCIPAL (Pregunta) */}
           <div className="flex-1 flex flex-col min-w-0">
-            {/* ... (Header de la Card: Badges, Progreso) ... */}
             <CardHeader>
               <div className="flex flex-col md:flex-row justify-between md:items-start items-center">
                 <div className="flex flex-col items-center md:items-start gap-2 mb-4">
@@ -352,7 +351,7 @@ export function TestSession({ testAttempt, questions }: TestSessionProps) {
                       </Badge>
                     )}
                     {blockName && (
-                      <Badge variant="secondary" className="text-xs font-normal">
+                      <Badge variant="outline" className="text-xs font-normal">
                         <LibraryBig className="mr-1 h-3 w-3" /> {blockName}
                       </Badge>
                     )}

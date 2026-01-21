@@ -58,7 +58,7 @@ export function TimerCountdown() {
         <div
           className={cn(
             'text-center font-mono transition-all duration-500 ease-in-out',
-            isActive || startTime !== null ? 'text-8xl md:text-[8rem]' : 'text-5xl'
+            isActive || startTime !== null ? 'text-6xl md:text-[8rem]' : 'text-5xl'
           )}
         >
           {formatTime(remainingTime)}
