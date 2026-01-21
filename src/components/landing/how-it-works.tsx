@@ -83,19 +83,19 @@ export function HowItWorks() {
             >
               Cómo será tu proceso.
             </motion.h2>
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.2 }}
+              className="max-w-md"
+            >
+              <p className="text-lg text-muted-foreground leading-relaxed">
+                Gestiona en el onboarding tus preferencias y calendario, nosotros nos encargamos de
+                lo demás.
+              </p>
+            </motion.div>
           </div>
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.2 }}
-            className="max-w-md"
-          >
-            <p className="text-lg text-muted-foreground leading-relaxed">
-              Gestiona en el onboarding tus preferencias y calendario, nosotros nos encargamos de lo
-              demás.
-            </p>
-          </motion.div>
         </div>
 
         {/* Steps Grid */}
@@ -120,7 +120,7 @@ export function HowItWorks() {
                   },
                 },
               }}
-              className="group relative flex flex-col min-h-[400px] h-full bg-card/40 backdrop-blur-md rounded-3xl border border-white/5 hover:border-primary/20 transition-all duration-300 overflow-hidden"
+              className="group border-primary/20 hover:border-primary/70 border-3 relative flex flex-col min-h-[400px] h-full bg-card/40 backdrop-blur-md rounded-3xl  transition-all duration-300 overflow-hidden"
             >
               {/* Image Container */}
               <div className="relative w-full h-64 overflow-hidden rounded-t-3xl bg-secondary/5">
