@@ -97,7 +97,7 @@ export function TimerPomodoro() {
       <div
         className={cn(
           'text-center font-mono py-6 transition-all duration-500 ease-in-out',
-          isActive || startTime !== null ? 'text-8xl md:text-[8rem]' : 'text-6xl'
+          isActive || startTime !== null ? 'text-6xl md:text-[8rem]' : 'text-6xl'
         )}
       >
         {formatTime(displayTime)}
