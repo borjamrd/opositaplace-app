@@ -74,19 +74,19 @@ export function TimerPomodoro() {
 
   return (
     <div className="space-y-4 py-4">
-      <div className="flex gap-2">
+      <div className="flex flex-col md:flex-row gap-2">
         <Tabs
           value={activePomodoroSession}
           onValueChange={(value) => setActivePomodoroSession(value as PomodoroSessionType)}
           className="w-full"
         >
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-1 md:grid-cols-3 h-auto">
             <TabsTrigger value="pomodoro">Estudio</TabsTrigger>
             <TabsTrigger value="shortBreak">Descanso corto</TabsTrigger>
             <TabsTrigger value="longBreak">Descanso largo</TabsTrigger>
           </TabsList>
         </Tabs>
-        <div className="flex justify-end">
+        <div className="hidden md:flex justify-end">
           <Button variant="ghost" size="icon" onClick={() => setSettingsOpen(true)}>
             <Settings className="h-4 w-4" />
           </Button>
