@@ -1023,10 +1023,12 @@ export type Database = {
           active: boolean | null;
           change_summary: Json | null;
           content: string | null;
+          content_hash: string | null;
           created_at: string;
           id: string;
           last_scraped_at: string | null;
           name: string;
+          reviewed: boolean | null;
           status: string | null;
           url: string;
         };
@@ -1034,10 +1036,12 @@ export type Database = {
           active?: boolean | null;
           change_summary?: Json | null;
           content?: string | null;
+          content_hash?: string | null;
           created_at?: string;
           id?: string;
           last_scraped_at?: string | null;
           name: string;
+          reviewed?: boolean | null;
           status?: string | null;
           url: string;
         };
@@ -1045,10 +1049,12 @@ export type Database = {
           active?: boolean | null;
           change_summary?: Json | null;
           content?: string | null;
+          content_hash?: string | null;
           created_at?: string;
           id?: string;
           last_scraped_at?: string | null;
           name?: string;
+          reviewed?: boolean | null;
           status?: string | null;
           url?: string;
         };
@@ -1877,6 +1883,33 @@ export type Database = {
     };
     Functions: {
       delete_user_data: { Args: never; Returns: undefined };
+      get_concept_stats_by_exam: {
+        Args: { p_opposition_id: string };
+        Returns: {
+          concept: string;
+          exam_name: string;
+          frequency: number;
+        }[];
+      };
+      get_concepts_by_topic:
+        | {
+            Args: { p_opposition_id: string };
+            Returns: {
+              block_name: string;
+              concept: string;
+              frequency: number;
+              topic_name: string;
+            }[];
+          }
+        | {
+            Args: { p_limit?: number; p_opposition_id: string };
+            Returns: {
+              block_name: string;
+              concept: string;
+              frequency: number;
+              topic_name: string;
+            }[];
+          };
       get_daily_study_summary: {
         Args: { days_limit: number };
         Returns: {
@@ -1904,6 +1937,13 @@ export type Database = {
           id: string;
           incorrect_answers: number;
           unanswered_questions: number;
+        }[];
+      };
+      get_top_concepts_global: {
+        Args: { p_limit?: number; p_opposition_id: string };
+        Returns: {
+          concept: string;
+          frequency: number;
         }[];
       };
       get_url_history_by_id: {

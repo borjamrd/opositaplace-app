@@ -3,7 +3,7 @@ import { getFeedbackContext } from '@/actions/study-feedback';
 
 export function useStudyFeedbackData() {
   return useQuery({
-    queryKey: ['study-feedback-context'], 
+    queryKey: ['study-feedback-context'],
     queryFn: async () => {
       const data = await getFeedbackContext();
       if (!data) throw new Error('No se pudieron cargar los datos de feedback');

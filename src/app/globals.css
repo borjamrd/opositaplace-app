@@ -5,7 +5,7 @@
 @layer base {
   :root {
     --background: 55 30% 92.1569%;
-    --magic-card-gradient: #D9D9D955;
+    --magic-card-gradient: #d9d9d955;
     --foreground: 15.6522 15.4362% 29.2157%;
     --card: 55 30% 92.1569%;
     --card-foreground: 15.6522 15.4362% 29.2157%;
@@ -246,10 +246,10 @@
 
   --color-dusty-rose-50: oklch(95.42% 0.011 10.34);
   --color-dusty-rose-100: oklch(90.98% 0.021 17.54);
-  --color-dusty-rose-200: oklch(81.80% 0.046 16.45);
+  --color-dusty-rose-200: oklch(81.8% 0.046 16.45);
   --color-dusty-rose-300: oklch(72.74% 0.071 16.72);
   --color-dusty-rose-400: oklch(63.72% 0.101 17.91);
-  --color-dusty-rose-500: oklch(55.16% 0.130 20.47);
+  --color-dusty-rose-500: oklch(55.16% 0.13 20.47);
   --color-dusty-rose-600: oklch(47.07% 0.109 19.93);
   --color-dusty-rose-700: oklch(38.63% 0.085 19.77);
   --color-dusty-rose-800: oklch(29.68% 0.061 19.96);
@@ -258,21 +258,21 @@
 
   --color-rosy-taupe-50: oklch(95.68% 0.006 17.27);
   --color-rosy-taupe-100: oklch(91.43% 0.014 12.04);
-  --color-rosy-taupe-200: oklch(82.69% 0.030 15.12);
-  --color-rosy-taupe-300: oklch(73.86% 0.046 14.80);
+  --color-rosy-taupe-200: oklch(82.69% 0.03 15.12);
+  --color-rosy-taupe-300: oklch(73.86% 0.046 14.8);
   --color-rosy-taupe-400: oklch(65.08% 0.063 17.64);
   --color-rosy-taupe-500: oklch(55.97% 0.082 17.98);
   --color-rosy-taupe-600: oklch(47.93% 0.069 18.69);
-  --color-rosy-taupe-700: oklch(39.22% 0.056 16.60);
-  --color-rosy-taupe-800: oklch(30.19% 0.040 17.16);
+  --color-rosy-taupe-700: oklch(39.22% 0.056 16.6);
+  --color-rosy-taupe-800: oklch(30.19% 0.04 17.16);
   --color-rosy-taupe-900: oklch(20.46% 0.022 14.06);
   --color-rosy-taupe-950: oklch(17.18% 0.016 11.45);
 
   --color-dusty-rose-50: oklch(95.76% 0.008 17.29);
   --color-dusty-rose-100: oklch(91.29% 0.017 12.81);
   --color-dusty-rose-200: oklch(82.43% 0.034 15.59);
-  --color-dusty-rose-300: oklch(73.50% 0.054 15.48);
-  --color-dusty-rose-400: oklch(64.50% 0.075 17.17);
+  --color-dusty-rose-300: oklch(73.5% 0.054 15.48);
+  --color-dusty-rose-400: oklch(64.5% 0.075 17.17);
   --color-dusty-rose-500: oklch(55.63% 0.096 18.88);
   --color-dusty-rose-600: oklch(47.46% 0.082 18.52);
   --color-dusty-rose-700: oklch(38.99% 0.064 17.63);
@@ -284,13 +284,13 @@
   --color-tropical-teal-100: oklch(94.27% 0.026 193.79);
   --color-tropical-teal-200: oklch(88.51% 0.049 194.71);
   --color-tropical-teal-300: oklch(83.08% 0.073 193.65);
-  --color-tropical-teal-400: oklch(77.90% 0.093 192.79);
+  --color-tropical-teal-400: oklch(77.9% 0.093 192.79);
   --color-tropical-teal-500: oklch(73.05% 0.107 191.97);
-  --color-tropical-teal-600: oklch(61.95% 0.089 192.20);
+  --color-tropical-teal-600: oklch(61.95% 0.089 192.2);
   --color-tropical-teal-700: oklch(50.34% 0.071 192.58);
   --color-tropical-teal-800: oklch(38.01% 0.051 193.31);
   --color-tropical-teal-900: oklch(24.86% 0.031 191.85);
-  --color-tropical-teal-950: oklch(20.31% 0.023 195.50);
+  --color-tropical-teal-950: oklch(20.31% 0.023 195.5);
 }
 
 .dark {
