@@ -7,6 +7,7 @@ export interface DashboardSections {
   studySessionsChart: boolean;
   srsWidget: boolean;
   failedQuestions: boolean;
+  oppositionInfoWidget: boolean;
 }
 
 interface UiState {
@@ -22,6 +23,7 @@ const initialDashboardSections: DashboardSections = {
   studySessionsChart: true,
   srsWidget: true,
   failedQuestions: true,
+  oppositionInfoWidget: true,
 };
 
 export const useUiStore = create<UiState>()(
