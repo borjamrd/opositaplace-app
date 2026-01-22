@@ -29,8 +29,10 @@ export function PageContainer({
             Volver
           </Button>
         )}
-        {title && <h1 className="text-2xl text-primary font-bold font-newsreader">{title}</h1>}
-        {description && <p className="text-muted-foreground">{description}</p>}
+        <div className="flex flex-col gap-2">
+          {title && <h1 className="text-2xl text-primary font-bold font-newsreader">{title}</h1>}
+          {description && <p className="text-muted-foreground">{description}</p>}
+        </div>
         <div className="ms-auto flex-1">
           {infoContent && <DrawerInfo>{infoContent}</DrawerInfo>}
         </div>

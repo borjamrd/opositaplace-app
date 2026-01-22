@@ -145,7 +145,7 @@ export function OppositionInfoClient() {
 
   return (
     <PageContainer
-      title="Analítica de Contenidos"
+      title="Analítica de contenidos"
       description=" Descubre qué conceptos son los más preguntados y dónde poner el foco."
     >
       {loading ? (
@@ -169,7 +169,7 @@ export function OppositionInfoClient() {
                   <TrendingUp className="h-5 w-5 text-primary" />
                   Conceptos más preguntados (Global)
                 </CardTitle>
-                <CardDescription>Lo que cae sí o sí en tu oposición</CardDescription>
+                <CardDescription>Lo que sí o sí ha caído en tu oposición</CardDescription>
               </CardHeader>
               <CardContent>
                 <ScrollArea className="h-[300px] pr-4">
