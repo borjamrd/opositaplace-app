@@ -7,6 +7,7 @@ import { ArrowLeft } from 'lucide-react';
 
 interface PageContainerProps {
   title?: string;
+  description?: string;
   children: React.ReactNode;
   infoContent?: React.ReactNode;
   showBackButton?: boolean;
@@ -14,12 +15,13 @@ interface PageContainerProps {
 
 export function PageContainer({
   title,
+  description,
   children,
   infoContent,
   showBackButton = true,
 }: PageContainerProps) {
   return (
-    <div className="flex-1 container mx-auto mt-5 md:mt-7 relative">
+    <div className="flex-1 container mx-auto mt-5 md:mt-7 relative max-w-7xl">
       <div className={'flex gap-7 mb-4 items-baseline'}>
         {showBackButton && (
           <Button onClick={() => history.back()} size="sm" variant="outline">
@@ -28,6 +30,7 @@ export function PageContainer({
           </Button>
         )}
         {title && <h1 className="text-2xl text-primary font-bold font-newsreader">{title}</h1>}
+        {description && <p className="text-muted-foreground">{description}</p>}
         <div className="ms-auto flex-1">
           {infoContent && <DrawerInfo>{infoContent}</DrawerInfo>}
         </div>

@@ -1,20 +1,22 @@
 'use client';
 
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Loader2, BarChart3, TrendingUp, AlertCircle, Layers, BookOpen } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useStudySessionStore } from '@/store/study-session-store';
-import { AlertCircle, BarChart3, Loader2, PieChart, TrendingUp } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
+import { Badge } from '@/components/ui/badge';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Separator } from '@/components/ui/separator';
+import { PageContainer } from '@/components/page-container';
+
+// --- Interfaces ---
 
 interface Opposition {
   id: string;
   name: string;
   is_assigned: boolean;
-}
-
-interface OppositionInfoClientProps {
-  userOppositions: Opposition[];
 }
 
 interface TopConceptGlobal {
@@ -35,6 +37,15 @@ interface ConceptByTopic {
   topic_name: string;
 }
 
+// Estructura para el agrupamiento
+type GroupedConcepts = {
+  [blockName: string]: {
+    [topicName: string]: ConceptByTopic[];
+  };
+};
+
+// --- Componente Principal ---
+
 export function OppositionInfoClient() {
   const { activeOpposition } = useStudySessionStore();
 
@@ -47,6 +58,7 @@ export function OppositionInfoClient() {
 
   const supabase = createClient();
 
+  // 1. Fetch de datos
   const fetchData = useCallback(async () => {
     if (!activeOpposition) return;
 
@@ -54,19 +66,26 @@ export function OppositionInfoClient() {
     setError(null);
 
     try {
+      console.log('Cargando estadísticas para:', activeOpposition.name);
+
       const [
         { data: topConceptsData, error: topConceptsError },
         { data: conceptStatsData, error: conceptStatsError },
         { data: conceptsByTopicData, error: conceptsByTopicError },
       ] = await Promise.all([
+        // Top Global
         supabase.rpc('get_top_concepts_global', {
           p_opposition_id: activeOpposition.id,
           p_limit: 10,
         }),
-        supabase.rpc('get_concept_stats_by_exam', { p_opposition_id: activeOpposition.id }),
+        // Por Examen
+        supabase.rpc('get_concept_stats_by_exam', {
+          p_opposition_id: activeOpposition.id,
+        }),
+        // Por Tema (Pedimos 1000 para poder construir la jerarquía completa en el cliente)
         supabase.rpc('get_concepts_by_topic', {
           p_opposition_id: activeOpposition.id,
-          p_limit: 10,
+          p_limit: 1000,
         }),
       ]);
 
@@ -79,7 +98,9 @@ export function OppositionInfoClient() {
       setConceptsByTopic(conceptsByTopicData || []);
     } catch (err: any) {
       console.error('Error fetching opposition info:', err);
-      setError('Error al cargar la información de la oposición. Por favor, intenta de nuevo.');
+      setError(
+        'Error al cargar la información. Asegúrate de haber actualizado las funciones SQL con SECURITY DEFINER.'
+      );
     } finally {
       setLoading(false);
     }
@@ -89,175 +110,210 @@ export function OppositionInfoClient() {
     fetchData();
   }, [fetchData]);
 
-  return (
-    <div className="space-y-6 container mx-auto p-4">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h2 className="text-3xl font-bold tracking-tight">Información de la Oposición</h2>
-          <p className="text-muted-foreground">
-            Estadísticas detalladas sobre conceptos y exámenes.
-          </p>
-        </div>
-      </div>
+  // 2. Lógica de Agrupamiento (Memoized)
+  // Transforma la lista plana en: Bloque -> Temas -> Conceptos
+  const groupedData = useMemo(() => {
+    const groups: GroupedConcepts = {};
 
+    conceptsByTopic.forEach((item) => {
+      // Inicializar Bloque
+      if (!groups[item.block_name]) {
+        groups[item.block_name] = {};
+      }
+      // Inicializar Tema
+      if (!groups[item.block_name][item.topic_name]) {
+        groups[item.block_name][item.topic_name] = [];
+      }
+      // Añadir Concepto
+      groups[item.block_name][item.topic_name].push(item);
+    });
+
+    return groups;
+  }, [conceptsByTopic]);
+
+  if (!activeOpposition) {
+    return (
+      <Alert className="max-w-4xl mx-auto mt-8">
+        <AlertCircle className="h-4 w-4" />
+        <AlertTitle>Selecciona una Oposición</AlertTitle>
+        <AlertDescription>
+          Por favor, selecciona una oposición en el menú lateral para ver sus estadísticas.
+        </AlertDescription>
+      </Alert>
+    );
+  }
+
+  return (
+    <PageContainer
+      title="Analítica de Contenidos"
+      description=" Descubre qué conceptos son los más preguntados y dónde poner el foco."
+    >
       {loading ? (
         <div className="flex h-[400px] items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <Loader2 className="h-10 w-10 animate-spin text-primary" />
         </div>
       ) : error ? (
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Error</AlertTitle>
+          <AlertTitle>Error de Carga</AlertTitle>
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       ) : (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2">
-          {/* Top Concepts Card */}
-          <Card className="col-span-1 md:col-span-2 lg:col-span-1">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5" />
-                Top Conceptos Globales
-              </CardTitle>
-              <CardDescription>Conceptos más frecuentes en todos los exámenes.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {topConcepts.length > 0 ? (
-                <div className="space-y-4">
-                  {topConcepts.map((item, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between border-b pb-2 last:border-0 last:pb-0"
-                    >
-                      <div className="font-medium truncate max-w-[70%]" title={item.concept}>
-                        {index + 1}. {item.concept}
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm text-muted-foreground bg-secondary px-2 py-1 rounded-md">
-                          {item.frequency}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-8 text-muted-foreground">No data available</div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Concept Stats By Exam - Simplified View (since list can be long) */}
-          <Card className="col-span-1 md:col-span-2 lg:col-span-1">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <BarChart3 className="h-5 w-5" />
-                Estadísticas por Examen (Top 10)
-              </CardTitle>
-              <CardDescription>Conceptos destacados por examen reciente.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {conceptStats.length > 0 ? (
-                <div className="space-y-4">
-                  {Object.entries(
-                    conceptStats.reduce(
-                      (acc, item) => {
-                        if (!acc[item.exam_name]) acc[item.exam_name] = [];
-                        acc[item.exam_name].push(item);
-                        return acc;
-                      },
-                      {} as Record<string, typeof conceptStats>
-                    )
-                  )
-                    .slice(0, 5)
-                    .map(([examName, items], idx) => (
-                      <div key={idx} className="space-y-2 border-b pb-3 last:border-0 last:pb-0">
+        <div className="space-y-8">
+          {/* SECCIÓN 1: RESUMEN GLOBAL (TOP CARDS) */}
+          <div className="grid gap-6 md:grid-cols-2">
+            {/* Top Conceptos Globales */}
+            <Card className="h-full">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <TrendingUp className="h-5 w-5 text-primary" />
+                  Conceptos más preguntados (Global)
+                </CardTitle>
+                <CardDescription>Lo que cae sí o sí en tu oposición</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ScrollArea className="h-[300px] pr-4">
+                  {topConcepts.length > 0 ? (
+                    <div className="space-y-4">
+                      {topConcepts.map((item, index) => (
                         <div
-                          className="font-semibold text-sm text-primary truncate"
-                          title={examName}
+                          key={index}
+                          className="flex items-center justify-between border-b pb-2 last:border-0"
                         >
-                          {examName}
-                        </div>
-                        <div className="flex flex-col space-y-1">
-                          {items.slice(0, 3).map((item, idx) => (
-                            <div
-                              key={idx}
-                              className="flex justify-between items-center text-sm truncate"
-                            >
-                              <span title={item.concept}>{item.concept}</span>
-                              <span className="text-xs text-muted-foreground bg-secondary px-2 py-0.5 rounded-full">
-                                {item.frequency} reps
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                </div>
-              ) : (
-                <div className="text-center py-8 text-muted-foreground">No data available</div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Concepts by Topic Summary */}
-          <Card className="col-span-1 md:col-span-2">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <PieChart className="h-5 w-5" />
-                Conceptos por Tema
-              </CardTitle>
-              <CardDescription>
-                Distribución de frecuencia de conceptos agrupados por tema.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {conceptsByTopic.length > 0 ? (
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  {Object.entries(
-                    conceptsByTopic.reduce(
-                      (acc, item) => {
-                        if (!acc[item.topic_name]) acc[item.topic_name] = [];
-                        acc[item.topic_name].push(item);
-                        return acc;
-                      },
-                      {} as Record<string, typeof conceptsByTopic>
-                    )
-                  ).map(([topicName, items], index) => (
-                    <div
-                      key={index}
-                      className="p-4 border rounded-lg bg-card text-card-foreground shadow-sm flex flex-col"
-                    >
-                      <div
-                        className="font-semibold text-sm mb-1 text-primary truncate"
-                        title={topicName}
-                      >
-                        {topicName}
-                      </div>
-                      <div className="text-xs text-muted-foreground mb-3 border-b pb-1">
-                        {items[0].block_name}
-                      </div>
-                      <div className="space-y-2">
-                        {items.map((item, idx) => (
-                          <div key={idx} className="flex justify-between items-center text-sm">
-                            <span className="truncate pr-2" title={item.concept}>
-                              {item.concept}
+                          <div className="flex items-center gap-3">
+                            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
+                              {index + 1}
                             </span>
-                            <span className="font-bold bg-secondary px-2 py-0.5 rounded text-xs">
-                              {item.frequency}
-                            </span>
+                            <span className="font-medium text-sm">{item.concept}</span>
                           </div>
-                        ))}
-                      </div>
+                          <Badge variant="secondary">{item.frequency} preguntas</Badge>
+                        </div>
+                      ))}
                     </div>
-                  ))}
+                  ) : (
+                    <div className="text-center py-10 text-muted-foreground">
+                      Sin datos suficientes
+                    </div>
+                  )}
+                </ScrollArea>
+              </CardContent>
+            </Card>
+
+            {/* Estadísticas por Examen */}
+            <Card className="h-full">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <BarChart3 className="h-5 w-5 text-primary" />
+                  Top conceptos por examen reciente
+                </CardTitle>
+                <CardDescription>¿Qué preguntaron en la última convocatoria?</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ScrollArea className="h-[300px] pr-4">
+                  {conceptStats.length > 0 ? (
+                    <div className="space-y-4">
+                      {conceptStats.slice(0, 15).map((item, index) => (
+                        <div
+                          key={index}
+                          className="flex flex-col gap-1 border-b pb-2 last:border-0"
+                        >
+                          <div className="flex justify-between items-center">
+                            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                              {item.exam_name}
+                            </span>
+                            <Badge variant="outline" className="text-xs">
+                              {item.frequency} reps
+                            </Badge>
+                          </div>
+                          <span className="text-sm font-medium pl-2 border-l-2 border-primary/20">
+                            {item.concept}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-10 text-muted-foreground">
+                      Sin datos suficientes
+                    </div>
+                  )}
+                </ScrollArea>
+              </CardContent>
+            </Card>
+          </div>
+
+          <Separator />
+
+          {/* SECCIÓN 2: DESGLOSE POR BLOQUE Y TEMA */}
+          <div className="space-y-6">
+            <div className="flex items-center gap-2">
+              <Layers className="h-6 w-6 text-primary" />
+              <h3 className="text-2xl font-bold">Desglose por bloques y temas</h3>
+            </div>
+
+            {Object.keys(groupedData).length > 0 ? (
+              Object.entries(groupedData).map(([blockName, topics]) => (
+                <div key={blockName} className="space-y-4 animate-in fade-in duration-500">
+                  {/* Título del Bloque */}
+                  <div className="flex items-center gap-2 bg-muted/50 p-3 rounded-lg border-l-4 border-primary">
+                    <BookOpen className="h-5 w-5 text-foreground" />
+                    <h4 className="font-bold text-lg">{blockName}</h4>
+                  </div>
+
+                  {/* Grid de Temas del Bloque */}
+                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    {Object.entries(topics).map(([topicName, concepts]) => (
+                      <Card
+                        key={topicName}
+                        className="flex flex-col h-full hover:shadow-md transition-shadow"
+                      >
+                        <CardHeader className="pb-3 bg-secondary/10">
+                          <CardTitle
+                            className="text-base font-semibold leading-tight line-clamp-2"
+                            title={topicName}
+                          >
+                            {topicName}
+                          </CardTitle>
+                          <CardDescription className="text-xs">
+                            {concepts.reduce((acc, c) => acc + c.frequency, 0)} preguntas totales
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent className="pt-4 flex-1">
+                          <ul className="space-y-2">
+                            {concepts.slice(0, 5).map((c, i) => (
+                              <li
+                                key={i}
+                                className="flex justify-between items-start text-sm gap-2"
+                              >
+                                <span className="text-muted-foreground truncate" title={c.concept}>
+                                  {c.concept}
+                                </span>
+                                <span className="font-bold text-primary text-xs whitespace-nowrap">
+                                  x{c.frequency}
+                                </span>
+                              </li>
+                            ))}
+                            {concepts.length > 5 && (
+                              <li className="text-xs text-center text-muted-foreground pt-2 italic">
+                                +{concepts.length - 5} conceptos más...
+                              </li>
+                            )}
+                          </ul>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
                 </div>
-              ) : (
-                <div className="text-center py-8 text-muted-foreground">No data available</div>
-              )}
-            </CardContent>
-          </Card>
+              ))
+            ) : (
+              <div className="text-center py-12 border rounded-lg bg-muted/20">
+                <p className="text-muted-foreground">
+                  No hay datos de distribución por temas disponibles.
+                </p>
+              </div>
+            )}
+          </div>
         </div>
       )}
-    </div>
+    </PageContainer>
   );
 }
