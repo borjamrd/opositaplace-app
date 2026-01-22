@@ -74,12 +74,11 @@ export function AvailableOppositionsDialog() {
 
         <div className="flex flex-col gap-6 md:flex-row ">
           <Alert className="bg-primary/5 border-primary/20 p-6 md:w-1/2">
-            <AlertTitle className="text-lg font-semibold text-primary mb-2">
+            <AlertTitle className="text-lg font-semibold text-primary mb-2 hidden md:block">
               Priorizamos el contenido
             </AlertTitle>
             <AlertDescription className="text-base text-muted-foreground leading-relaxed">
-              En opositaplace estamos trabajando para ofrecerte contenido de calidad, y por eso
-              vamos poco a poco. Por ahora ofrecemos el servicio a:
+              Preferimos poco pero bien hecho. Por ahora tenemos disponibles:
               <ul className="list-disc list-inside mt-2 font-medium text-muted-foreground">
                 <li>Gestión de la Administración Civil del Estado</li>
               </ul>
@@ -130,7 +129,7 @@ export function AvailableOppositionsDialog() {
                     Enviando...
                   </>
                 ) : (
-                  'Avísame cuando esté disponible'
+                  'Avisadme cuando esté disponible'
                 )}
               </Button>
             </form>

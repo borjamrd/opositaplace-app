@@ -14,6 +14,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
+import { StageStatusBadge } from './selective-process-stage-status';
 
 export function SelectiveProcessClient({ oppositionId }: { oppositionId?: string }) {
   const {
@@ -65,7 +66,7 @@ export function SelectiveProcessClient({ oppositionId }: { oppositionId?: string
     <div className="space-y-6">
       <div className="rounded-md border p-4">
         <h2 className="text-lg font-semibold">{process.name}</h2>
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+        <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
           <span>Año: {process.year}</span>
           <Badge
             variant={
@@ -85,7 +86,8 @@ export function SelectiveProcessClient({ oppositionId }: { oppositionId?: string
         </div>
       </div>
 
-      <div className="rounded-md border">
+      {/* Desktop view */}
+      <div className="hidden rounded-md border md:block">
         <Table>
           <TableHeader>
             <TableRow>
@@ -105,8 +107,12 @@ export function SelectiveProcessClient({ oppositionId }: { oppositionId?: string
                   <TableCell>{stage.key_date}</TableCell>
                   <TableCell>
                     {stage.official_link && (
-                      <Link href={stage.official_link} target="_blank">
-                        {stage.official_link}
+                      <Link
+                        href={stage.official_link}
+                        target="_blank"
+                        className="text-primary hover:underline"
+                      >
+                        Enlace oficial
                       </Link>
                     )}
                   </TableCell>
@@ -121,13 +127,56 @@ export function SelectiveProcessClient({ oppositionId }: { oppositionId?: string
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={3} className="h-24 text-center">
+                <TableCell colSpan={5} className="h-24 text-center">
                   No hay etapas definidas para este proceso.
                 </TableCell>
               </TableRow>
             )}
           </TableBody>
         </Table>
+      </div>
+
+      {/* Mobile view */}
+      <div className="space-y-4 md:hidden">
+        {stages && stages.length > 0 ? (
+          stages.map((stage) => (
+            <div key={stage.id} className="rounded-md border p-4 space-y-3">
+              <div className="flex items-start justify-between gap-2">
+                <h3 className="font-semibold">{stage.name}</h3>
+                {stage.status && <StageStatusBadge stage={stage} />}
+              </div>
+
+              {stage.description && (
+                <p className="text-sm text-muted-foreground">{stage.description}</p>
+              )}
+
+              <div className="flex flex-col gap-2 text-sm">
+                {stage.key_date && (
+                  <div className="flex justify-between border-b pb-2">
+                    <span className="font-medium">Fecha clave</span>
+                    <span>{stage.key_date}</span>
+                  </div>
+                )}
+
+                {stage.official_link && (
+                  <div className="pt-1">
+                    <Link
+                      href={stage.official_link}
+                      target="_blank"
+                      className="text-primary hover:underline text-sm flex items-center gap-1"
+                    >
+                      Ver enlace oficial
+                    </Link>
+                  </div>
+                )}
+              </div>
+            </div>
+          ))
+        ) : (
+          <div className="rounded-md border p-8 text-center text-muted-foreground">
+            No hay etapas definidas para este proceso.
+          </div>
+        )}
       </div>
     </div>
   );

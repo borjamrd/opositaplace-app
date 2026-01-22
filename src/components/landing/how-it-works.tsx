@@ -25,21 +25,21 @@ export function HowItWorks() {
       title: 'Dale vueltas al temario',
       description:
         'Recibe feedback sobre tu progreso y registra tu progreso en el roadmap con los bloques y temas.',
-      image: '/roadmap.png',
+      image: '/roadmap_landing.png',
     },
     {
       number: 4,
       title: 'Realiza tests',
       description:
         'Configura y realiza tests basados en preguntas oficiales de convocatorias anteriores.',
-      image: '/tests.png',
+      image: '/tests_landing.png',
     },
     {
       number: 5,
       title: 'Repetición espaciada',
       description:
         '¿Has fallado preguntas? Añadelas al módulo de Repetición Espaciada para estudiarlas recurrentemente.',
-      image: '/repeticion-espaciada.png',
+      image: '/srs_landing.png',
     },
     {
       number: 6,
@@ -61,7 +61,7 @@ export function HowItWorks() {
   };
 
   return (
-    <section className="py-24 bg-background overflow-hidden">
+    <section className="py-24 bg-white overflow-hidden">
       <div className="container mx-auto px-4">
         {/* Header Content */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-8 mb-16">
@@ -83,19 +83,19 @@ export function HowItWorks() {
             >
               Cómo será tu proceso.
             </motion.h2>
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.2 }}
+              className="max-w-md"
+            >
+              <p className="text-lg text-muted-foreground leading-relaxed">
+                Gestiona en el onboarding tus preferencias y calendario, nosotros nos encargamos de
+                lo demás.
+              </p>
+            </motion.div>
           </div>
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.2 }}
-            className="max-w-md"
-          >
-            <p className="text-lg text-muted-foreground leading-relaxed">
-              Gestiona en el onboarding tus preferencias y calendario, nosotros nos encargamos de lo
-              demás.
-            </p>
-          </motion.div>
         </div>
 
         {/* Steps Grid */}
@@ -120,22 +120,22 @@ export function HowItWorks() {
                   },
                 },
               }}
-              className="group relative flex flex-col min-h-[400px] h-full bg-card/40 backdrop-blur-md rounded-3xl border border-white/5 hover:border-primary/20 transition-all duration-300 overflow-hidden"
+              className="group border-primary/20 hover:border-primary/70 border-3 relative flex flex-col min-h-[400px] h-full bg-white backdrop-blur-md rounded-3xl  transition-all duration-300 overflow-hidden"
             >
               {/* Image Container */}
-              <div className="relative w-full h-64 overflow-hidden rounded-t-3xl bg-secondary/5">
-                <div className="absolute h-[100%] inset-0 bg-gradient-to-b from-transparent to-background/20 z-10 bottom-0 h-12  [mask-image:linear-gradient(to_top,transparent_10%,#000_100%)] ">
+              <div className="relative w-full h-72 overflow-hidden rounded-t-3xl bg-white/5">
+                <div className="absolute h-[100%] inset-0 bg-gradient-to-b from-transparent via-10% to-white z-10 bottom-0 h-12  [mask-image:linear-gradient(to_top,transparent_10%,#000_100%)] ">
                   <Image
                     src={step.image}
                     alt={step.title}
                     fill
-                    className="object-cover object-top transition-transform duration-500 group-hover:scale-105"
+                    className="object-cover object-bottom transition-transform duration-500 scale-100 group-hover:scale-125"
                   />
                 </div>
               </div>
 
               {/* Card Content */}
-              <div className="relative z-20 p-6 flex flex-col flex-grow">
+              <div className="relative z-20 p-6 flex flex-col flex-grow -mt-10">
                 <div className="flex items-center gap-4 mb-3">
                   <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-bold">
                     {step.number}

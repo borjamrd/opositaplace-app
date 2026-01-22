@@ -41,7 +41,7 @@ const DashboardContent = ({ failedQuestions, dueCardsCount }: DashboardContentPr
     {
       id: 'failedQuestions',
       className: 'row-span-2 lg:col-span-2',
-      component: <FailedQuestionFlashcard questions={failedQuestions} />,
+      component: <FailedQuestionFlashcard questions={failedQuestions} href="/dashboard/tests" />,
     },
   ] as const;
 

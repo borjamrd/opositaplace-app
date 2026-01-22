@@ -11,11 +11,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useToast } from '@/hooks/use-toast';
-import { FullUserProcess, ProcessStage } from '@/lib/supabase/types';
+import { FullUserProcess } from '@/lib/supabase/types';
 import { useStudySessionStore } from '@/store/study-session-store';
-import { ArrowUpRight, CheckCircle, Circle, Info, Milestone } from 'lucide-react';
-import { useMemo } from 'react';
+import { ArrowRight, ArrowUpRight, CheckCircle, Circle, Info, Milestone } from 'lucide-react';
 import Link from 'next/link';
+import { useMemo } from 'react';
+import { StageStatusBadge } from './selective-process-stage-status';
 
 export function SelectiveProcessTimeline({ href }: { href?: string }) {
   const { toast } = useToast();
@@ -123,18 +124,6 @@ export function SelectiveProcessTimeline({ href }: { href?: string }) {
     }
   };
 
-  const pendingDays = (stage: ProcessStage) => {
-    if (!stage.key_date) return 'Pendiente';
-    const days = Math.ceil(
-      (new Date(stage.key_date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
-    );
-    return days > 0
-      ? `Faltan ${days} días`
-      : days < 0
-        ? 'Plazo finalizado'
-        : 'Hoy es el último día';
-  };
-
   if (isLoading) {
     return <Skeleton className="h-48 w-full" />;
   }
@@ -182,7 +171,7 @@ export function SelectiveProcessTimeline({ href }: { href?: string }) {
             estudiar sin estar inscrito en un proceso selectivo
           </CardDescription>
         </CardHeader>
-        <CardContent className="flex gap-4">
+        <CardContent className="flex flex-col xl:flex-row gap-4">
           <Button onClick={() => handleStatusUpdate('TRACKING')} disabled={isUpdatingStatus}>
             Estoy participando
           </Button>
@@ -202,12 +191,24 @@ export function SelectiveProcessTimeline({ href }: { href?: string }) {
   const isTracking = userStatus.tracking_status === 'TRACKING';
 
   return (
-    <Card>
+    <Card className="relative">
       <CardHeader>
         <CardTitle>
           {isTracking ? 'Mi proceso selectivo' : 'Así funciona el proceso selectivo'}
         </CardTitle>
-        <CardDescription>{process.name}</CardDescription>
+        {href && (
+          <Button
+            variant="outline"
+            size="icon"
+            className="h-8 w-8 absolute top-4 right-4 rounded-full border border-primary text-primary hover:bg-primary/20 hover:text-primary"
+            asChild
+          >
+            <Link href={href}>
+              <ArrowUpRight className="h-4 w-4" />
+            </Link>
+          </Button>
+        )}
+        <CardDescription className="mt-2">{process.name}</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="relative space-y-8 pl-8">
@@ -256,44 +257,24 @@ export function SelectiveProcessTimeline({ href }: { href?: string }) {
 
                   {stage.key_date && (
                     <div className="flex items-center gap-2 mt-1">
-                      <Badge variant="secondary" className="text-xs font-normal">
+                      <Badge variant="outline" className="text-xs font-normal">
                         {new Date(stage.key_date!).toLocaleDateString()}
                       </Badge>
-                      {stage.status === 'pendiente' && (
-                        <Badge
-                          variant={
-                            ['Plazo finalizado', 'Hoy es el último día'].includes(
-                              pendingDays(stage)
-                            )
-                              ? 'destructive'
-                              : 'default'
-                          }
-                          className="text-xs font-normal"
-                        >
-                          {pendingDays(stage)}
-                        </Badge>
-                      )}
-                      {stage.status === 'completada' && (
-                        <Badge
-                          variant="secondary"
-                          className="text-xs font-normal bg-green-100 text-green-800 hover:bg-green-200"
-                        >
-                          Finalizado
-                        </Badge>
-                      )}
+                      <StageStatusBadge stage={stage} />
                     </div>
                   )}
 
                   {/* ✅ Botón para avanzar de etapa */}
                   {isTracking && isCurrent && nextStage && (
-                    <div className="max-h-0 overflow-hidden opacity-0 transition-all duration-300 ease-in-out group-hover:max-h-14 group-hover:opacity-100">
+                    <div>
                       <Button
                         size="sm"
-                        className="mt-2 translate-y-4 transition-transform duration-300 group-hover:translate-y-0"
+                        className="mt-2 translate-y-4 transition-transform duration-300 rounded-xl"
                         onClick={() => handleStageAdvance(nextStage.id)}
                         disabled={isUpdatingStage}
                       >
-                        {isUpdatingStage ? 'Avanzando...' : `Marcar como completado y avanzar`}
+                        <ArrowRight className="mr-2 h-4 w-4" />
+                        {isUpdatingStage ? 'Avanzando...' : `Completada`}
                       </Button>
                     </div>
                   )}

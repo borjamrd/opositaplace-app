@@ -1,5 +1,4 @@
 'use client';
-import { reportQuestion } from '@/actions/questions';
 import { discardTestAttempt, submitTestAttempt } from '@/actions/tests';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -41,6 +40,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '../ui/alert-dialog';
+import { ReportQuestionDialog } from './report-question-dialog';
 import { TestSessionNavigation } from './test-session-navigation';
 import { TestResults } from './test-results';
 
@@ -224,28 +224,6 @@ export function TestSession({ testAttempt, questions }: TestSessionProps) {
     router.push('/dashboard/tests');
   };
 
-  const handleReportQuestion = () => {
-    startTransition(async () => {
-      if (!currentQuestion) return;
-
-      const result = await reportQuestion(currentQuestion.id);
-
-      if (result.success) {
-        toast({
-          title: 'Pregunta reportada',
-          description: 'Gracias por tu reporte. Revisaremos la pregunta.',
-        });
-        setShowReportDialog(false);
-      } else {
-        toast({
-          variant: 'destructive',
-          title: 'Error',
-          description: result.error || 'No se pudo reportar la pregunta.',
-        });
-      }
-    });
-  };
-
   const formatTime = (seconds: number) => {
     const m = Math.floor(seconds / 60);
     const s = seconds % 60;
@@ -329,7 +307,6 @@ export function TestSession({ testAttempt, questions }: TestSessionProps) {
         >
           {/* COLUMNA PRINCIPAL (Pregunta) */}
           <div className="flex-1 flex flex-col min-w-0">
-            {/* ... (Header de la Card: Badges, Progreso) ... */}
             <CardHeader>
               <div className="flex flex-col md:flex-row justify-between md:items-start items-center">
                 <div className="flex flex-col items-center md:items-start gap-2 mb-4">
@@ -352,7 +329,7 @@ export function TestSession({ testAttempt, questions }: TestSessionProps) {
                       </Badge>
                     )}
                     {blockName && (
-                      <Badge variant="secondary" className="text-xs font-normal">
+                      <Badge variant="outline" className="text-xs font-normal">
                         <LibraryBig className="mr-1 h-3 w-3" /> {blockName}
                       </Badge>
                     )}
@@ -459,8 +436,11 @@ export function TestSession({ testAttempt, questions }: TestSessionProps) {
       <AlertDialog open={showExitDialog} onOpenChange={setShowExitDialog}>
         <AlertDialogContent container={containerRef.current}>
           <AlertDialogHeader>
-            <AlertDialogTitle>¿Deseas salir del test?</AlertDialogTitle>
-            <AlertDialogDescription>Puedes guardarlo o descartarlo.</AlertDialogDescription>
+            <AlertDialogTitle>¿Quieres guardar el intento o lo descartamos?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Has comenzado un test. Puedes guardarlo para continuar más tarde o descartarlo si no
+              deseas guardarlo.
+            </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="flex-col-reverse sm:flex-row sm:justify-between gap-2">
             <Button
@@ -481,22 +461,12 @@ export function TestSession({ testAttempt, questions }: TestSessionProps) {
         </AlertDialogContent>
       </AlertDialog>
 
-      <AlertDialog open={showReportDialog} onOpenChange={setShowReportDialog}>
-        <AlertDialogContent container={containerRef.current}>
-          <AlertDialogHeader>
-            <AlertDialogTitle>¿Reportar esta pregunta?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Si encuentras un error en esta pregunta, puedes reportarla para que la revisemos.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={handleReportQuestion} disabled={isPending}>
-              {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Reportar
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ReportQuestionDialog
+        questionId={currentQuestion.id}
+        open={showReportDialog}
+        onOpenChange={setShowReportDialog}
+        container={containerRef.current}
+      />
     </div>
   );
 }

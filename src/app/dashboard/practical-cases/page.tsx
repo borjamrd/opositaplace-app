@@ -114,11 +114,19 @@ export default async function PracticalCasesListPage() {
   const featuredCase = sortedActiveCases.length > 0 ? sortedActiveCases[0] : null;
 
   // El resto de casos son todos los que no son el featuredCase
-  const otherCases = cases?.filter((c) => c.id !== featuredCase?.id) || [];
+  const otherCases =
+    cases
+      ?.filter((c) => c.id !== featuredCase?.id)
+      .map((c) => {
+        return {
+          ...c,
+          statement: c.statement.slice(0, 200) + '...',
+        };
+      }) || [];
 
   return (
     <PageContainer title="Casos prácticos">
-      <div className="h-[calc(100vh-11rem)] flex flex-col gap-6 overflow-hidden">
+      <div className="h-full md:h-[calc(100vh-13.5rem)] flex flex-col gap-6 overflow-hidden">
         <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-6 min-h-0">
           {/* Contenedor Izquierdo: Caso Destacado */}
           <div className="flex flex-col h-full overflow-hidden">
@@ -135,7 +143,7 @@ export default async function PracticalCasesListPage() {
           {/* Contenedor Derecho: Resto de casos */}
           <div className="flex flex-col h-full overflow-hidden bg-slate-50/50 dark:bg-slate-900/20 rounded-xl border p-4 shadow-sm">
             <div className="flex items-center justify-between mb-4 px-1">
-              <h3 className="font-semibold text-lg flex items-center gap-2">
+              <h3 className="font-semibold text-primary text-lg flex items-center gap-2">
                 <BookOpen className="w-5 h-5 text-primary" />
                 Más casos disponibles
               </h3>
@@ -192,7 +200,9 @@ export default async function PracticalCasesListPage() {
                       </CardHeader>
 
                       <CardContent className="p-4 pt-1 flex-1 min-h-[60px]">
-                        <div className="text-xs text-muted-foreground line-clamp-2">
+                        <div
+                          className={`text-xs text-muted-foreground line-clamp-2 ${!isPremium ? 'blur-[2px]' : ''}`}
+                        >
                           <ReactMarkdown allowedElements={['p', 'strong', 'em', 'text']}>
                             {practicalCase.statement}
                           </ReactMarkdown>
