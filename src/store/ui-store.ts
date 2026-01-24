@@ -8,6 +8,7 @@ export interface DashboardSections {
   srsWidget: boolean;
   failedQuestions: boolean;
   oppositionInfoWidget: boolean;
+  roadmapStatus: boolean;
 }
 
 interface UiState {
@@ -24,6 +25,7 @@ const initialDashboardSections: DashboardSections = {
   srsWidget: true,
   failedQuestions: true,
   oppositionInfoWidget: true,
+  roadmapStatus: true,
 };
 
 export const useUiStore = create<UiState>()(

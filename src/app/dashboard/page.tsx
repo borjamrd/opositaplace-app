@@ -28,11 +28,20 @@ export default async function DashboardPage() {
   const dueCards = await getDueReviewCards();
   const dueCardsCount = dueCards.length;
 
+  let roadmapData = null;
+  try {
+    const { getRoadmapData } = await import('@/actions/roadmap');
+    roadmapData = await getRoadmapData();
+  } catch (error) {
+    console.error('Failed to fetch roadmap data:', error);
+  }
+
   return (
     <DashboardContent
       failedQuestions={failedQuestions}
       dueCardsCount={dueCardsCount}
       userName={profile?.username || 'Opositor'}
+      roadmapData={roadmapData}
     />
   );
 }
