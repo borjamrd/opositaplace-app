@@ -22,6 +22,7 @@ const BREADCRUMB_NAMES: Record<string, string> = {
   roadmap: 'Roadmap',
   statistics: 'Estadísticas',
   'selective-process': 'Proceso Selectivo',
+  'opposition-info': 'Información de la oposición',
 };
 
 function capitalize(s: string) {

@@ -4,8 +4,11 @@ import { QuestionWithAnswers } from '@/lib/supabase/types';
 import { shuffle } from '@/lib/utils';
 import { getDueReviewCards } from '@/actions/srs';
 
+import { getSessionData } from '@/lib/supabase/queries/get-session-data';
+
 export default async function DashboardPage() {
   const supabase = await createSupabaseServerClient();
+  const { profile } = await getSessionData();
 
   const { data: failedQuestionsRpc } = await supabase.rpc('get_user_failed_questions');
   let failedQuestions: QuestionWithAnswers[] = [];
@@ -25,5 +28,11 @@ export default async function DashboardPage() {
   const dueCards = await getDueReviewCards();
   const dueCardsCount = dueCards.length;
 
-  return <DashboardContent failedQuestions={failedQuestions} dueCardsCount={dueCardsCount} />;
+  return (
+    <DashboardContent
+      failedQuestions={failedQuestions}
+      dueCardsCount={dueCardsCount}
+      userName={profile?.username || 'Opositor'}
+    />
+  );
 }

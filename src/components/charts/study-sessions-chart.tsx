@@ -93,7 +93,7 @@ export function StudySessionsChart() {
     return (
       <Card className="w-full h-fit">
         <CardHeader>
-          <CardTitle>Actividad de estudio</CardTitle>
+          <CardTitle>Tu estudio</CardTitle>
           <CardDescription>No se pudieron cargar los datos.</CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col items-center justify-center h-[140px]">
@@ -107,7 +107,7 @@ export function StudySessionsChart() {
     <Card className="w-full h-fit">
       <CardHeader className="flex items-center gap-2 space-y-0 py-5 sm:flex-row">
         <div className="grid flex-1 gap-1 text-center sm:text-left">
-          <CardTitle>Actividad de estudio</CardTitle>
+          <CardTitle>Tu estudio</CardTitle>
           <CardDescription>Resumen de {rangeLabels[timeRange]}.</CardDescription>
         </div>
         <Select value={timeRange} onValueChange={setTimeRange}>

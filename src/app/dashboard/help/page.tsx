@@ -68,7 +68,7 @@ export default function HelpPage() {
             variant: 'destructive',
           });
           setUploading(false);
-          return; 
+          return;
         }
         setUploading(false);
       }
