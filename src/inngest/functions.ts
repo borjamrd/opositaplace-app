@@ -5,9 +5,10 @@ import { Database } from '@/lib/supabase/database.types';
 import { createClient } from '@supabase/supabase-js';
 import { inngest } from './client';
 import { sendSelectiveProcessStepReminder } from './selective-process-step-reminder';
+import { studyReminderCron } from './study-reminder';
 import { sendWeeklyDigest } from './weekly-summary';
 
-export { sendSelectiveProcessStepReminder, sendWeeklyDigest };
+export { sendSelectiveProcessStepReminder, sendWeeklyDigest, studyReminderCron };
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
