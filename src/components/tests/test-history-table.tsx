@@ -52,10 +52,12 @@ export function TestHistoryTable({ attempts }: TestHistoryTableProps) {
                     : attempt.mode === 'errors'
                       ? 'Fallos'
                       : attempt.mode === 'topics'
-                        ? 'Por Temas'
+                        ? 'Por temas'
                         : attempt.mode === 'exams'
                           ? 'Examen'
-                          : attempt.mode}
+                          : attempt.mode === 'mock'
+                            ? 'Simulacro'
+                            : attempt.mode}
                 </Badge>
               </div>
             </CardHeader>
@@ -155,10 +157,12 @@ export function TestHistoryTable({ attempts }: TestHistoryTableProps) {
                       : attempt.mode === 'errors'
                         ? 'Fallos'
                         : attempt.mode === 'topics'
-                          ? 'Por Temas'
+                          ? 'Por temas'
                           : attempt.mode === 'exams'
                             ? 'Examen'
-                            : attempt.mode}
+                            : attempt.mode === 'mock'
+                              ? 'Simulacro'
+                              : attempt.mode}
                   </Badge>
                 </TableCell>
                 <TableCell className="text-center">

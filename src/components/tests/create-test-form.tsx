@@ -9,6 +9,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Slider } from '@/components/ui/slider';
+import { Switch } from '@/components/ui/switch';
+import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { BlockWithTopics } from '@/lib/supabase/types';
 import { useStudySessionStore } from '@/store/study-session-store';
@@ -329,6 +331,66 @@ export function CreateTestForm({
                 setValue('numQuestions', v[0]);
               }}
             />
+
+            <div className="mt-8 space-y-4">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="timer-switch" className="flex flex-col gap-1">
+                  <span className="font-semibold">Temporizador</span>
+                  <span className="text-sm text-muted-foreground font-normal">
+                    Activar límite de tiempo para el test
+                  </span>
+                </Label>
+                <Controller
+                  name="timerEnabled"
+                  control={control}
+                  render={({ field }) => (
+                    <Switch
+                      id="timer-switch"
+                      checked={field.value}
+                      disabled={mode === 'mock'}
+                      onCheckedChange={(checked) => {
+                        field.onChange(checked);
+                        if (!checked) {
+                          setValue('duration', undefined);
+                        } else {
+                          // Default duration: 1.5 min per question aprox or just 20 min default
+                          setValue('duration', Math.ceil(numQuestions * 1.5));
+                        }
+                      }}
+                    />
+                  )}
+                />
+              </div>
+
+              {watch('timerEnabled') && (
+                <div className="flex items-center gap-4 animate-in fade-in slide-in-from-top-2">
+                  <Label htmlFor="duration-input" className="shrink-0">
+                    Duración (minutos):
+                  </Label>
+                  <Controller
+                    name="duration"
+                    control={control}
+                    render={({ field }) => (
+                      <Input
+                        id="duration-input"
+                        type="number"
+                        min={1}
+                        className="w-24"
+                        disabled={mode === 'mock'}
+                        value={field.value || ''}
+                        onChange={(e) => {
+                          const val = parseInt(e.target.value);
+                          field.onChange(isNaN(val) ? undefined : val);
+                        }}
+                      />
+                    )}
+                  />
+                  {mode === 'mock' && (
+                    <span className="text-xs text-muted-foreground">(Fijo por simulacro)</span>
+                  )}
+                </div>
+              )}
+            </div>
 
             {mode === 'mock' && (
               <p className="text-xs text-muted-foreground mt-2">

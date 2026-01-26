@@ -77,19 +77,21 @@ export function TestSession({ testAttempt, questions }: TestSessionProps) {
     reset: resetTestStore,
   } = useTestStore();
 
-  // ... (Tu useEffect de carga inicial y Timer se mantienen igual) ...
   useEffect(() => {
     if (!test || test.id !== testAttempt.id) {
       const allAnswers = questions.flatMap((q) => q.answers);
       setTest(testAttempt, questions, allAnswers);
-      if (testAttempt.mode === 'mock' && secondsRemaining === null) {
+      if (testAttempt.timer_enabled && testAttempt.duration_seconds && secondsRemaining === null) {
+        setSecondsRemaining(testAttempt.duration_seconds);
+      } else if (testAttempt.mode === 'mock' && secondsRemaining === null) {
+        // Fallback for mock if duration_seconds is missing (though it should be set)
         setSecondsRemaining(90 * 60);
       }
     }
   }, [test, testAttempt, questions, setTest, secondsRemaining, setSecondsRemaining]);
 
   useEffect(() => {
-    if (testAttempt.mode !== 'mock' || isFinished || secondsRemaining === null) return;
+    if (isFinished || secondsRemaining === null) return;
     if (secondsRemaining <= 0) {
       handleFinishTest();
       return;
@@ -282,7 +284,7 @@ export function TestSession({ testAttempt, questions }: TestSessionProps) {
           </Button>
         )}
 
-        {testAttempt.mode === 'mock' && secondsRemaining !== null && (
+        {secondsRemaining !== null && (
           <div
             className={`font-mono text-xl font-bold ${secondsRemaining < 300 ? 'text-red-500 animate-pulse' : 'text-primary'}`}
           >
