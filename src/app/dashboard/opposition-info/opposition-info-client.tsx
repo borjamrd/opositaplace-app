@@ -366,7 +366,7 @@ export function OppositionInfoClient({ isPremium = false }: OppositionInfoClient
                                 {item.exam_name}
                               </span>
                               <Badge variant="outline" className="text-xs">
-                                {item.frequency} reps
+                                Se ha repetido {item.frequency} veces
                               </Badge>
                             </div>
                             <span className="text-sm font-medium pl-2 border-l-2 border-primary/20">

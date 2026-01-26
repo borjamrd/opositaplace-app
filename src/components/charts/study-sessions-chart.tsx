@@ -96,7 +96,7 @@ export function StudySessionsChart() {
           <CardTitle>Tu estudio</CardTitle>
           <CardDescription>No se pudieron cargar los datos.</CardDescription>
         </CardHeader>
-        <CardContent className="flex flex-col items-center justify-center h-[140px]">
+        <CardContent className="flex flex-col items-center justify-center h-[100px] lg:h-[140px]">
           <AlertCircle className="h-8 w-8 text-destructive" />
         </CardContent>
       </Card>
@@ -130,9 +130,9 @@ export function StudySessionsChart() {
 
       <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
         {isLoading ? (
-          <Skeleton className="h-[140px] w-full" />
+          <Skeleton className="lg:h-[140px] h-[100px] w-full" />
         ) : (
-          <ChartContainer config={chartConfig} className="h-[140px] w-full">
+          <ChartContainer config={chartConfig} className="lg:h-[140px] h-[100px] w-full">
             <AreaChart
               accessibilityLayer
               data={chartData || []}

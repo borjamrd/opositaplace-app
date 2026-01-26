@@ -9,25 +9,34 @@ import { OppositionInfoWidget } from './opposition-info-widget';
 import { StudyFeedback } from '@/app/dashboard/study-feedback';
 import { useUiStore } from '@/store/ui-store';
 import { SRSWidget } from './srs-widget';
+import { RoadmapStatus } from './roadmap-status';
+import { getRoadmapData } from '@/actions/roadmap';
 
 interface DashboardContentProps {
   failedQuestions: QuestionWithAnswers[];
   dueCardsCount: number;
   userName: string;
+  roadmapData: Awaited<ReturnType<typeof getRoadmapData>> | null;
 }
 
-const DashboardContent = ({ failedQuestions, dueCardsCount, userName }: DashboardContentProps) => {
+const DashboardContent = ({
+  failedQuestions,
+  dueCardsCount,
+  userName,
+  roadmapData,
+}: DashboardContentProps) => {
   const { dashboardSections } = useUiStore();
   const sections = [
     {
-      id: 'studyFeedback',
-      className: 'col-span-1 md:col-span-2 lg:col-span-4',
-      component: <StudyFeedback />,
+      id: 'roadmapStatus',
+      className: 'row-span-1 lg:col-span-2',
+      component: <RoadmapStatus data={roadmapData} href="/dashboard/roadmap" />,
     },
+
     {
-      id: 'oppositionInfoWidget',
-      className: 'row-span-2 lg:col-span-2',
-      component: <OppositionInfoWidget href="/dashboard/opposition-info" />,
+      id: 'studySessionsChart',
+      className: 'row-span-1 lg:col-span-2',
+      component: <StudySessionsChart />,
     },
     {
       id: 'selectiveProcessTimeline',
@@ -35,19 +44,25 @@ const DashboardContent = ({ failedQuestions, dueCardsCount, userName }: Dashboar
       component: <SelectiveProcessTimeline href="/dashboard/selective-process" />,
     },
     {
-      id: 'studySessionsChart',
-      className: 'row-span-1 lg:col-span-4',
-      component: <StudySessionsChart />,
-    },
-    {
       id: 'srsWidget',
       className: 'row-span-1 lg:col-span-2',
       component: <SRSWidget dueCardsCount={dueCardsCount} href="/dashboard/review" />,
     },
     {
+      id: 'studyFeedback',
+      className: 'col-span-1 md:col-span-2 lg:col-span-2',
+      component: <StudyFeedback />,
+    },
+
+    {
       id: 'failedQuestions',
       className: 'row-span-2 lg:col-span-2',
       component: <FailedQuestionFlashcard questions={failedQuestions} href="/dashboard/tests" />,
+    },
+    {
+      id: 'oppositionInfoWidget',
+      className: 'row-span-2 lg:col-span-2',
+      component: <OppositionInfoWidget href="/dashboard/opposition-info" />,
     },
   ] as const;
 
