@@ -6,9 +6,10 @@ import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { QuestionForSession } from '@/lib/supabase/types';
 import { Terminal } from 'lucide-react';
 import { notFound, redirect } from 'next/navigation';
+import { BreadcrumbUpdater } from '@/components/breadcrumb-updater';
 
 export default async function TestPage({ params }: { params: { id: string } }) {
-  const { id } = await params;
+  const { id } = params;
   const supabase = await createSupabaseServerClient();
 
   const {
@@ -143,8 +144,18 @@ export default async function TestPage({ params }: { params: { id: string } }) {
     );
   }
 
+  const modeLabels: Record<string, string> = {
+    random: 'Test aleatorio',
+    errors: 'Repaso de errores',
+    topics: 'Test por temas',
+    mock: 'Simulacro de examen',
+    exams: 'Exámenes anteriores',
+  };
+  const testLabel = modeLabels[testAttempt.mode || ''] || testAttempt.title || 'Test';
+
   return (
     <PageContainer showBackButton={false}>
+      <BreadcrumbUpdater segment={id} label={testLabel} />
       <TestSession testAttempt={testAttempt} questions={validQuestions} />
     </PageContainer>
   );
