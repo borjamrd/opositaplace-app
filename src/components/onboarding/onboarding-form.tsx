@@ -357,7 +357,7 @@ export default function OnboardingForm() {
     <div className="flex min-h-[calc(100vh-10rem)] p-4">
       <div className="flex flex-col w-full max-w-6xl mt-10 mx-auto p-4 md:p-8 bg-background/80 backdrop-blur-sm rounded-xl shadow-xl border">
         {/* --- Pasos Superiores --- */}
-        <nav className="w-full mb-8">
+        <nav className="w-full mx-auto max-w-md mb-8">
           <ol className="flex items-center justify-between w-full">
             {steps.map((step, index) => {
               const isActive = index === currentStep;
@@ -387,20 +387,6 @@ export default function OnboardingForm() {
                         />
                       </span>
                     )}
-                  </div>
-                  <div className="hidden md:block text-center md:text-left max-w-[10rem]">
-                    <h4
-                      className={`text-sm font-semibold transition-colors duration-300 ${
-                        isActive
-                          ? 'text-primary'
-                          : isCompleted
-                            ? 'text-muted-foreground'
-                            : 'text-muted-foreground'
-                      }`}
-                    >
-                      {step.name}
-                    </h4>
-                    <p className="text-sm text-muted-foreground">{step.description}</p>
                   </div>
                 </li>
               );

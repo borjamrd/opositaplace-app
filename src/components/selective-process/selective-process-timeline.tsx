@@ -274,7 +274,7 @@ export function SelectiveProcessTimeline({ href }: { href?: string }) {
                         disabled={isUpdatingStage}
                       >
                         <ArrowRight className="mr-2 h-4 w-4" />
-                        {isUpdatingStage ? 'Avanzando...' : `Completada`}
+                        {isUpdatingStage ? 'Avanzando...' : `La he realizado`}
                       </Button>
                     </div>
                   )}
