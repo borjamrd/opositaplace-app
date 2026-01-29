@@ -21,13 +21,15 @@ export const WelcomeEmail = ({
       <Text style={paragraph}>Hola {userName},</Text>
       <Text style={paragraph}>
         Estamos encantados de tenerte a bordo. Puedes empezar explorando tu panel de control,
-        configurando tus temas o realizando tu primer test.
+        configurando tus temas, realizando tu primer test o preparando tu primer caso práctico.
       </Text>
 
       <Text style={paragraph}>
-        Recuerda que tienes {TRIAL_DAYS} días gratis para probar la mejor versión de Opositaplace.
-        No te preocupes, no se te cobrará nada al finalizar y se te pasará a la versión gratuita
-        automáticamente. Puedes cambiarla cuando quieras.
+        Si durante el onboarding escogiste la versión de prueba, recuerda que tienes {TRIAL_DAYS}{' '}
+        días gratis para probar la mejor versión de Opositaplace. No te preocupes, no se te cobrará
+        nada al finalizar y se te pasará a la versión gratuita automáticamente. Puedes cambiarla
+        cuando quieras. En caso de que optases por la versión gratuita, esta se mantendrá activa
+        hasta que decidas actualizarla.
       </Text>
 
       <Section style={btnContainer}>
