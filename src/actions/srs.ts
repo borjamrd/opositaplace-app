@@ -4,11 +4,10 @@ import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { Json } from '@/lib/supabase/types';
 import { revalidatePath } from 'next/cache';
 
-const DEFAULT_EASE_FACTOR = 2.5;
-const MIN_EASE_FACTOR = 1.3;
+import { calculateNextReview, ReviewRating } from '@/lib/srs/scheduler';
 
+const DEFAULT_EASE_FACTOR = 2.5;
 // Tipo para la autoevaluación del usuario
-type ReviewRating = 'again' | 'hard' | 'good' | 'easy';
 
 /**
  * Crea una nueva tarjeta de repaso, normalmente desde una pregunta fallada.
@@ -54,33 +53,12 @@ export async function processCardReview(cardId: string, rating: ReviewRating) {
 
   if (fetchError || !card) throw new Error('Card not found');
 
-  let newInterval: number;
-  let newEaseFactor = card.ease_factor;
-
   // 2. Calcular nuevo intervalo y factor de facilidad
-  switch (rating) {
-    case 'again':
-      newInterval = 1; // Reiniciar el intervalo a 1 día
-      newEaseFactor = Math.max(card.ease_factor - 0.2, MIN_EASE_FACTOR);
-      break;
-    case 'hard':
-      newInterval = Math.round(card.current_interval * 1.2);
-      newEaseFactor = Math.max(card.ease_factor - 0.15, MIN_EASE_FACTOR);
-      break;
-    case 'good':
-      newInterval = Math.round(card.current_interval * card.ease_factor);
-      break;
-    case 'easy':
-    default:
-      newInterval = Math.round(card.current_interval * card.ease_factor * 1.3);
-      newEaseFactor = card.ease_factor + 0.15;
-      break;
-  }
-
-  // Evitar que 'hard' y 'good' se queden en el mismo intervalo
-  if (rating !== 'again' && newInterval === card.current_interval) {
-    newInterval += 1;
-  }
+  const { newInterval, newEaseFactor } = calculateNextReview(
+    card.current_interval,
+    card.ease_factor,
+    rating
+  );
 
   // 3. Calcular la nueva fecha de repaso
   const newReviewDate = new Date();

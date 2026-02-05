@@ -4,6 +4,10 @@ import { render, screen } from '@testing-library/react';
 import { LoginForm } from './login-form';
 import { vi } from 'vitest';
 
+vi.mock('@/actions/auth', () => ({
+  signIn: vi.fn(),
+}));
+
 vi.mock('react', async (importOriginal) => {
   const actualReact = await importOriginal<typeof import('react')>();
   return {
@@ -30,8 +34,8 @@ describe('LoginForm', () => {
   it('debe renderizar los campos de email y contraseña', () => {
     render(<LoginForm />);
 
-    expect(screen.getByLabelText(/Correo Electrónico/i)).toBeInTheDocument();
-    const passwordInput = screen.getByLabelText(/^Contraseña$/i);
+    expect(screen.getByPlaceholderText(/Correo electrónico/i)).toBeInTheDocument();
+    const passwordInput = screen.getByPlaceholderText(/^Contraseña$/i);
     expect(passwordInput).toBeInTheDocument();
   });
 

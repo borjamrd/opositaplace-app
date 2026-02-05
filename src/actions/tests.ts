@@ -5,6 +5,9 @@ import { shuffle } from '@/lib/utils';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
+import { isTestCreationAllowed } from '@/lib/tests/eligibility';
+import { calculateTestScore } from '@/lib/tests/scoring';
+
 type TestMode = 'random' | 'errors' | 'topics' | 'exams' | 'mock';
 
 interface CreateTestParams {
@@ -38,36 +41,6 @@ export async function checkTestCreationEligibility(params?: {
     .in('status', ['trialing', 'active'])
     .maybeSingle();
 
-  // Si tiene suscripción activa y NO es el plan gratuito, permitir
-  // NOTA: Asumimos que si hay suscripción activa y no es free, es de pago.
-  const isFreePlan =
-    !subscription ||
-    subscription.price_id === process.env.NEXT_PUBLIC_STRIPE_FREE_PLAN_ID ||
-    subscription.price_id === 'price_free_placeholder';
-
-  if (!isFreePlan) {
-    return { allowed: true };
-  }
-
-  // 2. Si es plan gratuito, verificar restricciones de tipo de test
-  if (params) {
-    if (params.mode !== 'random') {
-      return {
-        allowed: false,
-        error: 'Con el plan gratuito solo puedes realizar tests aleatorios.',
-        reason: 'premium_feature',
-      };
-    }
-
-    if (params.numQuestions > 25) {
-      return {
-        allowed: false,
-        error: 'Con el plan gratuito solo puedes realizar tests de hasta 25 preguntas.',
-        reason: 'premium_feature',
-      };
-    }
-  }
-
   // 3. Verificar límite de tiempo (1 test cada 7 días)
   const { data: lastTest } = await supabase
     .from('test_attempts')
@@ -77,26 +50,10 @@ export async function checkTestCreationEligibility(params?: {
     .limit(1)
     .maybeSingle();
 
-  if (!lastTest) {
-    return { allowed: true };
-  }
+  const lastTestDate = lastTest ? new Date(lastTest.created_at) : null;
 
-  const lastTestDate = new Date(lastTest.created_at);
-  const now = new Date();
-  const diffTime = Math.abs(now.getTime() - lastTestDate.getTime());
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-  if (diffDays < 7) {
-    const nextTestDate = new Date(lastTestDate);
-    nextTestDate.setDate(lastTestDate.getDate() + 7);
-    return {
-      allowed: false,
-      reason: 'limit_reached',
-      nextTestDate: nextTestDate.toISOString(),
-    };
-  }
-
-  return { allowed: true };
+  // Use separated logic
+  return isTestCreationAllowed(subscription, lastTestDate, params);
 }
 
 export async function createTestAttempt(params: CreateTestParams) {
@@ -283,57 +240,32 @@ export async function submitTestAttempt(
       return { error: 'No se encontraron preguntas para este intento.' };
     }
 
-    let correctCount = 0;
-    let incorrectCount = 0;
-    const answerRowsToUpsert = [];
+    // Use separated logic
+    const {
+      correctCount,
+      incorrectCount,
+      unansweredCount,
+      netPoints,
+      finalScore,
+      answersToUpsert,
+    } = calculateTestScore(questions as any, answers); // Casting as any or improving types if possible, strictly questions match structure
 
-    // 3. Recorremos TODAS las preguntas del test
-    for (const question of questions) {
-      const userAnswerId = answers[question.id] || null;
-      let isCorrect = false;
-      let status: 'correct' | 'incorrect' | 'blank' = 'blank';
-
-      if (userAnswerId) {
-        isCorrect = question.answers.some((a) => a.id === userAnswerId && a.is_correct);
-        if (isCorrect) {
-          correctCount++;
-          status = 'correct';
-        } else {
-          incorrectCount++;
-          status = 'incorrect';
-        }
-      }
-
-      // Preparamos la fila para insertar/actualizar
-      answerRowsToUpsert.push({
-        test_attempt_id: testAttemptId,
-        question_id: question.id,
-        selected_answer_id: userAnswerId,
-        user_id: user.id,
-        is_correct: isCorrect,
-        status: status,
-      });
-    }
+    const answersWithMetadata = answersToUpsert.map((a) => ({
+      ...a,
+      test_attempt_id: testAttemptId,
+      user_id: user.id,
+    }));
 
     // 4. Hacemos el UPSERT en test_attempt_answers con los datos completos
     const { error: answersError } = await supabase
       .from('test_attempt_answers')
-      .upsert(answerRowsToUpsert, {
+      .upsert(answersWithMetadata, {
         onConflict: 'test_attempt_id,question_id',
       });
 
     if (answersError) {
       return { error: `Error saving answers: ${answersError.message}` };
     }
-
-    const unansweredCount = questions.length - (correctCount + incorrectCount);
-
-    const netPoints = correctCount - incorrectCount / 3;
-
-    // 2. Aseguramos que la puntuación directa no sea negativa
-    const finalNetPoints = Math.max(0, netPoints);
-
-    const finalScore = (finalNetPoints / questions.length) * 10;
 
     const { error: updateError } = await supabase
       .from('test_attempts')
@@ -344,7 +276,7 @@ export async function submitTestAttempt(
         correct_answers: correctCount,
         incorrect_answers: incorrectCount,
         unanswered_questions: unansweredCount,
-        net_score: finalNetPoints,
+        net_score: netPoints,
       })
       .eq('id', testAttemptId);
 
