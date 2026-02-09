@@ -67,9 +67,9 @@ export async function createTrialSubscription(user: User): Promise<void> {
     customer: customerId,
     items: [{ price: proPlan.priceId }],
     trial_period_days: TRIAL_DAYS,
-    // payment_settings: {
-    //   save_default_payment_method: 'on_subscription',
-    // },
+    payment_settings: {
+      save_default_payment_method: 'on_subscription',
+    },
     expand: ['latest_invoice.payment_intent'],
   });
 
