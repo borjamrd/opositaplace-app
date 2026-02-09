@@ -404,11 +404,10 @@ export default function OnboardingForm() {
                       </span>
                     ) : (
                       <span
-                        className={`flex h-10 w-10 items-center justify-center rounded-full transition-all duration-300 ${
-                          isActive
+                        className={`flex h-10 w-10 items-center justify-center rounded-full transition-all duration-300 ${isActive
                             ? 'bg-primary border-2 border-primary text-primary-foreground scale-110'
                             : 'bg-primary/10 border-2'
-                        }`}
+                          }`}
                       >
                         <StepIcon
                           className={`h-6 w-6 ${isActive ? '' : 'text-muted-foreground'}`}
@@ -446,7 +445,29 @@ export default function OnboardingForm() {
                       <AlertDescription>{actionState.message}</AlertDescription>
                     </Alert>
                   )}
-                  {actionState?.errors && <Alert variant="destructive">{actionState.errors}</Alert>}
+                  {actionState?.errors && (
+                    <Alert variant="destructive">
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertTitle>Error</AlertTitle>
+                      <AlertDescription>
+                        {typeof actionState.errors === 'string' ? (
+                          actionState.errors
+                        ) : (
+                          <ul className="list-disc pl-4 mt-2">
+                            {Object.entries(actionState.errors).map(([key, messages]: [string, any]) =>
+                              Array.isArray(messages) ? (
+                                messages.map((msg: string, i: number) => (
+                                  <li key={`${key}-${i}`}>{msg}</li>
+                                ))
+                              ) : (
+                                <li key={key}>{String(messages)}</li>
+                              )
+                            )}
+                          </ul>
+                        )}
+                      </AlertDescription>
+                    </Alert>
+                  )}
 
                   {/* Renderizado de Pasos */}
                   {currentStep === 0 && (
