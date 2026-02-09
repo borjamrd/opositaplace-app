@@ -27,6 +27,10 @@ const onboardingActionSchema = z.object({
 
   slot_duration_minutes: z.string().default('60'),
 
+  cycle_number: z.string().default('1'),
+
+  selected_topics: z.string().default('[]'),
+
   selected_plan: z.enum(['free', 'trial']).default('trial'),
 });
 
@@ -75,6 +79,8 @@ export async function submitOnboarding(
     study_days: formData.get('study_days'),
     help_with: formData.get('help_with') || '[]',
     slot_duration_minutes: formData.get('slot_duration_minutes') || '60',
+    cycle_number: formData.get('cycle_number') || '1',
+    selected_topics: formData.get('selected_topics') || '[]',
     selected_plan: formData.get('selected_plan') || 'trial',
   };
 
@@ -97,9 +103,12 @@ export async function submitOnboarding(
     study_days: studyDaysString,
     help_with: helpWithString,
     slot_duration_minutes,
+    cycle_number,
+    selected_topics: selectedTopicsString,
     selected_plan,
   } = validationResult.data;
 
+  // 1. Vincular Oposición
   const { error: userOppositionsError } = await supabase.from('user_oppositions').insert({
     profile_id: user_id,
     opposition_id: opposition_id,
@@ -137,11 +146,13 @@ export async function submitOnboarding(
   let parsedBaselineAssessment: Json;
   let parsedStudyDays: Json;
   let parsedHelpWith: Json;
+  let parsedSelectedTopics: string[];
 
   try {
     parsedBaselineAssessment = JSON.parse(baselineAssessmentString); // Actualizado
     parsedStudyDays = JSON.parse(studyDaysString);
     parsedHelpWith = JSON.parse(helpWithString);
+    parsedSelectedTopics = JSON.parse(selectedTopicsString);
 
     if (Object.keys(parsedStudyDays as object).length === 0) {
       return {
@@ -159,6 +170,7 @@ export async function submitOnboarding(
     };
   }
 
+  // 2. Guardar información de Onboarding
   const onboardingData: TablesInsert<'onboarding_info'> = {
     user_id: user_id,
     objectives: parsedBaselineAssessment,
@@ -170,6 +182,48 @@ export async function submitOnboarding(
   };
 
   // 1. Intentar crear la suscripción PRIMERO
+  const currentCycleNumber = parseInt(cycle_number, 10);
+
+  // Primero, desactivamos/cerramos ciclos anteriores si existen (opcional, pero buena práctica)
+  // En onboarding se asume que empieza de cero o reinicia, pero si seleccionó vuelta 5, creamos la vuelta 5.
+
+  // Insertamos el ciclo seleccionado
+  const { data: newCycle, error: cycleError } = await supabase
+    .from('user_study_cycles')
+    .insert({
+      user_id: user_id,
+      opposition_id: opposition_id,
+      cycle_number: currentCycleNumber,
+      started_at: new Date().toISOString(),
+    })
+    .select()
+    .single();
+
+  if (cycleError) {
+    console.error('Error creating study cycle:', cycleError);
+    // No bloqueamos el onboarding completo por esto, pero idealmente debería funcionar
+  } else if (newCycle && parsedSelectedTopics.length > 0) {
+    // 4. Marcar temas seleccionados como completados (Nuevo paso)
+    // Mapeamos los topic IDs a objetos insertables
+    const topicStatusInserts = parsedSelectedTopics.map((topicId) => ({
+      user_id: user_id,
+      study_cycle_id: newCycle.id,
+      topic_id: topicId,
+      status: 'completed' as const,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    }));
+
+    const { error: topicsError } = await supabase
+      .from('user_topic_status')
+      .insert(topicStatusInserts);
+
+    if (topicsError) {
+      console.error('Error inserting topic statuses:', topicsError);
+    }
+  }
+
+  // 5. Suscripción
   try {
     // Comprobar si el usuario ya tiene una suscripción antes de crear una de prueba
     const { data: existingSubscription } = await supabase

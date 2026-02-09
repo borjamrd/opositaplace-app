@@ -180,7 +180,7 @@ export function StudySessionsChart() {
         <div className="flex w-full items-start gap-2 text-sm">
           <div className="grid gap-2">
             <div className="flex items-center gap-2 font-medium leading-none">
-              {!isLoading && (
+              {!isLoading && totalMinutes > 0 && (
                 <>Total de {formatMinutesToHoursAndMinutes(totalMinutes)} en este periodo</>
               )}
               {isLoading && <Skeleton className="h-4 w-48" />}

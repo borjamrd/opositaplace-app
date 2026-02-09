@@ -80,7 +80,19 @@ export function RoadmapStatus({ data, href }: RoadmapStatusProps) {
       </CardHeader>
 
       <CardContent className="flex-grow space-y-4 pt-2">
+        {/* Progreso */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between text-sm font-medium text-muted-foreground">
+            <div className="flex items-center gap-2">
+              <CheckCircle className="h-4 w-4" />
+              <span>Progreso en la {data.activeCycle.cycle_number}ª vuelta</span>
+            </div>
+            <span>{progressPercentage}%</span>
+          </div>
+          <Progress value={progressPercentage} className="h-2" />
+        </div>
         {/* Temas en curso */}
+
         <div className="space-y-2">
           <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
             <Clock className="h-4 w-4" />
@@ -96,6 +108,10 @@ export function RoadmapStatus({ data, href }: RoadmapStatusProps) {
             ) : (
               <p className="text-sm text-muted-foreground italic">
                 No hay temas en curso actualmente.
+                <Link className="text-primary hover:underline flex items-center gap-2" href={href}>
+                  <span>Comienza ahora</span>
+                  <ArrowUpRight className="h-4 w-4" />
+                </Link>
               </p>
             )}
           </div>
@@ -116,21 +132,6 @@ export function RoadmapStatus({ data, href }: RoadmapStatusProps) {
               </p>
             )}
           </div>
-        </div>
-
-        {/* Progreso */}
-        <div className="space-y-2">
-          <div className="flex items-center justify-between text-sm font-medium text-muted-foreground">
-            <div className="flex items-center gap-2">
-              <CheckCircle className="h-4 w-4" />
-              <span>Progreso global</span>
-            </div>
-            <span>{progressPercentage}%</span>
-          </div>
-          <Progress value={progressPercentage} className="h-2" />
-          <p className="text-xs text-muted-foreground text-right">
-            {completedTopics} de {totalTopics} temas terminados
-          </p>
         </div>
       </CardContent>
     </Card>

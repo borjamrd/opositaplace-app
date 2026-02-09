@@ -7,7 +7,7 @@ import { revalidatePath } from 'next/cache';
 /**
  * Obtiene el ciclo de estudio activo del usuario para su oposición activa.
  */
-async function getActiveStudyCycle() {
+export async function getActiveStudyCycle() {
   const supabase = await createSupabaseServerClient();
   const { data: authData, error: authError } = await supabase.auth.getUser();
   if (authError || !authData.user) throw new Error('User not authenticated');
@@ -41,6 +41,42 @@ async function getActiveStudyCycle() {
   }
 
   return activeCycle;
+}
+
+/**
+ * Obtiene todos los ciclos de estudio para la oposición activa.
+ */
+export async function getStudyCycles() {
+  const supabase = await createSupabaseServerClient();
+  const { data: authData, error: authError } = await supabase.auth.getUser();
+  if (authError || !authData.user) throw new Error('User not authenticated');
+
+  // 1. Encontrar la oposición activa del usuario
+  const { data: activeOppo, error: oppoError } = await supabase
+    .from('user_oppositions')
+    .select('opposition_id')
+    .eq('profile_id', authData.user.id)
+    .eq('active', true)
+    .single();
+
+  if (oppoError || !activeOppo || !activeOppo.opposition_id) {
+    throw new Error('No active opposition found');
+  }
+  const oppositionId = activeOppo.opposition_id;
+
+  // 2. Obtener todos los ciclos
+  const { data: cycles, error: cyclesError } = await supabase
+    .from('user_study_cycles')
+    .select('*')
+    .eq('user_id', authData.user.id)
+    .eq('opposition_id', oppositionId)
+    .order('cycle_number', { ascending: true });
+
+  if (cyclesError) {
+    throw new Error('Error fetching study cycles');
+  }
+
+  return cycles || [];
 }
 
 /**

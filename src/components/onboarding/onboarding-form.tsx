@@ -25,6 +25,8 @@ import {
   Flag,
   Loader2,
   Rocket,
+  RotateCw,
+  BookOpen,
   Save,
   Target,
   Star,
@@ -48,6 +50,8 @@ import OnboardingObjectivesStep from './onboarding-objectives-step';
 import OnboardingOppositionStep from './onboarding-opposition-step';
 import OnboardingPlanStep from './onboarding-plan-step';
 import OnboardingSubscriptionStep from './onboarding-subscription-step';
+import OnboardingCycleStep from './onboarding-cycle-step';
+import OnboardingTopicsStep from './onboarding-topics-step';
 
 // El esquema Zod y el estado de la acción permanecen en el padre
 const onboardingFormSchema = z.object({
@@ -89,6 +93,12 @@ const onboardingFormSchema = z.object({
     .refine((val) => SLOT_DURATION_OPTIONS.includes(val), {
       message: 'La duración del slot no es una opción válida.',
     }),
+  cycle_number: z.coerce
+    .number()
+    .int()
+    .min(1, 'El número de vuelta debe ser al menos 1.')
+    .default(1),
+  selected_topics: z.array(z.string()).default([]),
   selected_plan: z.enum(['free', 'trial']).default('trial'),
 });
 
@@ -130,7 +140,21 @@ const steps = [
     fields: ['study_days', 'slot_duration_minutes'] as const,
   },
   {
-    id: 'step-5-plan',
+    id: 'step-5-cycle',
+    name: 'Ciclo de estudio',
+    description: '¿En qué vuelta estás?',
+    icon: RotateCw,
+    fields: ['cycle_number'] as const,
+  },
+  {
+    id: 'step-6-topics',
+    name: 'Temario',
+    description: 'Marca tu progreso',
+    icon: BookOpen,
+    fields: ['selected_topics'] as const,
+  },
+  {
+    id: 'step-7-plan',
     name: 'Tu plan',
     description: 'Elige tu suscripción',
     icon: Star, // Need to import Star from lucide-react
@@ -179,6 +203,8 @@ export default function OnboardingForm() {
       weekly_study_goal_hours: 20,
       study_days: {},
       slot_duration_minutes: defaultDuration,
+      cycle_number: 1,
+      selected_topics: [],
       selected_plan: 'trial',
     },
   });
@@ -334,6 +360,8 @@ export default function OnboardingForm() {
       formData.append('help_with', JSON.stringify(data.help_with || []));
       formData.append('study_days', JSON.stringify(selectedSlots));
       formData.append('slot_duration_minutes', data.slot_duration_minutes.toString());
+      formData.append('cycle_number', data.cycle_number.toString());
+      formData.append('selected_topics', JSON.stringify(data.selected_topics));
       formData.append('selected_plan', data.selected_plan);
 
       formAction(formData);
@@ -355,7 +383,7 @@ export default function OnboardingForm() {
 
   return (
     <div className="flex min-h-[calc(100vh-10rem)] p-4">
-      <div className="flex flex-col w-full max-w-6xl mt-10 mx-auto p-4 md:p-8 bg-background/80 backdrop-blur-sm rounded-xl shadow-xl border">
+      <div className="flex flex-col w-full max-w-6xl mt-5 mx-auto p-4 md:p-8 bg-background/80 backdrop-blur-sm">
         {/* --- Pasos Superiores --- */}
         <nav className="w-full mx-auto max-w-md mb-8">
           <ol className="flex items-center justify-between w-full">
@@ -403,7 +431,7 @@ export default function OnboardingForm() {
               className="h-full"
             >
               <Card className="flex flex-col h-full bg-transparent border-0 shadow-none">
-                <CardHeader>
+                <CardHeader className="flex flex-col items-center justify-center">
                   <CardTitle className="text-2xl font-bold text-primary">
                     Paso {currentStep + 1}: {steps[currentStep].name}
                   </CardTitle>
@@ -442,6 +470,19 @@ export default function OnboardingForm() {
                     />
                   )}
                   {currentStep === 4 && (
+                    <OnboardingCycleStep
+                      selectedCycle={form.watch('cycle_number')}
+                      onSelectCycle={(cycle) => form.setValue('cycle_number', cycle)}
+                    />
+                  )}
+                  {currentStep === 5 && (
+                    <OnboardingTopicsStep
+                      oppositionId={form.watch('opposition_id')}
+                      selectedTopics={form.watch('selected_topics')}
+                      onSelectTopics={(topics) => form.setValue('selected_topics', topics)}
+                    />
+                  )}
+                  {currentStep === 6 && (
                     <OnboardingSubscriptionStep
                       selectedPlan={form.watch('selected_plan')}
                       onSelectPlan={(plan) => form.setValue('selected_plan', plan)}
