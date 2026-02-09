@@ -161,29 +161,15 @@ export async function submitOnboarding(
 
   const onboardingData: TablesInsert<'onboarding_info'> = {
     user_id: user_id,
-    // Mapeo a la BBDD (asumiendo que `baseline_assessment` se guarda en `objectives`)
-    objectives: parsedBaselineAssessment, // Guardamos la autoevaluación en el campo 'objectives'
+    objectives: parsedBaselineAssessment,
     study_days: parsedStudyDays,
     help_with: parsedHelpWith,
     opposition_id: opposition_id,
     slot_duration_minutes: parseInt(slot_duration_minutes, 10),
-    weekly_study_goal_hours: parseInt(weekly_study_goal_hours, 10), // Nuevo campo
+    weekly_study_goal_hours: parseInt(weekly_study_goal_hours, 10),
   };
 
-  // Usamos 'upsert' para que si el usuario repite el onboarding, se actualice
-  const { error: onboardingInfoError } = await supabase
-    .from('onboarding_info')
-    .upsert(onboardingData, { onConflict: 'user_id' }); // Asume que user_id es 'unique'
-
-  if (onboardingInfoError) {
-    console.error('Error upserting onboarding_info:', onboardingInfoError);
-    return {
-      message: `Error al guardar detalles del onboarding: ${onboardingInfoError.message}`,
-      errors: null,
-      success: false,
-    };
-  }
-
+  // 1. Intentar crear la suscripción PRIMERO
   try {
     // Comprobar si el usuario ya tiene una suscripción antes de crear una de prueba
     const { data: existingSubscription } = await supabase
@@ -195,26 +181,37 @@ export async function submitOnboarding(
     if (!existingSubscription) {
       console.log('Creando suscripción de tipo:', selected_plan);
 
-      try {
-        if (selected_plan === 'free') {
-          await createFreeSubscription(user);
-        } else {
-          await createTrialSubscription(user);
-        }
-      } catch (error) {
-        console.error('Error al crear la suscripción inicial:', error);
+      if (selected_plan === 'free') {
+        await createFreeSubscription(user);
+      } else {
+        await createTrialSubscription(user);
       }
     } else {
       console.log('El usuario ya tiene suscripción, omitiendo creación.');
     }
   } catch (subError: any) {
     console.error('Error creando la suscripción:', subError);
+
     return {
-      message: 'Onboarding guardado, pero hubo un error configurando el plan.',
-      errors: null,
-      success: true, // Dejamos pasar al usuario aunque falle Stripe
+      message: 'Hubo un error al configurar tu onboarding. Por favor, inténtalo de nuevo.',
+      errors: { general: ['Error con el proveedor de pagos.'] },
+      success: false,
     };
   }
+
+  const { error: onboardingInfoError } = await supabase
+    .from('onboarding_info')
+    .upsert(onboardingData, { onConflict: 'user_id' });
+
+  if (onboardingInfoError) {
+    console.error('Error upserting onboarding_info:', onboardingInfoError);
+    return {
+      message: `Error al guardar detalles del onboarding: ${onboardingInfoError.message}`,
+      errors: null,
+      success: false,
+    };
+  }
+
   return {
     message: 'Onboarding completado con éxito. Se te redirigirá a tu dashboard.',
     errors: null,
