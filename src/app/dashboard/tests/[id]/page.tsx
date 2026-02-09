@@ -8,7 +8,8 @@ import { Terminal } from 'lucide-react';
 import { notFound, redirect } from 'next/navigation';
 import { BreadcrumbUpdater } from '@/components/breadcrumb-updater';
 
-export default async function TestPage({ params }: { params: { id: string } }) {
+export default async function TestPage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const { id } = params;
   const supabase = await createSupabaseServerClient();
 
