@@ -1,3 +1,4 @@
+import AdminNotificationEmail from '@/emails/admin-notification-email';
 import InvoicePaidEmail from '@/emails/invoice-paid-email';
 import PaymentFailedEmail from '@/emails/payment-failed-email';
 import { sendEmail } from '@/lib/email/email';
@@ -64,13 +65,47 @@ export async function POST(req: NextRequest) {
           break;
         }
 
-        case 'customer.subscription.updated':
         case 'customer.subscription.created':
-        case 'customer.subscription.deleted': {
+        case 'customer.subscription.updated': {
           const subscription = event.data.object as Stripe.Subscription;
           await manageSubscriptionStatusChange(subscription.id, subscription.customer as string);
           break;
         }
+
+        case 'customer.subscription.deleted': {
+          const subscription = event.data.object as Stripe.Subscription;
+          await manageSubscriptionStatusChange(subscription.id, subscription.customer as string);
+
+          // Notificar al admin
+          try {
+            const customerId = subscription.customer as string;
+            const customer = (await stripe.customers.retrieve(customerId)) as Stripe.Customer;
+            const userEmail = customer.email;
+            const adminEmail = process.env.EMAIL_TO;
+
+            if (adminEmail) {
+                await sendEmail({
+                    to: adminEmail,
+                    subject: 'Suscripción Eliminada',
+                    emailComponent: AdminNotificationEmail({
+                        title: 'Suscripción Eliminada',
+                        message: `La suscripción ${subscription.id} ha sido eliminada.`,
+                        details: {
+                            'Subscription ID': subscription.id,
+                            'Customer ID': customerId,
+                            'User Email': userEmail,
+                            'Status': subscription.status,
+                            'Cancel At Period End': subscription.cancel_at_period_end ? 'Yes' : 'No',
+                        }
+                    })
+                });
+            }
+          } catch (error: any) {
+             console.error('Error enviando email al admin (subscription.deleted):', error.message);
+          }
+          break;
+        }
+
         case 'invoice.paid':
         case 'invoice.payment_succeeded': {
           const invoice = event.data.object as Stripe.Invoice;
@@ -129,6 +164,29 @@ export async function POST(req: NextRequest) {
             const trialEndTimestamp = subscription.trial_end;
             const invoicePeriodStart = invoice.lines.data[0]?.period.start;
 
+            // Información para el admin
+            const customer = (await stripe.customers.retrieve(customerId)) as Stripe.Customer;
+            const userEmail = customer.email;
+            const adminEmail = process.env.EMAIL_TO;
+            
+             if (adminEmail) {
+                await sendEmail({
+                    to: adminEmail,
+                    subject: 'Fallo en el pago de suscripción',
+                    emailComponent: AdminNotificationEmail({
+                        title: 'Fallo en Pago',
+                        message: `El pago para la suscripción ${subscription.id} ha fallado.`,
+                        details: {
+                            'Subscription ID': subscription.id,
+                            'Customer ID': customerId,
+                            'User Email': userEmail,
+                            'Invoice ID': invoice.id,
+                            'Amount Due': (invoice.amount_due / 100).toFixed(2) + ' ' + invoice.currency.toUpperCase(),
+                        }
+                    })
+                });
+            }
+
             if (trialEndTimestamp && invoicePeriodStart === trialEndTimestamp) {
               console.error(`Trial failed at conversion. Downgrading to Free...`);
               await downgradeToFreePlan(subscriptionId, customerId);
@@ -137,8 +195,7 @@ export async function POST(req: NextRequest) {
 
               await manageSubscriptionStatusChange(subscriptionId, customerId);
 
-              const customer = (await stripe.customers.retrieve(customerId)) as Stripe.Customer;
-              const userEmail = customer.email;
+              // Notificar al usuario (existente)
               const userName = customer.name?.split(' ')[0] || userEmail?.split('@')[0];
 
               if (userEmail) {
@@ -150,7 +207,7 @@ export async function POST(req: NextRequest) {
               }
             }
           } catch (e: any) {
-            console.error(`Error processing invoice.payment_failed for sub `);
+            console.error(`Error processing invoice.payment_failed for sub `, e.message);
           }
 
           break;

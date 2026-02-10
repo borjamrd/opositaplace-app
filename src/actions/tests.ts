@@ -15,6 +15,8 @@ interface CreateTestParams {
   oppositionId: string;
   studyCycleId: string;
   includeNoTopic?: boolean;
+  timerEnabled?: boolean;
+  duration?: number; // in minutes
 }
 
 export async function checkTestCreationEligibility(params?: {
@@ -224,6 +226,8 @@ export async function createTestAttempt(params: CreateTestParams) {
       title: testTitle,
       status: 'in_progress',
       mode: params.mode,
+      timer_enabled: params.timerEnabled || false,
+      duration_seconds: params.duration ? params.duration * 60 : null,
     })
     .select('id')
     .single();

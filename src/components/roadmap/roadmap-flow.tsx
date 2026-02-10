@@ -102,11 +102,11 @@ const TopicNode = ({ data }: { data: any }) => {
             {label}
           </span>
           <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold mt-1">
-            {status === 'not_started'
-              ? 'Pendiente'
+            {status === 'completed'
+              ? 'Completado'
               : status === 'in_progress'
-                ? 'En Curso'
-                : 'Completado'}
+                ? 'Estudiando'
+                : 'Sin comenzar'}
           </span>
         </div>
       </div>
@@ -412,7 +412,7 @@ export function RoadmapFlow({
                     {selectedTopic.name}
                   </SheetTitle>
                   <SheetDescription>
-                    Bloque: {initialBlocks.find((b) => b.id === selectedTopic.block_id)?.name}
+                    {initialBlocks.find((b) => b.id === selectedTopic.block_id)?.name}
                   </SheetDescription>
                 </SheetHeader>
 

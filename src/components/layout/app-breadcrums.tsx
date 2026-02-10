@@ -29,9 +29,12 @@ function capitalize(s: string) {
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
+import { useBreadcrumbStore } from '@/lib/stores/breadcrumb-store';
+
 export function AppBreadcrumbs() {
   const pathname = usePathname();
   const segments = pathname.split('/').filter(Boolean);
+  const labels = useBreadcrumbStore((state) => state.labels);
 
   return (
     <Breadcrumb className="hidden md:flex">
@@ -53,10 +56,10 @@ export function AppBreadcrumbs() {
               <BreadcrumbSeparator />
               <BreadcrumbItem>
                 {isLast ? (
-                  <BreadcrumbPage>{displayName}</BreadcrumbPage>
+                  <BreadcrumbPage>{labels[segment] || displayName}</BreadcrumbPage>
                 ) : (
                   <BreadcrumbLink asChild>
-                    <Link href={href}>{displayName}</Link>
+                    <Link href={href}>{labels[segment] || displayName}</Link>
                   </BreadcrumbLink>
                 )}
               </BreadcrumbItem>

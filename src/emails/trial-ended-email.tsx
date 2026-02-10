@@ -7,6 +7,7 @@ import {
   heading,
   paragraph,
 } from './components/email-layout';
+import { TRIAL_DAYS } from '@/lib/constants';
 
 interface TrialEndedEmailProps {
   userName?: string;
@@ -22,8 +23,8 @@ export const TrialEndedEmail = ({ userName }: TrialEndedEmailProps) => {
       <Heading style={heading}>Tu período de prueba ha finalizado</Heading>
       <Text style={paragraph}>Hola{userName ? ` ${userName}` : ''},</Text>
       <Text style={paragraph}>
-        Tu período de prueba gratuito de 7 días del plan premium ha terminado. Como no se añadió un
-        método de pago, tu cuenta ha sido movida automáticamente al plan gratuito.
+        Tu período de prueba gratuito de {TRIAL_DAYS} días del plan premium ha terminado. Como no se
+        añadió un método de pago, tu cuenta ha sido movida automáticamente al plan gratuito.
       </Text>
       <Text style={paragraph}>
         ¡No te preocupes! Aún tienes acceso completo a las funciones básicas de Opositaplace y todo

@@ -1,6 +1,8 @@
 // src/actions/profile.ts
 'use server';
 
+import { sendEmail } from '@/lib/email/email';
+import AdminNotificationEmail from '@/emails/admin-notification-email';
 import { stripe } from '@/lib/stripe/stripe';
 import { createSupabaseAdminClient } from '@/lib/supabase/admin';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
@@ -76,10 +78,33 @@ export async function deleteUserAccount() {
 
   const { error: deleteUserError } = await supabaseAdmin.auth.admin.deleteUser(user.id);
 
+
   if (deleteUserError) {
     console.error('Error al eliminar el usuario de Supabase Auth:', deleteUserError);
     return { error: 'No se pudo eliminar la cuenta de usuario.' };
   }
+
+  // Notificar al admin sobre la eliminación del usuario
+    try {
+        const adminEmail = process.env.EMAIL_TO;
+        if (adminEmail) {
+            await sendEmail({
+                to: adminEmail,
+                subject: 'Usuario Eliminado',
+                emailComponent: AdminNotificationEmail({
+                    title: 'Usuario Eliminado',
+                    message: `El usuario ${user.email} ha eliminado su cuenta.`,
+                    details: {
+                        'User ID': user.id,
+                        'User Email': user.email,
+                        'Stripe Customer ID': stripeCustomerId,
+                    },
+                })
+            });
+        }
+    } catch (error: any) {
+        console.error('Error enviando notificación al admin sobre eliminación de usuario:', error.message);
+    }
 
   redirect('/?message=Cuenta eliminada correctamente');
 }

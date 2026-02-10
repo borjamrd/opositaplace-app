@@ -1267,6 +1267,7 @@ export type Database = {
           completed_at: string | null
           correct_answers: number | null
           created_at: string
+          duration_seconds: number | null
           finished_at: string | null
           id: string
           incorrect_answers: number | null
@@ -1276,6 +1277,7 @@ export type Database = {
           score: number | null
           status: string | null
           study_cycle_id: string
+          timer_enabled: boolean | null
           title: string | null
           total_questions: number | null
           unanswered_questions: number | null
@@ -1285,6 +1287,7 @@ export type Database = {
           completed_at?: string | null
           correct_answers?: number | null
           created_at?: string
+          duration_seconds?: number | null
           finished_at?: string | null
           id?: string
           incorrect_answers?: number | null
@@ -1294,6 +1297,7 @@ export type Database = {
           score?: number | null
           status?: string | null
           study_cycle_id: string
+          timer_enabled?: boolean | null
           title?: string | null
           total_questions?: number | null
           unanswered_questions?: number | null
@@ -1303,6 +1307,7 @@ export type Database = {
           completed_at?: string | null
           correct_answers?: number | null
           created_at?: string
+          duration_seconds?: number | null
           finished_at?: string | null
           id?: string
           incorrect_answers?: number | null
@@ -1312,6 +1317,7 @@ export type Database = {
           score?: number | null
           status?: string | null
           study_cycle_id?: string
+          timer_enabled?: boolean | null
           title?: string | null
           total_questions?: number | null
           unanswered_questions?: number | null
