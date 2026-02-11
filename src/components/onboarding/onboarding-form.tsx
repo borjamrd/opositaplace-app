@@ -391,172 +391,150 @@ export default function OnboardingForm() {
   const progressPercentage = weeklyGoalHours > 0 ? (totalSelectedHours / weeklyGoalHours) * 100 : 0;
 
   return (
-    <div className="flex min-h-[calc(100vh-10rem)] p-4">
-      <div className="flex flex-col w-full max-w-6xl mt-5 mx-auto p-4 md:p-8 bg-background/80 backdrop-blur-sm">
-        {/* --- Pasos Superiores --- */}
-        <nav className="w-full mx-auto max-w-md mb-8">
-          <ol className="flex items-center justify-between w-full">
-            {steps.map((step, index) => {
-              const isActive = index === currentStep;
-              const isCompleted = index < currentStep;
-              const StepIcon = step.icon;
+    <div className="flex min-h-[calc(100vh-10rem)] p-4 items-center justify-center">
+      <div className="flex w-full max-w-7xl mx-auto items-start md:items-center gap-4 md:gap-8">
+        {/* Left Button (Prev) */}
+        <div className="hidden md:flex shrink-0">
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            onClick={handlePrevStep}
+            disabled={currentStep === 0}
+            className={`h-16 w-16 rounded-full border-2 ${currentStep === 0 ? 'opacity-0 pointer-events-none' : ''}`}
+          >
+            <ArrowLeft className="h-8 w-8" />
+          </Button>
+        </div>
 
-              return (
-                <li
-                  key={step.id}
-                  className="flex flex-col md:flex-row items-center md:items-center md:space-x-4"
-                >
-                  <div className="shrink-0 mb-2 md:mb-0">
-                    {isCompleted ? (
-                      <span className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground transition-all duration-300">
-                        <CheckCircle className="h-6 w-6" />
-                      </span>
-                    ) : (
-                      <span
-                        className={`flex h-10 w-10 items-center justify-center rounded-full transition-all duration-300 ${isActive
-                            ? 'bg-primary border-2 border-primary text-primary-foreground scale-110'
-                            : 'bg-primary/10 border-2'
-                          }`}
-                      >
-                        <StepIcon
-                          className={`h-6 w-6 ${isActive ? '' : 'text-muted-foreground'}`}
-                        />
-                      </span>
+        <div className="flex flex-col w-full grow p-4 md:p-8 bg-background/80 backdrop-blur-sm rounded-xl">
+          {/* --- Pasos Superiores --- */}
+
+          <main className="w-full">
+            <Form {...form}>
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                }}
+                className="h-full"
+              >
+                <Card className="flex flex-col h-full bg-transparent border-0 shadow-none">
+                  <CardHeader className="flex flex-col items-center justify-center pt-8">
+                    <CardTitle className="text-3xl font-bold text-primary">
+                      {steps[currentStep].name}
+                    </CardTitle>
+                    <CardDescription className="text-lg">
+                      {steps[currentStep].description}
+                    </CardDescription>
+                  </CardHeader>
+
+                  <CardContent className="grow space-y-8">
+                    {actionState?.message && !actionState.success && !actionState.errors && (
+                      <Alert variant="destructive">
+                        <AlertCircle className="h-4 w-4" />
+                        <AlertTitle>Error</AlertTitle>
+                        <AlertDescription>{actionState.message}</AlertDescription>
+                      </Alert>
                     )}
-                  </div>
-                </li>
-              );
-            })}
-          </ol>
-        </nav>
+                    {actionState?.errors && (
+                      <Alert variant="destructive">
+                        <AlertCircle className="h-4 w-4" />
+                        <AlertTitle>Error</AlertTitle>
+                        <AlertDescription>
+                          {typeof actionState.errors === 'string' ? (
+                            actionState.errors
+                          ) : (
+                            <ul className="list-disc pl-4 mt-2">
+                              {Object.entries(actionState.errors).map(
+                                ([key, messages]: [string, any]) =>
+                                  Array.isArray(messages) ? (
+                                    messages.map((msg: string, i: number) => (
+                                      <li key={`${key}-${i}`}>{msg}</li>
+                                    ))
+                                  ) : (
+                                    <li key={key}>{String(messages)}</li>
+                                  )
+                              )}
+                            </ul>
+                          )}
+                        </AlertDescription>
+                      </Alert>
+                    )}
 
-        <main className="w-full">
-          <Form {...form}>
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-              }}
-              className="h-full"
-            >
-              <Card className="flex flex-col h-full bg-transparent border-0 shadow-none">
-                <CardHeader className="flex flex-col items-center justify-center">
-                  <CardTitle className="text-2xl font-bold text-primary">
-                    Paso {currentStep + 1}: {steps[currentStep].name}
-                  </CardTitle>
-                  <CardDescription>{steps[currentStep].description}</CardDescription>
-                </CardHeader>
+                    {/* Renderizado de Pasos */}
+                    {currentStep === 0 && (
+                      <OnboardingOppositionStep
+                        oppositions={oppositions}
+                        isLoadingOppositions={isLoadingOppositions}
+                      />
+                    )}
+                    {currentStep === 1 && <OnboardingEvaluationStep />}
+                    {currentStep === 2 && <OnboardingObjectivesStep />}
+                    {currentStep === 3 && (
+                      <OnboardingPlanStep
+                        weeklyGoalHours={weeklyGoalHours}
+                        totalSelectedHours={totalSelectedHours}
+                        progressPercentage={progressPercentage}
+                        selectedSlots={selectedSlots}
+                        slotDuration={slotDuration}
+                        handleDurationChange={handleDurationChange}
+                        currentTimeSlots={currentTimeSlots}
+                        handleToggleSlot={handleToggleSlot}
+                      />
+                    )}
+                    {currentStep === 4 && (
+                      <OnboardingCycleStep
+                        selectedCycle={form.watch('cycle_number')}
+                        onSelectCycle={(cycle) => form.setValue('cycle_number', cycle)}
+                      />
+                    )}
+                    {currentStep === 5 && (
+                      <OnboardingTopicsStep
+                        oppositionId={form.watch('opposition_id')}
+                        selectedTopics={form.watch('selected_topics')}
+                        onSelectTopics={(topics) => form.setValue('selected_topics', topics)}
+                      />
+                    )}
+                    {currentStep === 6 && <OnboardingTestStep onComplete={handleNextStep} />}
+                    {currentStep === 7 && (
+                      <OnboardingSubscriptionStep
+                        selectedPlan={form.watch('selected_plan')}
+                        onSelectPlan={(plan) => form.setValue('selected_plan', plan)}
+                      />
+                    )}
+                  </CardContent>
+                </Card>
+              </form>
+            </Form>
+          </main>
 
-                <CardContent className="grow space-y-8">
-                  {actionState?.message && !actionState.success && !actionState.errors && (
-                    <Alert variant="destructive">
-                      <AlertCircle className="h-4 w-4" />
-                      <AlertTitle>Error</AlertTitle>
-                      <AlertDescription>{actionState.message}</AlertDescription>
-                    </Alert>
-                  )}
-                  {actionState?.errors && (
-                    <Alert variant="destructive">
-                      <AlertCircle className="h-4 w-4" />
-                      <AlertTitle>Error</AlertTitle>
-                      <AlertDescription>
-                        {typeof actionState.errors === 'string' ? (
-                          actionState.errors
-                        ) : (
-                          <ul className="list-disc pl-4 mt-2">
-                            {Object.entries(actionState.errors).map(([key, messages]: [string, any]) =>
-                              Array.isArray(messages) ? (
-                                messages.map((msg: string, i: number) => (
-                                  <li key={`${key}-${i}`}>{msg}</li>
-                                ))
-                              ) : (
-                                <li key={key}>{String(messages)}</li>
-                              )
-                            )}
-                          </ul>
-                        )}
-                      </AlertDescription>
-                    </Alert>
-                  )}
-
-                  {/* Renderizado de Pasos */}
-                  {currentStep === 0 && (
-                    <OnboardingOppositionStep
-                      oppositions={oppositions}
-                      isLoadingOppositions={isLoadingOppositions}
-                    />
-                  )}
-                  {currentStep === 1 && <OnboardingEvaluationStep />}
-                  {currentStep === 2 && <OnboardingObjectivesStep />}
-                  {currentStep === 3 && (
-                    <OnboardingPlanStep
-                      weeklyGoalHours={weeklyGoalHours}
-                      totalSelectedHours={totalSelectedHours}
-                      progressPercentage={progressPercentage}
-                      selectedSlots={selectedSlots}
-                      slotDuration={slotDuration}
-                      handleDurationChange={handleDurationChange}
-                      currentTimeSlots={currentTimeSlots}
-                      handleToggleSlot={handleToggleSlot}
-                    />
-                  )}
-                  {currentStep === 4 && (
-                    <OnboardingCycleStep
-                      selectedCycle={form.watch('cycle_number')}
-                      onSelectCycle={(cycle) => form.setValue('cycle_number', cycle)}
-                    />
-                  )}
-                  {currentStep === 5 && (
-                    <OnboardingTopicsStep
-                      oppositionId={form.watch('opposition_id')}
-                      selectedTopics={form.watch('selected_topics')}
-                      onSelectTopics={(topics) => form.setValue('selected_topics', topics)}
-                    />
-                  )}
-                  {currentStep === 6 && (
-                    <OnboardingTestStep onComplete={handleNextStep} />
-                  )}
-                  {currentStep === 7 && (
-                    <OnboardingSubscriptionStep
-                      selectedPlan={form.watch('selected_plan')}
-                      onSelectPlan={(plan) => form.setValue('selected_plan', plan)}
-                    />
-                  )}
-                </CardContent>
-
-                <CardFooter className="pt-6 flex justify-between">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={handlePrevStep}
-                    disabled={currentStep === 0}
-                  >
-                    <ArrowLeft className="mr-2 h-4 w-4" />
-                    Anterior
-                  </Button>
-
-                  {currentStep < steps.length - 1 ? (
-                    <Button type="button" onClick={handleNextStep}>
-                      Siguiente
-                      <ChevronRight className="ml-2 h-4 w-4" />
-                    </Button>
-                  ) : (
-                    <Button type="button" onClick={handleNextStep} disabled={isServerActionPending}>
-                      {isServerActionPending ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Guardando...
-                        </>
-                      ) : (
-                        <>
-                          <Save className="mr-2 h-5 w-5" /> Finalizar onboarding
-                        </>
-                      )}
-                    </Button>
-                  )}
-                </CardFooter>
-              </Card>
-            </form>
-          </Form>
-        </main>
+          {/* Right Button (Next) */}
+        </div>
+        <div className="hidden md:flex shrink-0">
+          {steps[currentStep].id !== 'step-7-test' &&
+            (currentStep < steps.length - 1 ? (
+              <Button
+                type="button"
+                onClick={handleNextStep}
+                className="h-16 w-16 rounded-full shadow-lg"
+              >
+                <ChevronRight className="h-8 w-8" />
+              </Button>
+            ) : (
+              <Button
+                type="button"
+                onClick={handleNextStep}
+                disabled={isServerActionPending}
+                className="h-16 w-16 rounded-full shadow-lg bg-green-600 hover:bg-green-700"
+              >
+                {isServerActionPending ? (
+                  <Loader2 className="h-8 w-8 animate-spin" />
+                ) : (
+                  <Save className="h-8 w-8" />
+                )}
+              </Button>
+            ))}
+        </div>
       </div>
     </div>
   );
