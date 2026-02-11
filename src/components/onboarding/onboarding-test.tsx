@@ -65,6 +65,7 @@ export default function OnboardingTestStep({ onComplete }: OnboardingTestStepPro
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [userAnswers, setUserAnswers] = useState<Record<string, string>>({});
   const [isFinished, setIsFinished] = useState(false);
+  const [hasStarted, setHasStarted] = useState(false);
 
   const currentQuestion = MOCK_QUESTIONS[currentQuestionIndex];
   const progress = ((currentQuestionIndex + 1) / MOCK_QUESTIONS.length) * 100;
@@ -83,6 +84,51 @@ export default function OnboardingTestStep({ onComplete }: OnboardingTestStepPro
       setIsFinished(true);
     }
   };
+
+  if (!hasStarted) {
+    return (
+      <div className="w-full max-w-2xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 text-center pt-8">
+        <div className="inline-flex items-center justify-center p-4 bg-primary/10 rounded-full mb-2">
+          <Trophy className="w-12 h-12 text-primary" />
+        </div>
+        <h2 className="text-3xl font-bold tracking-tight text-primary">Descubre Opositaplace</h2>
+        <p className="text-lg text-muted-foreground leading-relaxed max-w-lg mx-auto">
+          A continuación verás ejemplos de cómo funciona nuestra plataforma. Responde a unas breves
+          preguntas para familiarizarte con el entorno de examen.
+        </p>
+
+        <Card className="text-left mt-8 border-l-4 border-l-primary/50">
+          <CardHeader>
+            <CardTitle className="text-lg">¿Qué encontrarás?</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3 text-muted-foreground">
+            <div className="flex items-center gap-2">
+              <CheckCircle className="w-5 h-5 text-green-500 shrink-0" />
+              <span>Preguntas actualizadas y explicadas.</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <CheckCircle className="w-5 h-5 text-green-500 shrink-0" />
+              <span>Interfaz similar al examen real.</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <CheckCircle className="w-5 h-5 text-green-500 shrink-0" />
+              <span>Resultados detallados al instante.</span>
+            </div>
+          </CardContent>
+        </Card>
+
+        <div className="pt-6">
+          <Button
+            onClick={() => setHasStarted(true)}
+            size="lg"
+            className="w-full md:w-auto px-8 py-6 text-lg"
+          >
+            Comencemos <ArrowRight className="ml-2 h-5 w-5" />
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   if (isFinished) {
     // Calcular resultado mock
