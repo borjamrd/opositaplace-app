@@ -188,6 +188,7 @@ export default function OnboardingForm() {
   const [isServerActionPending, startTransition] = useTransition();
 
   const [currentStep, setCurrentStep] = useState(0);
+  const [isTestFinished, setIsTestFinished] = useState(false);
 
   // Estados del planificador (permanecen en el padre)
   const defaultDuration = SLOT_DURATION_OPTIONS.includes(60)
@@ -495,7 +496,9 @@ export default function OnboardingForm() {
                         onSelectTopics={(topics) => form.setValue('selected_topics', topics)}
                       />
                     )}
-                    {currentStep === 6 && <OnboardingTestStep onComplete={handleNextStep} />}
+                    {currentStep === 6 && (
+                      <OnboardingTestStep onTestFinished={() => setIsTestFinished(true)} />
+                    )}
                     {currentStep === 7 && (
                       <OnboardingSubscriptionStep
                         selectedPlan={form.watch('selected_plan')}
@@ -511,7 +514,7 @@ export default function OnboardingForm() {
           {/* Right Button (Next) */}
         </div>
         <div className="hidden md:flex shrink-0">
-          {steps[currentStep].id !== 'step-7-test' &&
+          {(steps[currentStep].id !== 'step-7-test' || isTestFinished) &&
             (currentStep < steps.length - 1 ? (
               <Button
                 type="button"

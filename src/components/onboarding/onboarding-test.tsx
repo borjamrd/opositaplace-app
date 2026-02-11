@@ -19,7 +19,7 @@ import { QuestionWithAnswers, TestAttempt } from '@/lib/supabase/types';
 import { TestSessionNavigation } from '@/components/tests/test-session-navigation';
 
 interface OnboardingTestStepProps {
-  onComplete: () => void;
+  onTestFinished: () => void;
 }
 
 // Mock Data
@@ -102,7 +102,7 @@ const MOCK_QUESTIONS: QuestionWithAnswers[] = [
   },
 ];
 
-export default function OnboardingTestStep({ onComplete }: OnboardingTestStepProps) {
+export default function OnboardingTestStep({ onTestFinished }: OnboardingTestStepProps) {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [userAnswers, setUserAnswers] = useState<Record<string, string>>({});
   // Convert current answers to Map for navigation component
@@ -125,6 +125,7 @@ export default function OnboardingTestStep({ onComplete }: OnboardingTestStepPro
       setCurrentQuestionIndex((prev) => prev + 1);
     } else {
       setIsFinished(true);
+      onTestFinished();
     }
   };
 
@@ -200,12 +201,6 @@ export default function OnboardingTestStep({ onComplete }: OnboardingTestStepPro
           attempt={mockAttempt}
           addedCardIds={[]}
         />
-
-        <div className="flex justify-center pt-6">
-          <Button onClick={onComplete} size="lg" className="w-full md:w-auto min-w-[200px]">
-            Continuar con el Plan <ArrowRight className="ml-2 h-4 w-4" />
-          </Button>
-        </div>
       </div>
     );
   }
