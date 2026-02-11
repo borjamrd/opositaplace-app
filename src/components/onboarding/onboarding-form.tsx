@@ -30,6 +30,7 @@ import {
   Save,
   Target,
   Star,
+  GraduationCap,
 } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
 import { useActionState, useCallback, useEffect, useState, useTransition } from 'react';
@@ -52,6 +53,7 @@ import OnboardingPlanStep from './onboarding-plan-step';
 import OnboardingSubscriptionStep from './onboarding-subscription-step';
 import OnboardingCycleStep from './onboarding-cycle-step';
 import OnboardingTopicsStep from './onboarding-topics-step';
+import OnboardingTestStep from './onboarding-test';
 
 // El esquema Zod y el estado de la acción permanecen en el padre
 const onboardingFormSchema = z.object({
@@ -154,7 +156,14 @@ const steps = [
     fields: ['selected_topics'] as const,
   },
   {
-    id: 'step-7-plan',
+    id: 'step-7-test',
+    name: 'Test de Nivel',
+    description: 'Prueba tus conocimientos',
+    icon: GraduationCap,
+    fields: [] as const,
+  },
+  {
+    id: 'step-8-plan',
     name: 'Tu plan',
     description: 'Elige tu suscripción',
     icon: Star, // Need to import Star from lucide-react
@@ -504,6 +513,9 @@ export default function OnboardingForm() {
                     />
                   )}
                   {currentStep === 6 && (
+                    <OnboardingTestStep onComplete={handleNextStep} />
+                  )}
+                  {currentStep === 7 && (
                     <OnboardingSubscriptionStep
                       selectedPlan={form.watch('selected_plan')}
                       onSelectPlan={(plan) => form.setValue('selected_plan', plan)}
