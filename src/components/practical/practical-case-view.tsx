@@ -16,9 +16,16 @@ import { CorrectionFeedback } from './correction-feedback';
 interface Props {
   caseData: PracticalCase;
   initialAttempt: PracticalCaseAttemptWithAnalysis | null;
+  showBackButton?: boolean;
+  isMock?: boolean;
 }
 
-export function PracticalCaseView({ caseData, initialAttempt }: Props) {
+export function PracticalCaseView({
+  caseData,
+  initialAttempt,
+  showBackButton = true,
+  isMock = false,
+}: Props) {
   const [feedback, setFeedback] = useState(initialAttempt?.feedback_analysis || null);
   const [viewMode, setViewMode] = useState<'edit' | 'feedback'>(
     initialAttempt?.status === 'corrected' ? 'feedback' : 'edit'
@@ -34,11 +41,13 @@ export function PracticalCaseView({ caseData, initialAttempt }: Props) {
     >
       <div className="flex items-center justify-between px-6 py-3 border-b bg-background shrink-0">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="sm" asChild>
-            <Link href="/dashboard/practical-cases">
-              <ArrowLeft className="w-4 h-4 mr-2" /> Volver
-            </Link>
-          </Button>
+          {showBackButton && (
+            <Button variant="ghost" size="sm" asChild>
+              <Link href="/dashboard/practical-cases">
+                <ArrowLeft className="w-4 h-4 mr-2" /> Volver
+              </Link>
+            </Button>
+          )}
           <div>
             <h1 className="text-lg font-semibold flex items-center gap-2">{caseData.title}</h1>
           </div>
@@ -87,6 +96,7 @@ export function PracticalCaseView({ caseData, initialAttempt }: Props) {
             <CaseEditor
               caseId={caseData.id}
               initialContent={initialAttempt?.user_answer || ''}
+              isMock={isMock}
               onCorrectionReceived={(newAnalysis) => {
                 setFeedback(newAnalysis);
                 setViewMode('feedback'); // Automáticamente cambiamos a ver la nota

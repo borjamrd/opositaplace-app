@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui/button';
 import { QuestionWithAnswers } from '@/lib/supabase/types';
-import { ChevronLeft, ChevronRight, Menu } from 'lucide-react'; // Using icons for toggle
+import { ChevronLeft, ChevronRight } from 'lucide-react'; // Using icons for toggle
 import { useState } from 'react';
 
 interface TestSessionNavigationProps {
@@ -10,6 +10,7 @@ interface TestSessionNavigationProps {
   userAnswers: Map<string, string | null>;
   currentQuestionIndex: number;
   onQuestionSelect: (index: number) => void;
+  defaultOpen?: boolean;
 }
 
 export function TestSessionNavigation({
@@ -17,8 +18,9 @@ export function TestSessionNavigation({
   userAnswers,
   currentQuestionIndex,
   onQuestionSelect,
+  defaultOpen,
 }: TestSessionNavigationProps) {
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(defaultOpen ?? true);
 
   // Calculate actual answered count (ignoring nulls)
   const answeredCount = Array.from(userAnswers.values()).filter((v) => v !== null).length;

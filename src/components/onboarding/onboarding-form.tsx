@@ -3,14 +3,7 @@
 import { submitOnboarding } from '@/actions/onboarding';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
 import { getActiveOppositions } from '@/lib/supabase/queries/getActiveOppositions';
@@ -19,18 +12,17 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import {
   AlertCircle,
   ArrowLeft,
+  BookOpen,
+  BookText,
   Calendar,
-  CheckCircle,
   ChevronRight,
   Flag,
+  GraduationCap,
   Loader2,
   Rocket,
   RotateCw,
-  BookOpen,
   Save,
-  Target,
   Star,
-  GraduationCap,
 } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
 import { useActionState, useCallback, useEffect, useState, useTransition } from 'react';
@@ -44,16 +36,18 @@ import { initializeSelectedSlots } from '@/components/weekly-planner/utils';
 import { Opposition } from '@/lib/supabase/types';
 import { useProfileStore } from '@/store/profile-store';
 import { useQueryClient } from '@tanstack/react-query';
+import { motion } from 'framer-motion';
 
 // Importar los nuevos componentes de paso
 // import OnboardingEvaluationStep from './onboarding-evaluation-step';
+import OnboardingCycleStep from './onboarding-cycle-step';
 import OnboardingObjectivesStep from './onboarding-objectives-step';
 import OnboardingOppositionStep from './onboarding-opposition-step';
 import OnboardingPlanStep from './onboarding-plan-step';
+import OnboardingStepPracticalCase from './onboarding-step-practical-case';
 import OnboardingSubscriptionStep from './onboarding-subscription-step';
-import OnboardingCycleStep from './onboarding-cycle-step';
-import OnboardingTopicsStep from './onboarding-topics-step';
 import OnboardingTestStep from './onboarding-test';
+import OnboardingTopicsStep from './onboarding-topics-step';
 
 // El esquema Zod y el estado de la acción permanecen en el padre
 const onboardingFormSchema = z.object({
@@ -157,19 +151,37 @@ const steps = [
   },
   {
     id: 'step-7-test',
-    name: '',
+    name: 'Test de prueba', // Updated name to be more descriptive if needed, or keep empty if design requires
     description: '',
     icon: GraduationCap,
     fields: [] as const,
   },
   {
-    id: 'step-8-plan',
+    id: 'step-8-practical-cases',
+    name: '',
+    description: '',
+    icon: BookText,
+    fields: [] as const,
+  },
+  {
+    id: 'step-9-plan',
     name: 'Tu plan',
     description: 'Elige tu suscripción',
     icon: Star,
     fields: ['selected_plan'] as const,
   },
 ];
+
+const StepAnimationWrapper = ({ children }: { children: React.ReactNode }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.5, ease: 'easeOut' }}
+    className="w-full"
+  >
+    {children}
+  </motion.div>
+);
 
 export default function OnboardingForm() {
   const params = useParams();
@@ -463,46 +475,67 @@ export default function OnboardingForm() {
 
                     {/* Renderizado de Pasos */}
                     {currentStep === 0 && (
-                      <OnboardingOppositionStep
-                        oppositions={oppositions}
-                        isLoadingOppositions={isLoadingOppositions}
-                      />
+                      <StepAnimationWrapper>
+                        <OnboardingOppositionStep
+                          oppositions={oppositions}
+                          isLoadingOppositions={isLoadingOppositions}
+                        />
+                      </StepAnimationWrapper>
                     )}
                     {/* {currentStep === 1 && <OnboardingEvaluationStep />} */}
-                    {currentStep === 1 && <OnboardingObjectivesStep />}
+                    {currentStep === 1 && (
+                      <StepAnimationWrapper>
+                        <OnboardingObjectivesStep />
+                      </StepAnimationWrapper>
+                    )}
                     {currentStep === 2 && (
-                      <OnboardingPlanStep
-                        weeklyGoalHours={weeklyGoalHours}
-                        totalSelectedHours={totalSelectedHours}
-                        progressPercentage={progressPercentage}
-                        selectedSlots={selectedSlots}
-                        slotDuration={slotDuration}
-                        handleDurationChange={handleDurationChange}
-                        currentTimeSlots={currentTimeSlots}
-                        handleToggleSlot={handleToggleSlot}
-                      />
+                      <StepAnimationWrapper>
+                        <OnboardingPlanStep
+                          weeklyGoalHours={weeklyGoalHours}
+                          totalSelectedHours={totalSelectedHours}
+                          progressPercentage={progressPercentage}
+                          selectedSlots={selectedSlots}
+                          slotDuration={slotDuration}
+                          handleDurationChange={handleDurationChange}
+                          currentTimeSlots={currentTimeSlots}
+                          handleToggleSlot={handleToggleSlot}
+                        />
+                      </StepAnimationWrapper>
                     )}
                     {currentStep === 3 && (
-                      <OnboardingCycleStep
-                        selectedCycle={form.watch('cycle_number')}
-                        onSelectCycle={(cycle) => form.setValue('cycle_number', cycle)}
-                      />
+                      <StepAnimationWrapper>
+                        <OnboardingCycleStep
+                          selectedCycle={form.watch('cycle_number')}
+                          onSelectCycle={(cycle) => form.setValue('cycle_number', cycle)}
+                        />
+                      </StepAnimationWrapper>
                     )}
                     {currentStep === 4 && (
-                      <OnboardingTopicsStep
-                        oppositionId={form.watch('opposition_id')}
-                        selectedTopics={form.watch('selected_topics')}
-                        onSelectTopics={(topics) => form.setValue('selected_topics', topics)}
-                      />
+                      <StepAnimationWrapper>
+                        <OnboardingTopicsStep
+                          oppositionId={form.watch('opposition_id')}
+                          selectedTopics={form.watch('selected_topics')}
+                          onSelectTopics={(topics) => form.setValue('selected_topics', topics)}
+                        />
+                      </StepAnimationWrapper>
                     )}
                     {currentStep === 5 && (
-                      <OnboardingTestStep onTestFinished={() => setIsTestFinished(true)} />
+                      <StepAnimationWrapper>
+                        <OnboardingTestStep onTestFinished={() => setIsTestFinished(true)} />
+                      </StepAnimationWrapper>
                     )}
                     {currentStep === 6 && (
-                      <OnboardingSubscriptionStep
-                        selectedPlan={form.watch('selected_plan')}
-                        onSelectPlan={(plan) => form.setValue('selected_plan', plan)}
-                      />
+                      <StepAnimationWrapper>
+                        <OnboardingStepPracticalCase />
+                      </StepAnimationWrapper>
+                    )}
+                    {currentStep === 7 && (
+                      <StepAnimationWrapper>
+                        <OnboardingSubscriptionStep
+                          selectedPlan={form.watch('selected_plan')}
+                          onSelectPlan={(plan) => form.setValue('selected_plan', plan)}
+                        />
+                      </StepAnimationWrapper>
                     )}
                   </CardContent>
                 </Card>

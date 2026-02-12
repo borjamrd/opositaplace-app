@@ -183,13 +183,12 @@ export default function OnboardingTestStep({ onTestFinished }: OnboardingTestSte
       duration_seconds: 120,
       mode: 'mock',
       total_questions: MOCK_QUESTIONS.length,
-      net_score: correctCount - (MOCK_QUESTIONS.length - correctCount) / 3, // Simple penalty
+      net_score: correctCount - (MOCK_QUESTIONS.length - correctCount) / 3,
     };
 
     return (
       <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
         <div className="text-center space-y-2">
-          <h2 className="text-2xl font-bold trackFing-tight">¡Test Completado!</h2>
           <p className="text-muted-foreground">
             Has completado tu primer test de prueba. Utiliza la navegación para ver tus resultados
           </p>
@@ -201,6 +200,7 @@ export default function OnboardingTestStep({ onTestFinished }: OnboardingTestSte
           attempt={mockAttempt}
           addedCardIds={[]}
           isMockTest
+          defaultOpenNavigation={false}
         />
       </div>
     );
@@ -275,6 +275,7 @@ export default function OnboardingTestStep({ onTestFinished }: OnboardingTestSte
           userAnswers={userAnswersMap}
           currentQuestionIndex={currentQuestionIndex}
           onQuestionSelect={setCurrentQuestionIndex}
+          defaultOpen={false}
         />
       </div>
     </div>

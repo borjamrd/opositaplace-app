@@ -33,6 +33,7 @@ interface TestResultsProps {
   attempt?: TestAttempt;
   addedCardIds: string[];
   isMockTest?: boolean;
+  defaultOpenNavigation?: boolean;
 }
 
 export function TestResults({
@@ -41,6 +42,7 @@ export function TestResults({
   attempt,
   addedCardIds,
   isMockTest,
+  defaultOpenNavigation,
 }: TestResultsProps) {
   const { toast } = useToast();
   const questionHeaderRef = useRef<HTMLDivElement>(null);
@@ -455,6 +457,7 @@ export function TestResults({
           userAnswers={userAnswersMap}
           currentQuestionIndex={currentQuestionIndex}
           onQuestionSelect={setCurrentQuestionIndex}
+          defaultOpen={defaultOpenNavigation}
         />
       </Card>
 

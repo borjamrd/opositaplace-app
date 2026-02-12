@@ -16,6 +16,8 @@ import {
   ArrowRight,
   BookOpenCheck,
   CheckCircle,
+  EyeOff,
+  Flag,
   LayoutTemplate,
   LibraryBig,
   Loader2,
@@ -24,8 +26,6 @@ import {
   Save,
   Trash2,
   X,
-  EyeOff, // Nuevo icono
-  Flag,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState, useTransition } from 'react';
@@ -41,15 +41,16 @@ import {
   AlertDialogTrigger,
 } from '../ui/alert-dialog';
 import { ReportQuestionDialog } from './report-question-dialog';
-import { TestSessionNavigation } from './test-session-navigation';
 import { TestResults } from './test-results';
+import { TestSessionNavigation } from './test-session-navigation';
 
 interface TestSessionProps {
   testAttempt: Tables<'test_attempts'>;
   questions: QuestionWithAnswers[];
+  defaultOpenNavigation?: boolean;
 }
 
-export function TestSession({ testAttempt, questions }: TestSessionProps) {
+export function TestSession({ testAttempt, questions, defaultOpenNavigation }: TestSessionProps) {
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
   const [isFinished, setIsFinished] = useState(false);
@@ -426,6 +427,7 @@ export function TestSession({ testAttempt, questions }: TestSessionProps) {
 
           {/* COLUMNA LATERAL (Navegación) */}
           <TestSessionNavigation
+            defaultOpen={defaultOpenNavigation}
             questions={questions}
             userAnswers={userAnswers}
             currentQuestionIndex={currentQuestionIndex}
