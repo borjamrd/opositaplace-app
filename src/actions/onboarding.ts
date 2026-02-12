@@ -14,16 +14,16 @@ const onboardingActionSchema = z.object({
     .min(1, 'Se requiere ID de oposición.'),
 
   // Cambiado de 'objectives' a 'baseline_assessment'
-  baseline_assessment: z
-    .string()
-    .min(1, 'La autoevaluación no puede estar vacía como JSON string.'),
+  // baseline_assessment: z
+  //   .string()
+  //   .min(1, 'La autoevaluación no puede estar vacía como JSON string.'),
 
   // Nuevo campo
   weekly_study_goal_hours: z.string().min(1, 'El objetivo de horas es requerido.'),
 
   study_days: z.string().min(1, 'Los días de estudio no pueden estar vacíos como JSON string.'),
 
-  help_with: z.string().optional().default('[]'),
+  // help_with: z.string().optional().default('[]'),
 
   slot_duration_minutes: z.string().default('60'),
 
@@ -74,10 +74,10 @@ export async function submitOnboarding(
     user_id: user.id,
     opposition_id: formData.get('opposition_id'),
     // Mapeo de campos nuevos/actualizados
-    baseline_assessment: formData.get('baseline_assessment'), // Correcto
+    // baseline_assessment: formData.get('baseline_assessment'), // Correcto
     weekly_study_goal_hours: formData.get('weekly_study_goal_hours'),
     study_days: formData.get('study_days'),
-    help_with: formData.get('help_with') || '[]',
+    // help_with: formData.get('help_with') || '[]',
     slot_duration_minutes: formData.get('slot_duration_minutes') || '60',
     cycle_number: formData.get('cycle_number') || '1',
     selected_topics: formData.get('selected_topics') || '[]',
@@ -98,10 +98,10 @@ export async function submitOnboarding(
   const {
     user_id,
     opposition_id,
-    baseline_assessment: baselineAssessmentString, // Actualizado
+    // baseline_assessment: baselineAssessmentString, // Actualizado
     weekly_study_goal_hours, // Nuevo
     study_days: studyDaysString,
-    help_with: helpWithString,
+    // help_with: helpWithString,
     slot_duration_minutes,
     cycle_number,
     selected_topics: selectedTopicsString,
@@ -143,15 +143,15 @@ export async function submitOnboarding(
     }
   }
 
-  let parsedBaselineAssessment: Json;
+  // let parsedBaselineAssessment: Json;
   let parsedStudyDays: Json;
-  let parsedHelpWith: Json;
+  // let parsedHelpWith: Json;
   let parsedSelectedTopics: string[];
 
   try {
-    parsedBaselineAssessment = JSON.parse(baselineAssessmentString); // Actualizado
+    // parsedBaselineAssessment = JSON.parse(baselineAssessmentString); // Actualizado
     parsedStudyDays = JSON.parse(studyDaysString);
-    parsedHelpWith = JSON.parse(helpWithString);
+    // parsedHelpWith = JSON.parse(helpWithString);
     parsedSelectedTopics = JSON.parse(selectedTopicsString);
 
     if (Object.keys(parsedStudyDays as object).length === 0) {
@@ -173,9 +173,9 @@ export async function submitOnboarding(
   // 2. Guardar información de Onboarding
   const onboardingData: TablesInsert<'onboarding_info'> = {
     user_id: user_id,
-    objectives: parsedBaselineAssessment,
+    // objectives: parsedBaselineAssessment,
     study_days: parsedStudyDays,
-    help_with: parsedHelpWith,
+    // help_with: parsedHelpWith,
     opposition_id: opposition_id,
     slot_duration_minutes: parseInt(slot_duration_minutes, 10),
     weekly_study_goal_hours: parseInt(weekly_study_goal_hours, 10),

@@ -13,7 +13,7 @@ import {
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Progress } from '@/components/ui/progress';
-import { ArrowRight, CheckCircle, Trophy } from 'lucide-react';
+import { ArrowRight, CheckCheckIcon, CheckCircle, Trophy } from 'lucide-react';
 import { TestResults } from '@/components/tests/test-results';
 import { QuestionWithAnswers, TestAttempt } from '@/lib/supabase/types';
 import { TestSessionNavigation } from '@/components/tests/test-session-navigation';
@@ -133,12 +133,15 @@ export default function OnboardingTestStep({ onTestFinished }: OnboardingTestSte
     return (
       <div className="w-full max-w-2xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 text-center pt-8">
         <div className="inline-flex items-center justify-center p-4 bg-primary/10 rounded-full mb-2">
-          <Trophy className="w-12 h-12 text-primary" />
+          <CheckCheckIcon className="w-12 h-12 text-primary" />
         </div>
         <h2 className="text-3xl font-bold tracking-tight text-primary">Descubre Opositaplace</h2>
         <p className="text-lg text-muted-foreground leading-relaxed max-w-lg mx-auto">
           A continuación verás ejemplos de cómo funciona nuestra plataforma. Responde a unas breves
           preguntas para familiarizarte con el entorno de examen.
+        </p>
+        <p className="text-sm text-muted-foreground leading-relaxed max-w-lg mx-auto -mt-4">
+          Esto es una simulación, no se guardan tus respuestas ni se evalúan.
         </p>
 
         <div className="pt-6">
@@ -147,7 +150,7 @@ export default function OnboardingTestStep({ onTestFinished }: OnboardingTestSte
             size="lg"
             className="w-full md:w-auto px-8 py-6 text-lg"
           >
-            Comencemos <ArrowRight className="ml-2 h-5 w-5" />
+            Test de prueba <ArrowRight className="ml-2 h-5 w-5" />
           </Button>
         </div>
       </div>
@@ -186,12 +189,9 @@ export default function OnboardingTestStep({ onTestFinished }: OnboardingTestSte
     return (
       <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
         <div className="text-center space-y-2">
-          <div className="inline-flex items-center justify-center p-3 bg-primary/10 rounded-full mb-4">
-            <Trophy className="w-8 h-8 text-primary" />
-          </div>
-          <h2 className="text-2xl font-bold tracking-tight">¡Test Completado!</h2>
+          <h2 className="text-2xl font-bold trackFing-tight">¡Test Completado!</h2>
           <p className="text-muted-foreground">
-            Has completado tu primer test de prueba. Aquí tienes tus resultados.
+            Has completado tu primer test de prueba. Utiliza la navegación para ver tus resultados
           </p>
         </div>
 
@@ -200,6 +200,7 @@ export default function OnboardingTestStep({ onTestFinished }: OnboardingTestSte
           userAnswers={userAnswers}
           attempt={mockAttempt}
           addedCardIds={[]}
+          isMockTest
         />
       </div>
     );
@@ -260,7 +261,7 @@ export default function OnboardingTestStep({ onTestFinished }: OnboardingTestSte
                 </>
               ) : (
                 <>
-                  Ver Resultados <CheckCircle className="ml-2 h-4 w-4" />
+                  Finalizar test <CheckCircle className="ml-2 h-4 w-4" />
                 </>
               )}
             </Button>

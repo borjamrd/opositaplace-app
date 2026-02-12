@@ -32,9 +32,16 @@ interface TestResultsProps {
   userAnswers: Record<string, string | null>;
   attempt?: TestAttempt;
   addedCardIds: string[];
+  isMockTest?: boolean;
 }
 
-export function TestResults({ questions, userAnswers, attempt, addedCardIds }: TestResultsProps) {
+export function TestResults({
+  questions,
+  userAnswers,
+  attempt,
+  addedCardIds,
+  isMockTest,
+}: TestResultsProps) {
   const { toast } = useToast();
   const questionHeaderRef = useRef<HTMLDivElement>(null);
   const [addedIds, setAddedIds] = useState(new Set(addedCardIds));
@@ -96,6 +103,14 @@ export function TestResults({ questions, userAnswers, attempt, addedCardIds }: T
   const totalQuestions = questions.length;
 
   const handleAddToReview = async (question: QuestionWithAnswers) => {
+    if (isMockTest) {
+      toast({
+        title: '¡Genial!',
+        description:
+          'Tarjeta añadida a tu mazo de repaso. Más adelante abordaremos esta sección ;)',
+      });
+      return;
+    }
     if (isAddingId) return;
     setIsAddingId(question.id);
 

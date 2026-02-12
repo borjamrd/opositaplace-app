@@ -46,7 +46,7 @@ import { useProfileStore } from '@/store/profile-store';
 import { useQueryClient } from '@tanstack/react-query';
 
 // Importar los nuevos componentes de paso
-import OnboardingEvaluationStep from './onboarding-evaluation-step';
+// import OnboardingEvaluationStep from './onboarding-evaluation-step';
 import OnboardingObjectivesStep from './onboarding-objectives-step';
 import OnboardingOppositionStep from './onboarding-opposition-step';
 import OnboardingPlanStep from './onboarding-plan-step';
@@ -64,11 +64,11 @@ const onboardingFormSchema = z.object({
     .string({ required_error: 'Debes seleccionar una oposición.' })
     .uuid({ message: 'ID de oposición inválido.' })
     .min(1, 'Debes seleccionar una oposición.'),
-  baseline_assessment: z
-    .string()
-    .min(10, 'Describe tu punto de partida (mín. 10 caracteres)')
-    .max(500, 'Máximo 500 caracteres'),
-  help_with: z.array(z.string()).optional().default([]),
+  // baseline_assessment: z
+  //   .string()
+  //   .min(10, 'Describe tu punto de partida (mín. 10 caracteres)')
+  //   .max(500, 'Máximo 500 caracteres'),
+  // help_with: z.array(z.string()).optional().default([]),
   weekly_study_goal_hours: z.coerce
     .number({ required_error: 'Define un objetivo de horas.' })
     .int()
@@ -120,17 +120,17 @@ const steps = [
     icon: Flag,
     fields: ['opposition_scope', 'opposition_id'] as const,
   },
-  {
-    id: 'step-2-baseline',
-    name: 'Autoevaluación',
-    description: 'Conoce tus necesadades',
-    icon: Target,
-    fields: ['baseline_assessment', 'help_with'] as const,
-  },
+  // {
+  //   id: 'step-2-baseline',
+  //   name: 'Autoevaluación',
+  //   description: 'Conoce tus necesadades',
+  //   icon: Target,
+  //   fields: ['baseline_assessment', 'help_with'] as const,
+  // },
   {
     id: 'step-3-goal',
     name: 'Objetivo semanal',
-    description: 'Define tu meta',
+    description: '¿Cuántas horas quieres dedicar a la semana?',
     icon: Calendar,
     fields: ['weekly_study_goal_hours'] as const,
   },
@@ -157,8 +157,8 @@ const steps = [
   },
   {
     id: 'step-7-test',
-    name: 'Test de Nivel',
-    description: 'Prueba tus conocimientos',
+    name: '',
+    description: '',
     icon: GraduationCap,
     fields: [] as const,
   },
@@ -166,7 +166,7 @@ const steps = [
     id: 'step-8-plan',
     name: 'Tu plan',
     description: 'Elige tu suscripción',
-    icon: Star, // Need to import Star from lucide-react
+    icon: Star,
     fields: ['selected_plan'] as const,
   },
 ];
@@ -208,8 +208,8 @@ export default function OnboardingForm() {
     defaultValues: {
       opposition_scope: undefined,
       opposition_id: undefined,
-      baseline_assessment: '',
-      help_with: [],
+      // baseline_assessment: '',
+      // help_with: [],
       weekly_study_goal_hours: 20,
       study_days: {},
       slot_duration_minutes: defaultDuration,
@@ -362,12 +362,11 @@ export default function OnboardingForm() {
       const formData = new FormData();
       formData.append('user_id', profile.id);
       formData.append('opposition_id', data.opposition_id);
-      formData.append(
-        'baseline_assessment',
-        JSON.stringify({ main_challenge: data.baseline_assessment })
-      );
-      formData.append('weekly_study_goal_hours', data.weekly_study_goal_hours.toString());
-      formData.append('help_with', JSON.stringify(data.help_with || []));
+      // formData.append(
+      //   'baseline_assessment',
+      //   JSON.stringify({ main_challenge: data.baseline_assessment })
+      // );
+      // formData.append('help_with', JSON.stringify(data.help_with || []));
       formData.append('study_days', JSON.stringify(selectedSlots));
       formData.append('slot_duration_minutes', data.slot_duration_minutes.toString());
       formData.append('cycle_number', data.cycle_number.toString());
@@ -469,9 +468,9 @@ export default function OnboardingForm() {
                         isLoadingOppositions={isLoadingOppositions}
                       />
                     )}
-                    {currentStep === 1 && <OnboardingEvaluationStep />}
-                    {currentStep === 2 && <OnboardingObjectivesStep />}
-                    {currentStep === 3 && (
+                    {/* {currentStep === 1 && <OnboardingEvaluationStep />} */}
+                    {currentStep === 1 && <OnboardingObjectivesStep />}
+                    {currentStep === 2 && (
                       <OnboardingPlanStep
                         weeklyGoalHours={weeklyGoalHours}
                         totalSelectedHours={totalSelectedHours}
@@ -483,23 +482,23 @@ export default function OnboardingForm() {
                         handleToggleSlot={handleToggleSlot}
                       />
                     )}
-                    {currentStep === 4 && (
+                    {currentStep === 3 && (
                       <OnboardingCycleStep
                         selectedCycle={form.watch('cycle_number')}
                         onSelectCycle={(cycle) => form.setValue('cycle_number', cycle)}
                       />
                     )}
-                    {currentStep === 5 && (
+                    {currentStep === 4 && (
                       <OnboardingTopicsStep
                         oppositionId={form.watch('opposition_id')}
                         selectedTopics={form.watch('selected_topics')}
                         onSelectTopics={(topics) => form.setValue('selected_topics', topics)}
                       />
                     )}
-                    {currentStep === 6 && (
+                    {currentStep === 5 && (
                       <OnboardingTestStep onTestFinished={() => setIsTestFinished(true)} />
                     )}
-                    {currentStep === 7 && (
+                    {currentStep === 6 && (
                       <OnboardingSubscriptionStep
                         selectedPlan={form.watch('selected_plan')}
                         onSelectPlan={(plan) => form.setValue('selected_plan', plan)}
