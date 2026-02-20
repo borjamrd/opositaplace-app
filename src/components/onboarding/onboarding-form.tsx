@@ -113,7 +113,7 @@ const steps = [
   },
   {
     id: 'step-7-test',
-    name: 'Test de prueba', // Updated name to be more descriptive if needed, or keep empty if design requires
+    name: '',
     description: '',
     icon: GraduationCap,
     fields: [] as const,

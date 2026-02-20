@@ -110,9 +110,8 @@ export function CaseEditor({
     }
   }, 2000);
 
-  // Acción de Corregir
   const handleSubmit = () => {
-    if (!editor || editor.isEmpty) {
+    if (!editor || editor.getText().trim() === '') {
       toast({
         variant: 'destructive',
         title: 'Respuesta vacía',
@@ -222,10 +221,9 @@ export function CaseEditor({
             </>
           )}
         </div>
-
         <Button
           onClick={handleSubmit}
-          disabled={isSubmitting || !!pollingJobId || !editor || editor.isEmpty}
+          disabled={isSubmitting || !!pollingJobId || !editor}
           className="gap-2"
         >
           {isSubmitting || pollingJobId ? (

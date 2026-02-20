@@ -98,6 +98,10 @@ export const STRIPE_PLANS: Plan[] = [
         isBeta: false,
       },
       {
+        label: 'Tests ilimitados',
+        isBeta: false,
+      },
+      {
         label: 'Creación y corrección de casos prácticos',
         isBeta: false,
       },

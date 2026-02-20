@@ -1,10 +1,10 @@
 'use client';
 
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { ArrowRight, BookText, CheckCheckIcon } from 'lucide-react';
 import { PracticalCaseView } from '@/components/practical/practical-case-view';
+import { Button } from '@/components/ui/button';
 import { PracticalCase } from '@/lib/supabase/types';
+import { ArrowRight, BookText, CheckCheckIcon } from 'lucide-react';
+import { useState } from 'react';
 
 const MOCK_CASE: PracticalCase = {
   id: 'mock-case-onboarding',
@@ -41,8 +41,8 @@ export default function OnboardingStepPracticalCase({
         </div>
         <h2 className="text-3xl font-bold tracking-tight text-primary">Casos Prácticos</h2>
         <p className="text-lg text-muted-foreground leading-relaxed max-w-lg mx-auto">
-          Enfréntate a situaciones reales y recibe correcciones instantáneas. Analizaré tu
-          respuesta, y evaluaré tu fundamentación jurídica.
+          Enfréntate a situaciones reales y recibe correcciones instantáneas. Analizaré tu respuesta
+          y evaluaré tu fundamentación jurídica.
         </p>
         <div className="bg-muted/30 p-4 rounded-lg text-left max-w-lg mx-auto space-y-2 flex flex-col items-center">
           <div className="flex gap-3 items-center">
@@ -76,6 +76,7 @@ export default function OnboardingStepPracticalCase({
   return (
     <div className="w-full h-full animate-in fade-in zoom-in-95 duration-500">
       <PracticalCaseView
+        isOnboarding={true}
         caseData={MOCK_CASE}
         initialAttempt={null}
         showBackButton={false}
