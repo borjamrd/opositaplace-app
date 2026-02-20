@@ -201,6 +201,7 @@ export default function OnboardingForm() {
 
   const [currentStep, setCurrentStep] = useState(0);
   const [isTestFinished, setIsTestFinished] = useState(false);
+  const [isPracticalCaseFinished, setIsPracticalCaseFinished] = useState(false);
 
   // Estados del planificador (permanecen en el padre)
   const defaultDuration = SLOT_DURATION_OPTIONS.includes(60)
@@ -526,7 +527,9 @@ export default function OnboardingForm() {
                     )}
                     {currentStep === 6 && (
                       <StepAnimationWrapper>
-                        <OnboardingStepPracticalCase />
+                        <OnboardingStepPracticalCase
+                          onCaseFinished={() => setIsPracticalCaseFinished(true)}
+                        />
                       </StepAnimationWrapper>
                     )}
                     {currentStep === 7 && (
@@ -546,29 +549,32 @@ export default function OnboardingForm() {
           {/* Right Button (Next) */}
         </div>
         <div className="hidden md:flex shrink-0">
-          {(steps[currentStep].id !== 'step-7-test' || isTestFinished) &&
-            (currentStep < steps.length - 1 ? (
-              <Button
-                type="button"
-                onClick={handleNextStep}
-                className="h-16 w-16 rounded-full shadow-lg"
-              >
-                <ChevronRight className="h-8 w-8" />
-              </Button>
-            ) : (
-              <Button
-                type="button"
-                onClick={handleNextStep}
-                disabled={isServerActionPending}
-                className="h-16 w-16 rounded-full shadow-lg bg-green-600 hover:bg-green-700"
-              >
-                {isServerActionPending ? (
-                  <Loader2 className="h-8 w-8 animate-spin" />
-                ) : (
-                  <Save className="h-8 w-8" />
-                )}
-              </Button>
-            ))}
+          {currentStep < steps.length - 1 ? (
+            <Button
+              type="button"
+              onClick={handleNextStep}
+              disabled={
+                (steps[currentStep].id === 'step-7-test' && !isTestFinished) ||
+                (steps[currentStep].id === 'step-8-practical-cases' && !isPracticalCaseFinished)
+              }
+              className="h-16 w-16 rounded-full shadow-lg"
+            >
+              <ChevronRight className="h-8 w-8" />
+            </Button>
+          ) : (
+            <Button
+              type="button"
+              onClick={handleNextStep}
+              disabled={isServerActionPending}
+              className="h-16 w-16 rounded-full shadow-lg bg-green-600 hover:bg-green-700"
+            >
+              {isServerActionPending ? (
+                <Loader2 className="h-8 w-8 animate-spin" />
+              ) : (
+                <Save className="h-8 w-8" />
+              )}
+            </Button>
+          )}
         </div>
       </div>
     </div>

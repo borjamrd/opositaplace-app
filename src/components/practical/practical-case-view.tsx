@@ -18,6 +18,7 @@ interface Props {
   initialAttempt: PracticalCaseAttemptWithAnalysis | null;
   showBackButton?: boolean;
   isMock?: boolean;
+  onCaseFinished?: () => void;
 }
 
 export function PracticalCaseView({
@@ -25,6 +26,7 @@ export function PracticalCaseView({
   initialAttempt,
   showBackButton = true,
   isMock = false,
+  onCaseFinished,
 }: Props) {
   const [feedback, setFeedback] = useState(initialAttempt?.feedback_analysis || null);
   const [viewMode, setViewMode] = useState<'edit' | 'feedback'>(
@@ -100,6 +102,7 @@ export function PracticalCaseView({
               onCorrectionReceived={(newAnalysis) => {
                 setFeedback(newAnalysis);
                 setViewMode('feedback'); // Automáticamente cambiamos a ver la nota
+                onCaseFinished?.();
               }}
             />
           ) : (
