@@ -13,12 +13,6 @@ const onboardingActionSchema = z.object({
     .uuid({ message: 'ID de oposición inválido.' })
     .min(1, 'Se requiere ID de oposición.'),
 
-  // Cambiado de 'objectives' a 'baseline_assessment'
-  // baseline_assessment: z
-  //   .string()
-  //   .min(1, 'La autoevaluación no puede estar vacía como JSON string.'),
-
-  // Nuevo campo
   weekly_study_goal_hours: z.string().min(1, 'El objetivo de horas es requerido.'),
 
   study_days: z.string().min(1, 'Los días de estudio no pueden estar vacíos como JSON string.'),

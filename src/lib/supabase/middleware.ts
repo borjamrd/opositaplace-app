@@ -28,47 +28,47 @@ export async function updateSession(request: NextRequest) {
     }
   );
 
-  // const {
-  //   data: { user },
-  // } = await supabase.auth.getUser();
-  // const { pathname } = request.nextUrl;
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const { pathname } = request.nextUrl;
 
-  // const protectedPaths = ['/dashboard', '/onboarding'];
-  // const publicOnlyPaths = ['/', '/login', '/register', '/reset-password'];
+  const protectedPaths = ['/dashboard', '/onboarding'];
+  const publicOnlyPaths = ['/', '/login', '/register', '/reset-password'];
 
-  // const isProtected = protectedPaths.some((path) => pathname.startsWith(path));
-  // const isPublicOnly = publicOnlyPaths.includes(pathname);
+  const isProtected = protectedPaths.some((path) => pathname.startsWith(path));
+  const isPublicOnly = publicOnlyPaths.includes(pathname);
 
-  // if (user) {
-  //   const { data: onboardingInfo } = await supabase
-  //     .from('onboarding_info')
-  //     .select('user_id')
-  //     .eq('user_id', user.id)
-  //     .maybeSingle();
+  if (user) {
+    const { data: onboardingInfo } = await supabase
+      .from('onboarding_info')
+      .select('user_id')
+      .eq('user_id', user.id)
+      .maybeSingle();
 
-  //   const onboardingCompleted = !!onboardingInfo;
-  //   const onboardingPath = `/onboarding/${user.id}`;
+    const onboardingCompleted = !!onboardingInfo;
+    const onboardingPath = `/onboarding/${user.id}`;
 
-  //   if (!onboardingCompleted) {
-  //     if (pathname !== onboardingPath) {
-  //       return NextResponse.redirect(new URL(onboardingPath, request.url));
-  //     }
-  //   } else {
-  //     if (isPublicOnly) {
-  //       return NextResponse.redirect(new URL('/dashboard', request.url));
-  //     }
-  //     if (pathname.startsWith('/onboarding')) {
-  //       return NextResponse.redirect(new URL('/dashboard', request.url));
-  //     }
-  //   }
-  // } else {
-  //   if (isProtected) {
-  //     const redirectUrl = new URL('/login', request.url);
-  //     redirectUrl.searchParams.set('message', 'Debes iniciar sesión para acceder.');
-  //     redirectUrl.searchParams.set('redirect', pathname);
-  //     return NextResponse.redirect(redirectUrl);
-  //   }
-  // }
+    if (!onboardingCompleted) {
+      if (pathname !== onboardingPath) {
+        return NextResponse.redirect(new URL(onboardingPath, request.url));
+      }
+    } else {
+      if (isPublicOnly) {
+        return NextResponse.redirect(new URL('/dashboard', request.url));
+      }
+      if (pathname.startsWith('/onboarding')) {
+        return NextResponse.redirect(new URL('/dashboard', request.url));
+      }
+    }
+  } else {
+    if (isProtected) {
+      const redirectUrl = new URL('/login', request.url);
+      redirectUrl.searchParams.set('message', 'Debes iniciar sesión para acceder.');
+      redirectUrl.searchParams.set('redirect', pathname);
+      return NextResponse.redirect(redirectUrl);
+    }
+  }
 
   return response;
 }

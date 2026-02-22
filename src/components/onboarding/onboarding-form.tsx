@@ -53,11 +53,6 @@ const onboardingFormSchema = z.object({
     .string({ required_error: 'Debes seleccionar una oposición.' })
     .uuid({ message: 'ID de oposición inválido.' })
     .min(1, 'Debes seleccionar una oposición.'),
-  // baseline_assessment: z
-  //   .string()
-  //   .min(10, 'Describe tu punto de partida (mín. 10 caracteres)')
-  //   .max(500, 'Máximo 500 caracteres'),
-  // help_with: z.array(z.string()).optional().default([]),
   weekly_study_goal_hours: z.coerce
     .number({ required_error: 'Define un objetivo de horas.' })
     .int()
@@ -170,8 +165,6 @@ export default function OnboardingForm() {
     defaultValues: {
       opposition_scope: undefined,
       opposition_id: undefined,
-      // baseline_assessment: '',
-      // help_with: [],
       weekly_study_goal_hours: 20,
       cycle_number: 1,
       selected_topics: [],
@@ -266,11 +259,7 @@ export default function OnboardingForm() {
       const formData = new FormData();
       formData.append('user_id', profile.id);
       formData.append('opposition_id', data.opposition_id);
-      // formData.append(
-      //   'baseline_assessment',
-      //   JSON.stringify({ main_challenge: data.baseline_assessment })
-      // );
-      // formData.append('help_with', JSON.stringify(data.help_with || []));
+      formData.append('weekly_study_goal_hours', data.weekly_study_goal_hours.toString());
       formData.append('cycle_number', data.cycle_number.toString());
       formData.append('selected_topics', JSON.stringify(data.selected_topics));
       formData.append('selected_plan', data.selected_plan);
