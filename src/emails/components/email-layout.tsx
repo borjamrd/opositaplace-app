@@ -1,4 +1,4 @@
-import { Body, Container, Head, Html, Img, Preview, Text } from '@react-email/components';
+import { Body, Container, Head, Hr, Html, Img, Preview, Text } from '@react-email/components';
 import * as React from 'react';
 
 interface EmailLayoutProps {
@@ -19,9 +19,25 @@ export const EmailLayout = ({ previewText, children }: EmailLayoutProps) => {
         <Container style={container}>
           <Img src={logoSrc} width="80" height="auto" alt="Opositaplace Logo" style={logo} />
           {children}
-          <Text style={footer}>
-            © {new Date().getFullYear()} Opositaplace. Todos los derechos reservados.
-          </Text>
+          <Hr style={{ borderColor: '#e6ebf1', margin: '20px 0' }} />
+          <Container
+            style={{
+              padding: '0 40px',
+              marginTop: '24px',
+              display: 'flex',
+              alignItems: 'center',
+              flexDirection: 'column',
+              justifyContent: 'center',
+            }}
+          >
+            <Text style={notificationFooter}>
+              Recuerda que puedes modificar todas estas notificaciones desde el apartado de perfil{' '}
+              {'>'} notificaciones.
+            </Text>
+            <Text style={footer}>
+              © {new Date().getFullYear()} Opositaplace. Todos los derechos reservados.
+            </Text>
+          </Container>
         </Container>
       </Body>
     </Html>
@@ -87,4 +103,14 @@ export const footer = {
   lineHeight: '16px',
   padding: '0 40px',
   marginTop: '24px',
+  textAlign: 'center' as const,
+};
+
+export const notificationFooter = {
+  color: '#8898aa',
+  fontSize: '12px',
+  lineHeight: '16px',
+  padding: '0 40px',
+  marginTop: '0px',
+  textAlign: 'center' as const,
 };

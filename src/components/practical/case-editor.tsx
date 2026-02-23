@@ -1,29 +1,35 @@
 'use client';
 
-import { useEditor, EditorContent } from '@tiptap/react';
-import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
+import { EditorContent, useEditor } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+import { Loader2, Save, Send } from 'lucide-react';
 import { useEffect, useState, useTransition } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
-import { Loader2, Send, Save } from 'lucide-react';
 
-import { Button } from '@/components/ui/button';
-import { useToast } from '@/hooks/use-toast';
 import {
+  getCorrectionJobStatus,
   saveCaseDraft,
   submitAndCorrectCase,
-  getCorrectionJobStatus,
 } from '@/actions/practical-cases';
-import { EditorToolbar } from './editor-toolbar';
+import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
 import { AICorrectionAnalysis } from '@/lib/supabase/types';
+import { EditorToolbar } from './editor-toolbar';
 
 interface CaseEditorProps {
   caseId: string;
   initialContent?: string;
   onCorrectionReceived: (analysis: AICorrectionAnalysis) => void;
+  isMock?: boolean;
 }
 
-export function CaseEditor({ caseId, initialContent = '', onCorrectionReceived }: CaseEditorProps) {
+export function CaseEditor({
+  caseId,
+  initialContent = '',
+  onCorrectionReceived,
+  isMock = false,
+}: CaseEditorProps) {
   const { toast } = useToast();
   const [isSaving, setIsSaving] = useState(false);
   const [isSubmitting, startTransition] = useTransition();
@@ -93,6 +99,8 @@ export function CaseEditor({ caseId, initialContent = '', onCorrectionReceived }
 
   // Autosave: Espera 2 segundos de inactividad antes de guardar
   const debouncedSave = useDebouncedCallback(async (content: string) => {
+    if (isMock) return;
+
     setIsSaving(true);
     const result = await saveCaseDraft(caseId, content);
     setIsSaving(false);
@@ -102,9 +110,8 @@ export function CaseEditor({ caseId, initialContent = '', onCorrectionReceived }
     }
   }, 2000);
 
-  // Acción de Corregir
   const handleSubmit = () => {
-    if (!editor || editor.isEmpty) {
+    if (!editor || editor.getText().trim() === '') {
       toast({
         variant: 'destructive',
         title: 'Respuesta vacía',
@@ -114,6 +121,51 @@ export function CaseEditor({ caseId, initialContent = '', onCorrectionReceived }
     }
 
     const content = editor.getHTML(); // Obtenemos HTML
+
+    if (isMock) {
+      startTransition(async () => {
+        // Simular envío
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+
+        toast({
+          title: 'Corrección simulada completa',
+          description: 'Esta es una demostración del proceso de corrección.',
+        });
+
+        // Mock result
+        const mockAnalysis: AICorrectionAnalysis = {
+          score: 85,
+          summary:
+            'Esta es una corrección simulada. En un caso real, aquí verías un análisis detallado de tu respuesta, con puntos fuertes y áreas de mejora basadas en la legislación vigente.',
+          key_points: [
+            {
+              concept: 'Identificación del Problema',
+              present: true,
+              explanation: 'Has identificado correctamente el nudo gordiano del caso.',
+            },
+            {
+              concept: 'Aplicación Normativa',
+              present: true,
+              explanation: 'Buen uso de las referencias legales simuladas.',
+            },
+          ],
+          suggestions: [
+            'Seguir practicando la fundamentación jurídica.',
+            'Cuidar la estructura de la respuesta para mayor claridad.',
+          ],
+          legal_check: [
+            {
+              article: 'Art. 42 (Simulado)',
+              status: 'correct',
+              comment: 'Bien citado.',
+            },
+          ],
+        };
+
+        onCorrectionReceived(mockAnalysis);
+      });
+      return;
+    }
 
     startTransition(async () => {
       // 1. Guardamos forzosamente la última versión
@@ -169,10 +221,9 @@ export function CaseEditor({ caseId, initialContent = '', onCorrectionReceived }
             </>
           )}
         </div>
-
         <Button
           onClick={handleSubmit}
-          disabled={isSubmitting || !!pollingJobId || !editor || editor.isEmpty}
+          disabled={isSubmitting || !!pollingJobId || !editor}
           className="gap-2"
         >
           {isSubmitting || pollingJobId ? (

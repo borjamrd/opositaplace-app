@@ -23,7 +23,7 @@ export async function sendStudyReminders() {
   // but the requirement is generic for active users.
   const { data: profiles, error: profilesError } = await supabase
     .from('profiles')
-    .select('id, email, username, user_subscriptions!inner(status)')
+    .select('id, email, username, user_subscriptions!inner(status), notify_study_reminder')
     .in('user_subscriptions.status', ['active', 'trialing'])
     .neq('email', '');
 
@@ -71,7 +71,7 @@ export async function sendStudyReminders() {
 
     const batchPromises = batch.map(async (user) => {
       try {
-        if (!user.email) return;
+        if (!user.email || !user.notify_study_reminder) return;
 
         await sendEmail({
           to: user.email,

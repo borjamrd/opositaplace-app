@@ -1,5 +1,4 @@
 import { Heading, Link, Section, Text } from '@react-email/components';
-import * as React from 'react';
 import { EmailLayout, button, heading, paragraph } from './components/email-layout';
 
 // Define las props que recibirá tu email

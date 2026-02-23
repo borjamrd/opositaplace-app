@@ -93,6 +93,16 @@ export function NotificationSettingsTab() {
             />
             <Separator />
 
+            <NotificationToggleRow
+              label="Recordatorio de estudio"
+              description="Recibe recordatorios para estudiar"
+              field="notify_study_reminder"
+              value={profile.notify_study_reminder}
+              onToggle={handleToggle}
+              isPending={isPending}
+            />
+            <Separator />
+
             <div className="flex items-center justify-between">
               <div className="space-y-1">
                 <Label className="text-base">Alertas de seguridad</Label>

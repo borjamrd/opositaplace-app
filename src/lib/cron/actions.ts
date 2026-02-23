@@ -28,7 +28,7 @@ export async function sendWeeklySummaries() {
 
     const batchPromises = batch.map(async (profile) => {
       try {
-        if (!profile.email) return;
+        if (!profile.email || !profile.notify_weekly_summary) return;
 
         const userName = profile.username || profile.email.split('@')[0];
         const summaryData = await getSummaryForUser(profile.id);
