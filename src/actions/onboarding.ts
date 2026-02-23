@@ -1,30 +1,19 @@
 'use server';
 
 import { createFreeSubscription, createTrialSubscription } from '@/lib/stripe/actions';
-import type { Json, TablesInsert } from '@/lib/supabase/database.types';
+import type { TablesInsert } from '@/lib/supabase/database.types';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { z } from 'zod';
 
-// Esquema de acción actualizado para coincidir con el nuevo formulario
 const onboardingActionSchema = z.object({
   user_id: z.string().uuid({ message: 'ID de usuario inválido.' }),
   opposition_id: z
     .string()
     .uuid({ message: 'ID de oposición inválido.' })
     .min(1, 'Se requiere ID de oposición.'),
-
   weekly_study_goal_hours: z.string().min(1, 'El objetivo de horas es requerido.'),
-
-  study_days: z.string().min(1, 'Los días de estudio no pueden estar vacíos como JSON string.'),
-
-  // help_with: z.string().optional().default('[]'),
-
-  slot_duration_minutes: z.string().default('60'),
-
   cycle_number: z.string().default('1'),
-
   selected_topics: z.string().default('[]'),
-
   selected_plan: z.enum(['free', 'trial']).default('trial'),
 });
 
@@ -67,12 +56,7 @@ export async function submitOnboarding(
   const rawFormData = {
     user_id: user.id,
     opposition_id: formData.get('opposition_id'),
-    // Mapeo de campos nuevos/actualizados
-    // baseline_assessment: formData.get('baseline_assessment'), // Correcto
     weekly_study_goal_hours: formData.get('weekly_study_goal_hours'),
-    study_days: formData.get('study_days'),
-    // help_with: formData.get('help_with') || '[]',
-    slot_duration_minutes: formData.get('slot_duration_minutes') || '60',
     cycle_number: formData.get('cycle_number') || '1',
     selected_topics: formData.get('selected_topics') || '[]',
     selected_plan: formData.get('selected_plan') || 'trial',
@@ -92,11 +76,7 @@ export async function submitOnboarding(
   const {
     user_id,
     opposition_id,
-    // baseline_assessment: baselineAssessmentString, // Actualizado
-    weekly_study_goal_hours, // Nuevo
-    study_days: studyDaysString,
-    // help_with: helpWithString,
-    slot_duration_minutes,
+    weekly_study_goal_hours,
     cycle_number,
     selected_topics: selectedTopicsString,
     selected_plan,
@@ -113,7 +93,6 @@ export async function submitOnboarding(
   if (userOppositionsError) {
     console.error('Error inserting user_oppositions:', userOppositionsError);
     if (userOppositionsError.code === '23505') {
-      // Si ya existe, podríamos querer actualizar 'active' a true en lugar de fallar
       const { error: updateError } = await supabase
         .from('user_oppositions')
         .update({ active: true, enrolled_at: new Date().toISOString() })
@@ -137,41 +116,13 @@ export async function submitOnboarding(
     }
   }
 
-  // let parsedBaselineAssessment: Json;
-  let parsedStudyDays: Json;
   // let parsedHelpWith: Json;
-  let parsedSelectedTopics: string[];
-
-  try {
-    // parsedBaselineAssessment = JSON.parse(baselineAssessmentString); // Actualizado
-    parsedStudyDays = JSON.parse(studyDaysString);
-    // parsedHelpWith = JSON.parse(helpWithString);
-    parsedSelectedTopics = JSON.parse(selectedTopicsString);
-
-    if (Object.keys(parsedStudyDays as object).length === 0) {
-      return {
-        message: 'Debes seleccionar al menos un día de estudio.',
-        errors: { study_days: ['Selecciona al menos un día.'] },
-        success: false,
-      };
-    }
-  } catch (e: any) {
-    console.error('Error parsing JSON in action:', e);
-    return {
-      message: `Error al procesar datos del formulario: ${e.message}`,
-      errors: { general: ['Error interno procesando datos.'] },
-      success: false,
-    };
-  }
+  let parsedSelectedTopics: string[] = [];
 
   // 2. Guardar información de Onboarding
   const onboardingData: TablesInsert<'onboarding_info'> = {
     user_id: user_id,
-    // objectives: parsedBaselineAssessment,
-    study_days: parsedStudyDays,
-    // help_with: parsedHelpWith,
     opposition_id: opposition_id,
-    slot_duration_minutes: parseInt(slot_duration_minutes, 10),
     weekly_study_goal_hours: parseInt(weekly_study_goal_hours, 10),
   };
 
