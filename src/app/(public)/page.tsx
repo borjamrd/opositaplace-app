@@ -20,7 +20,7 @@ export const metadata: Metadata = {
       {
         url: '/logo.png',
         width: 1200,
-        height: 630,
+        height: 620,
         alt: 'Opositaplace Landing',
       },
     ],

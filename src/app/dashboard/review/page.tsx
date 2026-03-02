@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageContainer } from '@/components/page-container';
 import { Info } from 'lucide-react';
 
-export function ReviewExplanation() {
+function ReviewExplanation() {
   return (
     <div className="flex flex-col gap-4 p-4">
       <div className="flex items-center gap-2 text-lg font-semibold border-b pb-2">
