@@ -3,6 +3,10 @@
 import { createFreeSubscription, createTrialSubscription } from '@/lib/stripe/actions';
 import type { TablesInsert } from '@/lib/supabase/database.types';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
+import { sendEmail } from '@/lib/email/email';
+import AdminNotificationEmail from '@/emails/admin-notification-email';
+import { OnboardingErrorEmail } from '@/emails/onboarding-error-email';
+import React from 'react';
 import { z } from 'zod';
 
 const onboardingActionSchema = z.object({
@@ -22,6 +26,57 @@ type InitialState = {
   errors: Record<string, string[]> | null;
   success: boolean;
 };
+
+/**
+ * Silently sends error notification emails to the user and admin.
+ * Never throws — email failures must never block the user-facing error response.
+ */
+async function notifyOnboardingError({
+  userEmail,
+  userName,
+  errorStep,
+  errorDetail,
+}: {
+  userEmail: string;
+  userName?: string;
+  errorStep: string;
+  errorDetail: string;
+}) {
+  const adminEmail = process.env.EMAIL_TO;
+
+  const emailPromises: Promise<unknown>[] = [
+    sendEmail({
+      to: userEmail,
+      subject: 'Problema durante tu registro en Opositaplace',
+      emailComponent: React.createElement(OnboardingErrorEmail, {
+        userName: userName ?? userEmail,
+        errorStep,
+      }),
+    }).catch((err) => console.error('[onboarding] Error sending user error email:', err)),
+  ];
+
+  if (adminEmail) {
+    emailPromises.push(
+      sendEmail({
+        to: adminEmail,
+        subject: `[Onboarding Error] ${errorStep}`,
+        emailComponent: React.createElement(AdminNotificationEmail, {
+          title: `Error en onboarding — ${errorStep}`,
+          message: `Se produjo un error durante el onboarding de un usuario que impidió el acceso al dashboard.`,
+          details: {
+            Usuario: userName ?? '(desconocido)',
+            Email: userEmail,
+            Paso: errorStep,
+            Detalle: errorDetail,
+            Fecha: new Date().toISOString(),
+          },
+        }),
+      }).catch((err) => console.error('[onboarding] Error sending admin error email:', err))
+    );
+  }
+
+  await Promise.allSettled(emailPromises);
+}
 
 export async function submitOnboarding(
   prevState: InitialState,
@@ -100,6 +155,12 @@ export async function submitOnboarding(
         .eq('opposition_id', opposition_id);
 
       if (updateError) {
+        await notifyOnboardingError({
+          userEmail: user.email!,
+          userName: user.user_metadata?.full_name ?? user.email,
+          errorStep: 'Reactivar oposición existente',
+          errorDetail: updateError.message,
+        });
         return {
           message: 'Ya estás asociado a esta oposición, pero no pudimos reactivarla.',
           errors: { opposition_id: ['Error al reactivar oposición existente.'] },
@@ -108,6 +169,12 @@ export async function submitOnboarding(
       }
       // Continuar si la actualización fue exitosa
     } else {
+      await notifyOnboardingError({
+        userEmail: user.email!,
+        userName: user.user_metadata?.full_name ?? user.email,
+        errorStep: 'Asociar oposición',
+        errorDetail: userOppositionsError.message,
+      });
       return {
         message: `Error al asociar la oposición`,
         errors: null,
@@ -191,6 +258,12 @@ export async function submitOnboarding(
   } catch (subError: any) {
     console.error('Error creando la suscripción:', subError);
 
+    await notifyOnboardingError({
+      userEmail: user.email!,
+      userName: user.user_metadata?.full_name ?? user.email,
+      errorStep: 'Crear suscripción',
+      errorDetail: subError?.message ?? String(subError),
+    });
     return {
       message: 'Hubo un error al configurar tu onboarding. Por favor, inténtalo de nuevo.',
       errors: { general: ['Error con el proveedor de pagos.'] },
@@ -204,6 +277,12 @@ export async function submitOnboarding(
 
   if (onboardingInfoError) {
     console.error('Error upserting onboarding_info:', onboardingInfoError);
+    await notifyOnboardingError({
+      userEmail: user.email!,
+      userName: user.user_metadata?.full_name ?? user.email,
+      errorStep: 'Guardar información de onboarding',
+      errorDetail: onboardingInfoError.message,
+    });
     return {
       message: `Error al guardar detalles del onboarding: ${onboardingInfoError.message}`,
       errors: null,
