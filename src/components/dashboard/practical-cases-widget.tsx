@@ -130,24 +130,14 @@ export function PracticalCasesWidget({ href }: PracticalCasesWidgetProps) {
             <Loader2 className="h-6 w-6 animate-spin text-primary" />
           </div>
         ) : inProgressCase ? (
-          <Link
-            href={`/dashboard/practical-cases/${inProgressCase.practicalCase.id}`}
-            className="group block rounded-lg border p-4 hover:bg-muted/50 transition-colors"
-          >
+          <div className="group block rounded-lg transition-colors">
             <div className="flex items-start justify-between gap-3">
               <div className="flex items-start gap-3 min-w-0">
                 <FileText className="h-5 w-5 text-muted-foreground mt-0.5 shrink-0" />
                 <div className="min-w-0">
-                  <p className="font-medium text-sm truncate group-hover:text-primary transition-colors">
+                  <p className="font-medium text-sm truncate transition-colors">
                     {inProgressCase.practicalCase.title}
                   </p>
-                  {inProgressCase.practicalCase.difficulty && (
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      Dificultad:{' '}
-                      {difficultyLabels[inProgressCase.practicalCase.difficulty] ??
-                        inProgressCase.practicalCase.difficulty}
-                    </p>
-                  )}
                 </div>
               </div>
               {statusInfo && (
@@ -157,11 +147,12 @@ export function PracticalCasesWidget({ href }: PracticalCasesWidgetProps) {
               )}
             </div>
             {inProgressCase.attempt.user_answer && (
-              <p className="mt-3 text-xs text-muted-foreground line-clamp-2 pl-8">
-                {inProgressCase.attempt.user_answer}
-              </p>
+              <div
+                className="mt-3 text-xs text-muted-foreground line-clamp-4 pl-8"
+                dangerouslySetInnerHTML={{ __html: inProgressCase.attempt.user_answer }}
+              />
             )}
-          </Link>
+          </div>
         ) : (
           <div className="flex items-center justify-center">
             <Empty className="border-dashed">
