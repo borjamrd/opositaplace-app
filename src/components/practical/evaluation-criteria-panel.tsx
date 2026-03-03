@@ -29,7 +29,7 @@ export function EvaluationCriteriaPanel({ criteria }: EvaluationCriteriaPanelPro
       <div className="flex items-center gap-2 px-5 py-4 border-b bg-muted/30">
         <Scale className="w-4 h-4 text-primary" />
         <h3 className="text-sm font-semibold text-foreground">
-          Criterios de evaluación del tribunal
+          Criterios de evaluación del tribunal de Opositaplace
         </h3>
       </div>
 

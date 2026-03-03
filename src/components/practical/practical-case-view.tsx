@@ -133,7 +133,7 @@ export function PracticalCaseView({
             />
           ) : (
             <ScrollArea className="h-full p-6 bg-slate-50 dark:bg-slate-950/50">
-              <div className="max-w-2xl mx-auto space-y-6">
+              <div className="mx-auto space-y-6">
                 {feedback && <CorrectionFeedback analysis={feedback} />}
 
                 {caseData.evaluation_criteria && (
