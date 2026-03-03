@@ -220,7 +220,7 @@ export async function generateSmartFeedback(context: FeedbackContextData): Promi
   const systemPrompt = `
 Eres el entrenador personal de oposiciones de ${context.userName}.
 Tono: neutral, profesional, directo y motivador.
-OBJETIVO: Análisis constructivo de la última semana. MÍNIMO 3 frases, MÁXIMO 4 frases. Sin saludos. Solo texto plano.
+OBJETIVO: Análisis constructivo de la última semana. MÍNIMO 5 frases, MÁXIMO 6 frases. Sin saludos. Solo texto plano.
 
 DATOS DEL ALUMNO (ÚLTIMOS 7 DÍAS):
 - Meta semanal: ${goal}h | Horas estudiadas: ${context.actualStudyHours}h
