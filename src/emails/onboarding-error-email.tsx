@@ -4,6 +4,7 @@ import * as React from 'react';
 
 interface OnboardingErrorEmailProps {
   userName?: string;
+  userId?: string;
   errorStep?: string;
   supportUrl?: string;
 }
@@ -12,9 +13,11 @@ const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
 
 export const OnboardingErrorEmail = ({
   userName = 'Opositor',
+  userId,
   errorStep = 'configuración inicial',
   supportUrl = '/contacto',
 }: OnboardingErrorEmailProps) => {
+  const onboardingUrl = userId ? `${baseUrl}/onboarding?userId=${userId}` : `${baseUrl}/onboarding`;
   const previewText = 'Tuvimos un problema durante tu registro en Opositaplace';
 
   return (
@@ -26,14 +29,16 @@ export const OnboardingErrorEmail = ({
         <strong>{errorStep}</strong>).
       </Text>
       <Text style={paragraph}>
-        Nuestro equipo ya ha sido notificado y trabajará para solucionarlo lo antes posible. Si el
-        problema persiste, no dudes en contactarnos directamente.
+        Seguramente sea un problema puntual, te animamos a que lo vuelvas a intenter. No obstante,
+        nuestro equipo ya ha sido notificado y trabajará para solucionarlo lo antes posible. Si el
+        problema persiste, no dudes en contactarnos.
       </Text>
       <Section style={btnContainer}>
-        <Button style={button} href={`${baseUrl}${supportUrl}`}>
-          Contactar con soporte
+        <Button style={button} href={onboardingUrl}>
+          Volver al onboarding
         </Button>
       </Section>
+
       <Text style={paragraph}>
         Disculpa las molestias.
         <br />- El equipo de Opositaplace
@@ -44,6 +49,7 @@ export const OnboardingErrorEmail = ({
 
 OnboardingErrorEmail.PreviewProps = {
   userName: 'Opositor',
+  userId: 'preview-user-id',
   errorStep: 'asociar oposición',
   supportUrl: '/contacto',
 };
