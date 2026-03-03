@@ -45,7 +45,7 @@ export function StudyFeedback() {
   if (!contextData || !feedbackText) return null;
 
   return (
-    <Card className="bg-linear-to-r from-indigo-50 to-blue-50 border-indigo-100 dark:from-slate-900 dark:to-slate-800 dark:border-slate-700 shadow-sm">
+    <Card className="bg-linear-to-r from-indigo-50 to-blue-50 border-indigo-100 dark:from-slate-900 dark:to-slate-800 dark:border-slate-700 shadow-sm h-full">
       <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
         <CardTitle className="font-semibold text-indigo-900 dark:text-indigo-100 flex items-center gap-2">
           <Sparkles className="h-4 w-4 text-indigo-500" />

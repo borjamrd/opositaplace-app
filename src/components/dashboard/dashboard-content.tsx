@@ -28,6 +28,12 @@ const DashboardContent = ({
   const { dashboardSections } = useUiStore();
   const sections = [
     {
+      id: 'studyFeedback',
+      className: 'col-span-1 md:col-span-2 lg:col-span-2',
+      component: <StudyFeedback />,
+    },
+
+    {
       id: 'roadmapStatus',
       className: 'row-span-1 lg:col-span-2',
       component: <RoadmapStatus data={roadmapData} href="/dashboard/roadmap" />,
@@ -47,11 +53,6 @@ const DashboardContent = ({
       id: 'srsWidget',
       className: 'row-span-1 lg:col-span-2',
       component: <SRSWidget dueCardsCount={dueCardsCount} href="/dashboard/review" />,
-    },
-    {
-      id: 'studyFeedback',
-      className: 'col-span-1 md:col-span-2 lg:col-span-2',
-      component: <StudyFeedback />,
     },
 
     {
