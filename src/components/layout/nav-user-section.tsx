@@ -95,10 +95,7 @@ export function NavUserSection({ collapsed }: { collapsed: boolean }) {
             <CreditCard className="mr-2 h-4 w-4" />
             {loadingStripe ? 'Cargando...' : 'Suscripción'}
           </DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => setOpen(true)}>
-            <Calendar className="mr-2 h-4 w-4" />
-            Calendario
-          </DropdownMenuItem>
+
           <DropdownMenuSeparator />
           <SignOutButton />
         </DropdownMenuContent>
