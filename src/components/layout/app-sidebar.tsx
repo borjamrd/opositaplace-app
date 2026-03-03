@@ -18,8 +18,8 @@ import {
   Database,
   LayoutDashboard,
   Map,
-  Repeat,
   Milestone,
+  Repeat,
 } from 'lucide-react';
 import Link from 'next/link';
 import React, { useMemo } from 'react';
@@ -37,11 +37,6 @@ export const baseNavItems = {
       url: '/dashboard',
       icon: LayoutDashboard,
     },
-    // {
-    //   title: 'Estadísticas',
-    //   url: '/dashboard/statistics',
-    //   icon: PieChart,
-    // },
     {
       title: 'Roadmap',
       url: '/dashboard/roadmap',
