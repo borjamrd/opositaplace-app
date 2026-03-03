@@ -9,6 +9,7 @@ export interface DashboardSections {
   failedQuestions: boolean;
   oppositionInfoWidget: boolean;
   roadmapStatus: boolean;
+  practicalCasesWidget: boolean;
 }
 
 interface UiState {
@@ -26,6 +27,7 @@ const initialDashboardSections: DashboardSections = {
   failedQuestions: true,
   oppositionInfoWidget: true,
   roadmapStatus: true,
+  practicalCasesWidget: true,
 };
 
 export const useUiStore = create<UiState>()(

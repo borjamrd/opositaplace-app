@@ -8,9 +8,11 @@ import { OppositionInfoWidget } from './opposition-info-widget';
 
 import { StudyFeedback } from '@/app/dashboard/study-feedback';
 import { useUiStore } from '@/store/ui-store';
+import { useStudySessionStore } from '@/store/study-session-store';
 import { SRSWidget } from './srs-widget';
 import { RoadmapStatus } from './roadmap-status';
 import { getRoadmapData } from '@/actions/roadmap';
+import { PracticalCasesWidget } from './practical-cases-widget';
 
 interface DashboardContentProps {
   failedQuestions: QuestionWithAnswers[];
@@ -26,6 +28,8 @@ const DashboardContent = ({
   roadmapData,
 }: DashboardContentProps) => {
   const { dashboardSections } = useUiStore();
+  const activeOpposition = useStudySessionStore((state) => state.activeOpposition);
+  const hasPracticalCase = activeOpposition?.metadata?.features?.has_practical_case ?? false;
   const sections = [
     {
       id: 'studyFeedback',
@@ -54,18 +58,30 @@ const DashboardContent = ({
       className: 'row-span-1 lg:col-span-2',
       component: <SRSWidget dueCardsCount={dueCardsCount} href="/dashboard/review" />,
     },
+    ...(hasPracticalCase
+      ? [
+          {
+            id: 'practicalCasesWidget' as const,
+            className: 'row-span-2 lg:col-span-2',
+            component: <PracticalCasesWidget href="/dashboard/practical-cases" />,
+          },
+        ]
+      : [
+          {
+            id: 'failedQuestions',
+            className: 'row-span-2 lg:col-span-2',
+            component: (
+              <FailedQuestionFlashcard questions={failedQuestions} href="/dashboard/tests" />
+            ),
+          },
+        ]),
 
-    {
-      id: 'failedQuestions',
-      className: 'row-span-2 lg:col-span-2',
-      component: <FailedQuestionFlashcard questions={failedQuestions} href="/dashboard/tests" />,
-    },
     {
       id: 'oppositionInfoWidget',
       className: 'row-span-2 lg:col-span-2',
       component: <OppositionInfoWidget href="/dashboard/opposition-info" />,
     },
-  ] as const;
+  ];
 
   return (
     <div className="flex-1 container space-y-4">
