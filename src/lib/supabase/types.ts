@@ -3,6 +3,11 @@
 import { Tables, Enums, TablesInsert } from '@/lib/supabase/database.types';
 import { OppositionMetadata } from '../schemas/opposition-metadata';
 export type { Json } from '@/lib/supabase/database.types';
+export type {
+  EvaluationCriteria,
+  LegalReference,
+  ScoringRubricItem,
+} from '../schemas/evaluation-criteria';
 
 export type OppositionRow = Tables<'oppositions'> & {
   metadata: unknown;

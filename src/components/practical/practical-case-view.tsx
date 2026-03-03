@@ -6,12 +6,14 @@ import { ArrowLeft, Copy, LayoutPanelLeft } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 
+import { EvaluationCriteria } from '@/lib/schemas/evaluation-criteria';
 import { PracticalCase, PracticalCaseAttemptWithAnalysis } from '@/lib/supabase/types';
 import { cn } from '@/lib/utils';
 import { Maximize, Minimize } from 'lucide-react';
 import MarkdownContent from '../markdown-content';
 import { CaseEditor } from './case-editor';
 import { CorrectionFeedback } from './correction-feedback';
+import { EvaluationCriteriaPanel } from './evaluation-criteria-panel';
 
 interface Props {
   caseData: PracticalCase;
@@ -131,10 +133,16 @@ export function PracticalCaseView({
             />
           ) : (
             <ScrollArea className="h-full p-6 bg-slate-50 dark:bg-slate-950/50">
-              <div className="max-w-2xl mx-auto">
+              <div className="max-w-2xl mx-auto space-y-6">
                 {feedback && <CorrectionFeedback analysis={feedback} />}
 
-                <div className="mt-8 flex justify-center">
+                {caseData.evaluation_criteria && (
+                  <EvaluationCriteriaPanel
+                    criteria={caseData.evaluation_criteria as EvaluationCriteria}
+                  />
+                )}
+
+                <div className="flex justify-center">
                   <Button variant="outline" onClick={() => setViewMode('edit')}>
                     Revisar o mejorar mi respuesta
                   </Button>
