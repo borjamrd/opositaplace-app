@@ -297,6 +297,10 @@ export async function submitOnboarding(
     };
   }
 
+  // Mark onboarding as completed in Auth metadata so the middleware
+  // can skip the onboarding_info DB query on every subsequent request.
+  await supabase.auth.updateUser({ data: { onboarding_completed: true } });
+
   return {
     message: 'Onboarding completado con éxito. Se te redirigirá a tu dashboard.',
     errors: null,
