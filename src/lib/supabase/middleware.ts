@@ -40,13 +40,24 @@ export async function updateSession(request: NextRequest) {
   const isPublicOnly = publicOnlyPaths.includes(pathname);
 
   if (user) {
-    const { data: onboardingInfo } = await supabase
-      .from('onboarding_info')
-      .select('user_id')
-      .eq('user_id', user.id)
-      .maybeSingle();
+    let onboardingCompleted = user.user_metadata?.onboarding_completed === true;
 
-    const onboardingCompleted = !!onboardingInfo;
+    // Lazy migration: users who completed onboarding before this change
+    // won't have the metadata flag yet — fall back to DB and backfill.
+    if (!onboardingCompleted) {
+      const { data: onboardingInfo } = await supabase
+        .from('onboarding_info')
+        .select('user_id')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (onboardingInfo) {
+        onboardingCompleted = true;
+        // Backfill metadata for future requests (fire and forget)
+        supabase.auth.updateUser({ data: { onboarding_completed: true } });
+      }
+    }
+
     const onboardingPath = `/onboarding/${user.id}`;
 
     if (!onboardingCompleted) {

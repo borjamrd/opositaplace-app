@@ -246,6 +246,7 @@ export async function submitOnboarding(
     const { data: existingSubscription } = await supabase
       .from('user_subscriptions')
       .select('id, status')
+      .eq('user_id', user_id)
       .in('status', ['trialing', 'active'])
       .maybeSingle();
 
@@ -296,6 +297,10 @@ export async function submitOnboarding(
       success: false,
     };
   }
+
+  // Mark onboarding as completed in Auth metadata so the middleware
+  // can skip the onboarding_info DB query on every subsequent request.
+  await supabase.auth.updateUser({ data: { onboarding_completed: true } });
 
   return {
     message: 'Onboarding completado con éxito. Se te redirigirá a tu dashboard.',
