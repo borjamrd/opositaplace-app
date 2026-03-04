@@ -246,6 +246,7 @@ export async function submitOnboarding(
     const { data: existingSubscription } = await supabase
       .from('user_subscriptions')
       .select('id, status')
+      .eq('user_id', user_id)
       .in('status', ['trialing', 'active'])
       .maybeSingle();
 
