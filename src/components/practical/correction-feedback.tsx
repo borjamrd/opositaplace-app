@@ -26,7 +26,7 @@ export function CorrectionFeedback({ analysis }: { analysis: AICorrectionAnalysi
         <CardHeader className="pb-2">
           <div className="flex justify-between items-start">
             <div>
-              <CardTitle className="text-lg text-muted-foreground">Calificación Global</CardTitle>
+              <CardTitle className="text-lg text-muted-foreground">Tu puntuación</CardTitle>
               <h2 className={`text-4xl font-bold mt-1 ${getScoreColor(analysis.score)}`}>
                 {analysis.score}/10
               </h2>
@@ -52,7 +52,7 @@ export function CorrectionFeedback({ analysis }: { analysis: AICorrectionAnalysi
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
             <CheckCircle2 className="w-5 h-5 text-primary" />
-            Criterios de Evaluación
+            Criterios de evaluación
           </CardTitle>
         </CardHeader>
         <CardContent className="grid gap-3">
@@ -80,7 +80,7 @@ export function CorrectionFeedback({ analysis }: { analysis: AICorrectionAnalysi
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
               <BookOpen className="w-5 h-5 text-blue-500" />
-              Citas Legales
+              Citas legales
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">

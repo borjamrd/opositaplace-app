@@ -32,11 +32,13 @@ type InitialState = {
  * Never throws — email failures must never block the user-facing error response.
  */
 async function notifyOnboardingError({
+  userId,
   userEmail,
   userName,
   errorStep,
   errorDetail,
 }: {
+  userId: string;
   userEmail: string;
   userName?: string;
   errorStep: string;
@@ -50,6 +52,7 @@ async function notifyOnboardingError({
       subject: 'Problema durante tu registro en Opositaplace',
       emailComponent: React.createElement(OnboardingErrorEmail, {
         userName: userName ?? userEmail,
+        userId,
         errorStep,
       }),
     }).catch((err) => console.error('[onboarding] Error sending user error email:', err)),
@@ -156,6 +159,7 @@ export async function submitOnboarding(
 
       if (updateError) {
         await notifyOnboardingError({
+          userId: user.id,
           userEmail: user.email!,
           userName: user.user_metadata?.full_name ?? user.email,
           errorStep: 'Reactivar oposición existente',
@@ -170,6 +174,7 @@ export async function submitOnboarding(
       // Continuar si la actualización fue exitosa
     } else {
       await notifyOnboardingError({
+        userId: user.id,
         userEmail: user.email!,
         userName: user.user_metadata?.full_name ?? user.email,
         errorStep: 'Asociar oposición',
@@ -259,6 +264,7 @@ export async function submitOnboarding(
     console.error('Error creando la suscripción:', subError);
 
     await notifyOnboardingError({
+      userId: user.id,
       userEmail: user.email!,
       userName: user.user_metadata?.full_name ?? user.email,
       errorStep: 'Crear suscripción',
@@ -278,6 +284,7 @@ export async function submitOnboarding(
   if (onboardingInfoError) {
     console.error('Error upserting onboarding_info:', onboardingInfoError);
     await notifyOnboardingError({
+      userId: user.id,
       userEmail: user.email!,
       userName: user.user_metadata?.full_name ?? user.email,
       errorStep: 'Guardar información de onboarding',

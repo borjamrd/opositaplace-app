@@ -134,7 +134,7 @@ export function CaseEditor({
 
         // Mock result
         const mockAnalysis: AICorrectionAnalysis = {
-          score: 85,
+          score: 8.5,
           summary:
             'Esta es una corrección simulada. En un caso real, aquí verías un análisis detallado de tu respuesta, con puntos fuertes y áreas de mejora basadas en la legislación vigente.',
           key_points: [

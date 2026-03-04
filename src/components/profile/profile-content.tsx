@@ -18,7 +18,6 @@ import { useProfile } from '@/lib/supabase/queries/useProfile';
 import { MoreHorizontal } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import UserOnboarding from '../onboarding/user-onboarding';
 import UserSubscription from '../subscription/user-suscription';
 import DeleteProfile from './delete-profile';
 import { InterfaceSettingsTab } from './interface-settings-tab';
@@ -82,10 +81,9 @@ export default function ProfileContent() {
 
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-      <TabsList className="grid w-full grid-cols-4 md:grid-cols-6">
+      <TabsList className="grid w-full grid-cols-4 md:grid-cols-5">
         <TabsTrigger value="personal">Personal</TabsTrigger>
         <TabsTrigger value="account">Cuenta</TabsTrigger>
-        <TabsTrigger value="study">Onboarding</TabsTrigger>
 
         {/* Desktop triggers */}
         <TabsTrigger value="security" className="hidden md:inline-flex">
@@ -172,9 +170,6 @@ export default function ProfileContent() {
       <TabsContent value="account" className="space-y-6">
         <UserSubscription />
         <DeleteProfile />
-      </TabsContent>
-      <TabsContent value="study" className="space-y-6">
-        <UserOnboarding />
       </TabsContent>
       <InterfaceSettingsTab />
       <SecuritySettingsTab />

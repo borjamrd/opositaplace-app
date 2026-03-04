@@ -41,15 +41,11 @@ export const correctPracticalCase = inngest.createFunction(
 
     // 2. Run AI Correction
     const correctionResult = await step.run('ai-correction', async () => {
-      const criteriaList = Array.isArray(caseData.evaluation_criteria)
-        ? caseData.evaluation_criteria.map(String)
-        : [];
-
       return await correctPracticalCaseFlow({
         statement: caseData.statement,
         official_solution: caseData.official_solution,
         user_answer: userAnswer,
-        evaluation_criteria: criteriaList,
+        evaluation_criteria: (caseData.evaluation_criteria as Record<string, unknown>) ?? {},
       });
     });
 

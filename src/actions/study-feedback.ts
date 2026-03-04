@@ -10,6 +10,9 @@ export interface FeedbackContextData {
   actualStudyHours: number;
   recentTests: {
     score: number;
+    netScore: number;
+    unansweredQuestions: number;
+    totalQuestions: number;
     date: string;
     title: string;
   }[];
@@ -21,6 +24,7 @@ export interface FeedbackContextData {
   userName: string;
   weeklyStudyGoalHours: number;
   totalHistoricalHours: number;
+  daysSinceLastSession: number;
   userId: string;
 }
 
@@ -63,7 +67,7 @@ export async function getFeedbackContext(): Promise<FeedbackContextData | null> 
 
     supabase
       .from('test_attempts')
-      .select('score, created_at, title')
+      .select('score, net_score, unanswered_questions, total_questions, created_at, title')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
       .gte('finished_at', oneWeekAgoIso),
@@ -92,9 +96,14 @@ export async function getFeedbackContext(): Promise<FeedbackContextData | null> 
 
   const recentTests = (testsRes.data || []).map((t) => ({
     score: t.score || 0,
-    date: t.created_at, // Formato ISO es suficiente para el LLM
+    netScore: t.net_score ?? t.score ?? 0,
+    unansweredQuestions: t.unanswered_questions || 0,
+    totalQuestions: t.total_questions || 0,
+    date: t.created_at,
     title: t.title || 'Test general',
-  })); // D. Progreso Temario (Conteo manual ya que SQL GROUP BY es complejo vía cliente JS)
+  }));
+
+  // D. Progreso Temario
 
   const topicProgress = {
     completed: 0,
@@ -113,6 +122,22 @@ export async function getFeedbackContext(): Promise<FeedbackContextData | null> 
   const userName =
     (meta.data?.email as string)?.split(' ')[0] || profileRes.data?.username || 'Opositor';
 
+  // Días desde última sesión: consultamos la sesión más reciente (cualquier semana)
+  const { data: lastSessionData } = await supabase
+    .from('user_study_sessions')
+    .select('started_at')
+    .eq('user_id', user.id)
+    .order('started_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  let daysSinceLastSession = 0;
+  if (lastSessionData?.started_at) {
+    const lastDate = new Date(lastSessionData.started_at);
+    const now = new Date();
+    daysSinceLastSession = Math.floor((now.getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24));
+  }
+
   return {
     plannedDaysCount,
     actualStudyHours,
@@ -121,6 +146,7 @@ export async function getFeedbackContext(): Promise<FeedbackContextData | null> 
     userName,
     weeklyStudyGoalHours,
     totalHistoricalHours,
+    daysSinceLastSession,
     userId: user.id,
   };
 }
@@ -162,55 +188,58 @@ export async function generateSmartFeedback(context: FeedbackContextData): Promi
   const { completed, in_progress, not_started } = context.topicProgress;
   const topicsLength = completed + in_progress + not_started;
   const goal = context.weeklyStudyGoalHours || 0;
-  const isOverStudying = goal > 0 && context.actualStudyHours > goal * 1.5;
-  const isLowHours = context.actualStudyHours < 5;
-  const hasTopicInProgress = in_progress > 0;
 
-  let specificInstruction = '';
+  // Métricas derivadas de tests
+  const testsCount = context.recentTests.length;
+  const avgScore =
+    testsCount > 0
+      ? Number((context.recentTests.reduce((a, b) => a + b.score, 0) / testsCount).toFixed(1))
+      : 0;
+  const avgNetScore =
+    testsCount > 0
+      ? Number((context.recentTests.reduce((a, b) => a + b.netScore, 0) / testsCount).toFixed(1))
+      : 0;
+  const avgUnansweredRatio =
+    testsCount > 0
+      ? Number(
+          (
+            (context.recentTests.reduce(
+              (a, b) => a + (b.totalQuestions > 0 ? b.unansweredQuestions / b.totalQuestions : 0),
+              0
+            ) /
+              testsCount) *
+            100
+          ).toFixed(0)
+        )
+      : 0;
+  // Diferencia significativa net_score vs score => el usuario contesta a ciegas
+  const netScoreGap = Number((avgScore - avgNetScore).toFixed(1));
 
-  if (isOverStudying) {
-    // Caso: Sobre-estudio
-    const overagePercentage = ((context.actualStudyHours / goal - 1) * 100).toFixed(0);
-    specificInstruction = `Tu compromiso es innegable al superar tu meta (${goal}h) en un ${overagePercentage}%. Es crucial que revises tu planificación para asegurar que tu ritmo es sostenible a largo plazo y evitar el agotamiento.`;
-  } else if (isLowHours && hasTopicInProgress) {
-    // Caso: Bajas horas + Tema a medias
-    specificInstruction = `Tu ritmo de estudio ha sido bajo esta semana. Teniendo ${in_progress} tema(s) a medias, la prioridad debe ser **cerrar esa unidad** para consolidar el conocimiento antes de empezar un nuevo tema.`;
-  }
+  // Ausencia reciente de estudio (umbral: 3 días sin sesión)
+
   const systemPrompt = `
-    Eres el entrenador personal de oposiciones de ${context.userName}.
-Tu tono es: **Neutral, profesional, directo/a y motivador/a**. Tu objetivo es proporcionar un análisis constructivo de la última semana y animar a seguir estudiando.    
-   OBJETIVO: Analizar los datos de estudio de la última semana y dar un feedback corto (MÍNIMO 3 FRASES Y MÁXIMO 4 FRASES).
-    
-    DATOS DEL ALUMNO (ÚLTIMOS 7 DÍAS):
-    - Meta semanal planificada: ${goal}h
-    - Horas estudiadas: ${context.actualStudyHours}h
-    - Días de estudio planificados: ${context.plannedDaysCount}
-    - Temario: ${completed} temas completados (${in_progress} en proceso). Total de temas: ${topicsLength}
-    - Últimos 10 tests: Nota media aprox ${
-      context.recentTests.length > 0
-        ? (
-            context.recentTests.reduce((a, b) => a + b.score, 0) / context.recentTests.length
-          ).toFixed(1)
-        : 0
-    }
-    
-    INSTRUCCIONES DE RESPUESTA (Prioridad ALTA):
-    1. **NO USES** términos de género explícitos como "campeón", "campeona", "crack", o "máquina". Mantén un lenguaje neutral y profesional.
-    
-    2. **SI el usuario se ha excedido significativamente (más de un 50%) de su Meta planificada** (Meta: ${goal}h, Estudiadas: ${context.actualStudyHours}h):
-        * Felicita por el compromiso y el esfuerzo.
-        * Añade una **recomendación explícita para reajustar su planificación semanal** en la configuración. (Ejemplo: "Tu ritmo es excelente, pero considera ajustar tu meta a X horas para que sea más realista.")
+Eres el entrenador personal de oposiciones de ${context.userName}.
+Tono: neutral, profesional, directo y motivador.
+OBJETIVO: Análisis constructivo de la última semana. MÍNIMO 5 frases, MÁXIMO 6 frases. Sin saludos. Solo texto plano.
 
-    3. **SI el usuario lleva pocas Horas estudiadas** (ej. < 5h) y **tiene temas "en proceso"** (${in_progress} > 0):
-        * El feedback debe ser una recomendación amigable para **priorizar cerrar el tema o la unidad que tiene a medias** antes de distraerse o abrir nuevo material.
-    
-    INSTRUCCIONES DE RESPUESTA (Prioridad Normal - Usar si no aplican las anteriores):
-    - Si ha estudiado poco (< 5h): Proporciona una recomendación constructiva y amigable animándole a recuperar el ritmo.
-    - Si ha estudiado bien (> 15h) o tiene buenas notas: Felicítale por la constancia y la disciplina.
-    - Si hay muchos temas "en proceso" pero pocos "completados": Recuérdale cerrar temas antes de abrir nuevos.
-    - NO uses saludos tipo "Hola". Ve al grano.
-    - NO uses markdown complejo, solo texto plano.
-    - La respuesta debe ser concisa, no más de 4 frases.
+DATOS DEL ALUMNO (ÚLTIMOS 7 DÍAS):
+- Meta semanal: ${goal}h | Horas estudiadas: ${context.actualStudyHours}h
+- Racha: última sesión hace ${context.daysSinceLastSession} día(s)
+- Temario: ${completed} completados, ${in_progress} en proceso, ${not_started} sin empezar (total: ${topicsLength})
+- Tests realizados: ${testsCount}${testsCount > 0 ? ` | Nota media (bruta): ${avgScore}/10 | Nota media (penalizada): ${avgNetScore}/10 | Preguntas en blanco: ${avgUnansweredRatio}%` : ''}
+
+INSTRUCCIONES DE RESPUESTA — PRIORIDAD ALTA (aplica el primero que corresponda):
+1. INACTIVIDAD: Si lleva ${context.daysSinceLastSession} días sin estudiar (>= 3 días), DEBES comenzar el feedback alertando sobre la racha de inactividad y animar a retomar hoy mismo. Es la señal más urgente.
+2. CONTESTAR A CIEGAS: Si la diferencia entre nota bruta (${avgScore}) y nota penalizada (${avgNetScore}) es >= 1.5 puntos (diferencia actual: ${netScoreGap} pts), advierte que en oposiciones las respuestas incorrectas restan puntos, y que es mejor dejar en blanco las preguntas dudosas. Solo aplica si hay tests esta semana.
+3. SOBRE-ESTUDIO: Si supera la meta en >50% (meta: ${goal}h, real: ${context.actualStudyHours}h), felicita y recomienda ajustar la meta semanal en la configuración.
+4. BAJAS HORAS + TEMA A MEDIAS: Si horas < 5 y hay temas en proceso (${in_progress}), recomienda cerrar el tema antes de abrir material nuevo.
+
+INSTRUCCIONES DE RESPUESTA — PRIORIDAD NORMAL (si no aplica ninguna alta):
+- Pocas horas (< 5h) pero sin inactividad extrema: animar a recuperar el ritmo.
+- Buenas horas (> 15h) o buenas notas: felicitar por la constancia.
+- Muchos temas en proceso pero pocos completados: recordar cerrar temas.
+
+PROHIBIDO: términos de género ("campeón", "crack", etc.), saludos tipo "Hola", markdown complejo, más de 4 frases.
   `;
 
   try {

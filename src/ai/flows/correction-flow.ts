@@ -1,4 +1,5 @@
 import { aiGemini3 } from '@/ai/genkit';
+import { EvaluationCriteria } from '@/lib/schemas/evaluation-criteria';
 import { z } from 'zod';
 import { CorrectionSchema } from '../schemas/correction-schema';
 
@@ -6,17 +7,59 @@ const CorrectionInputSchema = z.object({
   statement: z.string(),
   official_solution: z.string(),
   user_answer: z.string(),
-  evaluation_criteria: z.array(z.string()).optional(),
+  evaluation_criteria: z.record(z.unknown()).optional(),
 });
+
+function buildEvaluationCriteriaPrompt(criteria: EvaluationCriteria): string {
+  const sections: string[] = [];
+
+  if (criteria.corrector_tips) {
+    sections.push(`<corrector_tips>
+${criteria.corrector_tips}
+</corrector_tips>`);
+  }
+
+  if (criteria.key_competencies?.length) {
+    sections.push(`<key_competencies>
+${criteria.key_competencies.map((c) => `- ${c}`).join('\n')}
+</key_competencies>`);
+  }
+
+  if (criteria.required_keywords?.length) {
+    sections.push(`<required_keywords>
+Las siguientes palabras o expresiones DEBEN aparecer (o su equivalente jurídico exacto) en una respuesta completa:
+${criteria.required_keywords.map((k) => `- "${k}"`).join('\n')}
+</required_keywords>`);
+  }
+
+  if (criteria.common_mistakes?.length) {
+    sections.push(`<common_mistakes>
+Errores frecuentes de los opositores en este tipo de caso. Penaliza si los detectas:
+${criteria.common_mistakes.map((m) => `- ${m}`).join('\n')}
+</common_mistakes>`);
+  }
+
+  if (criteria.legal_references?.length) {
+    sections.push(`<legal_references>
+Normativa que DEBE ser conocida y aplicada en la respuesta:
+${criteria.legal_references.map((r) => `- ${r.title} → ${r.article}`).join('\n')}
+</legal_references>`);
+  }
+
+  return sections.join('\n\n');
+}
 
 export const correctPracticalCaseFlow = aiGemini3.defineFlow(
   {
     name: 'correctPracticalCase',
     inputSchema: CorrectionInputSchema,
-    outputSchema: CorrectionSchema, // Asegúrate de que este Schema tenga campos para 'score', 'feedback', 'missed_articles' (array) y 'correction_reasoning'.
+    outputSchema: CorrectionSchema,
   },
   async (input) => {
-    const { statement, official_solution, user_answer, evaluation_criteria = [] } = input;
+    const { statement, official_solution, user_answer, evaluation_criteria } = input;
+
+    const criteria = (evaluation_criteria ?? {}) as EvaluationCriteria;
+    const criteriaPrompt = buildEvaluationCriteriaPrompt(criteria);
 
     const promptText = `
       ROL: Eres un TRIBUNAL CALIFICADOR DE OPOSICIONES DE GESTIÓN CIVIL DEL ESTADO.
@@ -38,6 +81,8 @@ export const correctPracticalCaseFlow = aiGemini3.defineFlow(
          - Identifica si el alumno cita los artículos correctos mencionados en <official_solution>.
          - Si la solución exige "Art. 68 LPAC" y el alumno dice "la ley dice que se subsana", es un ACIERTO PARCIAL (conoce el concepto) pero NO TOTAL (falta rigor de cita).
          - Si el alumno cita un artículo erróneo (ej. Art 25 LCSP en vez de Art 118), penaliza severamente.
+         - Verifica las <required_keywords>: si el opositor desconoce estos términos técnicos exactos, refleja un dominio insuficiente de la materia.
+         - Comprueba si el opositor ha incurrido en alguno de los <common_mistakes> listados.
 
       2. **FASE DE EQUIVALENCIA SEMÁNTICA (Flexibilidad):**
          - El alumno no escribirá la solución palabra por palabra.
@@ -48,6 +93,7 @@ export const correctPracticalCaseFlow = aiGemini3.defineFlow(
          - Tu feedback debe justificar la nota basándose en la LEY.
          - Si faltan artículos clave, lístalos explícitamente en el campo correspondiente del JSON.
          - Si la conclusión es errónea, explica por qué jurídicamente, citando el precepto infringido.
+         - Sigue las instrucciones del <corrector_tips> para calibrar tu nivel de exigencia.
 
       ---
       
@@ -61,9 +107,7 @@ export const correctPracticalCaseFlow = aiGemini3.defineFlow(
       ${official_solution}
       </official_solution>
 
-      <evaluation_criteria>
-      ${evaluation_criteria.map((c) => `- ${c}`).join('\n')}
-      </evaluation_criteria>
+      ${criteriaPrompt}
 
       <student_answer>
       ${user_answer}

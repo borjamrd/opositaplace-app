@@ -93,7 +93,7 @@ export function SelectiveProcessClient({ oppositionId }: { oppositionId?: string
             <TableRow>
               <TableHead>Etapa</TableHead>
               <TableHead>Descripción</TableHead>
-              <TableHead>Fecha clave</TableHead>
+              <TableHead className="text-nowrap">Fecha clave</TableHead>
               <TableHead>Enlace</TableHead>
               <TableHead>Estado</TableHead>
             </TableRow>
@@ -104,13 +104,13 @@ export function SelectiveProcessClient({ oppositionId }: { oppositionId?: string
                 <TableRow key={stage.id}>
                   <TableCell className="font-medium">{stage.name}</TableCell>
                   <TableCell>{stage.description}</TableCell>
-                  <TableCell>{stage.key_date}</TableCell>
+                  <TableCell className="text-nowrap">{stage.key_date}</TableCell>
                   <TableCell>
                     {stage.official_link && (
                       <Link
                         href={stage.official_link}
                         target="_blank"
-                        className="text-primary hover:underline"
+                        className="text-primary hover:underline text-nowrap"
                       >
                         Enlace oficial
                       </Link>
@@ -153,8 +153,8 @@ export function SelectiveProcessClient({ oppositionId }: { oppositionId?: string
               <div className="flex flex-col gap-2 text-sm">
                 {stage.key_date && (
                   <div className="flex justify-between border-b pb-2">
-                    <span className="font-medium">Fecha clave</span>
-                    <span>{stage.key_date}</span>
+                    <span className="font-medium text-nowrap">Fecha clave</span>
+                    <span className="text-muted-foreground text-nowrap">{stage.key_date}</span>
                   </div>
                 )}
 

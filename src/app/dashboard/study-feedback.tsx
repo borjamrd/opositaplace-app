@@ -1,24 +1,23 @@
 'use client';
 
 import { generateSmartFeedback } from '@/actions/study-feedback';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useStudyFeedbackData } from '@/hooks/use-study-feedback';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { RefreshCw, Sparkles } from 'lucide-react';
+import Link from 'next/link';
 
 export function StudyFeedback() {
   const queryClient = useQueryClient();
 
-  // 1. Obtener los datos "crudos" (Rápido)
   const {
     data: contextData,
     isLoading: isLoadingContext,
     isRefetching: isRefetchingContext,
   } = useStudyFeedbackData();
 
-  // 2. Generar el feedback con IA (Lento - depende de los datos anteriores)
   const {
     data: feedbackText,
     isLoading: isLoadingFeedback,
@@ -45,7 +44,7 @@ export function StudyFeedback() {
   if (!contextData || !feedbackText) return null;
 
   return (
-    <Card className="bg-linear-to-r from-indigo-50 to-blue-50 border-indigo-100 dark:from-slate-900 dark:to-slate-800 dark:border-slate-700 shadow-sm">
+    <Card className="bg-linear-to-r from-indigo-50 to-blue-50 border-indigo-100 dark:from-slate-900 dark:to-slate-800 dark:border-slate-700 shadow-sm h-full">
       <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
         <CardTitle className="font-semibold text-indigo-900 dark:text-indigo-100 flex items-center gap-2">
           <Sparkles className="h-4 w-4 text-indigo-500" />
@@ -74,6 +73,13 @@ export function StudyFeedback() {
           </span>
         </div>
       </CardContent>
+      {contextData.recentTests.length === 0 && (
+        <CardFooter>
+          <Button className="w-full" size="sm">
+            <Link href="/dashboard/tests">Realiza un test</Link>
+          </Button>
+        </CardFooter>
+      )}
     </Card>
   );
 }
