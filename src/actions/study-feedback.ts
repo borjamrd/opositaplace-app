@@ -182,7 +182,7 @@ export async function generateSmartFeedback(context: FeedbackContextData): Promi
     if (plannedDays > 0) {
       return `Este es tu apartado resumen. Como llevas menos de dos horas de estudio no tengo datos suficientes para darte feedback. Has planificado ${plannedDays} días de estudio a la semana. Registra sesiones y realiza tests para que pueda valorar tu progreso`;
     } else {
-      return `Este es tu apartado resumen. Para empezar, te recomiendo que vayas al Panel de Onboarding para configurar tus días y horario de estudio. ¡A por tu plaza!`;
+      return `Este es tu apartado resumen. Para empezar, te recomiendo que registres tu primera sesión de estudio o que te animes con tu primer test.`;
     }
   }
   const { completed, in_progress, not_started } = context.topicProgress;
