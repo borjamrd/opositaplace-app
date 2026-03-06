@@ -11,5 +11,5 @@ You must audit every file you touch for the following "code smells":
 - **Misplaced UI**: If a component is a generic primitive (Button, Input, etc.) but is not in `src/components/ui/`, flag it for migration.
 - **Leaked Logic**: Identify any direct Supabase calls (`supabase.from(...)`) or complex business logic inside `.tsx` files. This logic must be moved to `src/actions/` (for mutations) or `src/lib/supabase/queries/` (for data fetching).
 - **Naming & Comments**: Ensure variables are intention-revealing. Remove comments that explain "what" the code does; keep only those explaining "why" (legal or complex AI logic).
-
-**Action**: Before modifying a file, provide a "Refactor Report" listing which of these points are being violated.
+- **Test Debt**: Check for a corresponding .test.tsx or .test.ts file in the same directory. If missing, flag it. Ensure tests use vitest and @testing-library/react, and that external dependencies (like Supabase or Server Actions) are properly mocked.
+  **Action**: Before modifying a file, provide a "Refactor Report" listing which of these points are being violated.
