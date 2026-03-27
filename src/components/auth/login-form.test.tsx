@@ -1,14 +1,24 @@
-// src/components/auth/login-form.test.tsx
-
 import { render, screen } from '@testing-library/react';
 import { LoginForm } from './login-form';
 import { vi } from 'vitest';
+
+vi.mock('@/actions/auth', () => ({
+  signIn: vi.fn(),
+}));
+
+vi.mock('next/navigation', () => ({
+  redirect: vi.fn(),
+}));
+
+vi.mock('@/hooks/use-toast', () => ({
+  useToast: () => ({ toast: vi.fn() }),
+}));
 
 vi.mock('react', async (importOriginal) => {
   const actualReact = await importOriginal<typeof import('react')>();
   return {
     ...actualReact,
-    useActionState: () => [null, () => {}],
+    useActionState: () => [null, vi.fn()],
   };
 });
 
@@ -17,7 +27,7 @@ vi.mock('react-dom', async (importOriginal) => {
   return {
     ...actualReactDom,
     useFormStatus: () => ({
-      pending: false, // El estado por defecto que queremos simular
+      pending: false,
     }),
   };
 });
@@ -27,12 +37,11 @@ describe('LoginForm', () => {
     vi.clearAllMocks();
   });
 
-  it('debe renderizar los campos de email y contraseña', () => {
+  it('should render email and password fields', () => {
     render(<LoginForm />);
 
-    expect(screen.getByLabelText(/Correo Electrónico/i)).toBeInTheDocument();
-    const passwordInput = screen.getByLabelText(/^Contraseña$/i);
-    expect(passwordInput).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Correo electrónico')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Contraseña')).toBeInTheDocument();
   });
 
   it('debe renderizar el botón de "Iniciar Sesión"', () => {

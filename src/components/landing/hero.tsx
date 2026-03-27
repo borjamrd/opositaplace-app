@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Highlighter } from '@/components/ui/highlighter';
 import { motion } from 'framer-motion';
 import { Sparkles } from 'lucide-react';
-import Link from 'next/link';
+
 import { AvailableOppositionsDialog } from './available-oppositions-dialog';
 
 export function Hero() {
@@ -58,16 +58,15 @@ export function Hero() {
             </div>
 
             {/* CTA Buttons */}
-            <div className="flex flex-col items-center sm:items-start gap-4 w-full sm:w-auto">
-              <Button
-                asChild
-                variant="btn-header"
-                className="h-14 px-10 text-xl rounded-xl shadow-xl hover:shadow-primary/20 transition-all duration-300 w-full sm:w-auto"
-              >
-                <Link href="/register">Acceder</Link>
-              </Button>
-
-              <AvailableOppositionsDialog />
+            <div className="flex flex-col items-center sm:items-start gap-4 w-full sm:w-auto mt-4">
+              <AvailableOppositionsDialog>
+                <Button
+                  variant="btn-header"
+                  className="h-14 px-10 text-xl rounded-xl shadow-xl hover:shadow-primary/20 transition-all duration-300 w-full sm:w-auto"
+                >
+                  Apúntate a la lista de espera
+                </Button>
+              </AvailableOppositionsDialog>
             </div>
           </motion.div>
 

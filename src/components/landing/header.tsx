@@ -39,16 +39,10 @@ export function LandingHeader({ profile }: LandingHeaderProps) {
           <Logo />
         </Link>
         <nav className="mr-2">
-          {profile ? (
+          {profile && (
             <Button asChild size="sm" variant="btn-header">
               <Link href="/dashboard">Ir al Dashboard</Link>
             </Button>
-          ) : (
-            <div className="flex items-center gap-2">
-              <Button asChild size="lg" variant="btn-header">
-                <Link href="/register">Acceder</Link>
-              </Button>
-            </div>
           )}
         </nav>
       </header>

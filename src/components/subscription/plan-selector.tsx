@@ -5,8 +5,8 @@ import { CardContent, CardDescription, CardHeader, CardTitle } from '@/component
 import { MagicCard } from '@/components/ui/magic-card';
 import { STRIPE_PLANS } from '@/lib/stripe/config';
 import { ArrowRight, CheckCircle, Sparkles } from 'lucide-react';
-import Link from 'next/link';
 import { Button } from '../ui/button';
+import { AvailableOppositionsDialog } from '../landing/available-oppositions-dialog';
 
 interface PlanSelectorProps {}
 
@@ -81,15 +81,14 @@ export function PlanSelector({}: PlanSelectorProps) {
           </div>
 
           <div className="flex justify-center mt-12">
-            <Button
-              asChild
-              variant="btn-header"
-              className="h-14 px-10 text-xl rounded-xl shadow-xl hover:shadow-primary/20 transition-all duration-300"
-            >
-              <Link href="/register">
+            <AvailableOppositionsDialog>
+              <Button
+                variant="btn-header"
+                className="h-14 px-10 text-xl rounded-xl shadow-xl hover:shadow-primary/20 transition-all duration-300"
+              >
                 Comienza ya <ArrowRight className="ml-2 h-5 w-5" />
-              </Link>
-            </Button>
+              </Button>
+            </AvailableOppositionsDialog>
           </div>
         </div>
       </div>

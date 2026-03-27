@@ -1,7 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import Link from 'next/link';
+
 import { Meteors } from '../ui/meteors';
 import { AvailableOppositionsDialog } from './available-oppositions-dialog';
 import { Highlighter } from '@/components/ui/highlighter';
@@ -23,15 +23,15 @@ export function CtaOpposition() {
 
           {/* CTA Button */}
           <div className="pt-4">
-            <Button
-              asChild
-              variant="btn-header"
-              className="h-14 px-10 text-xl rounded-xl shadow-xl hover:shadow-primary/20 transition-all duration-300"
-            >
-              <Link href="/register">Acceder</Link>
-            </Button>
+            <AvailableOppositionsDialog>
+              <Button
+                variant="btn-header"
+                className="h-14 px-10 text-xl rounded-xl shadow-xl hover:shadow-primary/20 transition-all duration-300"
+              >
+                Apúntate a la lista de espera
+              </Button>
+            </AvailableOppositionsDialog>
           </div>
-          <AvailableOppositionsDialog />
         </div>
       </div>
     </section>
