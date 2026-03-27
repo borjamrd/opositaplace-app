@@ -1,7 +1,14 @@
-import { type NextRequest } from 'next/server';
+import { NextResponse, type NextRequest } from 'next/server';
 import { updateSession } from './lib/supabase/middleware';
 
 export async function middleware(request: NextRequest) {
+  const isAuthRoute =
+    request.nextUrl.pathname === '/login' || request.nextUrl.pathname === '/register';
+
+  if (isAuthRoute) {
+    return NextResponse.redirect(new URL('/', request.url));
+  }
+
   return await updateSession(request);
 }
 
