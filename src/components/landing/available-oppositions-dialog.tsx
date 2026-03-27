@@ -25,7 +25,7 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-export function AvailableOppositionsDialog() {
+export function AvailableOppositionsDialog({ children }: { children?: React.ReactNode }) {
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
   const {
@@ -63,9 +63,11 @@ export function AvailableOppositionsDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="ghost" className="text-muted-foreground hover:text-primary">
-          Oposiciones disponibles
-        </Button>
+        {children || (
+          <Button variant="ghost" className="text-muted-foreground hover:text-primary">
+            Oposiciones disponibles
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent className="sm:max-w-5xl p-8">
         <DialogHeader>
