@@ -3,7 +3,8 @@ import { sendEmail } from '@/lib/email/email';
 import { createSupabaseAdminClient } from '../supabase/admin';
 
 export async function sendStudyReminders() {
-  console.log('Starting sendStudyReminders');
+  console.log('Study reminders are provisionally disabled.');
+  return { processed: 0, failed: 0, skipped: true };
   const now = new Date();
   const dayOfWeek = now.getDay();
 
@@ -28,7 +29,7 @@ export async function sendStudyReminders() {
     .neq('email', '');
 
   if (profilesError) {
-    throw new Error(`Failed to fetch profiles: ${profilesError.message}`);
+    throw new Error(`Failed to fetch profiles: ${profilesError?.message}`);
   }
 
   if (!profiles || profiles.length === 0) {
@@ -43,16 +44,16 @@ export async function sendStudyReminders() {
     .gte('started_at', limitDate);
 
   if (sessionsError) {
-    throw new Error(`Failed to fetch recent sessions: ${sessionsError.message}`);
+    throw new Error(`Failed to fetch recent sessions: ${sessionsError?.message}`);
   }
 
   const recentUserIds = new Set(recentSessions?.map((s) => s.user_id).filter(Boolean) || []);
 
   // 3. Filter users who have NOT studied recently
-  const inactiveUsers = profiles.filter((user) => !recentUserIds.has(user.id));
+  const inactiveUsers = (profiles || []).filter((user) => !recentUserIds.has(user.id));
 
   console.log(
-    `Found ${inactiveUsers.length} inactive users out of ${profiles.length} active profiles.`
+    `Found ${inactiveUsers.length} inactive users out of ${(profiles || []).length} active profiles.`
   );
 
   let processed = 0;
